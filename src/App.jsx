@@ -1,14 +1,32 @@
 import { useEffect, useState } from "react";
-import { getPublicaciones } from "./services/publicaciones";
+import { publicacionesService } from "./services";
 
 function App() {
   const [publicaciones, setPublicaciones] = useState([]);
+  const [cargando, setCargando] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    getPublicaciones()
-      .then((data) => setPublicaciones(data.publicaciones))
-      .catch((err) => console.error("Error:", err.message));
+    const fetchPublicaciones = async () => {
+      try {
+        const data = await publicacionesService.getPublicaciones();
+        if (data.publicaciones) {
+          setPublicaciones(data.publicaciones);
+        } else {
+          setError(data.msg || "No se encontraron publicaciones");
+        }
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setCargando(false);
+      }
+    };
+
+    fetchPublicaciones();
   }, []);
+
+  if (cargando) return <p>Cargando publicaciones...</p>;
+  if (error) return <p>Error: {error}</p>;
 
   return (
     <div>
@@ -16,7 +34,7 @@ function App() {
       <ul>
         {publicaciones.map((pub) => (
           <li key={pub._id}>
-            <strong>{pub.titulo}</strong> - {pub.tipo}
+            <strong>{pub.titulo}</strong> - {pub.tipo} - Estado: {pub.estado}
           </li>
         ))}
       </ul>

@@ -1,16 +1,73 @@
-import { apiRequest } from "../api";
+const API_URL = import.meta.env.VITE_API_URL;
+const token = JSON.parse(localStorage.getItem("token"));
 
-// Registro
-export function registerUser(data) {
-  return apiRequest("/usuarios", "POST", data);
-}
+// Traer usuarios
+export const getUsuarios = async () => {
+  try {
+    const resp = await fetch(`${API_URL}/usuarios`, { headers: { "x-token": token } });
+    return await resp.json();
+  } catch (error) {
+    console.log(error);
+    return { msg: "No se pudo obtener usuarios" };
+  }
+};
 
-// Login
-export function loginUser(data) {
-  return apiRequest("/auth/login", "POST", data);
-}
+// Traer usuario por id
+export const getUsuarioById = async (id) => {
+  try {
+    const resp = await fetch(`${API_URL}/usuarios/${id}`, {
+      headers: { "x-token": token },
+    });
+    return await resp.json();
+  } catch (error) {
+    console.log(error);
+    return { msg: "No se pudo obtener el usuario" };
+  }
+};
 
-// Perfil (requiere token)
-export function getProfile(token) {
-  return apiRequest("/usuarios/perfil", "GET", null, token);
-}
+// Crear usuario
+export const crearUsuario = async (datos) => {
+  try {
+    const resp = await fetch(`${API_URL}/usuarios`, {
+      method: "POST",
+      body: JSON.stringify(datos),
+      headers: { "Content-type": "application/json; charset=UTF-8" },
+    });
+    return await resp.json();
+  } catch (error) {
+    console.log(error);
+    return { msg: "No se pudo registrar el usuario" };
+  }
+};
+
+// Actualizar usuario
+export const actualizarUsuario = async (id, datos) => {
+  try {
+    const resp = await fetch(`${API_URL}/usuarios/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(datos),
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+        "x-token": token,
+      },
+    });
+    return await resp.json();
+  } catch (error) {
+    console.log(error);
+    return { msg: "No se pudo actualizar usuario" };
+  }
+};
+
+// Borrar usuario
+export const borrarUsuario = async (id) => {
+  try {
+    const resp = await fetch(`${API_URL}/usuarios/${id}`, {
+      method: "DELETE",
+      headers: { "x-token": token },
+    });
+    return await resp.json();
+  } catch (error) {
+    console.log(error);
+    return { msg: "No se pudo borrar usuario" };
+  }
+};
