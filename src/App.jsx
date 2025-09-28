@@ -1,44 +1,60 @@
-import { useEffect, useState } from "react";
-import { publicacionesService } from "./services";
+import { useState } from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import LoginScreen from "../src/pages/LoginScreen/LoginScreen";
+import RegisterScreen from "../src/pages/RegisterScreen/RegisterScreen";
+import ProtectedRoutes from "../src/routes/ProtectedRoutes/ProtectedRoutes";
+import HomeScreen from "../src/pages/HomeScreen/HomeScreen";
 
 function App() {
-  const [publicaciones, setPublicaciones] = useState([]);
-  const [cargando, setCargando] = useState(true);
-  const [error, setError] = useState(null);
+  // Estados para manejar login y datos de usuario
+  const [login, setLogin] = useState(false);
+  const [user, setUser] = useState(null);
 
-  useEffect(() => {
-    const fetchPublicaciones = async () => {
-      try {
-        const data = await publicacionesService.getPublicaciones();
-        if (data.publicaciones) {
-          setPublicaciones(data.publicaciones);
-        } else {
-          setError(data.msg || "No se encontraron publicaciones");
-        }
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setCargando(false);
-      }
-    };
+  // Función para guardar datos del usuario autenticado
+  const guardarUsuario = (datos) => {
+    setUser(datos);
+  };
 
-    fetchPublicaciones();
-  }, []);
+  // Función cuando inicia sesión
+  const iniciarSesion = () => {
+    setLogin(true);
+  };
 
-  if (cargando) return <p>Cargando publicaciones...</p>;
-  if (error) return <p>Error: {error}</p>;
+  // Función cuando cierra sesión
+  const cerrarSesion = () => {
+    setLogin(false);
+    setUser(null);
+    localStorage.removeItem("token");
+  };
 
   return (
-    <div>
-      <h1>🐾 Publicaciones</h1>
-      <ul>
-        {publicaciones.map((pub) => (
-          <li key={pub._id}>
-            <strong>{pub.titulo}</strong> - {pub.tipo} - Estado: {pub.estado}
-          </li>
-        ))}
-      </ul>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        {/* Ruta Login */}
+        <Route
+          path="/login"
+          element={
+            <LoginScreen
+              iniciarSesion={iniciarSesion}
+              guardarUsuario={guardarUsuario}
+            />
+          }
+        />
+
+        {/* Ruta Register */}
+        <Route path="/register" element={<RegisterScreen />} />
+
+        {/* Rutas protegidas */}
+        <Route
+          path="/*"
+          element={
+            <ProtectedRoutes login={login}>
+              <HomeScreen cerrarSesion={cerrarSesion} user={user} />
+            </ProtectedRoutes>
+          }
+        />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
