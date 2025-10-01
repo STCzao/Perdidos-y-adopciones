@@ -12,8 +12,12 @@ const ForgotPasswordScreen = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    // Validaciones frontend
     if (!correo.trim()) {
       setErrors({ correo: "El correo es obligatorio" });
+      return;
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo.trim())) {
+      setErrors({ correo: "Debe ser un correo válido" });
       return;
     }
     setErrors({});
@@ -28,10 +32,20 @@ const ForgotPasswordScreen = () => {
       const data = await resp.json();
 
       if (!resp.ok) {
-        setResult(data.msg || "Error al enviar correo");
+        // Solo para errores de servidor
+        if (
+          data.msg &&
+          (data.msg.includes("servidor") || data.msg.includes("conexión"))
+        ) {
+          setResult(data.msg);
+        } else if (data.errors) {
+          // Errores de validación van a los campos
+          setErrors(data.errors);
+        }
       } else {
+        // Mensaje de éxito
         setResult(
-          "Se envió un correo con instrucciones para restablecer tu contraseña"
+          "Se envió un correo a Spam con instrucciones para restablecer tu contraseña"
         );
       }
     } catch (error) {
@@ -69,7 +83,9 @@ const ForgotPasswordScreen = () => {
             />
           </div>
           {errors.correo && (
-            <p className="text-red-400 text-xs mt-1">{errors.correo}</p>
+            <p className="text-red-400 text-xs mt-1 text-left w-full px-4">
+              {errors.correo}
+            </p>
           )}
 
           <button
@@ -79,11 +95,20 @@ const ForgotPasswordScreen = () => {
             Enviar correo
           </button>
 
-          {result && <p className="text-center mt-3 text-white">{result}</p>}
+          {/* Result solo para errores de servidor y mensajes de éxito */}
+          {result && (
+            <p
+              className={`text-center mt-3 ${
+                result.includes("envió") ? "text-green-400" : "text-white"
+              }`}
+            >
+              {result}
+            </p>
+          )}
 
-          <p className="text-white text-sm mt-3 mb-6">
+          <p className="text-white text-sm mt-5 mb-6">
             <a className="text-white underline" href="/login">
-              Volver al login
+              Volver al inicio de sesión
             </a>
           </p>
         </motion.form>

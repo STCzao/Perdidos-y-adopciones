@@ -20,7 +20,7 @@ const LoginScreen = ({ iniciarSesion, guardarUsuario }) => {
       newErrors.correo = "El correo es obligatorio";
       valid = false;
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo.trim())) {
-      newErrors.correo = "Correo inválido";
+      newErrors.correo = "Debe ser un correo válido";
       valid = false;
     }
 
@@ -29,6 +29,9 @@ const LoginScreen = ({ iniciarSesion, guardarUsuario }) => {
       valid = false;
     } else if (password.trim().length < 6) {
       newErrors.password = "La contraseña debe tener al menos 6 caracteres";
+      valid = false;
+    } else if (password.trim().length > 15) {
+      newErrors.password = "La contraseña no puede tener más de 15 caracteres";
       valid = false;
     }
 
@@ -49,12 +52,16 @@ const LoginScreen = ({ iniciarSesion, guardarUsuario }) => {
       const data = await resp.json();
 
       if (!resp.ok) {
-        setResult(data.msg || "Error al iniciar sesión");
+        if (data.errors) {
+          setErrors(data.errors);
+        } else {
+          setResult(data.msg || "Error al iniciar sesión");
+        }
       } else {
         localStorage.setItem("token", data.token);
         guardarUsuario(data.usuario);
         iniciarSesion();
-        navigate("/"); // redirige a HomeScreen
+        navigate("/");
       }
     } catch (error) {
       console.error(error);
@@ -100,7 +107,9 @@ const LoginScreen = ({ iniciarSesion, guardarUsuario }) => {
             />
           </div>
           {errors.correo && (
-            <p className="text-red-400 text-xs mt-1">{errors.correo}</p>
+            <p className="text-red-400 text-xs mt-1 text-left w-full px-4">
+              {errors.correo}
+            </p>
           )}
 
           <div className="flex items-center mt-4 w-full bg-white border border-gray-300/80 h-12 rounded-full overflow-hidden pl-6 gap-2">
@@ -113,7 +122,9 @@ const LoginScreen = ({ iniciarSesion, guardarUsuario }) => {
             />
           </div>
           {errors.password && (
-            <p className="text-red-400 text-xs mt-1">{errors.password}</p>
+            <p className="text-red-400 text-xs mt-1 text-left w-full px-4">
+              {errors.password}
+            </p>
           )}
 
           <button
@@ -123,18 +134,20 @@ const LoginScreen = ({ iniciarSesion, guardarUsuario }) => {
             Ingresar
           </button>
 
-          {result && <p className="text-center mt-3 text-white">{result}</p>}
+          {result && !Object.keys(errors).length && (
+            <p className="text-center mt-3 text-white">{result}</p>
+          )}
 
-          <p className="text-white text-sm mt-3 mb-6">
+          <p className="text-white text-sm mt-5 mb-6">
             ¿No tienes cuenta?{" "}
             <a className="text-white underline" href="/register">
               Registrarse
             </a>
-            <p className="text-white text-sm mt-3 mb-6">
-              <a className="text-white underline" href="/forgot-password">
-                ¿Olvidaste tu contraseña?
-              </a>
-            </p>
+          </p>
+          <p className="text-white text-sm mt-3 mb-6">
+            <a className="text-white underline" href="/forgot-password">
+              ¿Olvidaste tu contraseña?
+            </a>
           </p>
         </motion.form>
       </motion.div>

@@ -17,11 +17,15 @@ const ResetPasswordScreen = () => {
     const newErrors = {};
     let valid = true;
 
+    // Validaciones frontend
     if (!password.trim()) {
       newErrors.password = "La contraseña es obligatoria";
       valid = false;
     } else if (password.trim().length < 6) {
-      newErrors.password = "Debe tener al menos 6 caracteres";
+      newErrors.password = "La contraseña debe tener al menos 6 caracteres";
+      valid = false;
+    } else if (password.trim().length > 15) {
+      newErrors.password = "La contraseña no puede tener más de 15 caracteres";
       valid = false;
     }
 
@@ -43,8 +47,20 @@ const ResetPasswordScreen = () => {
       const data = await resp.json();
 
       if (!resp.ok) {
-        setResult(data.msg || "Error al actualizar contraseña");
+        // Solo para errores de servidor, token inválido o expirado
+        if (
+          data.msg &&
+          (data.msg.includes("Token") ||
+            data.msg.includes("servidor") ||
+            data.msg.includes("conexión"))
+        ) {
+          setResult(data.msg);
+        } else if (data.errors) {
+          // Errores de validación van a los campos
+          setErrors(data.errors);
+        }
       } else {
+        // Mensaje de éxito
         setResult("Contraseña actualizada correctamente!");
         setTimeout(() => navigate("/login"), 2000);
       }
@@ -83,7 +99,9 @@ const ResetPasswordScreen = () => {
             />
           </div>
           {errors.password && (
-            <p className="text-red-400 text-xs mt-1">{errors.password}</p>
+            <p className="text-red-400 text-xs mt-1 text-left w-full px-4">
+              {errors.password}
+            </p>
           )}
 
           <div className="flex items-center mt-4 w-full bg-white border border-gray-300/80 h-12 rounded-full overflow-hidden pl-6 gap-2">
@@ -96,8 +114,21 @@ const ResetPasswordScreen = () => {
             />
           </div>
           {errors.confirmPassword && (
-            <p className="text-red-400 text-xs mt-1">
+            <p className="text-red-400 text-xs mt-1 text-left w-full px-4">
               {errors.confirmPassword}
+            </p>
+          )}
+
+          {/* Result solo para errores de servidor/token y mensajes de éxito */}
+          {result && (
+            <p
+              className={`text-center mt-3 ${
+                result.includes("correctamente")
+                  ? "text-green-400"
+                  : "text-white"
+              }`}
+            >
+              {result}
             </p>
           )}
 
@@ -108,11 +139,9 @@ const ResetPasswordScreen = () => {
             Actualizar contraseña
           </button>
 
-          {result && <p className="text-center mt-3 text-white">{result}</p>}
-
-          <p className="text-white text-sm mt-3 mb-6">
+          <p className="text-white text-sm mt-5 mb-6">
             <a className="text-white underline" href="/login">
-              Volver al login
+              Volver al inicio de sesión
             </a>
           </p>
         </motion.form>
