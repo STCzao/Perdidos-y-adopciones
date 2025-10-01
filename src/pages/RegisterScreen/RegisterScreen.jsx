@@ -23,26 +23,49 @@ export default function RegisterScreen() {
     let valid = true;
     let newErrors = {};
 
+    // Validación de nombre
     if (!form.nombre.trim()) {
       newErrors.nombre = "El nombre es obligatorio";
       valid = false;
+    } else if (form.nombre.trim().length < 3) {
+      newErrors.nombre = "El nombre debe tener al menos 3 caracteres";
+      valid = false;
+    } else if (form.nombre.trim().length > 15) {
+      newErrors.nombre = "El nombre no puede tener más de 15 caracteres";
+      valid = false;
+    } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(form.nombre.trim())) {
+      newErrors.nombre = "El nombre solo puede contener letras y espacios";
+      valid = false;
     }
+
+    // Validación de teléfono
     if (!form.telefono.trim()) {
       newErrors.telefono = "El teléfono es obligatorio";
       valid = false;
+    } else if (!/^[0-9]{7,15}$/.test(form.telefono.trim())) {
+      newErrors.telefono =
+        "El teléfono debe contener entre 7 y 15 dígitos numéricos";
+      valid = false;
     }
+
+    // Validación de correo
     if (!form.correo.trim()) {
       newErrors.correo = "El correo es obligatorio";
       valid = false;
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.correo)) {
-      newErrors.correo = "Correo inválido";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.correo.trim())) {
+      newErrors.correo = "Debe ser un correo válido";
       valid = false;
     }
+
+    // Validación de password
     if (!form.password.trim()) {
       newErrors.password = "La contraseña es obligatoria";
       valid = false;
-    } else if (form.password.length < 6) {
+    } else if (form.password.trim().length < 6) {
       newErrors.password = "La contraseña debe tener al menos 6 caracteres";
+      valid = false;
+    } else if (form.password.trim().length > 15) {
+      newErrors.password = "La contraseña no puede tener más de 15 caracteres";
       valid = false;
     }
 
@@ -54,22 +77,30 @@ export default function RegisterScreen() {
       const resp = await fetch(`${API_URL}/usuarios`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({
+          nombre: form.nombre.trim(),
+          correo: form.correo.trim(),
+          password: form.password.trim(),
+          telefono: form.telefono.trim(),
+        }),
       });
 
       const data = await resp.json();
 
       if (!resp.ok) {
-        if (data.msg && data.msg.includes("ya está registrado")) {
-          setErrors((prev) => ({ ...prev, correo: data.msg }));
+        if (data.errors) {
+          // Los errores del backend van a los campos específicos
+          setErrors(data.errors);
+        } else {
+          // Si no hay estructura errors, mostramos en result
+          setResult(data.msg || "Error al registrarse");
         }
-        setResult(data.msg || "Error al registrarse");
       } else {
         localStorage.setItem("token", data.token);
         setResult("¡Registro exitoso!");
         setForm({ nombre: "", correo: "", password: "", telefono: "" });
         setErrors({});
-        navigate("/"); // redirige a HomeScreen
+        setTimeout(() => navigate("/"), 2000);
       }
     } catch (error) {
       console.error(error);
@@ -117,7 +148,9 @@ export default function RegisterScreen() {
             />
           </div>
           {errors.nombre && (
-            <p className="text-red-400 text-xs mt-1">{errors.nombre}</p>
+            <p className="text-red-400 text-xs mt-1 text-left w-full px-4">
+              {errors.nombre}
+            </p>
           )}
 
           {/* Telefono */}
@@ -125,14 +158,16 @@ export default function RegisterScreen() {
             <input
               type="text"
               name="telefono"
-              placeholder="Telefono"
+              placeholder="Teléfono"
               className="bg-transparent text-gray-500 placeholder-gray-500 outline-none text-sm w-full h-full"
               value={form.telefono}
               onChange={handleChange}
             />
           </div>
           {errors.telefono && (
-            <p className="text-red-400 text-xs mt-1">{errors.telefono}</p>
+            <p className="text-red-400 text-xs mt-1 text-left w-full px-4">
+              {errors.telefono}
+            </p>
           )}
 
           {/* Correo */}
@@ -147,7 +182,9 @@ export default function RegisterScreen() {
             />
           </div>
           {errors.correo && (
-            <p className="text-red-400 text-xs mt-1">{errors.correo}</p>
+            <p className="text-red-400 text-xs mt-1 text-left w-full px-4">
+              {errors.correo}
+            </p>
           )}
 
           {/* Password */}
@@ -162,7 +199,14 @@ export default function RegisterScreen() {
             />
           </div>
           {errors.password && (
-            <p className="text-red-400 text-xs mt-1">{errors.password}</p>
+            <p className="text-red-400 text-xs mt-1 text-left w-full px-4">
+              {errors.password}
+            </p>
+          )}
+
+          {/* Result solo se muestra cuando NO hay errores en campos */}
+          {result && !Object.keys(errors).length && (
+            <p className="text-center mt-3 text-white">{result}</p>
           )}
 
           <button
@@ -172,7 +216,7 @@ export default function RegisterScreen() {
             Registrarse
           </button>
 
-          <p className="text-white text-sm mt-3 mb-6">
+          <p className="text-white text-sm mt-5 mb-6">
             ¿Ya tienes cuenta?{" "}
             <a className="text-white underline" href="/login">
               Iniciar sesión
