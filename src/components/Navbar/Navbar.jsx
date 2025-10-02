@@ -33,10 +33,10 @@ const Navbar = () => {
 
   return (
     <nav
-      className={`fixed top-0 left-0 w-full flex items-center justify-between px-10 py-2 md:px-16 lg:px-24 xl:px-32 transition-all duration-500 z-50 ${
+      className={`fixed top-0 left-0 w-full flex items-center justify-between px-10 md:px-16 lg:px-24 xl:px-32 transition-all duration-500 z-50 ${
         isScrolled
           ? "bg-[#FF7857] shadow-md text-white backdrop-blur-lg py-3 md:py-4"
-          : "bg-transparent py-4 md:py-6 text-white"
+          : "bg-transparent text-white py-4 md:py-6"
       }`}
     >
       {/* Logo */}
@@ -48,62 +48,69 @@ const Navbar = () => {
         />
       </a>
 
-      {/* Desktop menu */}
-      <div className="hidden md:flex items-center gap-6 lg:gap-12">
-        {navLinks.map((link, i) =>
-          link.dropdown ? (
-            <div key={i} className="relative group">
-              <button
-                className={`flex items-center gap-1 text-white font-medium`}
+      {/* Links + Buscador */}
+      <div className="hidden md:flex items-center gap-8 lg:gap-12">
+        {/* Links */}
+        <div className="flex items-center gap-6 lg:gap-10">
+          {navLinks.map((link, i) =>
+            link.dropdown ? (
+              <div key={i} className="relative group">
+                <button
+                  className={`flex items-center gap-1 text-white font-medium transition-colors ${
+                    isScrolled ? "hover:text-black" : "hover:text-[#FF7857]"
+                  }`}
+                >
+                  {link.name}
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M19 9l-7 7-7-7"></path>
+                  </svg>
+                </button>
+                {/* Dropdown */}
+                <div
+                  className={`absolute top-8 left-0 shadow-lg rounded-md min-w-[200px] py-2 flex flex-col opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ${
+                    isScrolled
+                      ? "bg-transparent border border-black"
+                      : "bg-transparent border border-[#FF7857]"
+                  }`}
+                >
+                  {link.dropdown.map((item, j) => (
+                    <a
+                      key={j}
+                      href={item.path}
+                      className="px-4 py-2 text-white hover:bg-white/20 transition-colors"
+                    >
+                      {item.name}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <a
+                key={i}
+                href={link.path}
+                className={`font-medium text-white transition-colors ${
+                  isScrolled ? "hover:text-black" : "hover:text-[#FF7857]"
+                }`}
               >
                 {link.name}
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M19 9l-7 7-7-7"></path>
-                </svg>
-              </button>
-              {/* Dropdown */}
-              <div className="absolute top-8 left-0 bg-transparent border border-[#FF7857] shadow-lg rounded-md min-w-[200px] py-2 flex flex-col opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300">
-                {link.dropdown.map((item, j) => (
-                  <a
-                    key={j}
-                    href={item.path}
-                    className="px-4 py-2 hover:bg-white/20 hover:text-white transition-colors"
-                  >
-                    {item.name}
-                  </a>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <a
-              key={i}
-              href={link.path}
-              className="font-medium text-white hover:text-[#FF7857] transition-colors"
-            >
-              {link.name}
-            </a>
-          )
-        )}
+              </a>
+            )
+          )}
+        </div>
 
-        {/* Buscador desktop */}
-        <div
-          className={`flex items-center border rounded-full overflow-hidden px-3 py-1.5 ${
-            isScrolled ? "border-white" : "border-[#FF7857]"
-          }`}
-        >
+        {/* Buscador pegado a los links */}
+        <div>
           <input
             type="text"
             placeholder="Buscar..."
-            className={`bg-transparent outline-none w-40 md:w-60 ${
-              isScrolled
-                ? "placeholder-white text-white"
-                : "placeholder-white text-white"
+            className={`px-4 py-2 rounded-md outline-none bg-transparent placeholder-white text-white transition-all ${
+              isScrolled ? "border border-white" : "border border-[#FF7857]"
             }`}
           />
         </div>
@@ -147,7 +154,10 @@ const Navbar = () => {
 
         {navLinks.map((link, i) =>
           link.dropdown ? (
-            <div key={i} className="flex flex-col items-center gap-2 border border-[#FF7857] p-3 rounded-lg gap-5">
+            <div
+              key={i}
+              className="flex flex-col items-center gap-2 border border-[#FF7857] p-3 rounded-lg gap-5"
+            >
               <button
                 className="font-medium text-black"
                 onClick={() => toggleDropdown(link.name)}
