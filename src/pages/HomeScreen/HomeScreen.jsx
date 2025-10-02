@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import Navbar from "../../components/Navbar/Navbar";
+import Footer from "../../components/Footer/Footer";
 
 const HomeScreen = ({ cerrarSesion, user }) => {
   return (
@@ -59,6 +60,7 @@ const HomeScreen = ({ cerrarSesion, user }) => {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 };
