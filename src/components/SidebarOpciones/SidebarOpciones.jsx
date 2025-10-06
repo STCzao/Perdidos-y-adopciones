@@ -37,7 +37,7 @@ export const SidebarOpciones = ({ cerrarSesion }) => {
       animate={{ x: 0, opacity: 1 }}
       exit={{ x: "-100%", opacity: 0 }}
       transition={{ duration: 0.3, ease: "easeInOut" }}
-      className="items-center fixed top-0 left-0 h-full w-[300px] bg-black p-6 z-[100] flex flex-col gap-4 shadow-lg"
+      className="items-center fixed min-h-screen top-0 left-0 w-[300px] bg-black p-6 z-[100] flex flex-col gap-4 shadow-lg"
     >
       <h2 className="text-xl text-white text-center font-bold mb-4">
         Opciones de Usuario
@@ -74,9 +74,9 @@ export const SidebarOpciones = ({ cerrarSesion }) => {
       {/* Botón Cerrar Sidebar */}
       <button
         onClick={() => setOpen(false)}
-        className="font-medium mt-80 w-45 h-11 rounded-full text-white bg-white/20 hover:bg-white/60 transition-opacity flex items-center justify-center px-4"
+        className="font-medium mt-60 md:mt-100 lg:mt-80 w-45 h-11 rounded-full text-white bg-white/20 hover:bg-white/60 transition-opacity flex items-center justify-center px-4"
       >
-        Cerrar Sidebar
+        Cerrar
       </button>
 
       <button
