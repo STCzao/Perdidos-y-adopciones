@@ -1,5 +1,4 @@
 const API_URL = import.meta.env.VITE_API_URL;
-const token = JSON.parse(localStorage.getItem("token"));
 
 // Buscar publicaciones
 export const buscarPublicaciones = async (termino, tipo = "") => {

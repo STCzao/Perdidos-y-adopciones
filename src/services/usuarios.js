@@ -1,10 +1,12 @@
 const API_URL = import.meta.env.VITE_API_URL;
-const token = JSON.parse(localStorage.getItem("token"));
 
-// Traer usuarios
+// Traer usuarios (SOLO ADMIN)
 export const getUsuarios = async () => {
   try {
-    const resp = await fetch(`${API_URL}/usuarios`, { headers: { "x-token": token } });
+    const token = localStorage.getItem("token");
+    const resp = await fetch(`${API_URL}/usuarios`, {
+      headers: { "x-token": token },
+    });
     return await resp.json();
   } catch (error) {
     console.log(error);
@@ -12,9 +14,31 @@ export const getUsuarios = async () => {
   }
 };
 
+// Obtener perfil del usuario logueado - NUEVA FUNCIÓN
+export const getMiPerfil = async () => {
+  try {
+    const token = localStorage.getItem("token");
+    const resp = await fetch(`${API_URL}/usuarios/mi-perfil`, {
+      headers: { "x-token": token },
+    });
+
+    if (!resp.ok) {
+      const errorData = await resp.json();
+      return { msg: errorData.msg || "Error al obtener perfil" };
+    }
+
+    const data = await resp.json();
+    return data;
+  } catch (error) {
+    console.error(error);
+    return { msg: "Error de conexión al servidor" };
+  }
+};
+
 // Traer usuario por id
 export const getUsuarioById = async (id) => {
   try {
+    const token = localStorage.getItem("token");
     const resp = await fetch(`${API_URL}/usuarios/${id}`, {
       headers: { "x-token": token },
     });
@@ -43,6 +67,7 @@ export const crearUsuario = async (datos) => {
 // Actualizar usuario
 export const actualizarUsuario = async (id, datos) => {
   try {
+    const token = localStorage.getItem("token");
     const resp = await fetch(`${API_URL}/usuarios/${id}`, {
       method: "PUT",
       body: JSON.stringify(datos),
@@ -61,6 +86,7 @@ export const actualizarUsuario = async (id, datos) => {
 // Borrar usuario
 export const borrarUsuario = async (id) => {
   try {
+    const token = localStorage.getItem("token");
     const resp = await fetch(`${API_URL}/usuarios/${id}`, {
       method: "DELETE",
       headers: { "x-token": token },
@@ -69,5 +95,24 @@ export const borrarUsuario = async (id) => {
   } catch (error) {
     console.log(error);
     return { msg: "No se pudo borrar usuario" };
+  }
+};
+
+// Actualizar mi perfil
+export const actualizarMiPerfil = async (datos) => {
+  try {
+    const token = localStorage.getItem("token");
+    const resp = await fetch(`${API_URL}/usuarios/mi-perfil`, {
+      method: "PUT",
+      body: JSON.stringify(datos),
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+        "x-token": token,
+      },
+    });
+    return await resp.json();
+  } catch (error) {
+    console.log(error);
+    return { msg: "No se pudo actualizar perfil" };
   }
 };

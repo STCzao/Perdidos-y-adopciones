@@ -4,7 +4,7 @@ import { motion } from "motion/react";
 import { CrearPublicacion } from "../CrearPublicacion/CrearPublicacion";
 import { EditarPerfil } from "../EditarPerfil/EditarPerfil";
 import { VerPublicaciones } from "../VerPublicaciones/VerPublicaciones";
-import { EditarPublicacion } from "../EditarPublicacion/EditarPublicacion";
+import { usuariosService } from "../../services";
 
 // Context y Hook
 const SidebarProviderContext = React.createContext();
@@ -18,16 +18,36 @@ export const useSidebar = () => {
 
 export const SidebarProvider = ({ children }) => {
   const [open, setOpen] = React.useState(false);
+  const [user, setUser] = React.useState(null);
+  const [isAdmin, setIsAdmin] = React.useState(false);
+
+  React.useEffect(() => {
+    if (open) {
+      cargarUsuario();
+    }
+  }, [open]);
+
+  const cargarUsuario = async () => {
+    try {
+      const userData = await usuariosService.getMiPerfil();
+      if (userData && !userData.msg) {
+        setUser(userData);
+        setIsAdmin(userData.rol === "ADMIN_ROLE");
+      }
+    } catch (error) {
+      console.error("Error cargando usuario:", error);
+    }
+  };
+
   return (
-    <SidebarProviderContext.Provider value={{ open, setOpen }}>
+    <SidebarProviderContext.Provider value={{ open, setOpen, user, isAdmin }}>
       {children}
     </SidebarProviderContext.Provider>
   );
 };
 
-// Componente SidebarOpciones con Cerrar Sesión como botón más
 export const SidebarOpciones = ({ cerrarSesion }) => {
-  const { open, setOpen } = useSidebar();
+  const { open, setOpen, user, isAdmin } = useSidebar();
 
   if (!open) return null;
 
@@ -40,7 +60,7 @@ export const SidebarOpciones = ({ cerrarSesion }) => {
       className="items-center fixed min-h-screen top-0 left-0 w-[300px] bg-black p-6 z-[100] flex flex-col gap-4 shadow-lg"
     >
       <h2 className="text-xl text-white text-center font-bold mb-4">
-        Opciones de Usuario
+        {user ? `Hola, ${user.nombre}` : "Opciones de Usuario"}
       </h2>
 
       <button
@@ -51,7 +71,7 @@ export const SidebarOpciones = ({ cerrarSesion }) => {
       </button>
 
       <button
-        onClick={() => EditarPerfil.openModal()}
+        onClick={() => EditarPerfil.openModal(user)}
         className="border border-white/20 font-medium w-50 h-11 rounded-full text-white bg-white/20 hover:bg-[#FF7857] transition-opacity"
       >
         Editar Perfil
@@ -61,17 +81,17 @@ export const SidebarOpciones = ({ cerrarSesion }) => {
         onClick={() => VerPublicaciones.openModal()}
         className="border border-white/20 font-medium w-50 h-11 rounded-full text-white bg-white/20 hover:bg-[#FF7857] transition-opacity"
       >
-        Ver Mis Publicaciones
+        Mis Publicaciones
       </button>
 
-      <button
-        onClick={() => EditarPublicacion.openModal()}
-        className="border border-white/20 font-medium w-50 h-11 rounded-full text-white bg-white/20 hover:bg-[#FF7857] transition-opacity"
-      >
-        Editar Publicación
-      </button>
+      {isAdmin && (
+        <div className="border-t border-white/20 pt-4 mt-4 w-full text-center">
+          <span className="font-medium text-[#FF7857] text-sm">
+            Administrador
+          </span>
+        </div>
+      )}
 
-      {/* Botón Cerrar Sidebar */}
       <button
         onClick={() => setOpen(false)}
         className="border border-white/20 font-medium mt-60 md:mt-100 lg:mt-80 w-50 h-11 rounded-full text-white bg-white/20 hover:bg-white/60 transition-opacity flex items-center justify-center px-4"

@@ -9,7 +9,6 @@ import {
 import { CrearPublicacion } from "../CrearPublicacion/CrearPublicacion";
 import { EditarPerfil } from "../EditarPerfil/EditarPerfil";
 import { VerPublicaciones } from "../VerPublicaciones/VerPublicaciones";
-import { EditarPublicacion } from "../EditarPublicacion/EditarPublicacion";
 
 const NavbarContent = ({ cerrarSesion }) => {
   const { open, setOpen } = useSidebar();
@@ -250,7 +249,6 @@ const NavbarContent = ({ cerrarSesion }) => {
       <CrearPublicacion.Component />
       <EditarPerfil.Component />
       <VerPublicaciones.Component />
-      <EditarPublicacion.Component />
     </>
   );
 };

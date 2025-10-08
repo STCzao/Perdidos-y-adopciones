@@ -6,6 +6,7 @@ import ForgotPasswordScreen from "../src/pages/ForgotPasswordScreen/ForgotPasswo
 import ResetPasswordScreen from "../src/pages/ResetPasswordScreen/ResetPasswordScreen";
 import ProtectedRoutes from "../src/routes/ProtectedRoutes/ProtectedRoutes";
 import HomeScreen from "../src/pages/HomeScreen/HomeScreen";
+import { usuariosService } from "./services"; // ← ÚNICO IMPORT AGREGADO
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -24,20 +25,13 @@ function App() {
       }
 
       try {
-        const resp = await fetch(`${API_URL}/auth/me`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            "x-token": token,
-          },
-        });
+        // ✅ USAR getMiPerfil QUE SÍ EXISTE
+        const userData = await usuariosService.getMiPerfil();
 
-        if (!resp.ok) {
+        if (userData.msg) {
           cerrarSesion();
         } else {
-          const data = await resp.json();
-          setUser(data.usuario);
-          localStorage.setItem("token", data.token); // refrescar token
+          setUser(userData);
           setLogin(true);
         }
       } catch (error) {
@@ -94,7 +88,7 @@ function App() {
         {/* Rutas protegidas */}
         {!loading && (
           <Route
-            path="/*"
+            path="/"
             element={
               <ProtectedRoutes login={login}>
                 <HomeScreen cerrarSesion={cerrarSesion} user={user} />
