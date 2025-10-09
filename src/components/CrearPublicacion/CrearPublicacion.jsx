@@ -391,7 +391,7 @@ export const CrearPublicacion = {
           >
             <div className="flex flex-col items-center justify-center">
               <h1 className="text-white text-3xl mt-2 font-medium">
-                Crear Publicación
+                Crear publicación
               </h1>
               <p className="text-white/80 text-sm mt-1">
                 Complete los datos de la mascota
@@ -426,7 +426,7 @@ export const CrearPublicacion = {
                 accept="image/*"
                 onChange={handleImageUpload}
                 disabled={uploading || submitting}
-                className="bg-transparent text-gray-500 outline-none text-sm w-full h-full file:mr-4 file:py-1 file:px-2 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#FF7857] file:text-white hover:file:bg-[#E5674F] text-center"
+                className="bg-transparent text-gray-500 outline-none text-sm w-full file:h-10 file:ml-2 file:p-3 file:px-2 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#FF7857] file:text-white hover:file:bg-[#E5674F] text-center"
               />
             </div>
             {errors.img && (
