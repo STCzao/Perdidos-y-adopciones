@@ -31,25 +31,23 @@ export const SidebarProvider = ({ children }) => {
 
   const cargarUsuario = async () => {
     try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        console.warn("No hay token disponible");
-        return;
-      }
+      const usuarioData = await usuariosService.getMiPerfil();
 
-      const userData = await usuariosService.getMiPerfil();
-
-      if (userData && !userData.msg && !userData.errors) {
-        setUser(userData);
-        setIsAdmin(userData.rol === "ADMIN_ROLE");
+      if (usuarioData && usuarioData.ok && usuarioData.usuario) {
+        setUser(usuarioData.usuario);
+        setIsAdmin(usuarioData.usuario.rol === "ADMIN_ROLE");
       } else {
         console.warn(
           "Error al cargar usuario:",
-          userData.msg || userData.errors
+          usuarioData.msg || "Datos inválidos"
         );
+        setUser(null);
+        setIsAdmin(false);
       }
     } catch (error) {
       console.error("Error cargando usuario:", error);
+      setUser(null);
+      setIsAdmin(false);
     }
   };
 
@@ -90,7 +88,7 @@ export const SidebarOpciones = ({ cerrarSesion }) => {
           onClick={() => CrearPublicacion.openModal()}
           className="border border-white/20 font-medium w-full h-11 rounded-full text-white bg-white/20 hover:bg-[#FF7857] transition-opacity"
         >
-          Crear publicacion
+          Crear publicación
         </button>
 
         <button
@@ -142,7 +140,7 @@ export const SidebarOpciones = ({ cerrarSesion }) => {
             onClick={cerrarSesion}
             className="font-medium w-full h-11 rounded-full text-white bg-red-500 hover:bg-red-600 transition-opacity"
           >
-            Cerrar Sesion
+            Cerrar sesión
           </button>
         </div>
       </motion.div>

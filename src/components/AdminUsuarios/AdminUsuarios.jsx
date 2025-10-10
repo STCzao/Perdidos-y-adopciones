@@ -137,9 +137,7 @@ export const AdminUsuarios = {
           await handleEliminar(confirmModal.item);
         } else if (confirmModal.action === "changeRole") {
           const nuevoRol =
-            confirmModal.item.rol === "ADMIN_ROLE"
-              ? "USER_ROLE"
-              : "ADMIN_ROLE";
+            confirmModal.item.rol === "ADMIN_ROLE" ? "USER_ROLE" : "ADMIN_ROLE";
           await handleCambiarRol(confirmModal.item, nuevoRol);
         }
       } catch {

@@ -36,14 +36,6 @@ const HomeScreen = ({ cerrarSesion }) => {
             transition={{ duration: 0.5, delay: 0.3 }}
             className="border border-white/20 font-medium w-50 h-11 rounded-full text-white bg-white/20 hover:bg-[#FF7857] transition-opacity col-span-1"
           >
-            Casos de éxito
-          </motion.button>
-          <motion.button
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="border border-white/20 font-medium w-50 h-11 rounded-full text-white bg-white/20 hover:bg-[#FF7857] transition-opacity col-span-1"
-          >
             Perdí una mascota
           </motion.button>
           <motion.button
@@ -54,24 +46,15 @@ const HomeScreen = ({ cerrarSesion }) => {
           >
             Encontré una mascota
           </motion.button>
-
-          {/* Segunda fila - 2 botones centrados */}
-          <motion.button
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="border border-white/20 font-medium w-50 h-11 rounded-full text-white bg-white/20 hover:bg-[#FF7857] transition-opacity sm:col-start-2 col-span-1"
-          >
-            Quiero adoptar
-          </motion.button>
           <motion.button
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
             className="border border-white/20 font-medium w-50 h-11 rounded-full text-white bg-white/20 hover:bg-[#FF7857] transition-opacity col-span-1"
           >
-            Quiero dar en adopción
+            Me gustaría adoptar
           </motion.button>
+          
         </div>
       </div>
       <Footer />

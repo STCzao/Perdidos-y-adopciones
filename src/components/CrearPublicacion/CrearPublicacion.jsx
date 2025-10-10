@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { publicacionesService } from "../../services";
+import { publicacionesService } from "../../services/publicaciones";
 
 let modalControl;
 

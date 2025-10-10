@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { publicacionesService } from "../../services";
+import { publicacionesService } from "../../services/publicaciones";
 
 let modalControl;
 
