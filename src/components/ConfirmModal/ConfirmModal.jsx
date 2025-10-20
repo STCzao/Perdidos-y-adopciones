@@ -10,28 +10,28 @@ export const ConfirmModal = React.memo(
         case "perfil":
           return "Eliminar perfil";
         case "publicacion":
-          return "Eliminar publicacion";
+          return "Eliminar publicación";
         case "usuario":
           return confirmModal.item?.estado
             ? "Desactivar usuario"
             : "Activar usuario";
         default:
-          return "Confirmar accion";
+          return "Confirmar acción";
       }
     };
 
     const getMessage = () => {
       switch (type) {
         case "perfil":
-          return "¿Estas seguro de que quieres eliminar tu perfil? Esta accion no puede deshacerse.";
+          return "¿Estas seguro de que quieres eliminar tu perfil? Esta acción no puede deshacerse.";
         case "publicacion":
-          return `¿Estas seguro de que quieres eliminar "${confirmModal.item?.titulo}"? Esta accion no se puede deshacer.`;
+          return `¿Estas seguro de que quieres eliminar "${confirmModal.item?.titulo}"? Esta acción no se puede deshacer.`;
         case "usuario":
           return `¿Estas seguro de que quieres ${
             confirmModal.item?.estado ? "desactivar" : "activar"
           } al usuario "${confirmModal.item?.nombre}"?`;
         default:
-          return "Confirma la accion para continuar.";
+          return "Confirma la acción para continuar.";
       }
     };
 
@@ -43,7 +43,7 @@ export const ConfirmModal = React.memo(
           exit={{ scale: 0.8, opacity: 0 }}
           className="bg-white rounded-lg shadow-lg p-6 w-full max-w-sm text-center"
         >
-          <h2 className="text-lg font-semibold mb-4">{getTitle()}</h2>
+          <h2 className="text-red-500 text-lg font-semibold mb-4">{getTitle()}</h2>
           <p className="text-black mb-6">{getMessage()}</p>
 
           <div className="flex justify-center gap-4">
