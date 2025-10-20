@@ -15,7 +15,7 @@ function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // 🔹 Verificar token al iniciar la app
+  // Verificar token al iniciar la app
   useEffect(() => {
     const verificarToken = async () => {
       const token = localStorage.getItem("token");
@@ -75,7 +75,6 @@ function App() {
       </div>
     );
   }
-
   return (
     <BrowserRouter>
       <Routes>

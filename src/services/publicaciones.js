@@ -10,6 +10,45 @@ export const publicacionesService = {
     }
   },
 
+  getPublicacionesUsuario: async (id) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        return {
+          success: false,
+          msg: "No hay token disponible",
+        };
+      }
+
+      const resp = await fetch(`${API_URL}/publicaciones/usuario/${id}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json; charset=UTF-8",
+          "x-token": token,
+        },
+      });
+
+      // Verificar si la respuesta es OK
+      if (!resp.ok) {
+        const errorData = await resp.json();
+        return {
+          success: false,
+          msg: errorData.msg || "Error al obtener publicaciones",
+          status: resp.status,
+        };
+      }
+
+      const data = await resp.json();
+      return data;
+    } catch (error) {
+      console.error("Error en getPublicacionesUsuario:", error);
+      return {
+        success: false,
+        msg: "No se pudieron obtener publicaciones del usuario",
+      };
+    }
+  },
+
   getPublicacionById: async (id) => {
     try {
       const resp = await fetch(`${API_URL}/publicaciones/${id}`);
@@ -59,25 +98,27 @@ export const publicacionesService = {
       const resp = await fetch(`${API_URL}/publicaciones/${id}/estado`, {
         method: "PUT",
         headers: {
-          "Content-Type" : "application/json",
+          "Content-Type": "application/json",
           "x-token": token || "",
         },
         body: JSON.stringify({ estado }),
-      })
+      });
 
       if (!resp.ok) {
         const errorData = await resp.json();
-        return { success: false, msg: errorData.msg || "Error al actualizar estado"};
+        return {
+          success: false,
+          msg: errorData.msg || "Error al actualizar estado",
+        };
       }
 
       const data = await resp.json();
-      return { success: true, publicacion: data.publicacion};
+      return { success: true, publicacion: data.publicacion };
     } catch (error) {
       console.error("Error actualizando estado:", error);
-      return { success: false, msg: "Error de conexion al servidor"};
+      return { success: false, msg: "Error de conexion al servidor" };
     }
   },
-
 
   borrarPublicacion: async (id) => {
     try {
