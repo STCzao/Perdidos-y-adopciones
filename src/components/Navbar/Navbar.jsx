@@ -59,7 +59,9 @@ const NavbarContent = ({ cerrarSesion }) => {
           <img
             src={Logo}
             alt="logo"
-            className="h-16 transition-all duration-300"
+            className={`h-16 transition-all duration-300 ${
+              isScrolled ? "filter-none" : "invert"
+            }`}
           />
         </div>
 

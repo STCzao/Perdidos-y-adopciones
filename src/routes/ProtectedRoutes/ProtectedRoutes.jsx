@@ -9,10 +9,6 @@ const ProtectedRoutes = ({ children, login }) => {
     return () => clearTimeout(timer);
   }, []);
 
-  if (checking) {
-    return <div className="flex justify-center items-center min-h-screen">Cargando...</div>;
-  }
-
   return login ? children : <Navigate to="/login" />;
 };
 

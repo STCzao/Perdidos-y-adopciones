@@ -9,6 +9,9 @@ import HomeScreen from "../src/pages/HomeScreen/HomeScreen";
 import { usuariosService } from "./services/usuarios";
 import { AdminPublicaciones } from "./components/AdminPublicaciones/AdminPublicaciones";
 import { AdminUsuarios } from "./components/AdminUsuarios/AdminUsuarios";
+import PerdidosPage from "../src/pages/PublicacionesPages/PerdidosPage";
+import EncontradosPage from "./pages/PublicacionesPages/EncontradosPage";
+import AdopcionesPage from "./pages/PublicacionesPages/AdopcionesPage";
 
 function App() {
   const [login, setLogin] = useState(false);
@@ -78,6 +81,31 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route
+          path="/perdidos"
+          element={
+            <ProtectedRoutes login={login}>
+              <PerdidosPage cerrarSesion={cerrarSesion} />
+            </ProtectedRoutes>
+          }
+        />
+        <Route
+          path="/encontrados"
+          element={
+            <ProtectedRoutes login={login}>
+              <EncontradosPage cerrarSesion={cerrarSesion} />
+            </ProtectedRoutes>
+          }
+        />
+        <Route
+          path="/adopciones"
+          element={
+            <ProtectedRoutes login={login}>
+              <AdopcionesPage cerrarSesion={cerrarSesion} />
+            </ProtectedRoutes>
+          }
+        />
+
         {/* Ruta raíz - redirige según autenticación */}
         <Route
           path="/"
