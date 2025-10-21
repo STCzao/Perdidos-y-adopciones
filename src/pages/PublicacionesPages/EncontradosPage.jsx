@@ -50,7 +50,7 @@ const EncontradosPage = (cerrarSesion) => {
         </div>
       </div>
       <div className="min-h-screen bg-[#e6dac6]">
-        <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-4 min-h-screen">
+        <div className="flex flex-col p-2 sm:p-4 md:p-6 lg:p-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-6 lg:gap-8 justify-center">
           {loading ? (
             <div className="flex justify-center items-center p-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF7857]"></div>

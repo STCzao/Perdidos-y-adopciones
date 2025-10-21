@@ -1,4 +1,4 @@
-import { div } from "framer-motion/client";
+import { div, p } from "framer-motion/client";
 import { useState } from "react";
 
 const formatFecha = (fecha) => {
@@ -37,7 +37,7 @@ const CardGenerica = ({ publicacion }) => {
 
   return (
     <div
-      className="font-medium w-72 h-96 mx-auto cursor-pointer"
+      className="font-medium w-80 h-140 mx-auto cursor-pointer sm:w-72 sm:h-96 mx-auto cursor-pointer max-w-full"
       onClick={() => setFlipped(!flipped)}
     >
       <div
@@ -46,7 +46,7 @@ const CardGenerica = ({ publicacion }) => {
         }`}
       >
         {/* Frente */}
-        <div className="absolute w-80 h-140 [backface-visibility:hidden] flex flex-col bg-black/70 backdrop-blur border border-white/20 rounded-xl shadow-md p-4">
+        <div className="absolute w-80 h-140 [backface-visibility:hidden] sm:w-80 sm:h-140 flex flex-col bg-black/70 backdrop-blur border border-white/20 rounded-xl shadow-md p-3">
           {img && (
             <img
               src={img.toLowerCase()}
@@ -75,19 +75,22 @@ const CardGenerica = ({ publicacion }) => {
         </div>
 
         {/* Reverso */}
-        <div className="absolute w-80 h-140 [backface-visibility:hidden] [transform:rotateY(180deg)] flex flex-col justify-between bg-black/60 backdrop-blur border border-white/20 rounded-xl shadow-md p-4">
-          <p className="text-sm text-white/60 mb-4">
-            {descripcion || "Sin descripción"}
-          </p>
-          <div className="text-sm text-white/60">
-            {detalles && <p>Detalles: {detalles}</p>}
+        <div className="absolute w-80 h-140 [backface-visibility:hidden] sm:w-80 sm:h-140 [transform:rotateY(180deg)] flex flex-col justify-between bg-black/60 backdrop-blur border border-white/20 rounded-xl shadow-md p-4">
+          <div className="text-sm text-white/90">
+            {descripcion && <p>Descripción: {descripcion} </p>}
           </div>
-          <div className="text-sm mt-2 text-white/90">
+          <div>
             {/* Campos PERDIDO/ENCONTRADO */}
             {(tipo === "PERDIDO" || tipo === "ENCONTRADO") && (
               <>
-                {lugar && <p>Lugar: {lugar}</p>}
-                {fecha && <p>Fecha: {formatFecha(fecha)}</p>}
+                {lugar && (
+                  <p className="text-sm mt-12 text-white/90">Lugar: {lugar}</p>
+                )}
+                {fecha && (
+                  <p className="text-sm mt-12 text-white/90">
+                    Fecha: {formatFecha(fecha)}
+                  </p>
+                )}
               </>
             )}
             {/* Campos ADOPCION */}
@@ -99,10 +102,17 @@ const CardGenerica = ({ publicacion }) => {
               </>
             )}
           </div>
+          <div className="text-sm text-white/90">
+            {detalles && (
+              <p className="text-sm mt-12 text-white/90">
+                Detalles: {detalles}
+              </p>
+            )}
+          </div>
 
           {whatsappLink && (
-            <div className="flex flex-col items-center text-white/90">
-              <span>Contactar con el dueño de la publicación:</span>
+            <div className="flex flex-col items-center mt-40 text-white/90">
+              <span className="text-sm ">Contactar con el dueño de la publicación:</span>
               <a
                 href={whatsappLink}
                 target="_blank"
