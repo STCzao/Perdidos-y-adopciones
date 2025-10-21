@@ -7,8 +7,12 @@ import {
 import { motion } from "framer-motion";
 import Navbar from "../../components/Navbar/Navbar";
 import Footer from "../../components/Footer/Footer";
+import { useNavigate } from "react-router-dom";
 
 const HomeScreen = ({ cerrarSesion }) => {
+
+  const navigate = useNavigate();
+
   return (
     <div>
       <SidebarProvider>
@@ -35,6 +39,7 @@ const HomeScreen = ({ cerrarSesion }) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
             className="border border-white/20 font-medium w-50 h-11 rounded-full text-white bg-white/20 hover:bg-[#FF7857] transition-opacity col-span-1"
+            onClick={() => navigate("/perdidos")}
           >
             Perdí una mascota
           </motion.button>
@@ -43,6 +48,7 @@ const HomeScreen = ({ cerrarSesion }) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
             className="border border-white/20 font-medium w-50 h-11 rounded-full text-white bg-white/20 hover:bg-[#FF7857] transition-opacity col-span-1"
+            onClick={() => navigate("/encontrados")}
           >
             Encontré una mascota
           </motion.button>
@@ -51,10 +57,10 @@ const HomeScreen = ({ cerrarSesion }) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
             className="border border-white/20 font-medium w-50 h-11 rounded-full text-white bg-white/20 hover:bg-[#FF7857] transition-opacity col-span-1"
+            onClick={() => navigate("/adopciones")}
           >
             Me gustaría adoptar
           </motion.button>
-          
         </div>
       </div>
       <Footer />

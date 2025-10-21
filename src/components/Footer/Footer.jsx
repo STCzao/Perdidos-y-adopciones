@@ -1,4 +1,9 @@
+import { useNavigate } from "react-router-dom";
+
 export default function Footer() {
+
+  const navigate = useNavigate();
+
   return (
     <footer className="px-6 sm:px-10 md:px-16 lg:px-24 xl:px-32 pt-10 w-full bg-[#FF7857] text-white">
       <div className="flex flex-col md:flex-row justify-between w-full gap-10 border-b border-white/20 pb-8">
@@ -24,24 +29,32 @@ export default function Footer() {
             <ul className="text-sm space-y-2">
               <li>
                 <a
-                  href="/"
-                  className="hover:underline hover:text-black transition"
+                  onClick={() => navigate("/")}
+                  className="hover:underline hover:text-black transition cursor-pointer"
                 >
                   Inicio
                 </a>
               </li>
               <li>
                 <a
-                  href="/perdidos"
-                  className="hover:underline hover:text-black transition"
+                  onClick={() => navigate("/perdidos")}
+                  className="hover:underline hover:text-black transition cursor-pointer"
                 >
                   Perdidos
                 </a>
               </li>
               <li>
                 <a
-                  href="/adopciones"
-                  className="hover:underline hover:text-black transition"
+                  onClick={() => navigate("/encontrados")}
+                  className="hover:underline hover:text-black transition cursor-pointer"
+                >
+                  Encontrados
+                </a>
+              </li>
+              <li>
+                <a
+                  onClick={() => navigate("/adopciones")}
+                  className="hover:underline hover:text-black transition cursor-pointer"
                 >
                   Adopciones
                 </a>
@@ -49,7 +62,7 @@ export default function Footer() {
               <li>
                 <a
                   href="/contacto"
-                  className="hover:underline hover:text-black transition"
+                  className="hover:underline hover:text-black transition cursor-pointer"
                 >
                   Contacto
                 </a>
