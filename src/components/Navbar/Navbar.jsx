@@ -18,10 +18,20 @@ const NavbarContent = ({ cerrarSesion }) => {
       name: "¿Qué hacer?",
       dropdown: [
         { name: "¿Qué hacer si perdí un animal?", path: "/consejos-perdi" },
-        { name: "¿Qué hacer si encontré un animal?", path: "/consejos-encontre" },
+        {
+          name: "¿Qué hacer si encontré un animal?",
+          path: "/consejos-encontre",
+        },
       ],
     },
-    { name: "Casos para ayuda", path: "/casos" },
+    {
+      name: "Casos...",
+      path: "/casos",
+      dropdown: [
+        { name: "Para ayuda", path: "/casos-ayuda" },
+        { name: "De éxito", path: "/casos-exito" },
+      ],
+    },
   ];
 
   const [isScrolled, setIsScrolled] = React.useState(false);

@@ -1,4 +1,3 @@
-import { div, p } from "framer-motion/client";
 import { useState } from "react";
 
 const formatFecha = (fecha) => {
@@ -37,7 +36,7 @@ const CardGenerica = ({ publicacion }) => {
 
   return (
     <div
-      className="font-medium w-80 h-140 mx-auto cursor-pointer sm:w-72 sm:h-96 mx-auto cursor-pointer max-w-full"
+      className="font-medium w-80 h-140 cursor-pointer cursor-pointer max-w-full"
       onClick={() => setFlipped(!flipped)}
     >
       <div
@@ -46,7 +45,7 @@ const CardGenerica = ({ publicacion }) => {
         }`}
       >
         {/* Frente */}
-        <div className="absolute w-80 h-140 [backface-visibility:hidden] sm:w-80 sm:h-140 flex flex-col bg-black/70 backdrop-blur border border-white/20 rounded-xl shadow-md p-3">
+        <div className="absolute w-80 h-140 p-3 [backface-visibility:hidden] sm:w-80 sm:h-140 flex flex-col bg-[#763A0D]/70 backdrop-blur border border-white/20 rounded-xl shadow-md p-3">
           {img && (
             <img
               src={img.toLowerCase()}
@@ -75,7 +74,7 @@ const CardGenerica = ({ publicacion }) => {
         </div>
 
         {/* Reverso */}
-        <div className="absolute w-80 h-140 [backface-visibility:hidden] sm:w-80 sm:h-140 [transform:rotateY(180deg)] flex flex-col justify-between bg-black/60 backdrop-blur border border-white/20 rounded-xl shadow-md p-4">
+        <div className="absolute w-80 h-140 p-3 [backface-visibility:hidden] [transform:rotateY(180deg)] flex flex-col justify-between bg-[#763A0D]/70 backdrop-blur border border-white/20 rounded-xl shadow-md">
           <div className="text-sm text-white/90">
             {descripcion && <p>Descripción: {descripcion} </p>}
           </div>
@@ -112,7 +111,9 @@ const CardGenerica = ({ publicacion }) => {
 
           {whatsappLink && (
             <div className="flex flex-col items-center mt-40 text-white/90">
-              <span className="text-sm ">Contactar con el dueño de la publicación:</span>
+              <span className="text-sm ">
+                Contactar con el dueño de la publicación:
+              </span>
               <a
                 href={whatsappLink}
                 target="_blank"
