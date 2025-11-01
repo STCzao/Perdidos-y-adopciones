@@ -1,7 +1,6 @@
 import { useNavigate } from "react-router-dom";
 
 export default function Footer() {
-
   const navigate = useNavigate();
 
   return (
@@ -37,7 +36,10 @@ export default function Footer() {
               </li>
               <li>
                 <a
-                  onClick={() => navigate("/perdidos")}
+                  onClick={() => {
+                    navigate("/perdidos");
+                    window.scrollTo(0, 0);
+                  }}
                   className="hover:underline hover:text-black transition cursor-pointer"
                 >
                   Perdidos
@@ -45,7 +47,10 @@ export default function Footer() {
               </li>
               <li>
                 <a
-                  onClick={() => navigate("/encontrados")}
+                  onClick={() => {
+                    navigate("/encontrados");
+                    window.scrollTo(0, 0);
+                  }}
                   className="hover:underline hover:text-black transition cursor-pointer"
                 >
                   Encontrados
@@ -53,7 +58,10 @@ export default function Footer() {
               </li>
               <li>
                 <a
-                  onClick={() => navigate("/adopciones")}
+                  onClick={() => {
+                    navigate("/adopciones");
+                    window.scrollTo(0, 0);
+                  }}
                   className="hover:underline hover:text-black transition cursor-pointer"
                 >
                   Adopciones

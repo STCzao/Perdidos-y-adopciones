@@ -14,6 +14,8 @@ import EncontradosPage from "./pages/PublicacionesPages/EncontradosPage";
 import AdopcionesPage from "./pages/PublicacionesPages/AdopcionesPage";
 import PerdiScreen from "./pages/WhatDoScreen/PerdiScreen";
 import EncontreScreen from "./pages/WhatDoScreen/EncontreScreen";
+import CasosAyudaScreen from "./pages/CasesScreen/CasosAyudaScreen";
+import CasosExitoScreen from "./pages/CasesScreen/CasosExitoScreen";
 
 function App() {
   const [login, setLogin] = useState(false);
@@ -123,6 +125,25 @@ function App() {
           element={
             <ProtectedRoutes login={login}>
               <EncontreScreen cerrarSesion={cerrarSesion} />
+            </ProtectedRoutes>
+          }
+        />
+
+        {/* Redirige a los casos de ayuda y de éxito */}
+
+        <Route
+          path="/casos-ayuda"
+          element={
+            <ProtectedRoutes login={login}>
+              <CasosAyudaScreen cerrarSesion={cerrarSesion} />
+            </ProtectedRoutes>
+          }
+        />
+        <Route
+          path="/casos-exito"
+          element={
+            <ProtectedRoutes login={login}>
+              <CasosExitoScreen cerrarSesion={cerrarSesion} />
             </ProtectedRoutes>
           }
         />
