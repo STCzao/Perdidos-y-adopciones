@@ -11,7 +11,6 @@ import { useNavigate } from "react-router-dom";
 import CardGenerica from "../../components/CardGenerica/CardGenerica";
 import { publicacionesService } from "../../services/publicaciones";
 import { useEffect, useState } from "react";
-import { div } from "framer-motion/client";
 
 const HomeScreen = ({ cerrarSesion }) => {
   const [perdidos, setPerdidos] = useState([]);
@@ -68,7 +67,10 @@ const HomeScreen = ({ cerrarSesion }) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
             className="border border-white/20 font-medium w-50 h-11 rounded-full text-white bg-white/20 hover:bg-[#FF7857] transition-opacity col-span-1"
-            onClick={() => navigate("/perdidos")}
+            onClick={() => {
+              navigate("/perdidos");
+              window.scrollTo(0, 0);
+            }}
           >
             Ver animales perdidos
           </motion.button>
@@ -77,7 +79,10 @@ const HomeScreen = ({ cerrarSesion }) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
             className="border border-white/20 font-medium w-50 h-11 rounded-full text-white bg-white/20 hover:bg-[#FF7857] transition-opacity col-span-1"
-            onClick={() => navigate("/encontrados")}
+            onClick={() => {
+              navigate("/encontrados");
+              window.scrollTo(0, 0);
+            }}
           >
             Ver animales encontrados
           </motion.button>
@@ -86,7 +91,10 @@ const HomeScreen = ({ cerrarSesion }) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
             className="border border-white/20 font-medium w-50 h-11 rounded-full text-white bg-white/20 hover:bg-[#FF7857] transition-opacity col-span-1"
-            onClick={() => navigate("/adopciones")}
+            onClick={() => {
+              navigate("/adopciones");
+              window.scrollTo(0, 0);
+            }}
           >
             Ver animales en adopción
           </motion.button>
@@ -169,6 +177,10 @@ const HomeScreen = ({ cerrarSesion }) => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
+            onClick={() => {
+              navigate("/contacto");
+              window.scrollTo(0, 0);
+            }}
             className="border border-white/20 font-medium w-52 h-11 rounded-full text-white bg-white/60 hover:bg-[#FF7857] transition-opacity"
           >
             Quiero ser colaborador

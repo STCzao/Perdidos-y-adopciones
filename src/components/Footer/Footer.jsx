@@ -9,7 +9,7 @@ export default function Footer() {
         {/* Logo + Descripción */}
         <div className="md:max-w-md text-center md:text-left">
           <img
-            className="h-25"
+            className="h-20"
             src="../src/assets/Logo Perdidos y adopciones - Favicon.png"
             alt=""
           />
@@ -28,7 +28,10 @@ export default function Footer() {
             <ul className="text-sm space-y-2">
               <li>
                 <a
-                  onClick={() => navigate("/")}
+                  onClick={() => {
+                    navigate("/");
+                    window.scrollTo(0, 0);
+                  }}
                   className="hover:underline hover:text-black transition cursor-pointer"
                 >
                   Inicio
@@ -67,14 +70,6 @@ export default function Footer() {
                   Adopciones
                 </a>
               </li>
-              <li>
-                <a
-                  href="/contacto"
-                  className="hover:underline hover:text-black transition cursor-pointer"
-                >
-                  Contacto
-                </a>
-              </li>
             </ul>
           </div>
 
@@ -82,6 +77,15 @@ export default function Footer() {
           <div>
             <h2 className="font-semibold mb-5 text-white">Contacto</h2>
             <div className="text-sm space-y-2 text-white/90">
+              <p
+                onClick={() => {
+                  navigate("/contacto");
+                  window.scrollTo(0, 0);
+                }}
+                className="hover:underline hover:text-black transition cursor-pointer"
+              >
+                Consultas
+              </p>
               <p>+54 381 675 4618</p>
               <p>perdidosyadopcionesrec@gmail.com</p>
             </div>

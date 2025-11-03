@@ -16,6 +16,7 @@ import PerdiScreen from "./pages/WhatDoScreen/PerdiScreen";
 import EncontreScreen from "./pages/WhatDoScreen/EncontreScreen";
 import CasosAyudaScreen from "./pages/CasesScreen/CasosAyudaScreen";
 import CasosExitoScreen from "./pages/CasesScreen/CasosExitoScreen";
+import ContactScreen from "./pages/ContactScreen/ContactScreen";
 
 function App() {
   const [login, setLogin] = useState(false);
@@ -144,6 +145,16 @@ function App() {
           element={
             <ProtectedRoutes login={login}>
               <CasosExitoScreen cerrarSesion={cerrarSesion} />
+            </ProtectedRoutes>
+          }
+        />
+
+        {/* Pagina de contacto */}
+        <Route
+          path="/contacto"
+          element={
+            <ProtectedRoutes login={login}>
+              <ContactScreen cerrarSesion={cerrarSesion}/>
             </ProtectedRoutes>
           }
         />
