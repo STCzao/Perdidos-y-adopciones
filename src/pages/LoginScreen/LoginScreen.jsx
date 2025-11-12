@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import Img_login1 from "../../assets/Img_login1.png";
 
 const LoginScreen = ({ iniciarSesion, guardarUsuario }) => {
   const [correo, setCorreo] = useState("");
@@ -68,7 +69,14 @@ const LoginScreen = ({ iniciarSesion, guardarUsuario }) => {
   };
 
   return (
-    <div className="font-medium w-full min-h-screen bg-[linear-gradient(rgba(0,0,0,0.7),rgba(0,0,0,0.7)),url(../src/assets/img_login1.png)] bg-cover bg-center text-white flex flex-col items-center justify-center">
+    <div
+      className="w-full min-h-screen text-white flex flex-col items-center justify-center px-4 md:px-10"
+      style={{
+        backgroundImage: `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url(${Img_login1})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -83,11 +91,10 @@ const LoginScreen = ({ iniciarSesion, guardarUsuario }) => {
           transition={{ delay: 0.5, duration: 0.8, ease: "easeInOut" }}
         >
           <div className="flex flex-col items-center justify-center">
-            <h5 className="text-white text-3xl mt-2">
-              ¡Bienvenido!
-            </h5>
+            <h5 className="text-white text-3xl mt-2">¡Bienvenido!</h5>
             <p className="text-sm mt-4">
-              Perdidos y Adopciones requiere que inicie sesión para que su navegación sea segura.
+              Perdidos y Adopciones requiere que inicie sesión para que su
+              navegación sea segura.
             </p>
           </div>
 
