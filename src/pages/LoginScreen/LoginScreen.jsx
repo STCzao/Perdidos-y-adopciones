@@ -82,10 +82,13 @@ const LoginScreen = ({ iniciarSesion, guardarUsuario }) => {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5, duration: 0.8, ease: "easeInOut" }}
         >
-          <div className="flex flex-col items-center justify-center font-playfair">
-            <h1 className="text-white text-3xl mt-2 font-medium">
+          <div className="flex flex-col items-center justify-center">
+            <h5 className="text-white text-3xl mt-2">
               ¡Bienvenido!
-            </h1>
+            </h5>
+            <p className="text-sm mt-4">
+              Perdidos y Adopciones requiere que inicie sesión para que su navegación sea segura.
+            </p>
           </div>
 
           <div className="flex items-center w-full mt-8 bg-white border border-gray-300/80 h-12 rounded-full overflow-hidden pl-6 gap-2">
