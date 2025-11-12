@@ -7,6 +7,8 @@ import { VerPublicaciones } from "../VerPublicaciones/VerPublicaciones";
 import { AdminPublicaciones } from "../AdminPublicaciones/AdminPublicaciones";
 import { AdminUsuarios } from "../AdminUsuarios/AdminUsuarios";
 import { usuariosService } from "../../services/usuarios";
+import { CrearCasoAyuda } from "../CrearCasoAyuda/CrearCasoAyuda";
+import { VerCasosAyuda } from "../VerCasosAyuda/VerCasosAyuda";
 
 // Context y Hook
 const SidebarProviderContext = React.createContext();
@@ -14,7 +16,7 @@ const SidebarProviderContext = React.createContext();
 export const useSidebar = () => {
   const context = React.useContext(SidebarProviderContext);
   if (!context)
-    throw new Error("useSidebar must be used within SidebarProvider");
+    throw new Error("useSidebar debe ser utilizado con SidebarProvider");
   return context;
 };
 
@@ -119,6 +121,18 @@ export const SidebarOpciones = ({ cerrarSesion }) => {
         >
           Mis publicaciones
         </button>
+        <button
+          onClick={() => CrearCasoAyuda.openModal()}
+          className="border border-white/20 font-medium w-full h-11 rounded-full text-white bg-white/20 hover:bg-[#FF7857] transition-opacity"
+        >
+          Crear caso de ayuda
+        </button>
+        <button
+          onClick={() => VerCasosAyuda.openModal()}
+          className="border border-white/20 font-medium w-full h-11 rounded-full text-white bg-white/20 hover:bg-[#FF7857] transition-opacity"
+        >
+          Mis casos de ayuda
+        </button>
 
         {/* Sección administrador */}
         {isAdmin && (
@@ -163,6 +177,8 @@ export const SidebarOpciones = ({ cerrarSesion }) => {
       {/* Modales */}
       <AdminPublicaciones.Component />
       <AdminUsuarios.Component />
+      <CrearCasoAyuda.Component />
+      <VerCasosAyuda.Component />
     </>
   );
 };
