@@ -54,7 +54,7 @@ const CasosAyudaScreen = ({ cerrarSesion }) => {
               ) : casos.length > 0 ? (
                 casos.map((pub) => <CardsAyuda key={pub._id} pub={pub} />)
               ) : (
-                <p className="text-black text-center text-2xl col-span-full mt-10">
+                <p className="text-white text-center text-2xl col-span-full mt-10">
                   No hay casos disponibles
                 </p>
               )}

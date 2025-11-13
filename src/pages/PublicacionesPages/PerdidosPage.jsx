@@ -35,7 +35,7 @@ const PerdidosPage = ({ cerrarSesion }) => {
       </SidebarProvider>
 
       <div
-        className="w-full font-medium min-h-screen text-white flex flex-col md:flex-row items-center justify-between px-4 md:px-16 py-40"
+        className="w-full font-medium min-h-screen text-white flex flex-col md:flex-row items-center justify-center px-4 md:px-16 py-40"
         style={{
           backgroundImage: `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url(${Img_publicaciones})`,
           backgroundSize: "cover",

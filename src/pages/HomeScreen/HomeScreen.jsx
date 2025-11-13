@@ -12,6 +12,7 @@ import CardGenerica from "../../components/CardGenerica/CardGenerica";
 import { publicacionesService } from "../../services/publicaciones";
 import { useEffect, useState } from "react";
 import Img_home from "../../assets/Img_home.png";
+import Img_colab from "../../assets/Img_colab.png";
 
 const HomeScreen = ({ cerrarSesion }) => {
   const [perdidos, setPerdidos] = useState([]);
@@ -170,7 +171,14 @@ const HomeScreen = ({ cerrarSesion }) => {
           </div>
         )}
       </div>
-      <div className="w-full min-h-screen bg-[linear-gradient(rgba(0,0,0,0.7),rgba(0,0,0,0.7)),url(../src/assets/Img_colab.png)] bg-cover bg-center text-white flex flex-col md:flex-row items-center justify-between px-4 md:px-16 py-40">
+      <div
+        className="w-full font-medium min-h-screen text-white flex flex-col items-center justify-between px-4 md:px-10 py-40 md:flex-row "
+        style={{
+          backgroundImage: `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url(${Img_colab})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
         <div className="mt-15 flex flex-col items-center gap-8">
           <motion.p
             initial={{ opacity: 0, y: 10 }}
