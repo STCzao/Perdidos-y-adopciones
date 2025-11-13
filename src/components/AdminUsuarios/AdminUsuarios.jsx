@@ -129,7 +129,19 @@ export const AdminUsuarios = {
               onClick={handleClose}
               className="absolute top-4 right-4 text-white hover:text-[#FF7857] transition-colors"
             >
-              ✕
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="w-5 h-5"
+              >
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
             </button>
 
             <h1 className="text-white text-3xl mt-2 font-medium">
