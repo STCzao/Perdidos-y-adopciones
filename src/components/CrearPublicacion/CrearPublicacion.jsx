@@ -525,7 +525,7 @@ export const CrearPublicacion = {
                   <>
                     <div className="mt-4">
                       <label className="flex items-left text-sm mb-1 ml-2">
-                        Describa el lugar donde perdió/encontó a la mascota
+                        Describa el lugar donde perdió/encontró a la mascota
                       </label>
                       <div className="flex items-center w-full bg-white border border-gray-300/80 h-12 rounded-full overflow-hidden pl-6 gap-2">
                         <input

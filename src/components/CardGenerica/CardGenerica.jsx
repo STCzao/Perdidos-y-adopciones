@@ -83,10 +83,10 @@ const CardGenerica = ({ publicacion }) => {
             {(tipo === "PERDIDO" || tipo === "ENCONTRADO") && (
               <>
                 {lugar && (
-                  <p className="text-sm mt-12 text-white/90">Lugar: {lugar}</p>
+                  <p className="text-sm mt-8 text-white/90">Lugar: {lugar}</p>
                 )}
                 {fecha && (
-                  <p className="text-sm mt-12 text-white/90">
+                  <p className="text-sm mt-8 text-white/90">
                     Fecha: {formatFecha(fecha)}
                   </p>
                 )}
@@ -110,7 +110,7 @@ const CardGenerica = ({ publicacion }) => {
           </div>
 
           {whatsappLink && (
-            <div className="flex flex-col items-center mt-40 text-white/90">
+            <div className="flex flex-col items-center mt-30 text-white/90">
               <span className="text-sm ">
                 Contactar con el dueño de la publicación:
               </span>

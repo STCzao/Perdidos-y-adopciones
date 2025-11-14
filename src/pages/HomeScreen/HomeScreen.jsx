@@ -142,7 +142,7 @@ const HomeScreen = ({ cerrarSesion }) => {
       </div>
 
       <div className="flex flex-col items-center gap-15 font-medium py-20 bg-[#e6dac6]">
-        <h2 className="text-3xl text-black border border-white mt-15 mb-8 bg-white/60 rounded-full py-2 px-3">
+        <h2 className="text-3xl text-black border border-white mb-8 bg-white/60 rounded-full py-2 px-3">
           Animales encontrados
         </h2>
 
