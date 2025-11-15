@@ -1,19 +1,13 @@
 import { motion } from "framer-motion";
-import {
-  SidebarProvider,
-  SidebarOpciones,
-} from "../../components/SidebarOpciones/SidebarOpciones";
 import Navbar from "../../components/Navbar/Navbar";
 import Footer from "../../components/Footer/Footer";
 import Img_quehacer from "../../assets/Img_quehacer.png";
 
-const EncontreScreen = ({ cerrarSesion }) => {
+const EncontreScreen = () => {
   return (
     <div>
-      <SidebarProvider>
-        <Navbar cerrarSesion={cerrarSesion} />
-        <SidebarOpciones />
-      </SidebarProvider>
+      <Navbar />
+
       <div
         className="w-full font-medium min-h-screen text-white flex flex-col items-center justify-center px-4 md:px-10"
         style={{

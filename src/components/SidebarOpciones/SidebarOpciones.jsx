@@ -9,6 +9,8 @@ import { AdminUsuarios } from "../AdminUsuarios/AdminUsuarios";
 import { usuariosService } from "../../services/usuarios";
 import { CrearCasoAyuda } from "../CrearCasoAyuda/CrearCasoAyuda";
 import { VerCasosAyuda } from "../VerCasosAyuda/VerCasosAyuda";
+import { useState } from "react";
+import { ConfirmModal } from "../ConfirmModal/ConfirmModal";
 
 // Context y Hook
 const SidebarProviderContext = React.createContext();
@@ -20,16 +22,10 @@ export const useSidebar = () => {
   return context;
 };
 
-export const SidebarProvider = ({ children }) => {
+export const SidebarProvider = ({ children, cerrarSesion }) => {
   const [open, setOpen] = React.useState(false);
   const [user, setUser] = React.useState(null);
   const [isAdmin, setIsAdmin] = React.useState(false);
-
-  React.useEffect(() => {
-    if (open) {
-      cargarUsuario();
-    }
-  }, [open]);
 
   // Agregar listener para actualizaciones del perfil
   React.useEffect(() => {
@@ -46,7 +42,7 @@ export const SidebarProvider = ({ children }) => {
     };
   }, []);
 
-  const cargarUsuario = async () => {
+  const cargarUsuario = React.useCallback(async () => {
     try {
       const response = await usuariosService.getMiPerfil();
 
@@ -66,7 +62,11 @@ export const SidebarProvider = ({ children }) => {
       setUser(null);
       setIsAdmin(false);
     }
-  };
+  }, []);
+
+  React.useEffect(() => {
+    cargarUsuario();
+  }, [cargarUsuario]);
 
   return (
     <SidebarProviderContext.Provider
@@ -76,6 +76,7 @@ export const SidebarProvider = ({ children }) => {
         user,
         isAdmin,
         refreshUser: cargarUsuario,
+        cerrarSesion,
       }}
     >
       {children}
@@ -83,8 +84,29 @@ export const SidebarProvider = ({ children }) => {
   );
 };
 
-export const SidebarOpciones = ({ cerrarSesion }) => {
-  const { open, setOpen, user, isAdmin } = useSidebar();
+export const SidebarOpciones = () => {
+  const { open, setOpen, user, isAdmin, cerrarSesion } = useSidebar();
+  const [confirmModal, setConfirmModal] = useState({
+    isOpen: false,
+    item: null,
+  });
+
+  const handleCerrarSesionClick = () => {
+    setConfirmModal({
+      isOpen: true,
+      item: { tipo: "sesion" },
+    });
+  };
+
+  const confirmarCerrarSesion = () => {
+    // Tu lógica actual de cierre de sesión
+    cerrarSesion();
+    setConfirmModal({ isOpen: false, item: null });
+  };
+
+  const cancelarCerrarSesion = () => {
+    setConfirmModal({ isOpen: false, item: null });
+  };
 
   if (!open) return null;
 
@@ -166,7 +188,7 @@ export const SidebarOpciones = ({ cerrarSesion }) => {
           </button>
 
           <button
-            onClick={cerrarSesion}
+            onClick={handleCerrarSesionClick}
             className="font-medium w-full h-11 rounded-full text-white bg-red-500 hover:bg-red-600 transition-opacity"
           >
             Cerrar sesión
@@ -179,6 +201,12 @@ export const SidebarOpciones = ({ cerrarSesion }) => {
       <AdminUsuarios.Component />
       <CrearCasoAyuda.Component />
       <VerCasosAyuda.Component />
+      <ConfirmModal
+        confirmModal={confirmModal}
+        onClose={cancelarCerrarSesion}
+        onConfirm={confirmarCerrarSesion}
+        type="sesion" // Nuevo tipo
+      />
     </>
   );
 };

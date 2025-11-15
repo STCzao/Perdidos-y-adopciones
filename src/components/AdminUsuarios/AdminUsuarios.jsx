@@ -195,7 +195,7 @@ const UsuarioItem = React.memo(({ usuario, onToggleState, loading }) => {
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white/10 border border-white/20 rounded-lg p-4 flex justify-between items-start backdrop-blur-sm"
+      className="bg-white/10 border border-white/20 rounded-lg p-2 sm:p-1 flex justify-between items-start backdrop-blur-sm"
     >
       <div className="flex-1 text-left">
         <h3 className="font-semibold text-white text-lg">{usuario.nombre}</h3>
@@ -224,10 +224,10 @@ const UsuarioItem = React.memo(({ usuario, onToggleState, loading }) => {
       </div>
 
       {/* Boton deshabilitado si es admin */}
-      <div className="flex gap-2 ml-4">
+      <div className="flex gap-2">
         <button
           onClick={() => onToggleState(usuario, "toggleState")}
-          className={`px-4 py-2 mr-1 rounded-full transition-colors text-sm ${
+          className={`px-2 py-2 mr-1 rounded-full transition-colors text-sm ${
             usuario.rol === "ADMIN_ROLE"
               ? "bg-gray-600 cursor-not-allowed text-white/40"
               : usuario.estado

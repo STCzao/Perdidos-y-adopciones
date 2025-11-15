@@ -1,9 +1,4 @@
 "use client";
-import {
-  SidebarProvider,
-  SidebarOpciones,
-} from "../../components/SidebarOpciones/SidebarOpciones";
-
 import { motion } from "framer-motion";
 import Navbar from "../../components/Navbar/Navbar";
 import Footer from "../../components/Footer/Footer";
@@ -14,7 +9,7 @@ import { useEffect, useState } from "react";
 import Img_home from "../../assets/Img_home.png";
 import Img_colab from "../../assets/Img_colab.png";
 
-const HomeScreen = ({ cerrarSesion }) => {
+const HomeScreen = () => {
   const [perdidos, setPerdidos] = useState([]);
   const [encontrados, setEncontrados] = useState([]);
   const navigate = useNavigate();
@@ -45,10 +40,7 @@ const HomeScreen = ({ cerrarSesion }) => {
 
   return (
     <div>
-      <SidebarProvider>
-        <Navbar cerrarSesion={cerrarSesion} />
-        <SidebarOpciones />
-      </SidebarProvider>
+      <Navbar />
       <div
         className="w-full font-medium min-h-screen text-white flex flex-col items-center justify-center px-4 md:px-10"
         style={{
@@ -214,7 +206,6 @@ const HomeScreen = ({ cerrarSesion }) => {
           alegría y la suya de esperanza.
         </motion.p>
       </div>
-
       <Footer />
     </div>
   );

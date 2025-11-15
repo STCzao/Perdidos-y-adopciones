@@ -6,9 +6,6 @@ import ForgotPasswordScreen from "../src/pages/ForgotPasswordScreen/ForgotPasswo
 import ResetPasswordScreen from "../src/pages/ResetPasswordScreen/ResetPasswordScreen";
 import ProtectedRoutes from "../src/routes/ProtectedRoutes/ProtectedRoutes";
 import HomeScreen from "../src/pages/HomeScreen/HomeScreen";
-import { usuariosService } from "./services/usuarios";
-import { AdminPublicaciones } from "./components/AdminPublicaciones/AdminPublicaciones";
-import { AdminUsuarios } from "./components/AdminUsuarios/AdminUsuarios";
 import PerdidosPage from "../src/pages/PublicacionesPages/PerdidosPage";
 import EncontradosPage from "./pages/PublicacionesPages/EncontradosPage";
 import AdopcionesPage from "./pages/PublicacionesPages/AdopcionesPage";
@@ -17,16 +14,24 @@ import EncontreScreen from "./pages/WhatDoScreen/EncontreScreen";
 import CasosAyudaScreen from "./pages/CasesScreen/CasosAyudaScreen";
 import CasosExitoScreen from "./pages/CasesScreen/CasosExitoScreen";
 import ContactScreen from "./pages/ContactScreen/ContactScreen";
+import { usuariosService } from "./services/usuarios";
+import {
+  SidebarProvider,
+  SidebarOpciones,
+} from "./components/SidebarOpciones/SidebarOpciones.jsx";
+import { AdminPublicaciones } from "./components/AdminPublicaciones/AdminPublicaciones";
+import { AdminUsuarios } from "./components/AdminUsuarios/AdminUsuarios";
 
 function App() {
   const [login, setLogin] = useState(false);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Verificar token al iniciar la app
+  // --- Verificar token al iniciar ---
   useEffect(() => {
     const verificarToken = async () => {
       const token = localStorage.getItem("token");
+
       if (!token) {
         setLoading(false);
         setLogin(false);
@@ -37,11 +42,8 @@ function App() {
         const userData = await usuariosService.getMiPerfil();
 
         if (!userData.ok) {
-          // Solo cerrar sesion si el backend realmente dice que el token no sirve
           if (userData.status === 401 || userData.msg === "Sesion expirada") {
             cerrarSesion();
-          } else {
-            console.warn("Error no critico:", userData.msg);
           }
         } else {
           setUser(userData.usuario);
@@ -57,6 +59,7 @@ function App() {
     verificarToken();
   }, []);
 
+  // --- Funciones de auth ---
   const guardarUsuario = (datos) => {
     setUser(datos);
     setLogin(true);
@@ -68,13 +71,13 @@ function App() {
     setLogin(false);
     setUser(null);
     localStorage.removeItem("token");
-    // Limpiar cualquier cache de servicios
+
     if (window.adminService?.clearCache) {
       window.adminService.clearCache();
     }
   };
 
-  // Si está cargando, mostrar loading
+  // --- Loading global ---
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -82,134 +85,123 @@ function App() {
       </div>
     );
   }
+
   return (
     <BrowserRouter>
-      <Routes>
-        {/* Redirige a las publicaciones */}
-        <Route
-          path="/perdidos"
-          element={
-            <ProtectedRoutes login={login}>
-              <PerdidosPage cerrarSesion={cerrarSesion} />
-            </ProtectedRoutes>
-          }
-        />
-        <Route
-          path="/encontrados"
-          element={
-            <ProtectedRoutes login={login}>
-              <EncontradosPage cerrarSesion={cerrarSesion} />
-            </ProtectedRoutes>
-          }
-        />
-        <Route
-          path="/adopciones"
-          element={
-            <ProtectedRoutes login={login}>
-              <AdopcionesPage cerrarSesion={cerrarSesion} />
-            </ProtectedRoutes>
-          }
-        />
+      {login ? (
+        <SidebarProvider cerrarSesion={cerrarSesion}>
+          {/* Sidebar global activo solo si login = true */}
+          <SidebarOpciones />
 
-        {/* Redirige a los consejos */}
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <ProtectedRoutes login={login}>
+                  <HomeScreen user={user} />
+                </ProtectedRoutes>
+              }
+            />
 
-        <Route
-          path="/consejos-perdi"
-          element={
-            <ProtectedRoutes login={login}>
-              <PerdiScreen cerrarSesion={cerrarSesion} />
-            </ProtectedRoutes>
-          }
-        />
-        <Route
-          path="/consejos-encontre"
-          element={
-            <ProtectedRoutes login={login}>
-              <EncontreScreen cerrarSesion={cerrarSesion} />
-            </ProtectedRoutes>
-          }
-        />
+            <Route
+              path="/perdidos"
+              element={
+                <ProtectedRoutes login={login}>
+                  <PerdidosPage cerrarSesion={cerrarSesion} />
+                </ProtectedRoutes>
+              }
+            />
 
-        {/* Redirige a los casos de ayuda y de éxito */}
+            <Route
+              path="/encontrados"
+              element={
+                <ProtectedRoutes login={login}>
+                  <EncontradosPage cerrarSesion={cerrarSesion} />
+                </ProtectedRoutes>
+              }
+            />
 
-        <Route
-          path="/casos-ayuda"
-          element={
-            <ProtectedRoutes login={login}>
-              <CasosAyudaScreen cerrarSesion={cerrarSesion} />
-            </ProtectedRoutes>
-          }
-        />
-        <Route
-          path="/casos-exito"
-          element={
-            <ProtectedRoutes login={login}>
-              <CasosExitoScreen cerrarSesion={cerrarSesion} />
-            </ProtectedRoutes>
-          }
-        />
+            <Route
+              path="/adopciones"
+              element={
+                <ProtectedRoutes login={login}>
+                  <AdopcionesPage cerrarSesion={cerrarSesion} />
+                </ProtectedRoutes>
+              }
+            />
 
-        {/* Pagina de contacto */}
-        <Route
-          path="/contacto"
-          element={
-            <ProtectedRoutes login={login}>
-              <ContactScreen cerrarSesion={cerrarSesion}/>
-            </ProtectedRoutes>
-          }
-        />
+            <Route
+              path="/consejos-perdi"
+              element={
+                <ProtectedRoutes login={login}>
+                  <PerdiScreen cerrarSesion={cerrarSesion} />
+                </ProtectedRoutes>
+              }
+            />
 
-        {/* Ruta raíz - redirige según autenticación */}
-        <Route
-          path="/"
-          element={
-            login ? (
-              <ProtectedRoutes login={login}>
-                <HomeScreen cerrarSesion={cerrarSesion} user={user} />
-              </ProtectedRoutes>
-            ) : (
-              <Navigate to="/login" />
-            )
-          }
-        />
+            <Route
+              path="/consejos-encontre"
+              element={
+                <ProtectedRoutes login={login}>
+                  <EncontreScreen cerrarSesion={cerrarSesion} />
+                </ProtectedRoutes>
+              }
+            />
 
-        {/* Login */}
-        <Route
-          path="/login"
-          element={
-            login ? (
-              <Navigate to="/" />
-            ) : (
-              <LoginScreen
-                iniciarSesion={iniciarSesion}
-                guardarUsuario={guardarUsuario}
-              />
-            )
-          }
-        />
+            <Route
+              path="/casos-ayuda"
+              element={
+                <ProtectedRoutes login={login}>
+                  <CasosAyudaScreen cerrarSesion={cerrarSesion} />
+                </ProtectedRoutes>
+              }
+            />
 
-        {/* Register */}
-        <Route
-          path="/register"
-          element={login ? <Navigate to="/" /> : <RegisterScreen />}
-        />
+            <Route
+              path="/casos-exito"
+              element={
+                <ProtectedRoutes login={login}>
+                  <CasosExitoScreen cerrarSesion={cerrarSesion} />
+                </ProtectedRoutes>
+              }
+            />
 
-        {/* Recuperar contraseña */}
-        <Route
-          path="/forgot-password"
-          element={login ? <Navigate to="/" /> : <ForgotPasswordScreen />}
-        />
+            <Route
+              path="/contacto"
+              element={
+                <ProtectedRoutes login={login}>
+                  <ContactScreen cerrarSesion={cerrarSesion} />
+                </ProtectedRoutes>
+              }
+            />
 
-        <Route
-          path="/reset-password/:token"
-          element={login ? <Navigate to="/" /> : <ResetPasswordScreen />}
-        />
+            <Route path="*" element={<Navigate to="/" />} />
+          </Routes>
+        </SidebarProvider>
+      ) : (
+        <>
+          <Routes>
+            <Route
+              path="/login"
+              element={
+                <LoginScreen
+                  iniciarSesion={iniciarSesion}
+                  guardarUsuario={guardarUsuario}
+                />
+              }
+            />
+            <Route path="/register" element={<RegisterScreen />} />
+            <Route path="/forgot-password" element={<ForgotPasswordScreen />} />
+            <Route
+              path="/reset-password/:token"
+              element={<ResetPasswordScreen />}
+            />
+            <Route path="*" element={<Navigate to="/login" />} />
+          </Routes>
+        </>
+      )}
 
-        {/* Ruta de fallback para URLs no encontradas */}
-        <Route path="*" element={<Navigate to={login ? "/" : "/login"} />} />
-      </Routes>
-
-      {/* Renderizar componentes modales de admin globalmente */}
+      {/* Modales Admin accesibles siempre */}
       <AdminPublicaciones.Component />
       <AdminUsuarios.Component />
     </BrowserRouter>

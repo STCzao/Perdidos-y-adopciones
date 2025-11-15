@@ -1,9 +1,4 @@
 import { motion } from "framer-motion";
-import {
-  SidebarProvider,
-  SidebarOpciones,
-} from "../../components/SidebarOpciones/SidebarOpciones";
-
 import Navbar from "../../components/Navbar/Navbar";
 import Footer from "../../components/Footer/Footer";
 import { useEffect, useState } from "react";
@@ -11,14 +6,13 @@ import { casosAyudaService } from "../../services/casosayuda";
 import CardsAyuda from "../../components/CardsAyuda/CardsAyuda";
 import Img_Casos from "../../assets/Img_Casos.jpg";
 
-const CasosAyudaScreen = ({ cerrarSesion }) => {
+const CasosAyudaScreen = () => {
   const [casos, setCasos] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const cargar = async () => {
       const data = await casosAyudaService.getCasosAyuda();
-      console.log("Respuesta del backend:", data);
       if (data.ok && Array.isArray(data.casos)) {
         setCasos(data.casos);
       }
@@ -29,10 +23,7 @@ const CasosAyudaScreen = ({ cerrarSesion }) => {
 
   return (
     <div>
-      <SidebarProvider>
-        <Navbar cerrarSesion={cerrarSesion} />
-        <SidebarOpciones />
-      </SidebarProvider>
+      <Navbar />
       <div
         className="w-full font-medium min-h-screen text-white flex flex-col items-center justify-center px-4 md:px-10"
         style={{

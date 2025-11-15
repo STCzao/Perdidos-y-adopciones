@@ -1,15 +1,11 @@
 import React from "react";
 import Logo from "../../assets/Logo Perdidos y adopciones.png";
-import {
-  SidebarProvider,
-  useSidebar,
-  SidebarOpciones,
-} from "../SidebarOpciones/SidebarOpciones";
+import { useSidebar } from "../SidebarOpciones/SidebarOpciones";
 import { CrearPublicacion } from "../CrearPublicacion/CrearPublicacion";
 import { EditarPerfil } from "../EditarPerfil/EditarPerfil";
 import { VerPublicaciones } from "../VerPublicaciones/VerPublicaciones";
 
-const NavbarContent = ({ cerrarSesion }) => {
+const NavbarContent = () => {
   const { open, setOpen } = useSidebar();
 
   const navLinks = [
@@ -62,8 +58,14 @@ const NavbarContent = ({ cerrarSesion }) => {
       >
         {/* Logo - Mantiene posición a la izquierda */}
         <div
-          className="flex items-center cursor-pointer"
-          onClick={() => setOpen(!open)}
+          className="flex items-center cursor-pointer" // Si está abierto, navegar a Inicio. Si está cerrado, ábrelo.
+          onClick={() => {
+            if (open) {
+              window.location.href = "/"; // Redirige al inicio
+            } else {
+              setOpen(true); // Abre el Sidebar
+            }
+          }}
         >
           <img
             src={Logo}
@@ -260,7 +262,6 @@ const NavbarContent = ({ cerrarSesion }) => {
       </div>
 
       {/* Sidebar y modales */}
-      <SidebarOpciones cerrarSesion={cerrarSesion} />
       <CrearPublicacion.Component />
       <EditarPerfil.Component />
       <VerPublicaciones.Component />
@@ -268,10 +269,6 @@ const NavbarContent = ({ cerrarSesion }) => {
   );
 };
 
-const Navbar = ({ cerrarSesion }) => (
-  <SidebarProvider>
-    <NavbarContent cerrarSesion={cerrarSesion} />
-  </SidebarProvider>
-);
+const Navbar = () => <NavbarContent />;
 
 export default Navbar;

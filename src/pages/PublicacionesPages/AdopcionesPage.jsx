@@ -1,7 +1,3 @@
-import {
-  SidebarProvider,
-  SidebarOpciones,
-} from "../../components/SidebarOpciones/SidebarOpciones";
 import Navbar from "../../components/Navbar/Navbar";
 import Footer from "../../components/Footer/Footer";
 import { motion } from "framer-motion";
@@ -10,7 +6,7 @@ import { useEffect, useState } from "react";
 import { publicacionesService } from "../../services/publicaciones";
 import Img_publicaciones from "../../assets/Img_publicaciones.jpeg";
 
-const AdopcionesPage = (cerrarSesion) => {
+const AdopcionesPage = () => {
   const [publicaciones, setPublicaciones] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -29,10 +25,7 @@ const AdopcionesPage = (cerrarSesion) => {
 
   return (
     <div>
-      <SidebarProvider>
-        <Navbar cerrarSesion={cerrarSesion} />
-        <SidebarOpciones />
-      </SidebarProvider>
+      <Navbar />
       <div
         className="w-full font-medium min-h-screen text-white flex flex-col md:flex-row items-center justify-center px-4 md:px-16 py-40"
         style={{

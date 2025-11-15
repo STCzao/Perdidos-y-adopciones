@@ -15,6 +15,8 @@ export const ConfirmModal = React.memo(
           return confirmModal.item?.estado
             ? "Desactivar usuario"
             : "Activar usuario";
+        case "sesion":
+          return "Cerrar sesión";
         default:
           return "Confirmar acción";
       }
@@ -30,20 +32,24 @@ export const ConfirmModal = React.memo(
           return `¿Estas seguro de que quieres ${
             confirmModal.item?.estado ? "desactivar" : "activar"
           } al usuario "${confirmModal.item?.nombre}"?`;
+        case "sesion":
+          return "¿Estás seguro de que quieres cerrar sesión?";
         default:
           return "Confirma la acción para continuar.";
       }
     };
 
     return (
-      <div className="fixed inset-0 flex items-center justify-center bg-black/10 bg-opacity-50 z-50">
+      <div className="fixed font-medium inset-0 flex items-center justify-center bg-black/10 bg-opacity-50 z-[200]">
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.8, opacity: 0 }}
           className="bg-white rounded-lg shadow-lg p-6 w-full max-w-sm text-center"
         >
-          <h2 className="text-red-500 text-lg font-semibold mb-4">{getTitle()}</h2>
+          <h2 className="text-red-500 text-lg font-semibold mb-4">
+            {getTitle()}
+          </h2>
           <p className="text-black mb-6">{getMessage()}</p>
 
           <div className="flex justify-center gap-4">

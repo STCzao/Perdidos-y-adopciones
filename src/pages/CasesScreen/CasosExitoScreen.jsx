@@ -1,20 +1,12 @@
 import React from "react";
-import {
-  SidebarProvider,
-  SidebarOpciones,
-} from "../../components/SidebarOpciones/SidebarOpciones";
-
 import { motion } from "framer-motion";
 import Navbar from "../../components/Navbar/Navbar";
 import Footer from "../../components/Footer/Footer";
 
-const CasosExitoScreen = ({ cerrarSesion }) => {
+const CasosExitoScreen = () => {
   return (
     <div>
-      <SidebarProvider>
-        <Navbar cerrarSesion={cerrarSesion} />
-        <SidebarOpciones />
-      </SidebarProvider>
+      <Navbar />
       <div
         className="w-full min-h-screen text-white flex flex-col items-center justify-center px-4 md:px-10"
         style={{
