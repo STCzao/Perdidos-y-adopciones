@@ -34,7 +34,11 @@ const CasosAyudaScreen = () => {
       >
         <div className="flex flex-col w-full justify-center items-center text-white/90 mb-15">
           <motion.p className="text-3xl mb-10 text-center">
-            Casos de Ayuda Comunitaria
+            Blog Comunitario
+          </motion.p>
+          <motion.p className="text-xl mb-10 text-center">
+            Aquí podrás encontrar historias, consejos y experiencias compartidas
+            por nuestra comunidad.
           </motion.p>
           <div>
             <motion.div className="flex flex-col gap-6 mt-10 w-full">

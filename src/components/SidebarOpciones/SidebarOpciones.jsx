@@ -122,21 +122,18 @@ export const SidebarOpciones = () => {
         <h2 className="text-xl text-white text-center font-bold mb-4">
           {user ? `Hola, ${user.nombre}` : "Opciones de Usuario"}
         </h2>
-
-        <button
-          onClick={() => CrearPublicacion.openModal()}
-          className="border border-white/20 font-medium w-full h-11 rounded-full text-white bg-white/20 hover:bg-[#FF7857] transition-opacity"
-        >
-          Crear publicación
-        </button>
-
         <button
           onClick={() => EditarPerfil.openModal()}
           className="border border-white/20 font-medium w-full h-11 rounded-full text-white bg-white/20 hover:bg-[#FF7857] transition-opacity"
         >
           Editar perfil
         </button>
-
+        <button
+          onClick={() => CrearPublicacion.openModal()}
+          className="border border-white/20 font-medium w-full h-11 rounded-full text-white bg-white/20 hover:bg-[#FF7857] transition-opacity"
+        >
+          Crear publicación
+        </button>
         <button
           onClick={() => VerPublicaciones.openModal()}
           className="border border-white/20 font-medium w-full h-11 rounded-full text-white bg-white/20 hover:bg-[#FF7857] transition-opacity"
@@ -147,13 +144,13 @@ export const SidebarOpciones = () => {
           onClick={() => CrearCasoAyuda.openModal()}
           className="border border-white/20 font-medium w-full h-11 rounded-full text-white bg-white/20 hover:bg-[#FF7857] transition-opacity"
         >
-          Crear caso de ayuda
+          Crear caso en blog
         </button>
         <button
           onClick={() => VerCasosAyuda.openModal()}
           className="border border-white/20 font-medium w-full h-11 rounded-full text-white bg-white/20 hover:bg-[#FF7857] transition-opacity"
         >
-          Mis casos de ayuda
+          Mis casos en blog
         </button>
 
         {/* Sección administrador */}

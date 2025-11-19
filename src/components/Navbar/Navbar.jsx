@@ -11,9 +11,30 @@ const NavbarContent = () => {
   const navLinks = [
     { name: "Inicio", path: "/" },
     {
-      name: "¿Qué hacer?",
+      name: "Perdidos",
       dropdown: [
+        {
+          name: "Colocar anuncio de he perdido un animal",
+          action: () => CrearPublicacion.openModal(),
+        },
+        {
+          name: "Ver anuncios de animales perdidos",
+          path: "/perdidos",
+        },
         { name: "¿Qué hacer si perdí un animal?", path: "/consejos-perdi" },
+      ],
+    },
+    {
+      name: "Encontrados",
+      dropdown: [
+        {
+          name: "Colocar anuncio de he encontrado un animal",
+          action: () => CrearPublicacion.openModal(),
+        },
+        {
+          name: "Ver anuncios de animales encontrados",
+          path: "/encontrados",
+        },
         {
           name: "¿Qué hacer si encontré un animal?",
           path: "/consejos-encontre",
@@ -21,12 +42,25 @@ const NavbarContent = () => {
       ],
     },
     {
-      name: "Casos...",
-      path: "/casos",
+      name: "Adopciones",
       dropdown: [
-        { name: "Para ayuda", path: "/casos-ayuda" },
-        { name: "De éxito", path: "/casos-exito" },
+        {
+          name: "Colocar anuncio de animal en adopción ",
+          action: () => CrearPublicacion.openModal(),
+        },
+        {
+          name: "Ver anuncios de animales en adopción",
+          path: "/adopciones",
+        },
+        {
+          name: "¿Qué hacer si quiero adoptar o dar en adopción?",
+          path: "/consejos-adopcion",
+        },
       ],
+    },
+    {
+      name: "Blog",
+      path: "/blog",
     },
   ];
 
@@ -58,7 +92,7 @@ const NavbarContent = () => {
       >
         {/* Logo - Mantiene posición a la izquierda */}
         <div
-          className="flex items-center cursor-pointer" // Si está abierto, navegar a Inicio. Si está cerrado, ábrelo.
+          className="flex flex-col items-center cursor-pointer" // Si está abierto, navegar a Inicio. Si está cerrado, ábrelo.
           onClick={() => {
             if (open) {
               window.location.href = "/"; // Redirige al inicio
@@ -74,9 +108,8 @@ const NavbarContent = () => {
               isScrolled ? "filter-none" : "invert"
             }`}
           />
-          <div className="flex gap-2 ml-5 items-center font-medium">
-            <span className="text-3xl">&#8592;</span>
-            <p>Registra tu animal</p>
+          <div className="flex ml-1 items-center font-medium">
+            <span>Perfil</span>
           </div>
         </div>
 
@@ -133,28 +166,27 @@ const NavbarContent = () => {
                         }
                       }}
                     >
-                      {link.dropdown.map((item, j) => (
-                        <a
-                          key={j}
-                          href={item.path}
-                          className="px-4 py-2 text-white hover:bg-white/20 transition-colors"
-                          onClick={() => {
-                            // Cerrar dropdown al hacer click en un item (tablets)
-                            const dropdown = document.querySelector(
-                              `[data-dropdown="${link.name}"]`
-                            );
-                            if (dropdown) {
-                              dropdown.classList.add("opacity-0", "invisible");
-                              dropdown.classList.remove(
-                                "opacity-100",
-                                "visible"
-                              );
-                            }
-                          }}
-                        >
-                          {item.name}
-                        </a>
-                      ))}
+                      {link.dropdown.map((item, j) =>
+                        item.action ? (
+                          <button
+                            key={j}
+                            onClick={() => {
+                              item.action();
+                            }}
+                            className="px-4 py-2 text-left text-white hover:bg-white/20 transition-colors w-full"
+                          >
+                            {item.name}
+                          </button>
+                        ) : (
+                          <a
+                            key={j}
+                            href={item.path}
+                            className="px-4 py-2 text-white hover:bg-white/20 transition-colors"
+                          >
+                            {item.name}
+                          </a>
+                        )
+                      )}
                     </div>
                   </div>
                 ) : (
@@ -234,15 +266,27 @@ const NavbarContent = () => {
               </button>
               {link.dropdown &&
                 mobileDropdownOpen[link.name] &&
-                link.dropdown.map((item, j) => (
-                  <a
-                    key={j}
-                    href={item.path}
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    {item.name}
-                  </a>
-                ))}
+                link.dropdown.map((item, j) =>
+                  item.action ? (
+                    <button
+                      key={j}
+                      onClick={() => {
+                        item.action();
+                        setIsMenuOpen(false);
+                      }}
+                    >
+                      {item.name}
+                    </button>
+                  ) : (
+                    <a
+                      key={j}
+                      href={item.path}
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      {item.name}
+                    </a>
+                  )
+                )}
             </div>
           ) : (
             <a key={i} href={link.path} onClick={() => setIsMenuOpen(false)}>

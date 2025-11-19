@@ -12,7 +12,6 @@ import AdopcionesPage from "./pages/PublicacionesPages/AdopcionesPage";
 import PerdiScreen from "./pages/WhatDoScreen/PerdiScreen";
 import EncontreScreen from "./pages/WhatDoScreen/EncontreScreen";
 import CasosAyudaScreen from "./pages/CasesScreen/CasosAyudaScreen";
-import CasosExitoScreen from "./pages/CasesScreen/CasosExitoScreen";
 import ContactScreen from "./pages/ContactScreen/ContactScreen";
 import { usuariosService } from "./services/usuarios";
 import {
@@ -21,6 +20,7 @@ import {
 } from "./components/SidebarOpciones/SidebarOpciones.jsx";
 import { AdminPublicaciones } from "./components/AdminPublicaciones/AdminPublicaciones";
 import { AdminUsuarios } from "./components/AdminUsuarios/AdminUsuarios";
+import AdoptarScreen from "./pages/WhatDoScreen/AdoptarScreen.jsx";
 
 function App() {
   const [login, setLogin] = useState(false);
@@ -107,7 +107,7 @@ function App() {
               path="/perdidos"
               element={
                 <ProtectedRoutes login={login}>
-                  <PerdidosPage cerrarSesion={cerrarSesion} />
+                  <PerdidosPage user={user}  />
                 </ProtectedRoutes>
               }
             />
@@ -116,7 +116,7 @@ function App() {
               path="/encontrados"
               element={
                 <ProtectedRoutes login={login}>
-                  <EncontradosPage cerrarSesion={cerrarSesion} />
+                  <EncontradosPage user={user}  />
                 </ProtectedRoutes>
               }
             />
@@ -125,7 +125,7 @@ function App() {
               path="/adopciones"
               element={
                 <ProtectedRoutes login={login}>
-                  <AdopcionesPage cerrarSesion={cerrarSesion} />
+                  <AdopcionesPage user={user}  />
                 </ProtectedRoutes>
               }
             />
@@ -134,7 +134,7 @@ function App() {
               path="/consejos-perdi"
               element={
                 <ProtectedRoutes login={login}>
-                  <PerdiScreen cerrarSesion={cerrarSesion} />
+                  <PerdiScreen user={user}  />
                 </ProtectedRoutes>
               }
             />
@@ -143,25 +143,25 @@ function App() {
               path="/consejos-encontre"
               element={
                 <ProtectedRoutes login={login}>
-                  <EncontreScreen cerrarSesion={cerrarSesion} />
+                  <EncontreScreen user={user}  />
                 </ProtectedRoutes>
               }
             />
 
             <Route
-              path="/casos-ayuda"
+              path="/consejos-adopcion"
               element={
                 <ProtectedRoutes login={login}>
-                  <CasosAyudaScreen cerrarSesion={cerrarSesion} />
+                  <AdoptarScreen user={user}  />
                 </ProtectedRoutes>
               }
             />
 
             <Route
-              path="/casos-exito"
+              path="/blog"
               element={
                 <ProtectedRoutes login={login}>
-                  <CasosExitoScreen cerrarSesion={cerrarSesion} />
+                  <CasosAyudaScreen user={user}  />
                 </ProtectedRoutes>
               }
             />
@@ -170,7 +170,7 @@ function App() {
               path="/contacto"
               element={
                 <ProtectedRoutes login={login}>
-                  <ContactScreen cerrarSesion={cerrarSesion} />
+                  <ContactScreen user={user}  />
                 </ProtectedRoutes>
               }
             />
