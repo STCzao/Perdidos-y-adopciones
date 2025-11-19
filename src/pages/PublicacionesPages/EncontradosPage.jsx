@@ -5,6 +5,7 @@ import CardGenerica from "../../components/CardGenerica/CardGenerica";
 import { useEffect, useState } from "react";
 import { publicacionesService } from "../../services/publicaciones";
 import Img_publicaciones from "../../assets/Img_publicaciones.jpeg";
+import { CrearPublicacion } from "../../components/CrearPublicacion/CrearPublicacion";
 
 const EncontradosPage = () => {
   const [publicaciones, setPublicaciones] = useState([]);
@@ -47,6 +48,12 @@ const EncontradosPage = () => {
             Aquí podrás consultar sobre todas las mascotas ENCONTRADAS. Recuerda
             utilizar los filtros mayor precisión.
           </motion.p>
+          <motion.button
+            onClick={() => CrearPublicacion.openModal()}
+            className="border border-white/20 font-medium w-50 h-11 rounded-full text-white bg-white/20 hover:bg-[#FF7857] transition-opacity"
+          >
+            Crear publicación
+          </motion.button>
         </div>
       </div>
       <div className="bg-[#e6dac6] flex flex-col items-center gap-5 font-medium">

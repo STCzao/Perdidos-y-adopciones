@@ -5,8 +5,9 @@ import CardGenerica from "../../components/CardGenerica/CardGenerica";
 import { useEffect, useState } from "react";
 import { publicacionesService } from "../../services/publicaciones";
 import Img_publicaciones from "../../assets/Img_publicaciones.jpeg";
+import { CrearPublicacion } from "../../components/CrearPublicacion/CrearPublicacion";
 
-const PerdidosPage = ({ cerrarSesion }) => {
+const PerdidosPage = () => {
   const [publicaciones, setPublicaciones] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -43,9 +44,14 @@ const PerdidosPage = ({ cerrarSesion }) => {
             className="border border-white/20 font-medium mt-10 flex flex-col justify-center p-4 sm:p-5 w-full sm:w-11/12 md:w-full text-base sm:text-lg md:text-xl rounded-lg bg-white/20 mb-8 text-center"
           >
             Aquí podrás consultar sobre todas las mascotas que se encuentran
-            PERDIDAS. Recuerda utilizar los filtros para mayor
-            precisión.
+            PERDIDAS. Recuerda utilizar los filtros para mayor precisión.
           </motion.p>
+          <motion.button
+            onClick={() => CrearPublicacion.openModal()}
+            className="border border-white/20 font-medium w-50 h-11 rounded-full text-white bg-white/20 hover:bg-[#FF7857] transition-opacity"
+          >
+            Crear publicación
+          </motion.button>
         </div>
       </div>
       <div className="bg-[#e6dac6] flex flex-col items-center gap-5 font-medium">
