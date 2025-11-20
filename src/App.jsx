@@ -21,6 +21,9 @@ import {
 import { AdminPublicaciones } from "./components/AdminPublicaciones/AdminPublicaciones";
 import { AdminUsuarios } from "./components/AdminUsuarios/AdminUsuarios";
 import AdoptarScreen from "./pages/WhatDoScreen/AdoptarScreen.jsx";
+import AdopcionesScreen from "./pages/MediaScreen/AdopcionesScreen.jsx";
+import PerdidosScreen from "./pages/MediaScreen/PerdidosScreen.jsx";
+import EncontradosScreen from "./pages/MediaScreen/EncontradosScreen.jsx";
 
 function App() {
   const [login, setLogin] = useState(false);
@@ -107,7 +110,7 @@ function App() {
               path="/perdidos"
               element={
                 <ProtectedRoutes login={login}>
-                  <PerdidosPage user={user}  />
+                  <PerdidosPage user={user} />
                 </ProtectedRoutes>
               }
             />
@@ -116,7 +119,7 @@ function App() {
               path="/encontrados"
               element={
                 <ProtectedRoutes login={login}>
-                  <EncontradosPage user={user}  />
+                  <EncontradosPage user={user} />
                 </ProtectedRoutes>
               }
             />
@@ -125,7 +128,7 @@ function App() {
               path="/adopciones"
               element={
                 <ProtectedRoutes login={login}>
-                  <AdopcionesPage user={user}  />
+                  <AdopcionesPage user={user} />
                 </ProtectedRoutes>
               }
             />
@@ -134,7 +137,7 @@ function App() {
               path="/consejos-perdi"
               element={
                 <ProtectedRoutes login={login}>
-                  <PerdiScreen user={user}  />
+                  <PerdiScreen user={user} />
                 </ProtectedRoutes>
               }
             />
@@ -143,7 +146,7 @@ function App() {
               path="/consejos-encontre"
               element={
                 <ProtectedRoutes login={login}>
-                  <EncontreScreen user={user}  />
+                  <EncontreScreen user={user} />
                 </ProtectedRoutes>
               }
             />
@@ -152,7 +155,34 @@ function App() {
               path="/consejos-adopcion"
               element={
                 <ProtectedRoutes login={login}>
-                  <AdoptarScreen user={user}  />
+                  <AdoptarScreen user={user} />
+                </ProtectedRoutes>
+              }
+            />
+
+            <Route
+              path="/perdidos-informacion"
+              element={
+                <ProtectedRoutes login={login}>
+                  <PerdidosScreen user={user} />
+                </ProtectedRoutes>
+              }
+            />
+
+            <Route
+              path="/encontrados-informacion"
+              element={
+                <ProtectedRoutes login={login}>
+                  <EncontradosScreen user={user} />
+                </ProtectedRoutes>
+              }
+            />
+
+            <Route
+              path="/adopciones-informacion"
+              element={
+                <ProtectedRoutes login={login}>
+                  <AdopcionesScreen user={user} />
                 </ProtectedRoutes>
               }
             />
@@ -161,7 +191,7 @@ function App() {
               path="/blog"
               element={
                 <ProtectedRoutes login={login}>
-                  <CasosAyudaScreen user={user}  />
+                  <CasosAyudaScreen user={user} />
                 </ProtectedRoutes>
               }
             />
@@ -170,7 +200,7 @@ function App() {
               path="/contacto"
               element={
                 <ProtectedRoutes login={login}>
-                  <ContactScreen user={user}  />
+                  <ContactScreen user={user} />
                 </ProtectedRoutes>
               }
             />
