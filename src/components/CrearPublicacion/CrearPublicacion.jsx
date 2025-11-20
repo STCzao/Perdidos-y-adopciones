@@ -352,40 +352,42 @@ export const CrearPublicacion = {
         >
           <motion.form
             onSubmit={handleSubmit}
-            className="relative max-w-2xl w-full text-center border border-white/70 rounded-2xl px-8 py-6 shadow-lg bg-white/10 backdrop-blur-sm"
+            className=" max-w-2xl w-full text-center border border-white/70 rounded-2xl px-8 py-6 shadow-lg bg-white/10 backdrop-blur-sm"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <button
-              onClick={handleClose}
-              className="absolute top-4 right-4 text-white hover:text-[#FF7857] transition-colors"
-              disabled={submitting}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="w-5 h-5"
+            <div className="sticky top-0 z-50 bg-[#000000]/90 backdrop-blur-sm py-4 rounded-xl border border-white/20">
+              <button
+                onClick={handleClose}
+                className="absolute top-4 right-4 text-white hover:text-[#FF7857] transition-colors"
+                disabled={submitting}
               >
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
-            </button>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="w-5 h-5"
+                >
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
 
-            <div className="flex flex-col items-center justify-center">
-              <h1 className="text-white text-3xl mt-2 font-medium">
-                {isEditing ? "Editar publicación" : "Crear publicación"}
-              </h1>
-              <p className="text-white/80 text-sm mt-1">
-                {isEditing
-                  ? "Modifique los datos de la mascota"
-                  : "Complete los datos de la mascota"}
-              </p>
+              <div className="flex flex-col items-center justify-center">
+                <h1 className="text-white text-3xl mt-2 font-medium">
+                  {isEditing ? "Editar publicación" : "Crear publicación"}
+                </h1>
+                <p className="text-white/80 text-sm mt-1">
+                  {isEditing
+                    ? "Modifique los datos de la mascota"
+                    : "Complete los datos de la mascota"}
+                </p>
+              </div>
             </div>
 
             {loading ? (

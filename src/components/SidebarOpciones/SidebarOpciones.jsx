@@ -1,7 +1,6 @@
 "use client";
 import React from "react";
 import { motion } from "motion/react";
-import { CrearPublicacion } from "../CrearPublicacion/CrearPublicacion";
 import { EditarPerfil } from "../EditarPerfil/EditarPerfil";
 import { VerPublicaciones } from "../VerPublicaciones/VerPublicaciones";
 import { AdminPublicaciones } from "../AdminPublicaciones/AdminPublicaciones";
@@ -129,29 +128,12 @@ export const SidebarOpciones = () => {
           Editar perfil
         </button>
         <button
-          onClick={() => CrearPublicacion.openModal()}
-          className="border border-white/20 font-medium w-full h-11 rounded-full text-white bg-white/20 hover:bg-[#FF7857] transition-opacity"
-        >
-          Crear publicación
-        </button>
-        <button
           onClick={() => VerPublicaciones.openModal()}
           className="border border-white/20 font-medium w-full h-11 rounded-full text-white bg-white/20 hover:bg-[#FF7857] transition-opacity"
         >
           Mis publicaciones
         </button>
-        <button
-          onClick={() => CrearCasoAyuda.openModal()}
-          className="border border-white/20 font-medium w-full h-11 rounded-full text-white bg-white/20 hover:bg-[#FF7857] transition-opacity"
-        >
-          Crear caso en blog
-        </button>
-        <button
-          onClick={() => VerCasosAyuda.openModal()}
-          className="border border-white/20 font-medium w-full h-11 rounded-full text-white bg-white/20 hover:bg-[#FF7857] transition-opacity"
-        >
-          Mis casos en blog
-        </button>
+        
 
         {/* Sección administrador */}
         {isAdmin && (

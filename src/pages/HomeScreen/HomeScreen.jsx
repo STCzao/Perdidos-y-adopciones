@@ -69,11 +69,11 @@ const HomeScreen = () => {
             transition={{ duration: 0.5, delay: 0.3 }}
             className="border border-white/20 font-medium w-50 h-11 rounded-full text-white bg-white/20 hover:bg-[#FF7857] transition-opacity col-span-1"
             onClick={() => {
-              navigate("/perdidos");
+              navigate("/perdidos-informacion");
               window.scrollTo(0, 0);
             }}
           >
-            Ver animales perdidos
+            Consultar perdidos
           </motion.button>
           <motion.button
             initial={{ opacity: 0, y: 10 }}
@@ -81,11 +81,11 @@ const HomeScreen = () => {
             transition={{ duration: 0.5, delay: 0.3 }}
             className="border border-white/20 font-medium w-50 h-11 rounded-full text-white bg-white/20 hover:bg-[#FF7857] transition-opacity col-span-1"
             onClick={() => {
-              navigate("/encontrados");
+              navigate("/encontrados-informacion");
               window.scrollTo(0, 0);
             }}
           >
-            Ver animales encontrados
+            Consultar encontrados
           </motion.button>
           <motion.button
             initial={{ opacity: 0, y: 10 }}
@@ -93,11 +93,11 @@ const HomeScreen = () => {
             transition={{ duration: 0.5, delay: 0.3 }}
             className="border border-white/20 font-medium w-50 h-11 rounded-full text-white bg-white/20 hover:bg-[#FF7857] transition-opacity col-span-1"
             onClick={() => {
-              navigate("/adopciones");
+              navigate("/adopciones-informacion");
               window.scrollTo(0, 0);
             }}
           >
-            Ver animales en adopción
+            Consultar adopciones
           </motion.button>
         </div>
       </div>
