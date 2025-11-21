@@ -653,6 +653,7 @@ export const CrearPublicacion = {
                         className="bg-transparent text-gray-500 placeholder-gray-500 outline-none text-sm w-full h-full"
                       >
                         <option value="">Tamaño *</option>
+                        <option value="MINI">Mini</option>
                         <option value="PEQUEÑO">Pequeño</option>
                         <option value="MEDIANO">Mediano</option>
                         <option value="GRANDE">Grande</option>
@@ -670,15 +671,18 @@ export const CrearPublicacion = {
                       Ingrese la edad aproximada de la mascota
                     </label>
                     <div className="flex items-center w-full bg-white border border-gray-300/80 h-12 rounded-full overflow-hidden pl-6 gap-2">
-                      <input
-                        type="text"
+                      <select
                         name="edad"
-                        placeholder="Edad *"
                         value={form.edad}
                         onChange={handleChange}
                         disabled={submitting}
                         className="bg-transparent text-gray-500 placeholder-gray-500 outline-none text-sm w-full h-full"
-                      />
+                      >
+                        <option value="">Edad *</option>
+                        <option value="CACHORRO">Cachorro</option>
+                        <option value="ADULTO">Adulto</option>
+                        <option value="MAYOR">Mayor</option>
+                      </select>
                     </div>
                     {errors.edad && (
                       <p className="text-red-400 text-xs mt-1 text-left w-full px-4">

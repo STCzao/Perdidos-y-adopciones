@@ -79,6 +79,27 @@ export const VerPublicaciones = {
       }
     }, []);
 
+    const handleEditarEstado = useCallback(async (id, nuevoEstado) => {
+      try {
+        const result = await publicacionesService.actualizarEstado(
+          id,
+          nuevoEstado
+        );
+        if (result.success) {
+          setPublicaciones((prev) =>
+            prev.map((p) => (p._id === id ? { ...p, estado: nuevoEstado } : p))
+          );
+          return true;
+        } else {
+          setError(result.msg || "Error al actualizar estado");
+          return false;
+        }
+      } catch {
+        setError("Error de conexion al actualizar estado");
+        return false;
+      }
+    }, []);
+
     const handleEditar = useCallback((publicacion) => {
       setEditarData(publicacion);
       CrearPublicacion.openModal(publicacion); // Reutiliza el modal existente
@@ -194,6 +215,7 @@ export const VerPublicaciones = {
                     publicacion={publicacion}
                     onEliminar={openConfirmModal}
                     onEditar={handleEditar}
+                    onEditarEstado={handleEditarEstado}
                     loading={loading}
                   />
                 ))}
@@ -219,7 +241,14 @@ export const VerPublicaciones = {
 };
 
 const PublicacionItem = React.memo(
-  ({ publicacion, onEliminar, onEditar, loading }) => {
+  ({ publicacion, onEliminar, onEditar, onEditarEstado, loading }) => {
+    const estados = ["ACTIVO", "INACTIVO", "ENCONTRADO", "ADOPTADO", "VISTO"];
+
+    const handleEstadoChange = (e) => {
+      const nuevoEstado = e.target.value;
+      onEditarEstado(publicacion._id, nuevoEstado);
+    };
+
     return (
       <motion.div
         initial={{ opacity: 0, y: 10 }}
@@ -230,16 +259,31 @@ const PublicacionItem = React.memo(
           <h3 className="font-semibold text-white text-lg">
             {publicacion.titulo}
           </h3>
+
           <div className="flex flex-wrap gap-2 mt-2 text-sm text-white/80">
             <span className="bg-blue-500/20 text-blue-300 px-2 py-1 rounded">
               {publicacion.tipo}
             </span>
-            <span className="text-white/70">Estado: {publicacion.estado}</span>
+
+            {/* SELECT AGREGADO */}
+            <select
+              value={publicacion.estado}
+              onChange={handleEstadoChange}
+              disabled={loading}
+              className="bg-white/10 border border-white/20 text-white/80 px-2 py-1 rounded"
+            >
+              {estados.map((estado) => (
+                <option className="text-black" key={estado} value={estado}>
+                  {estado}
+                </option>
+              ))}
+            </select>
+
             <span className="text-white/70">Raza: {publicacion.raza}</span>
             <span className="text-white/70">Color: {publicacion.color}</span>
             <span className="text-white/70">Lugar: {publicacion.lugar}</span>
             <span className="text-white/70">
-              Descripción: {publicacion.descripcion}
+              Descripcion: {publicacion.descripcion}
             </span>
           </div>
 

@@ -1,18 +1,19 @@
 "use client";
 import React, { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
-import { casosAyudaService } from "../../services/casosayuda";
-import { ConfirmModal } from "../ConfirmModal/ConfirmModal";
-import { CrearCasoAyuda } from "../CrearCasoAyuda/CrearCasoAyuda";
+import { comunidadService } from "../../services/comunidad";
+import { ConfirmModal } from "../../components/ConfirmModal/ConfirmModal";
+import { CrearComunidad } from "../../components/CrearComunidad/CrearComunidad";
+import { useSidebar } from "../SidebarOpciones/SidebarOpciones";
 
 let modalControl;
 
-export const VerCasosAyuda = {
+export const VerComunidad = {
   openModal: () => modalControl?.setOpen(true),
 
   Component: React.memo(() => {
     const [open, setOpen] = useState(false);
-    const [casos, setCasos] = useState([]);
+    const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [confirmModal, setConfirmModal] = useState({
@@ -20,15 +21,21 @@ export const VerCasosAyuda = {
       item: null,
       action: "",
     });
-    const [editarData, setEditarData] = useState(null);
+
+    const { user } = useSidebar();
 
     modalControl = { setOpen };
 
     useEffect(() => {
+      if (open && user?.rol !== "ADMIN_ROLE") {
+        setOpen(false);
+        return;
+      }
+
       if (open) {
         document.body.style.overflow = "hidden";
         document.documentElement.style.overflow = "hidden";
-        cargarCasos();
+        cargarItems();
       } else {
         document.body.style.overflow = "unset";
         document.documentElement.style.overflow = "unset";
@@ -38,24 +45,15 @@ export const VerCasosAyuda = {
         document.body.style.overflow = "unset";
         document.documentElement.style.overflow = "unset";
       };
-    }, [open]);
+    }, [open, user]);
 
-    const cargarCasos = useCallback(async () => {
+    const cargarItems = useCallback(async () => {
       try {
         setLoading(true);
         setError("");
-        const userData = localStorage.getItem("user");
-        if (!userData) return setError("Usuario no loggeado");
-        const user = JSON.parse(userData);
-        const userId = user._id || user.id || user.uid;
-        if (!userId) return setError("ID de usuario no encontrado");
-
-        const resp = await casosAyudaService.getCasoAyudaUsuario(userId);
-        if (resp?.success || resp?.ok) {
-          setCasos(resp.casos || []);
-        } else {
-          setError(resp?.msg || "Error al obtener casos de ayuda");
-        }
+        const resp = await comunidadService.obtenerComunidad();
+        if (resp?.success) setItems(resp.comunidades || []);
+        else setError(resp?.msg || "Error al obtener comunidad");
       } catch {
         setError("Error de conexion al servidor");
       } finally {
@@ -63,14 +61,14 @@ export const VerCasosAyuda = {
       }
     }, []);
 
-    const handleEliminar = useCallback(async (caso) => {
+    const handleEliminar = useCallback(async (item) => {
       try {
-        const result = await casosAyudaService.borrarCasoAyuda(caso._id);
-        if (result.success || result.ok) {
-          setCasos((prev) => prev.filter((p) => p._id !== caso._id));
+        const result = await comunidadService.borrarComunidad(item._id);
+        if (result.success) {
+          setItems((prev) => prev.filter((p) => p._id !== item._id));
           return true;
         } else {
-          setError(result.msg || "Error al eliminar el caso");
+          setError(result.msg || "Error al eliminar item");
           return false;
         }
       } catch {
@@ -79,36 +77,10 @@ export const VerCasosAyuda = {
       }
     }, []);
 
-    const handleEditar = useCallback((caso) => {
-      setEditarData(caso);
-      CrearCasoAyuda.openModal(caso);
+    const handleEditar = useCallback((item) => {
+      CrearComunidad.openModal(item);
       setOpen(false);
     }, []);
-
-    const actualizarCasoEnLista = useCallback((updated) => {
-      setCasos((prev) =>
-        prev.map((p) => (p._id === updated._id ? updated : p))
-      );
-    }, []);
-
-    useEffect(() => {
-      const handleCreated = (e) => {
-        const nuevo = e.detail;
-        setCasos((prev) => [nuevo, ...prev]);
-      };
-
-      const handleUpdated = (e) => {
-        actualizarCasoEnLista(e.detail);
-      };
-
-      window.addEventListener("casoCreado", handleCreated);
-      window.addEventListener("casoActualizado", handleUpdated);
-
-      return () => {
-        window.removeEventListener("casoCreado", handleCreated);
-        window.removeEventListener("casoActualizado", handleUpdated);
-      };
-    }, [actualizarCasoEnLista]);
 
     const openConfirmModal = useCallback((item, action) => {
       setConfirmModal({ isOpen: true, item, action });
@@ -128,7 +100,7 @@ export const VerCasosAyuda = {
     const handleClose = useCallback(() => {
       setOpen(false);
       setError("");
-      setCasos([]);
+      setItems([]);
     }, []);
 
     if (!open) return null;
@@ -162,10 +134,10 @@ export const VerCasosAyuda = {
 
             <div className="flex flex-col items-center justify-center">
               <h1 className="text-white text-3xl mt-2 font-medium">
-                Mis casos de ayuda
+                Administrar Comunidad
               </h1>
               <p className="text-white/80 text-sm mt-1">
-                Gestiona tus casos creados o en progreso
+                Gestiona todos los casos de la comunidad
               </p>
             </div>
 
@@ -173,7 +145,7 @@ export const VerCasosAyuda = {
               <div className="mt-4 p-3 bg-red-500/20 border border-red-500 rounded-lg">
                 <p className="text-red-300">{error}</p>
                 <button
-                  onClick={cargarCasos}
+                  onClick={cargarItems}
                   className="mt-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
                 >
                   Reintentar
@@ -187,18 +159,18 @@ export const VerCasosAyuda = {
               </div>
             ) : (
               <div className="mt-6 space-y-4 max-h-[60vh] overflow-y-auto">
-                {casos.map((caso) => (
-                  <CasoItem
-                    key={caso._id}
-                    caso={caso}
+                {items.map((item) => (
+                  <ComunidadItem
+                    key={item._id}
+                    item={item}
                     onEliminar={openConfirmModal}
                     onEditar={handleEditar}
                     loading={loading}
                   />
                 ))}
-                {casos.length === 0 && !loading && (
+                {items.length === 0 && !loading && (
                   <div className="text-center py-8 text-white/60">
-                    No tienes casos de ayuda para mostrar
+                    No hay publicaciones de comunidad
                   </div>
                 )}
               </div>
@@ -209,7 +181,7 @@ export const VerCasosAyuda = {
             confirmModal={confirmModal}
             onClose={closeConfirmModal}
             onConfirm={handleConfirm}
-            type="caso"
+            type="comunidad"
           />
         </motion.div>
       </div>
@@ -217,7 +189,7 @@ export const VerCasosAyuda = {
   }),
 };
 
-const CasoItem = React.memo(({ caso, onEliminar, onEditar, loading }) => {
+const ComunidadItem = React.memo(({ item, onEliminar, onEditar, loading }) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -225,37 +197,35 @@ const CasoItem = React.memo(({ caso, onEliminar, onEditar, loading }) => {
       className="bg-white/10 border border-white/20 rounded-lg p-4 flex justify-between items-start backdrop-blur-sm"
     >
       <div className="flex-1 text-left">
-        <h3 className="font-semibold text-white text-lg">{caso.titulo}</h3>
+        <h3 className="font-semibold text-white text-lg">{item.titulo}</h3>
+
         <div className="flex flex-wrap gap-2 mt-2 text-sm text-white/80">
-          <span className="bg-blue-500/20 text-blue-300 px-2 py-1 rounded">
-            {caso.categoria || "Sin categoria"}
+          <span className="bg-red-500/20 text-red-300 px-2 py-1 rounded">
+            {item.categoria}
           </span>
           <span className="text-white/70">
-            Estado: {caso.estado || "Desconocido"}
-          </span>
-          <span className="text-white/70">
-            Descripcion: {caso.descripcion || "Sin descripcion"}
+            {item.contenido?.slice(0, 80)}...
           </span>
         </div>
 
         <p className="text-white/60 text-sm mt-2">
-          Por: {caso.usuario?.nombre || "Anonimo"} •{" "}
-          {caso.fechaCreacion
-            ? new Date(caso.fechaCreacion).toLocaleDateString()
+          Por: {item.usuario?.nombre || "Administrador"} •{" "}
+          {item.fechaCreacion
+            ? new Date(item.fechaCreacion).toLocaleDateString()
             : "Sin fecha"}
         </p>
       </div>
 
       <div className="flex gap-2 ml-4">
         <button
-          onClick={() => onEditar(caso)}
+          onClick={() => onEditar(item)}
           className="px-4 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors text-sm"
           disabled={loading}
         >
           Editar
         </button>
         <button
-          onClick={() => onEliminar(caso, "delete")}
+          onClick={() => onEliminar(item, "delete")}
           className="px-4 py-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors text-sm"
           disabled={loading}
         >
