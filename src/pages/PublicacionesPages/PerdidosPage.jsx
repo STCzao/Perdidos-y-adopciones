@@ -2,14 +2,21 @@ import Navbar from "../../components/Navbar/Navbar";
 import Footer from "../../components/Footer/Footer";
 import { motion } from "framer-motion";
 import CardGenerica from "../../components/CardGenerica/CardGenerica";
+import CardFiltro from "../../components/CardFiltro/CardFiltro";
 import { useEffect, useState } from "react";
 import { publicacionesService } from "../../services/publicaciones";
-import Img_publicaciones from "../../assets/Img_publicaciones.jpeg";
 import { CrearPublicacion } from "../../components/CrearPublicacion/CrearPublicacion";
 
 const PerdidosPage = () => {
   const [publicaciones, setPublicaciones] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [filtros, setFiltros] = useState({
+    raza: "",
+    edad: "",
+    sexo: "",
+    tamaño: "",
+    color: "",
+  });
 
   useEffect(() => {
     const cargar = async () => {
@@ -24,38 +31,58 @@ const PerdidosPage = () => {
     cargar();
   }, []);
 
+  const publicacionesFiltradas = publicaciones.filter((pub) => {
+    return (
+      (!filtros.raza ||
+        pub.raza?.toLowerCase().includes(filtros.raza.toLowerCase())) &&
+      (!filtros.edad || pub.edad === filtros.edad) &&
+      (!filtros.sexo || pub.sexo === filtros.sexo) &&
+      (!filtros.tamaño || pub.tamaño === filtros.tamaño) &&
+      (!filtros.color ||
+        pub.color?.toLowerCase().includes(filtros.color.toLowerCase()))
+    );
+  });
+
   return (
     <div>
       <Navbar />
-      <div className="min-h-screen bg-[#e6dac6]">
-        <div className="flex flex-col items-center gap-5 font-medium pt-40">
-          <h2 className="text-3xl text-black border border-white mt-15 mb-10 bg-white/60 rounded-full py-2 px-4">
+      <div className="min-h-screen bg-[#e6dac6] pt-40 px-4">
+        <div className="flex flex-col items-center gap-5 font-medium">
+          <h2 className="text-3xl text-black border border-white mb-10 bg-white/60 rounded-full py-2 px-4">
             Animales perdidos
           </h2>
-          <motion.button
-            onClick={() => CrearPublicacion.openModal()}
-            className="border border-white/20 font-medium w-50 h-11 rounded-full text-white bg-white/20 hover:bg-[#FF7857] transition-opacity"
-          >
-            Crear publicación
-          </motion.button>
-          <div className="mb-15 grid gap-10 grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 px-4">
-            {loading ? (
-              <div className="flex justify-center items-center col-span-full p-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF7857]"></div>
-              </div>
-            ) : publicaciones.length > 0 ? (
-              publicaciones.map((pub) => (
-                <CardGenerica key={pub._id} publicacion={pub} />
-              ))
-            ) : (
-              <p className="text-black text-center text-2xl col-span-full mt-10">
-                No hay publicaciones disponibles
-              </p>
-            )}
+
+          <div className="flex flex-col lg:flex-row gap-6 w-full">
+            {/* Filtros */}
+            <div className="w-full lg:w-72 flex flex-col items-center mb-6 lg:mb-0">
+              <CardFiltro filtros={filtros} setFiltros={setFiltros} />
+              <motion.button
+                onClick={() => CrearPublicacion.openModal()}
+                className="mt-6 text-black border border-black font-medium w-48 h-11 rounded-full bg-white hover:bg-[#FF7857] transition-opacity"
+              >
+                Crear publicación
+              </motion.button>
+            </div>
+
+            {/* Publicaciones */}
+            <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-15">
+              {loading ? (
+                <div className="flex justify-center items-center col-span-full p-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF7857]"></div>
+                </div>
+              ) : publicacionesFiltradas.length > 0 ? (
+                publicacionesFiltradas.map((pub) => (
+                  <CardGenerica key={pub._id} publicacion={pub} />
+                ))
+              ) : (
+                <div className="col-span-full flex justify-center text-center items-center text-black text-2xl font-medium mt-10">
+                  No se encontraron coincidencias
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
-
       <Footer />
     </div>
   );

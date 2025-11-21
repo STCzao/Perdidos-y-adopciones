@@ -17,6 +17,8 @@ export const ConfirmModal = React.memo(
             : "Activar usuario";
         case "sesion":
           return "Cerrar sesión";
+        case "comunidad":
+          return "Eliminar caso comunitario"; // <-- agregado
         default:
           return "Confirmar acción";
       }
@@ -34,6 +36,8 @@ export const ConfirmModal = React.memo(
           } al usuario "${confirmModal.item?.nombre}"?`;
         case "sesion":
           return "¿Estás seguro de que quieres cerrar sesión?";
+        case "comunidad":
+          return `¿Estas seguro de que quieres eliminar el caso "${confirmModal.item?.titulo}"? Esta acción no se puede deshacer.`; // <-- agregado
         default:
           return "Confirma la acción para continuar.";
       }
@@ -50,6 +54,7 @@ export const ConfirmModal = React.memo(
           <h2 className="text-red-500 text-lg font-semibold mb-4">
             {getTitle()}
           </h2>
+
           <p className="text-black mb-6">{getMessage()}</p>
 
           <div className="flex justify-center gap-4">

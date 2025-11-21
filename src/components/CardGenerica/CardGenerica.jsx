@@ -30,13 +30,14 @@ const CardGenerica = ({ publicacion }) => {
     castrado,
     whatsapp,
     img,
+    estado,
   } = publicacion;
 
   const whatsappLink = whatsapp ? `https://wa.me/${whatsapp}` : null;
 
   return (
     <div
-      className="font-medium w-80 h-140 cursor-pointer cursor-pointer max-w-full"
+      className="font-medium w-full max-w-sm h-[36rem] cursor-pointer flex flex-col"
       onClick={() => setFlipped(!flipped)}
     >
       <div
@@ -45,54 +46,49 @@ const CardGenerica = ({ publicacion }) => {
         }`}
       >
         {/* Frente */}
-        <div className="absolute w-80 h-140 p-3 [backface-visibility:hidden] sm:w-80 sm:h-140 flex flex-col bg-[#763A0D]/70 backdrop-blur border border-white/20 rounded-xl shadow-md p-3">
+        <div className="absolute w-full h-full [backface-visibility:hidden] flex flex-col bg-[#763A0D]/70 backdrop-blur border border-white/20 rounded-xl shadow-md p-3">
           {img && (
             <img
-              src={img.toLowerCase()}
+              src={img}
               alt={titulo}
-              className="w-full h-60 object-cover rounded-lg mb-3"
+              className="w-full h-64 object-cover rounded-lg mb-3"
             />
           )}
-          <h3 className="font-bold text-white text-lg mb-1">
+          <h3 className="font-bold text-white text-l mb-1">
             {titulo || "Sin título"}
           </h3>
-          <div className="flex-1">
-            <div className="text-sm text-white/90 space-y-1 flex-1">
-              {tipo && <p>Tipo: {tipo}</p>}
-              {raza && <p>Raza: {raza}</p>}
-              {sexo && <p>Sexo: {sexo}</p>}
-              {tamaño && <p>Tamaño: {tamaño}</p>}
-              {color && <p>Color: {color}</p>}
-              {edad && <p>Edad: {edad}</p>}
-            </div>
+          <div>
+            {estado && (
+              <span className="bg-green-500/20 text-green-300 px-2 py-1 rounded text-sm mt-2">
+                Estado: {estado}
+              </span>
+            )}
           </div>
-          <div className="flex flex-col items-center">
-            <button className="border border-white/20 font-medium w-50 h-11 rounded-full text-white bg-white/20 hover:bg-[#FF7857] transition-opacity col-span-1">
-              Ver más detalles
-            </button>
+
+          <div className="text-xs text-white/90 space-y-1 flex-1 overflow-auto mt-2">
+            {tipo && <p>Tipo: {tipo}</p>}
+            {raza && <p>Raza: {raza}</p>}
+            {sexo && <p>Sexo: {sexo}</p>}
+            {tamaño && <p>Tamaño: {tamaño}</p>}
+            {color && <p>Color: {color}</p>}
+            {edad && <p>Edad: {edad}</p>}
+            {detalles && <p>Detalles: {detalles}</p>}
           </div>
+          <p className="text-center bg-white/20 text-white px-2 py-1 rounded text-l mt-2">
+            Ver más detalles (click para girar)
+          </p>
         </div>
 
         {/* Reverso */}
-        <div className="absolute w-80 h-140 p-3 [backface-visibility:hidden] [transform:rotateY(180deg)] flex flex-col justify-between bg-[#763A0D]/70 backdrop-blur border border-white/20 rounded-xl shadow-md">
-          <div className="text-sm text-white/90">
-            {descripcion && <p>Descripción: {descripcion} </p>}
-          </div>
-          <div>
-            {/* Campos PERDIDO/ENCONTRADO */}
+        <div className="absolute w-full h-full [backface-visibility:hidden] [transform:rotateY(180deg)] flex flex-col justify-between bg-[#763A0D]/70 backdrop-blur border border-white/20 rounded-xl shadow-md p-3">
+          <div className="text-xs text-white/90 overflow-auto flex-1">
+            {descripcion && <p>Descripción: {descripcion}</p>}
             {(tipo === "PERDIDO" || tipo === "ENCONTRADO") && (
               <>
-                {lugar && (
-                  <p className="text-sm mt-8 text-white/90">Lugar: {lugar}</p>
-                )}
-                {fecha && (
-                  <p className="text-sm mt-8 text-white/90">
-                    Fecha: {formatFecha(fecha)}
-                  </p>
-                )}
+                {lugar && <p className="mt-2">Lugar: {lugar}</p>}
+                {fecha && <p className="mt-2">Fecha: {formatFecha(fecha)}</p>}
               </>
             )}
-            {/* Campos ADOPCION */}
             {tipo === "ADOPCION" && (
               <>
                 {afinidad && <p>Afinidad: {afinidad}</p>}
@@ -100,29 +96,17 @@ const CardGenerica = ({ publicacion }) => {
                 <p>Castrado: {castrado ? "Sí" : "No"}</p>
               </>
             )}
+            {detalles && <p className="mt-2">Detalles: {detalles}</p>}
           </div>
-          <div className="text-sm text-white/90">
-            {detalles && (
-              <p className="text-sm mt-12 text-white/90">
-                Detalles: {detalles}
-              </p>
-            )}
-          </div>
-
           {whatsappLink && (
-            <div className="flex flex-col items-center mt-30 text-white/90">
-              <span className="text-sm ">
-                Contactar con el dueño de la publicación:
-              </span>
-              <a
-                href={whatsappLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-3 w-40 rounded-full text-center bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition"
-              >
-                WhatsApp
-              </a>
-            </div>
+            <a
+              href={whatsappLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-3 w-full text-center bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-600 transition"
+            >
+              Contactar por WhatsApp
+            </a>
           )}
         </div>
       </div>

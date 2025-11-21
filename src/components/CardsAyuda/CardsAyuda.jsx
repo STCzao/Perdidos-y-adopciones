@@ -1,30 +1,52 @@
 const CardsAyuda = ({ pub }) => {
-  const { titulo, contenido, categoria, usuario } = pub;
+  const { titulo, contenido, categoria, usuario, img } = pub;
 
   return (
-    <div className="text-sm border border-white/20 flex flex-col gap-3 text-left justify-center p-4 sm:p-5 w-full sm:w-11/12 md:w-full rounded-lg bg-white/20 text-center">
-      <div className="flex-1 text-left">
-        <h3 className="font-semibold text-white text-lg">
+    <div
+      className="
+        text-sm border border-white/20 flex flex-col gap-3
+        p-4 sm:p-5 w-full max-w-[350px]
+        h-[420px]                  /* altura uniforme */
+        rounded-lg bg-white/20 text-center
+        overflow-hidden
+      "
+    >
+      <div className="flex flex-col h-full">
+        {/* TITULO */}
+        <h3 className="font-semibold text-white text-l line-clamp-1">
           {titulo || "Sin titulo"}
         </h3>
 
-        <div className="flex flex-wrap gap-2 mt-2 text-sm text-white/80">
-          {categoria && (
-            <span className="bg-blue-500/20 text-blue-300 px-2 py-1 rounded">
-              Categoria: {categoria}
-            </span>
-          )}
-        </div>
+        {/* CATEGORIA */}
+        {categoria && (
+          <span className="bg-red-500/20 text-red-300 px-2 py-1 rounded text-sm mt-2">
+            Categoria: {categoria}
+          </span>
+        )}
 
-        <div className="text-sm text-white/90 space-y-1 mt-2">
-          {contenido && <p>Caso: {contenido}</p>}
-          {usuario && (
-            <p>
-              Publicado por:{" "}
-              {typeof usuario === "object" ? usuario.nombre : usuario}
-            </p>
-          )}
-        </div>
+        {/* IMAGEN */}
+        {img && (
+          <div className="w-full mt-3">
+            <img
+              src={img}
+              alt={titulo || "imagen de caso"}
+              className="w-full h-32 object-cover rounded-lg"
+            />
+          </div>
+        )}
+
+        {/* CONTENIDO (recortado para mantener altura) */}
+        <p className="text-xs text-white/90 mt-3 line-clamp-4">
+          Caso: {contenido}
+        </p>
+
+        {/* USUARIO (siempre abajo) */}
+        {usuario && (
+          <p className="text-white/70 text-xs mt-auto">
+            Publicado por:{" "}
+            {typeof usuario === "object" ? usuario.nombre : usuario}
+          </p>
+        )}
       </div>
     </div>
   );

@@ -11,7 +11,7 @@ import EncontradosPage from "./pages/PublicacionesPages/EncontradosPage";
 import AdopcionesPage from "./pages/PublicacionesPages/AdopcionesPage";
 import PerdiScreen from "./pages/WhatDoScreen/PerdiScreen";
 import EncontreScreen from "./pages/WhatDoScreen/EncontreScreen";
-import CasosAyudaScreen from "./pages/CasesScreen/CasosAyudaScreen";
+import CasosAyudaScreen from "./pages/CasesScreen/ComunidadScreen.jsx";
 import ContactScreen from "./pages/ContactScreen/ContactScreen";
 import { usuariosService } from "./services/usuarios";
 import {
@@ -188,7 +188,7 @@ function App() {
             />
 
             <Route
-              path="/blog"
+              path="/comunidad"
               element={
                 <ProtectedRoutes login={login}>
                   <CasosAyudaScreen user={user} />

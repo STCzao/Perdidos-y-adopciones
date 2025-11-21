@@ -6,8 +6,8 @@ import { VerPublicaciones } from "../VerPublicaciones/VerPublicaciones";
 import { AdminPublicaciones } from "../AdminPublicaciones/AdminPublicaciones";
 import { AdminUsuarios } from "../AdminUsuarios/AdminUsuarios";
 import { usuariosService } from "../../services/usuarios";
-import { CrearCasoAyuda } from "../CrearCasoAyuda/CrearCasoAyuda";
-import { VerCasosAyuda } from "../VerCasosAyuda/VerCasosAyuda";
+import { CrearComunidad } from "../CrearComunidad/CrearComunidad";
+import { VerComunidad } from "../VerComunidad/VerComunidad";
 import { useState } from "react";
 import { ConfirmModal } from "../ConfirmModal/ConfirmModal";
 
@@ -133,7 +133,6 @@ export const SidebarOpciones = () => {
         >
           Mis publicaciones
         </button>
-        
 
         {/* Sección administrador */}
         {isAdmin && (
@@ -142,6 +141,12 @@ export const SidebarOpciones = () => {
               Panel de Administrador
             </span>
 
+            <button
+              onClick={() => CrearComunidad.openModal()}
+              className="border border-[#FF7857]/50 font-medium w-full h-11 rounded-full text-white bg-[#FF7857]/20 hover:bg-[#FF7857] transition-opacity"
+            >
+              Crear caso comunitario
+            </button>
             <button
               onClick={() => AdminPublicaciones.openModal()}
               className="border border-[#FF7857]/50 font-medium w-full h-11 rounded-full text-white bg-[#FF7857]/20 hover:bg-[#FF7857] transition-opacity"
@@ -154,6 +159,12 @@ export const SidebarOpciones = () => {
               className="border border-[#FF7857]/50 font-medium w-full h-11 rounded-full text-white bg-[#FF7857]/20 hover:bg-[#FF7857] transition-opacity"
             >
               Todos los usuarios
+            </button>
+            <button
+              onClick={() => VerComunidad.openModal()}
+              className="border border-[#FF7857]/50 font-medium w-full h-11 rounded-full text-white bg-[#FF7857]/20 hover:bg-[#FF7857] transition-opacity"
+            >
+              Todos los casos comunitarios
             </button>
           </div>
         )}
@@ -178,13 +189,14 @@ export const SidebarOpciones = () => {
       {/* Modales */}
       <AdminPublicaciones.Component />
       <AdminUsuarios.Component />
-      <CrearCasoAyuda.Component />
-      <VerCasosAyuda.Component />
+      <CrearComunidad.Component />
+      <VerComunidad.Component />
+
       <ConfirmModal
         confirmModal={confirmModal}
         onClose={cancelarCerrarSesion}
         onConfirm={confirmarCerrarSesion}
-        type="sesion" // Nuevo tipo
+        type="sesion"
       />
     </>
   );
