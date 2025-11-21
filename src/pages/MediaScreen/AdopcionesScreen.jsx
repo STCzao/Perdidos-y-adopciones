@@ -19,9 +19,9 @@ const AdopcionesScreen = () => {
           backgroundPosition: "center",
         }}
       >
-        <div className="flex flex-col items-center gap-10 pt-60 ">
+        <div className="flex flex-col items-center gap-10 pt-40 lg:pt-60 ">
           <motion.p
-            className="text-3xl"
+            className="text-3xl text-center"
             initial={{ opacity: 0, filter: "blur(4px)", y: 10 }}
             animate={{ opacity: 1, filter: "blur(0px)", y: 0 }}
             transition={{
@@ -33,7 +33,7 @@ const AdopcionesScreen = () => {
             ¡Bienvenido a la sección de ADOPCIONES!
           </motion.p>
           <motion.div
-            className="flex items-center justify-center w-full gap-5"
+            className="w-full flex flex-col sm:flex-row sm:flex-wrap lg:flex-nowrap justify-center items-center gap-10 px-4 mb-15"
             initial={{
               opacity: 0,
             }}
@@ -45,7 +45,7 @@ const AdopcionesScreen = () => {
               delay: 0.8,
             }}
           >
-            <div className="bg-white/20 rounded-lg p-10 w-100 h-70 border border-white/20 text-center">
+            <div className="bg-white/20 rounded-lg p-10 w-80 border border-white/20 text-center">
               <p>
                 Este apartado fue creado para quienes deseen visualizar todos
                 los animales en ADOPCIÓN de la comunidad.
@@ -60,7 +60,7 @@ const AdopcionesScreen = () => {
                 Ver todos los anuncios
               </button>
             </div>
-            <div className="bg-white/20 rounded-lg p-10 w-100 h-70 border border-white/20 text-center">
+            <div className="bg-white/20 rounded-lg p-10 w-80 border border-white/20 text-center">
               <p>
                 Aquí podrás crear los anuncios de los animales que deseas dar en adopción y así encontrarles un nuevo hogar.
               </p>
@@ -71,13 +71,13 @@ const AdopcionesScreen = () => {
                 Crear publicación
               </button>
             </div>
-            <div className="bg-white/20 rounded-lg p-10 w-100 h-70 border border-white/20 text-center">
+            <div className="bg-white/20 rounded-lg p-10 w-80 border border-white/20 text-center">
               <p>
                 En esta sección podrás consultar información útil sobre qué
                 hacer en caso de querer adoptar o dar en adopción.
               </p>
               <button
-                onClick={() => navigate("/consejos-adopcion")}
+                onClick={() => {navigate("/consejos-adopcion"); window.scrollTo(0, 0);}}
                 className="mt-10 text-white border border-white/40 font-medium w-50 h-11 rounded-full bg-white/60 hover:bg-[#FF7857] transition-opacity"
               >
                 ¿Qué hacer?

@@ -18,7 +18,7 @@ const PerdiScreen = () => {
           }}
         >
           <div className="flex flex-col justify-center items-center text-white/90 max-w-4xl mt-35 mb-15">
-            <motion.p className="text-3xl mb-10">
+            <motion.p className="text-3xl mb-10 text-center">
               ¿Qué hacer si perdí un animal?
             </motion.p>
 
@@ -41,7 +41,7 @@ const PerdiScreen = () => {
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
               className="text-sm mt-5 border border-white/20 flex flex-col gap-3 text-left justify-center p-4 sm:p-5 w-full sm:w-11/12 md:w-full rounded-lg bg-white/20 text-center"
             >
               <span className="text-3xl">2-</span>
@@ -68,7 +68,7 @@ const PerdiScreen = () => {
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.5 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
               className="text-sm border mt-5 border-white/20 flex flex-col gap-3 text-left justify-center p-4 sm:p-5 w-full sm:w-11/12 md:w-full rounded-lg bg-white/20 text-center"
             >
               <span className="text-3xl">3-</span>
@@ -91,7 +91,7 @@ const PerdiScreen = () => {
             <motion.p
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.6 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
               className="text-sm border mt-5 border-white/20 flex flex-col gap-3 text-left justify-center p-4 sm:p-5 w-full sm:w-11/12 md:w-full rounded-lg bg-white/20 text-center"
             >
               <span className="text-3xl">4-</span>

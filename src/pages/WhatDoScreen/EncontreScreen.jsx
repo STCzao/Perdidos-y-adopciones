@@ -17,7 +17,7 @@ const EncontreScreen = () => {
         }}
       >
         <div className="flex flex-col justify-center items-center text-white/90 max-w-4xl mt-35 mb-15">
-          <motion.p className="text-3xl mb-10">
+          <motion.p className="text-3xl mb-10 text-center">
             ¿Qué hacer si encontré un animal?
           </motion.p>
           <motion.p

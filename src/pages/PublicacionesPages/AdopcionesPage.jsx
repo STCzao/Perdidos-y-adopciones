@@ -27,7 +27,7 @@ const AdopcionesPage = () => {
     <div>
       <Navbar />
       <div className="min-h-screen bg-[#e6dac6]">
-        <div className="flex flex-col items-center gap-5 font-medium pt-30">
+        <div className="flex flex-col items-center gap-5 font-medium pt-40">
           <h2 className="text-3xl text-black border border-white mt-15 mb-10 bg-white/60 rounded-full py-2 px-4">
             Animales en adopción
           </h2>
