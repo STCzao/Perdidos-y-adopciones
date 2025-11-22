@@ -92,7 +92,7 @@ const NavbarContent = () => {
       >
         {/* Logo - Mantiene posición a la izquierda */}
         <div
-          className="flex flex-col items-center cursor-pointer" // Si está abierto, navegar a Inicio. Si está cerrado, ábrelo.
+          className="flex flex-col items-center cursor-pointer drop-shadow-[0_0_2px_black]" // Si está abierto, navegar a Inicio. Si está cerrado, ábrelo.
           onClick={() => {
             if (open) {
               window.location.href = "/"; // Redirige al inicio
@@ -116,7 +116,7 @@ const NavbarContent = () => {
         {/* Contenedor para todos los elementos de la derecha */}
         <div className="flex items-center gap-8">
           {/* Desktop Nav - Ahora a la derecha */}
-          <div className="hidden md:flex items-center">
+          <div className="hidden md:flex items-center drop-shadow-[0_0_2px_black]">
             <div className="flex items-center gap-8">
               {navLinks.map((link, i) =>
                 link.dropdown ? (
