@@ -168,7 +168,7 @@ const ResetPasswordScreen = () => {
           <div className="flex items-center w-full mt-8 bg-white border border-gray-300/80 h-12 rounded-full overflow-hidden pl-6 gap-2">
             <input
               type={show ? "text" : "password"}
-              placeholder="Nueva contraseña"
+              placeholder="Confirmar contraseña"
               className="bg-transparent text-gray-500 placeholder-gray-500 outline-none text-sm w-full h-full"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
