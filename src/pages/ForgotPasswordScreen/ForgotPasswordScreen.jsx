@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import Img_login1 from "../../assets/Img_login1.png";
 
@@ -8,7 +7,7 @@ const ForgotPasswordScreen = () => {
   const [result, setResult] = useState("");
   const [errors, setErrors] = useState({});
 
-  const API_URL = import.meta.env.VITE_API_URL;
+  const FRONTEND_URL = import.meta.env.FRONTEND_URL;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -24,7 +23,7 @@ const ForgotPasswordScreen = () => {
 
     try {
       setResult("Enviando correo...");
-      const resp = await fetch(`${API_URL}/auth/forgot-password`, {
+      const resp = await fetch(`${FRONTEND_URL}/auth/forgot-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ correo: correo.trim() }),
