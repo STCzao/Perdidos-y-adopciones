@@ -12,7 +12,7 @@ const ResetPasswordScreen = () => {
   const { token } = useParams();
   const navigate = useNavigate();
 
-  const API_URL = import.meta.env.VITE_API_URL;
+  const FRONTEND_URL = import.meta.env.FRONTEND_URL;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -41,7 +41,7 @@ const ResetPasswordScreen = () => {
 
     try {
       setResult("Actualizando contraseña...");
-      const resp = await fetch(`${API_URL}/auth/reset-password/${token}`, {
+      const resp = await fetch(`${FRONTEND_URL}/auth/reset-password/${token}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ password: password.trim() }),
