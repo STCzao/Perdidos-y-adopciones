@@ -97,6 +97,9 @@ const ResetPasswordScreen = () => {
           <h1 className="text-white text-3xl mt-2 font-medium">
             Restablecer contraseña
           </h1>
+          <p className="text-white text-sm mt-2 font-medium">
+            Ingresa la nueva contraseña
+          </p>
 
           <div className="flex items-center w-full mt-8 bg-white border border-gray-300/80 h-12 rounded-full overflow-hidden pl-6 gap-2">
             <input
