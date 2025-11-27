@@ -69,7 +69,7 @@ const CardGenerica = ({ publicacion }) => {
               <>{lugar && <p className="mt-2">Lugar: {lugar}</p>}</>
             )}
           </div>
-          <div className="text-xs text-white/90 space-y-1 flex-1 overflow-auto">
+          <div className="text-xs text-white/90 space-y-1 flex-1 overflow-y-auto">
             {estado && <p>Estado: {estado}</p>}
             {raza && <p>Raza: {raza}</p>}
             {sexo && <p>Sexo: {sexo}</p>}
