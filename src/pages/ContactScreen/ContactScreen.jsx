@@ -21,6 +21,15 @@ const ContactScreen = () => {
     if (capturarNombre.trim() === "") {
       newErrors.nombre = "El nombre es obligatorio.";
       isValid = false;
+    } else if (form.nombre.trim().length <= 3) {
+      newErrors.nombre = "El nombre debe tener al menos 3 caracteres";
+      isValid = false;
+    } else if (form.nombre.trim().length >= 40) {
+      newErrors.nombre = "El nombre no puede tener más de 40 caracteres";
+      isValid = false;
+    } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(form.nombre.trim())) {
+      newErrors.nombre = "El nombre solo puede contener letras y espacios";
+      isValid = false;
     }
 
     if (capturarTelefono.trim() === "") {
