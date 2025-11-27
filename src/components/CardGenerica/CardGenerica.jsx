@@ -37,7 +37,7 @@ const CardGenerica = ({ publicacion }) => {
 
   return (
     <div
-      className="font-medium w-full max-w-sm h-[36rem] cursor-pointer flex flex-col overflow-hidden"
+      className="font-medium w-full max-w-sm h-[43rem] cursor-pointer flex flex-col overflow-hidden"
       onClick={() => setFlipped(!flipped)}
     >
       <div
@@ -61,7 +61,7 @@ const CardGenerica = ({ publicacion }) => {
               className="w-full h-70 object-cover rounded-lg mb-1"
             />
           )}
-          <h3 className="font-bold text-white text-l mb-1">
+          <h3 className="font-bold text-white text-l mb-1 text-center">
             {titulo || "Sin título"}
           </h3>
           <div className="flex flex-col text-center text-white mb-2 rounded text-sm">
@@ -84,7 +84,7 @@ const CardGenerica = ({ publicacion }) => {
 
         {/* Reverso */}
         <div className="absolute w-full h-full [backface-visibility:hidden] [transform:rotateY(180deg)] flex flex-col justify-between bg-[#000000] backdrop-blur border border-white/20 rounded-xl shadow-md p-3">
-          <div className="text-xs text-white/90 overflow-auto flex-1">
+          <div className="text-sm text-white/90 overflow-auto flex-1">
             {descripcion && <p>Descripción: {descripcion}</p>}
             {(tipo === "PERDIDO" || tipo === "ENCONTRADO") && (
               <>
