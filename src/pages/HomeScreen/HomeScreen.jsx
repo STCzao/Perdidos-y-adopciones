@@ -118,7 +118,7 @@ const HomeScreen = () => {
 
         {perdidos.length > 0 ? (
           <>
-            <div className="grid gap-10 grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 px-4">
+            <div className="grid gap-6 grid-cols-1 justify-items-center sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 flex items-center 2xl:grid-cols-4 px-4 w-full mx-auto">
               {perdidos.map((pub) => (
                 <CardGenerica key={pub._id} publicacion={pub} />
               ))}
@@ -150,7 +150,7 @@ const HomeScreen = () => {
 
         {encontrados.length > 0 ? (
           <>
-            <div className=" grid gap-6 grid-cols-1 justify-items-center sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 flex items-center 2xl:grid-cols-4 px-4 w-full mx-auto">
+            <div className="grid gap-6 grid-cols-1 justify-items-center sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 flex items-center 2xl:grid-cols-4 px-4 w-full mx-auto">
               {encontrados.map((pub) => (
                 <CardGenerica key={pub._id} publicacion={pub} />
               ))}
