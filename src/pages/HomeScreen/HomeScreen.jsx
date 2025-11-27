@@ -55,14 +55,14 @@ const HomeScreen = () => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="border italic border-white/20 gap-10 font-medium mt-10 flex flex-col p-4 sm:p-5 w-full sm:w-11/12 md:w-full text-base sm:text-lg md:text-xl rounded-lg bg-white/20 mb-8 text-center"
+            className="border italic border-white/20 gap-10 text-center font-medium mt-10 flex flex-col p-4 sm:p-5 w-full sm:w-11/12 md:w-full text-base sm:text-lg md:text-xl rounded-lg bg-white/20 mb-8 text-center"
           >
             “Amar y ser amable con los animales nos acerca a nuestra verdadera
             naturaleza humana.”
             <span className="text-sm">Dalai Lama</span>
           </motion.p>
         </div>
-        <div className="flex flex-col justify-center items-center text-white/90 max-w-4xl mb-10">
+        <div className="flex flex-col justify-center items-center text-center text-white/90 max-w-4xl mb-10">
           <motion.p
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
