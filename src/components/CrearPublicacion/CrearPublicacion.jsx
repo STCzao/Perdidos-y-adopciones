@@ -417,11 +417,11 @@ export const CrearPublicacion = {
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          className=" flex flex-col items-center text-white/90 w-full max-w-2xl max-h-[90vh]"
+          className=" flex flex-col items-center text-white/90 w-full max-w-2xl max-h-[80vh]"
         >
           <form
             onSubmit={handleSubmit}
-            className="max-w-6xl w-full text-center border border-white/70 rounded-2xl px-8 py-6 shadow-lg bg-white/10 backdrop-blur-sm flex flex-col max-h-[90vh]"
+            className="max-w-6xl w-full text-center border border-white/70 rounded-2xl px-8 py-6 shadow-lg bg-white/10 backdrop-blur-sm flex flex-col max-h-[80vh]"
           >
             <button
               onClick={handleClose}
