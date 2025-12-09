@@ -211,8 +211,8 @@ export const CrearPublicacion = {
       } else if (form.titulo.trim().length < 9) {
         newErrors.titulo = "El título debe tener al menos 10 caracteres";
         valid = false;
-      } else if (form.titulo.trim().length > 61) {
-        newErrors.titulo = "El título no puede contener más de 60 caracteres";
+      } else if (form.titulo.trim().length > 71) {
+        newErrors.titulo = "El título no puede contener más de 70 caracteres";
         valid = false;
       } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(form.titulo.trim())) {
         newErrors.titulo = "El nombre solo puede contener letras y espacios";
@@ -224,11 +224,11 @@ export const CrearPublicacion = {
         newErrors.descripcion = "La descripción es obligatoria";
         valid = false;
       } else if (form.descripcion.trim().length < 9) {
-        newErrors.descripcion = "El título debe tener al menos 10 caracteres";
+        newErrors.descripcion = "La descripción debe tener al menos 10 caracteres";
         valid = false;
       } else if (form.descripcion.trim().length > 301) {
         newErrors.descripcion =
-          "El título no puede contener más de 300 caracteres";
+          "La descripción no puede contener más de 300 caracteres";
         valid = false;
       }
 
@@ -242,8 +242,8 @@ export const CrearPublicacion = {
       if (!form.raza.trim()) {
         newErrors.raza = "La raza es obligatoria";
         valid = false;
-      } else if (form.raza.trim()) {
-        newErrors.raza = "La raza no puede contener más de 30 caracteres";
+      } else if (form.raza.trim().length > 41) {
+        newErrors.raza = "La raza no puede contener más de 40 caracteres";
         valid = false;
       }
 
@@ -263,8 +263,8 @@ export const CrearPublicacion = {
       if (!form.color.trim()) {
         newErrors.color = "El color es obligatorio";
         valid = false;
-      } else if (form.color.trim().length > 21) {
-        newErrors.color = "El color no puede contener más de 20 caracteres";
+      } else if (form.color.trim().length > 51) {
+        newErrors.color = "El color no puede contener más de 50 caracteres";
         valid = false;
       }
 
@@ -304,8 +304,8 @@ export const CrearPublicacion = {
         if (!form.lugar.trim()) {
           newErrors.lugar = "El lugar es obligatorio";
           valid = false;
-        } else if (form.lugar.trim().length > 51) {
-          newErrors.lugar = "El lugar no puede contener más de 50 caracteres";
+        } else if (form.lugar.trim().length > 81) {
+          newErrors.lugar = "El lugar no puede contener más de 80 caracteres";
           valid = false;
         }
 
@@ -608,7 +608,7 @@ export const CrearPublicacion = {
                   </div>
 
                   <div className="mt-4">
-                    <label className="flex items-left text-sm mb-1 ml-2">
+                    <label className="flex items-left text-left text-sm mb-1 ml-2">
                       Ingrese la fecha en que perdió/encontró a la mascota
                     </label>
                     <div className="flex items-center w-full bg-white border border-gray-300/80 h-12 rounded-full overflow-hidden pl-6 gap-2">
@@ -727,7 +727,7 @@ export const CrearPublicacion = {
                 </div>
 
                 <div className="mt-4">
-                  <label className="flex items-left text-sm mb-1 ml-2">
+                  <label className="flex text-left items-left text-sm mb-1 ml-2">
                     Ingrese la edad aproximada de la mascota (puede variar según
                     la raza)
                   </label>
@@ -832,7 +832,7 @@ export const CrearPublicacion = {
 
               {/* Detalles Adicionales */}
               <div className="mt-4">
-                <label className="flex items-left text-sm mb-1 ml-2">
+                <label className="flex text-left items-left text-sm mb-1 ml-2">
                   Puedes agregar detalles adicionales sobre la publicación
                   (Opcional)
                 </label>

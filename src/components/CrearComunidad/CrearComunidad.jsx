@@ -359,10 +359,8 @@ export const CrearComunidad = {
                     disabled={submitting}
                     className="bg-transparent text-gray-500 outline-none text-sm w-full h-full"
                   >
-                    <option value="INFORMACION">Información</option>
-                    <option value="CONSEJO">Consejo</option>
-                    <option value="HISTORIA">Historia</option>
                     <option value="ALERTA">Alerta</option>
+                    <option value="HISTORIA">Historia</option>
                   </select>
                 </div>
                 {errors.categoria && (

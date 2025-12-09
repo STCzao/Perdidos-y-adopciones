@@ -17,7 +17,7 @@ const CardFiltro = ({ filtros, setFiltros }) => {
           value={filtros.raza}
           onChange={handleChange}
           placeholder="Ej: Mestizo"
-          className="w-full mt-1 p-2 rounded bg-white/20 text-black text-black placeholder-white/50 outline-none"
+          className="w-full text-white mt-1 p-2 rounded text-xs bg-white/20 text-black text-black placeholder-white/50 outline-none"
         />
       </div>
 
@@ -28,12 +28,20 @@ const CardFiltro = ({ filtros, setFiltros }) => {
           name="edad"
           value={filtros.edad}
           onChange={handleChange}
-          className="w-full mt-1 p-2 rounded bg-white/20 text-black outline-none"
+          className="w-full mt-1 p-2 text-white rounded bg-white/20 text-black text-xs outline-none"
         >
-          <option value="">Cualquiera</option>
-          <option value="CACHORRO">Cachorro</option>
-          <option value="ADULTO">Adulto</option>
-          <option value="MAYOR">Mayor</option>
+          <option className="text-black" value="">
+            Seleccione la edad *
+          </option>
+          <option className="text-black" value="CACHORRO">
+            Cachorro
+          </option>
+          <option className="text-black" value="ADULTO">
+            Adulto
+          </option>
+          <option className="text-black" value="MAYOR">
+            Mayor
+          </option>
         </select>
       </div>
 
@@ -44,11 +52,17 @@ const CardFiltro = ({ filtros, setFiltros }) => {
           name="sexo"
           value={filtros.sexo}
           onChange={handleChange}
-          className="w-full mt-1 p-2 rounded bg-white/20 text-black outline-none"
+          className="w-full mt-1 text-white p-2 rounded bg-white/20 text-black text-xs outline-none"
         >
-          <option value="">Cualquiera</option>
-          <option value="MACHO">Macho</option>
-          <option value="HEMBRA">Hembra</option>
+          <option className="text-black" value="">
+            Seleccione el sexo *
+          </option>
+          <option className="text-black" value="MACHO">
+            Macho
+          </option>
+          <option className="text-black" value="HEMBRA">
+            Hembra
+          </option>
         </select>
       </div>
 
@@ -59,13 +73,23 @@ const CardFiltro = ({ filtros, setFiltros }) => {
           name="tamaño"
           value={filtros.tamaño}
           onChange={handleChange}
-          className="w-full mt-1 p-2 rounded bg-white/20 text-black outline-none"
+          className="w-full mt-1 text-white p-2 rounded bg-white/20 text-black text-xs outline-none"
         >
-          <option value="">Cualquiera</option>
-          <option value="MINI">Mini</option>
-          <option value="PEQUEÑO">Pequeño</option>
-          <option value="MEDIANO">Mediano</option>
-          <option value="GRANDE">Grande</option>
+          <option className="text-black" value="">
+            Seleccione el tamaño *
+          </option>
+          <option className="text-black" value="MINI">
+            Mini
+          </option>
+          <option className="text-black" value="PEQUEÑO">
+            Pequeño
+          </option>
+          <option className="text-black" value="MEDIANO">
+            Mediano
+          </option>
+          <option className="text-black" value="GRANDE">
+            Grande
+          </option>
         </select>
       </div>
 
@@ -78,7 +102,7 @@ const CardFiltro = ({ filtros, setFiltros }) => {
           value={filtros.color}
           onChange={handleChange}
           placeholder="Ej: Marrón"
-          className="w-full mt-1 p-2 rounded bg-white/20 text-black placeholder-white/50 outline-none"
+          className="w-full text-white mt-1 p-2 text-xs rounded bg-white/20 text-black placeholder-white/50 outline-none"
         />
       </div>
     </div>

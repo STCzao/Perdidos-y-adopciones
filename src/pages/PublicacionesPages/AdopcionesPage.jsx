@@ -46,19 +46,19 @@ const AdopcionesPage = () => {
   return (
     <div>
       <Navbar />
-      <div className="min-h-screen bg-[#e6dac6] pt-40 px-4">
+      <div className="min-h-screen bg-[#e6dac6] pt-35 px-4">
         <div className="flex flex-col items-center gap-5 font-medium">
-          <h2 className="text-3xl text-black border border-white mb-10 bg-white/60 rounded-full py-2 px-4">
+          <h2 className="text-3xl text-black border border-white mb-3 bg-white/60 rounded-full py-2 px-4">
             Animales en adopción
           </h2>
 
           <div className="flex flex-col lg:flex-row gap-6 w-full">
             {/* Filtros */}
-            <div className="w-full lg:w-72 flex flex-col items-center mb-6 lg:mb-0">
+            <div className="w-full lg:w-72 flex flex-col items-center mb-5 lg:mb-0">
               <CardFiltro filtros={filtros} setFiltros={setFiltros} />
               <motion.button
                 onClick={() => CrearPublicacion.openModal()}
-                className="mt-6 text-black border border-black font-medium w-48 h-11 rounded-full bg-white hover:bg-[#FF7857] transition-opacity"
+                className="mt-5 text-black border border-black font-medium w-48 h-11 rounded-full bg-white hover:bg-[#FF7857] transition-opacity"
               >
                 Crear publicación
               </motion.button>
