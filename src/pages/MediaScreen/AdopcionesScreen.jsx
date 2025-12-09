@@ -30,7 +30,7 @@ const AdopcionesScreen = () => {
               ease: "easeInOut",
             }}
           >
-            ¡Bienvenido a la sección de ADOPCIONES!
+            ¡Sección de ADOPCIONES!
           </motion.p>
           <motion.div
             className="w-full flex flex-col sm:flex-row sm:flex-wrap lg:flex-nowrap justify-center items-center gap-10 px-4 mb-15"

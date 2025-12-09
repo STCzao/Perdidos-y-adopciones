@@ -104,7 +104,7 @@ const LoginScreen = ({ iniciarSesion, guardarUsuario }) => {
               y confiable.
             </p>
             <p className="text-sm mt-4"> 
-              Con tu registro e inicio de sesión ayudás a mantener la base de
+              Con tu registro e inicio de sesión podemos mantener la base de
               datos ordenada y segura.
             </p>
           </div>
