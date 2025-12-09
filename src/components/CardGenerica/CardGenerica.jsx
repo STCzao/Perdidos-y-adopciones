@@ -58,7 +58,7 @@ const CardGenerica = ({ publicacion }) => {
             <img
               src={img}
               alt={titulo}
-              className="w-full h-70 object-cover rounded-lg mb-1"
+              className="w-full h-[40vh] sm:h-[20rem] object-cover rounded-lg mb-1"
             />
           )}
           <h3 className="font-bold text-white text-l mb-1 text-center">
