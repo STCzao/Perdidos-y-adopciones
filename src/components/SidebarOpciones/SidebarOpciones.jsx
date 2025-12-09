@@ -116,9 +116,9 @@ export const SidebarOpciones = () => {
         animate={{ x: 0, opacity: 1 }}
         exit={{ x: "-100%", opacity: 0 }}
         transition={{ duration: 0.3, ease: "easeInOut" }}
-        className="items-center fixed min-h-screen top-0 left-0 w-[300px] bg-black p-6 z-[100] flex flex-col gap-4 shadow-lg"
+        className="items-center font-medium fixed min-h-screen top-0 left-0 w-[300px] bg-black p-6 z-[100] flex flex-col gap-2 shadow-lg"
       >
-        <h2 className="text-xl text-white text-center font-bold mb-4">
+        <h2 className="text-xl text-white text-center mb-4">
           {user ? `Hola, ${user.nombre}` : "Opciones de Usuario"}
         </h2>
         <button
@@ -136,7 +136,7 @@ export const SidebarOpciones = () => {
 
         {/* Sección administrador */}
         {isAdmin && (
-          <div className="border-t border-white/20 pt-4 mt-4 w-full flex flex-col gap-3">
+          <div className="border-t border-white/20 w-full flex flex-col pt-2 gap-2">
             <span className="font-medium text-[#FF7857] text-sm block text-center">
               Panel de Administrador
             </span>
@@ -169,7 +169,7 @@ export const SidebarOpciones = () => {
           </div>
         )}
 
-        <div className="mt-auto flex flex-col gap-2 w-full">
+        <div className="mt-10 flex flex-col gap-2 w-full">
           <button
             onClick={() => setOpen(false)}
             className="border border-white/20 font-medium w-full h-11 rounded-full text-white bg-white/20 hover:bg-white/60 transition-opacity"

@@ -140,13 +140,13 @@ export const CrearComunidad = {
       let newErrors = {};
 
       if (!form.titulo.trim()) {
-        newErrors.titulo = "El titulo es obligatorio";
+        newErrors.titulo = "El título es obligatorio";
         valid = false;
       } else if (form.titulo.trim().length < 9) {
-        newErrors.titulo = "El titulo debe tener al menos 10 caracteres";
+        newErrors.titulo = "El título debe tener al menos 10 caracteres";
         valid = false;
       } else if (form.titulo.trim().length > 81) {
-        newErrors.titulo = "El titulo no puede contener más de 80 caracteres";
+        newErrors.titulo = "El título no puede contener más de 80 caracteres";
         valid = false;
       }
 
@@ -241,7 +241,7 @@ export const CrearComunidad = {
         >
           <form
             onSubmit={handleSubmit}
-            className="max-w-6xl w-full text-center border border-white/70 rounded-2xl px-8 py-6 shadow-lg bg-white/10 backdrop-blur-sm max-h-[90vh]"
+            className="flex flex-col max-w-6xl w-full text-center border border-white/70 rounded-2xl px-8 py-6 shadow-lg bg-white/10 backdrop-blur-sm max-h-[90vh]"
           >
             <button
               onClick={handleClose}
@@ -272,10 +272,31 @@ export const CrearComunidad = {
               </p>
             </div>
 
-            <div className="overflow-y-auto mt-4 space-y-4 max-h-[70vh]">
+            <div className="overflow-y-auto mt-4 space-y-4 flex-1">
               <div className="mt-4">
                 <label className="flex items-left text-sm mb-1 ml-2">
-                  Seleccione una imagen
+                  Título
+                </label>
+                <div className="flex items-center w-full bg-white border border-gray-300/80 h-12 rounded-full overflow-hidden pl-6 gap-2">
+                  <input
+                    type="text"
+                    name="titulo"
+                    placeholder="Ingrese un título para el caso *"
+                    value={form.titulo}
+                    onChange={handleChange}
+                    disabled={submitting}
+                    className="bg-transparent text-gray-500 placeholder-gray-500 outline-none text-sm w-full h-full"
+                  />
+                </div>
+                {errors.titulo && (
+                  <p className="text-red-400 text-xs mt-1 text-left w-full px-4">
+                    {errors.titulo}
+                  </p>
+                )}
+              </div>
+              <div className="mt-4">
+                <label className="flex items-left text-sm mb-1 ml-2">
+                  Imagen
                 </label>
                 <div className="flex items-center justify-center w-full bg-white border border-gray-300/80 h-12 rounded-full overflow-hidden gap-2">
                   <input
@@ -305,34 +326,12 @@ export const CrearComunidad = {
 
               <div className="mt-4">
                 <label className="flex items-left text-sm mb-1 ml-2">
-                  Ingrese el titulo
-                </label>
-                <div className="flex items-center w-full bg-white border border-gray-300/80 h-12 rounded-full overflow-hidden pl-6 gap-2">
-                  <input
-                    type="text"
-                    name="titulo"
-                    placeholder="Titulo *"
-                    value={form.titulo}
-                    onChange={handleChange}
-                    disabled={submitting}
-                    className="bg-transparent text-gray-500 placeholder-gray-500 outline-none text-sm w-full h-full"
-                  />
-                </div>
-                {errors.titulo && (
-                  <p className="text-red-400 text-xs mt-1 text-left w-full px-4">
-                    {errors.titulo}
-                  </p>
-                )}
-              </div>
-
-              <div className="mt-4">
-                <label className="flex items-left text-sm mb-1 ml-2">
-                  Ingrese el contenido
+                  Contenido
                 </label>
                 <div className="flex items-center w-full bg-white border border-gray-300/80 min-h-12 rounded-2xl overflow-hidden p-4 gap-2">
                   <textarea
                     name="contenido"
-                    placeholder="Contenido *"
+                    placeholder="Ingrese el contenido del caso *"
                     value={form.contenido}
                     onChange={handleChange}
                     disabled={submitting}
@@ -349,7 +348,7 @@ export const CrearComunidad = {
 
               <div className="mt-4">
                 <label className="flex items-left text-sm mb-1 ml-2">
-                  Seleccione la categoria
+                  Categoría
                 </label>
                 <div className="flex items-center w-full bg-white border border-gray-300/80 h-12 rounded-full overflow-hidden pl-6 gap-2">
                   <select
@@ -359,6 +358,7 @@ export const CrearComunidad = {
                     disabled={submitting}
                     className="bg-transparent text-gray-500 outline-none text-sm w-full h-full"
                   >
+                    <option value="">Seleccione la categoría del caso *</option>
                     <option value="ALERTA">Alerta</option>
                     <option value="HISTORIA">Historia</option>
                   </select>
@@ -369,23 +369,22 @@ export const CrearComunidad = {
                   </p>
                 )}
               </div>
-
-              <div className="col-span-2 flex justify-end mt-4">
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="px-6 py-2 rounded-full text-white bg-white/20 border border-white/70 hover:bg-[#FF7857] transition-colors disabled:opacity-50"
-                >
-                  {submitting
-                    ? isEditing
-                    : isEditing
-                    ? "Actualizar caso"
-                    : "Crear caso"}
-                </button>
-              </div>
-
-              {result && <p className="mt-2 text-white/80 text-sm">{result}</p>}
             </div>
+            <div className="col-span-2 flex justify-end mt-4">
+              <button
+                type="submit"
+                disabled={submitting}
+                className="px-6 py-2 rounded-full text-white bg-white/40 border border-white/70 hover:bg-[#FF7857] transition-colors disabled:opacity-50"
+              >
+                {submitting
+                  ? isEditing
+                  : isEditing
+                  ? "Actualizar caso"
+                  : "Crear caso"}
+              </button>
+            </div>
+
+            {result && <p className="mt-2 text-white/80 text-sm">{result}</p>}
           </form>
         </motion.div>
       </div>

@@ -54,7 +54,7 @@ const AdopcionesPage = () => {
 
           <div className="flex flex-col lg:flex-row gap-6 w-full">
             {/* Filtros */}
-            <div className="w-full lg:w-72 flex flex-col items-center mb-5 lg:mb-0">
+            <div className="w-full lg:w-72 flex flex-col items-center lg:mb-0">
               <CardFiltro filtros={filtros} setFiltros={setFiltros} />
               <motion.button
                 onClick={() => CrearPublicacion.openModal()}
