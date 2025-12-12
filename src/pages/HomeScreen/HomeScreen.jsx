@@ -212,7 +212,7 @@ const HomeScreen = () => {
         >
           Invitamos a los colaboradores a enviar sus consultas mediante el
           formulario. A través de su mensaje podremos informarles sobre las
-          maneras participar en la iniciativa de perdidos y adopciones.
+          maneras de participar en la iniciativa de perdidos y adopciones.
         </motion.p>
       </div>
       <Footer />
