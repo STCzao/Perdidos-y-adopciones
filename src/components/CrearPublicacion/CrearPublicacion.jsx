@@ -365,7 +365,7 @@ export const CrearPublicacion = {
         );
 
         const datosParaEnviar = {
-          titulo: form.titulo,
+          titulo: form.titulo || "",
           descripcion: form.descripcion,
           tipo: form.tipo,
           raza: form.raza,
