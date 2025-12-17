@@ -29,7 +29,7 @@ export const ConfirmModal = React.memo(
         case "perfil":
           return "¿Estas seguro de que quieres eliminar tu perfil? Esta acción no puede deshacerse.";
         case "publicacion":
-          return `¿Estas seguro de que quieres eliminar "${confirmModal.item?.titulo}"? Esta acción no se puede deshacer.`;
+          return `¿Estas seguro de que quieres eliminar esta publicación? Esta acción no se puede deshacer.`;
         case "usuario":
           return `¿Estas seguro de que quieres ${
             confirmModal.item?.estado ? "desactivar" : "activar"

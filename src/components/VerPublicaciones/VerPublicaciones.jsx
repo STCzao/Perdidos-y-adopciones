@@ -281,10 +281,22 @@ const PublicacionItem = React.memo(
 
             <span className="text-white/70">Raza: {publicacion.raza}</span>
             <span className="text-white/70">Color: {publicacion.color}</span>
-            <span className="text-white/70">Lugar: {publicacion.lugar}</span>
-            <span className="text-white/70">
-              Descripcion: {publicacion.descripcion}
-            </span>
+            {publicacion.tipo === "PERDIDO" && (
+              <span className="text-white/70">
+                Título: Se busca a {publicacion.nombreanimal}
+              </span>
+            )}
+            {publicacion.tipo === "ENCONTRADO" && (
+              <span className="text-white/70">
+                Título: {publicacion.especie} encontrado en {publicacion.lugar}{" "}
+              </span>
+            )}
+            {publicacion.tipo === "ADOPCION" && (
+              <span className="text-white/70">
+                Título: {publicacion.nombreanimal} se encuentra en busca de un
+                hogar
+              </span>
+            )}
           </div>
 
           <p className="text-white/60 text-sm mt-2">

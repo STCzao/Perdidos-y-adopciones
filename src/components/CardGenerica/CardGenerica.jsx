@@ -14,8 +14,8 @@ const CardGenerica = ({ publicacion }) => {
   const [flipped, setFlipped] = useState(false);
 
   const {
-    titulo,
-    descripcion,
+    nombreanimal,
+    especie,
     tipo,
     raza,
     lugar,
@@ -61,9 +61,32 @@ const CardGenerica = ({ publicacion }) => {
               className="w-full h-[40vh] sm:h-[20rem] object-cover rounded-lg mb-1"
             />
           )}
+
           <div className="flex flex-col text-center text-white mb-2 rounded text-sm">
-            {(tipo === "PERDIDO" || tipo === "ENCONTRADO") && (
-              <>{lugar && <p className="mt-2">Lugar: {lugar}</p>}</>
+            {tipo === "ENCONTRADO" && (
+              <div>
+                <h1 className="text-sm font-bold text-white text-center">
+                  {especie} {tipo} en {lugar}
+                </h1>
+              </div>
+            )}
+          </div>
+          <div className="flex flex-col text-center text-white mb-2 rounded text-sm">
+            {tipo === "PERDIDO" && (
+              <div>
+                <h1 className="text-sm font-bold text-white text-center">
+                  Se busca a {nombreanimal} en {lugar}
+                </h1>
+              </div>
+            )}
+          </div>
+          <div className="flex flex-col text-center text-white mb-2 rounded text-sm">
+            {tipo === "ADOPCION" && (
+              <div>
+                <h1 className="text-sm font-bold text-white text-center">
+                  {nombreanimal} se encuentra en busca de un hogar
+                </h1>
+              </div>
             )}
           </div>
           <div className="text-xs text-white/90 space-y-1 flex-1 overflow-y-auto will-change-transform [transform:translateZ(0)]">
@@ -82,7 +105,6 @@ const CardGenerica = ({ publicacion }) => {
         {/* Reverso */}
         <div className="absolute w-full h-full [backface-visibility:hidden] [transform:rotateY(180deg)] flex flex-col justify-between bg-[#763A0D]/70 backdrop-blur border border-white/20 rounded-xl shadow-md p-3">
           <div className="text-sm text-white/90 overflow-auto flex-1">
-            {descripcion && <p>Descripción: {descripcion}</p>}
             {(tipo === "PERDIDO" || tipo === "ENCONTRADO") && (
               <>
                 {fecha && <p className="mt-2">Fecha: {formatFecha(fecha)}</p>}

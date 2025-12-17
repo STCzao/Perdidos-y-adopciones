@@ -13,6 +13,7 @@ export const CrearPublicacion = {
   Component: () => {
     const [open, setOpen] = useState(false);
     const [form, setForm] = useState({
+      nombreanimal: "",
       especie: "",
       tipo: "",
       raza: "",
@@ -61,6 +62,7 @@ export const CrearPublicacion = {
     useEffect(() => {
       if (editData) {
         setForm({
+          nombreanimal: editData.nombreanimal || "",
           especie: editData.especie || "",
           tipo: editData.tipo || "",
           raza: editData.raza || "",
@@ -84,6 +86,7 @@ export const CrearPublicacion = {
 
     const resetForm = () => {
       setForm({
+        nombreanimal: "",
         especie: "",
         tipo: "",
         raza: "",
@@ -317,6 +320,20 @@ export const CrearPublicacion = {
         }
       }
 
+      if (form.tipo === "ADOPCION" || form.tipo === "PERDIDO") {
+        if (!form.nombreanimal.trim()) {
+          newErrors.nombreanimal = "El nombre del animal es obligatorio";
+          valid = false;
+        } else if (form.nombreanimal.trim().length > 61) {
+          newErrors.nombreanimal =
+            "El nombre no puede contenar más de 60 caracteres";
+          valid = false;
+        } else if (form.nombreanimal.trim().length < 3) {
+          newErrors.nombreanimal = "El nombre debe tener al menos 3 caracteres";
+          valid = false;
+        }
+      }
+
       if (form.tipo === "ADOPCION") {
         if (!form.afinidad) {
           newErrors.afinidad = "La afinidad con niños es obligatoria";
@@ -349,6 +366,10 @@ export const CrearPublicacion = {
           img: form.img,
           ...(form.detalles?.trim() && { detalles: form.detalles }),
         };
+
+        if (form.tipo === "PERDIDO" || form.tipo === "ADOPCION") {
+          datosParaEnviar.nombreanimal = form.nombreanimal;
+        }
 
         if (form.tipo === "ADOPCION") {
           datosParaEnviar.afinidad = form.afinidad;
@@ -475,6 +496,33 @@ export const CrearPublicacion = {
                   </p>
                 )}
               </div>
+
+              {/*Nombre del animal*/}
+              {(form.tipo === "ADOPCION" || form.tipo === "PERDIDO") && (
+                <>
+                  <div className="mt-4">
+                    <label className="flex items-left text-sm mb-1 ml-2">
+                      Nombre de su animal
+                    </label>
+                    <div className="flex items-center w-full bg-white border border-gray-300/80 h-12 rounded-full overflow-hidden pl-6 gap-2">
+                      <input
+                        type="text"
+                        name="nombreanimal"
+                        placeholder="Ingrese el nombre de su animal *"
+                        value={form.nombreanimal}
+                        onChange={handleChange}
+                        disabled={submitting}
+                        className="bg-transparent text-gray-500 placeholder-gray-500 outline-none text-sm w-full h-full"
+                      />
+                    </div>
+                    {errors.nombreanimal && (
+                      <p className="text-red-400 text-xs mt-1 text-left w-full px-4">
+                        {errors.nombreanimal}
+                      </p>
+                    )}
+                  </div>
+                </>
+              )}
 
               {/* Imagen */}
               <div className="mt-4">
