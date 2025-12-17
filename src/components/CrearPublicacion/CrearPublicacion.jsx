@@ -253,13 +253,13 @@ export const CrearPublicacion = {
       }
 
       //Valid especie
-      if (!form.especie.trim()) {
+      if (!form.especie) {
         newErrors.especie = "La especie es obligatoria";
         valid = false;
       }
 
       //Valid edad
-      if (!form.edad.trim()) {
+      if (!form.edad) {
         newErrors.edad = "La edad es obligatoria";
         valid = false;
       }
@@ -537,6 +537,42 @@ export const CrearPublicacion = {
                 )}
               </div>
 
+              {/* Campo PERDIDO */}
+
+              {form.tipo === "PERDIDO" && (
+                <>
+                  <div className="mt-4">
+                    <label className="flex text-left items-left text-sm mb-1 ml-2">
+                      Edad aproximada de su animal
+                    </label>
+                    <div className="flex items-center w-full bg-white border border-gray-300/80 h-12 rounded-full overflow-hidden pl-6 gap-2">
+                      <select
+                        name="edad"
+                        value={form.edad}
+                        onChange={handleChange}
+                        disabled={submitting}
+                        className="bg-transparent text-gray-500 placeholder-gray-500 outline-none text-sm w-full h-full"
+                      >
+                        <option value="">
+                          Seleccione la edad de su animal *
+                        </option>
+                        <option value="SIN ESPECIFICAR">Sin especificar</option>
+                        <option value="CACHORRO">
+                          Cachorro (hasta 12 meses)
+                        </option>
+                        <option value="ADULTO">Adulto (1 a 7 años)</option>
+                        <option value="MAYOR">Mayor (Más de 7 años)</option>
+                      </select>
+                    </div>
+                    {errors.edad && (
+                      <p className="text-red-400 text-xs mt-1 text-left w-full px-4">
+                        {errors.edad}
+                      </p>
+                    )}
+                  </div>
+                </>
+              )}
+
               {/* Campos PERDIDO/ENCONTRADO */}
               {(form.tipo === "PERDIDO" || form.tipo === "ENCONTRADO") && (
                 <>
@@ -683,36 +719,6 @@ export const CrearPublicacion = {
                   {errors.tamaño && (
                     <p className="text-red-400 text-xs mt-1 text-left w-full px-4">
                       {errors.tamaño}
-                    </p>
-                  )}
-                </div>
-
-                <div className="mt-4">
-                  <label className="flex text-left items-left text-sm mb-1 ml-2">
-                    Edad aproximada de su animal
-                  </label>
-                  <div className="flex items-center w-full bg-white border border-gray-300/80 h-12 rounded-full overflow-hidden pl-6 gap-2">
-                    <select
-                      name="edad"
-                      value={form.edad}
-                      onChange={handleChange}
-                      disabled={submitting}
-                      className="bg-transparent text-gray-500 placeholder-gray-500 outline-none text-sm w-full h-full"
-                    >
-                      <option value="">
-                        Seleccione la afinidad con niños *
-                      </option>
-                      <option value="SIN ESPECIFICAR">Sin especificar</option>
-                      <option value="CACHORRO">
-                        Cachorro (hasta 12 meses)
-                      </option>
-                      <option value="ADULTO">Adulto (1 a 7 años)</option>
-                      <option value="MAYOR">Mayor (Más de 7 años)</option>
-                    </select>
-                  </div>
-                  {errors.edad && (
-                    <p className="text-red-400 text-xs mt-1 text-left w-full px-4">
-                      {errors.edad}
                     </p>
                   )}
                 </div>
