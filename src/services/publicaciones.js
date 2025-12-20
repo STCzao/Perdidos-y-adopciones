@@ -62,6 +62,7 @@ export const publicacionesService = {
     try {
       const token = localStorage.getItem("token");
 
+      console.log("Datos:", datos);
       const resp = await fetch(`${API_URL}/publicaciones`, {
         method: "POST",
         body: JSON.stringify(datos),

@@ -91,11 +91,13 @@ const CardGenerica = ({ publicacion }) => {
           </div>
           <div className="text-xs text-white/90 space-y-1 flex-1 overflow-y-auto will-change-transform [transform:translateZ(0)]">
             {estado && <p>Estado: {estado}</p>}
+            {especie && <p>Especie: {especie}</p>}
             {raza && <p>Raza: {raza}</p>}
             {sexo && <p>Sexo: {sexo}</p>}
             {tamaño && <p>Tamaño: {tamaño}</p>}
             {color && <p>Color: {color}</p>}
-            {edad && <p>Edad: {edad}</p>}
+
+            {(tipo === "PERDIDO" || tipo === "ADOPCION") && <p>Edad: {edad}</p>}
           </div>
           <p className="text-center bg-white/20 text-white px-2 py-1 rounded text-l mt-2">
             Ver más detalles (click para girar)

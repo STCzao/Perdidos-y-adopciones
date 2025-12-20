@@ -60,28 +60,41 @@ export const CrearPublicacion = {
     }, []);
 
     useEffect(() => {
-      if (editData) {
-        setForm({
-          nombreanimal: editData.nombreanimal || "",
-          especie: editData.especie || "",
-          tipo: editData.tipo || "",
-          raza: editData.raza || "",
-          lugar: editData.lugar || "",
-          fecha: editData.fecha || "",
-          sexo: editData.sexo || "",
-          tamaño: editData.tamaño || "",
-          color: editData.color || "",
-          edad: editData.edad || "",
-          detalles: editData.detalles || "",
-          afinidad: editData.afinidad || "",
-          energia: editData.energia || "",
-          castrado: editData.castrado || false,
-          whatsapp: editData.whatsapp || "",
-          img: editData.img || "",
-        });
-      } else {
+      if (!editData) {
         resetForm();
+        return;
       }
+
+      setForm({
+        nombreanimal:
+          editData.tipo === "PERDIDO" || editData.tipo === "ADOPCION"
+            ? editData.nombreanimal || ""
+            : "",
+        edad:
+          editData.tipo === "PERDIDO" || editData.tipo === "ADOPCION"
+            ? editData.edad || ""
+            : "",
+        especie: editData.especie || "",
+        tipo: editData.tipo || "",
+        raza: editData.raza || "",
+        lugar:
+          editData.tipo === "PERDIDO" || editData.tipo === "ENCONTRADO"
+            ? editData.lugar || ""
+            : "",
+        fecha:
+          editData.tipo === "PERDIDO" || editData.tipo === "ENCONTRADO"
+            ? editData.fecha || ""
+            : "",
+        sexo: editData.sexo || "",
+        tamaño: editData.tamaño || "",
+        color: editData.color || "",
+        detalles: editData.detalles || "",
+        afinidad: editData.tipo === "ADOPCION" ? editData.afinidad || "" : "",
+        energia: editData.tipo === "ADOPCION" ? editData.energia || "" : "",
+        castrado: editData.tipo === "ADOPCION" ? !!editData.castrado : false,
+        whatsapp: editData.whatsapp || "",
+        img: editData.img || "",
+      });
     }, [editData]);
 
     const resetForm = () => {
@@ -120,6 +133,8 @@ export const CrearPublicacion = {
         setForm((prev) => ({
           ...prev,
           tipo: value,
+          nombreanimal: "",
+          edad: "",
           lugar: "",
           fecha: "",
           afinidad: "",
@@ -205,18 +220,10 @@ export const CrearPublicacion = {
       let newErrors = {};
 
       //Valid detalles
-      const detalles = form.detalles.trim();
-
-      if (detalles) {
-        if (detalles.length > 251) {
-          newErrors.detalles =
-            "Los detalles no pueden contener más de 250 caracteres";
-          valid = false;
-        } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(detalles)) {
-          newErrors.detalles =
-            "Los detalles solo pueden contener letras y espacios";
-          valid = false;
-        }
+      if (form.detalles.trim().length > 251) {
+        newErrors.detalles =
+          "Los detalles no pueden contener más de 250 caracteres";
+        valid = false;
       }
 
       //Valid tipo
@@ -258,12 +265,6 @@ export const CrearPublicacion = {
       //Valid especie
       if (!form.especie) {
         newErrors.especie = "La especie es obligatoria";
-        valid = false;
-      }
-
-      //Valid edad
-      if (!form.edad) {
-        newErrors.edad = "La edad es obligatoria";
         valid = false;
       }
 
@@ -320,13 +321,22 @@ export const CrearPublicacion = {
         }
       }
 
+      //Valid edad
+      if (form.tipo === "PERDIDO" || form.tipo === "ADOPCION") {
+        if (!form.edad) {
+          newErrors.edad = "La edad es obligatoria";
+          valid = false;
+        }
+      }
+
+      //Valid nombre animal
       if (form.tipo === "ADOPCION" || form.tipo === "PERDIDO") {
         if (!form.nombreanimal.trim()) {
           newErrors.nombreanimal = "El nombre del animal es obligatorio";
           valid = false;
         } else if (form.nombreanimal.trim().length > 61) {
           newErrors.nombreanimal =
-            "El nombre no puede contenar más de 60 caracteres";
+            "El nombre no puede contener más de 60 caracteres";
           valid = false;
         } else if (form.nombreanimal.trim().length < 3) {
           newErrors.nombreanimal = "El nombre debe tener al menos 3 caracteres";
@@ -361,7 +371,6 @@ export const CrearPublicacion = {
           sexo: form.sexo,
           tamaño: form.tamaño,
           color: form.color,
-          edad: form.edad,
           whatsapp: form.whatsapp,
           img: form.img,
           ...(form.detalles?.trim() && { detalles: form.detalles }),
@@ -369,6 +378,7 @@ export const CrearPublicacion = {
 
         if (form.tipo === "PERDIDO" || form.tipo === "ADOPCION") {
           datosParaEnviar.nombreanimal = form.nombreanimal;
+          datosParaEnviar.edad = form.edad;
         }
 
         if (form.tipo === "ADOPCION") {
@@ -587,7 +597,7 @@ export const CrearPublicacion = {
 
               {/* Campo PERDIDO */}
 
-              {form.tipo === "PERDIDO" && (
+              {(form.tipo === "PERDIDO" || form.tipo === "ADOPCION") && (
                 <>
                   <div className="mt-4">
                     <label className="flex text-left items-left text-sm mb-1 ml-2">
