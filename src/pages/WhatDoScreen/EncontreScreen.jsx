@@ -20,31 +20,25 @@ const EncontreScreen = () => {
           <motion.p className="text-3xl mb-10 text-center">
             ¿Qué hacer si encontré un animal?
           </motion.p>
-          <motion.p
+          <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
             className="text-sm border border-white/20 flex flex-col gap-3 text-left justify-center p-4 sm:p-5 w-full sm:w-11/12 md:w-full rounded-lg bg-white/20 text-center"
           >
             <span className="text-3xl">1-</span>
-            <span className="text-xl">¿Tiene chip?</span>
+            <span className="text-xl">Publicá el aviso cuanto antes</span>
             <span>
-              Si puedes, llévalo al veterinario para comprobar si tiene
-              microchip. El microchip no se ve, por lo tanto para comprobar si
-              lo tiene solo tienes que acudir a una clínica veterinaria. En
-              caso, de que por los horarios estén cerradas, también tienen
-              lectores de chip algunas protectoras. La lectura del chip es
-              gratuita. En caso de que el animal lo tenga, será tan sencillo
-              como llamar a la familia para que acuda a recogerlo.
+              Este es uno de los pasos más importantes:
+              <br />
+              <ul>
+                <li>• Sacale una o varias fotos claras.</li>
+                <li>• Publicá el caso como ENCONTRADO en esta página.</li>
+                <li>• Indicá bien la zona donde lo viste o lo levantaste.</li>
+                <li>• Sumá cualquier detalle que ayude a identificarlo.</li>
+              </ul>
             </span>
-            <span>
-              En caso de que no puedas desplazarte con el animal, intenta
-              hacerle fotos con tu celular y anotar el punto exacto donde lo has
-              visto. En caso de sospecha de que sea un animal perdido, puedes
-              consultar anuncios en internet o locales, para poder avisar a los
-              dueños si observas alguna coincidendia.
-            </span>
-          </motion.p>
+          </motion.div>
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -52,40 +46,174 @@ const EncontreScreen = () => {
             className="text-sm mt-5 border border-white/20 flex flex-col gap-3 text-left justify-center p-4 sm:p-5 w-full sm:w-11/12 md:w-full rounded-lg bg-white/20 text-center"
           >
             <span className="text-3xl">2-</span>
-            <span className="text-xl">¿No tiene chip?</span>
-
-            <ul>
-              <li>-Pega carteles por la zona donde lo encontraste.</li>
-              <li>
-                -Publica un aviso en foros y páginas de internet dedicadas
-                animales perdidos. Puedes hacerlo aquí mismo en Perdidos y
-                Adopciones.
-              </li>
-              <li>
-                -Ponte en contacto con todas las protectoras o veterinarias de
-                la zona pues puede que la familia del animal ya haya comunicado
-                su desaparición.
-              </li>
-              <li>
-                Recuerda que gracias a tus acciones puedes salvar la vida de un
-                animal y hacer que se reencuentre con su familia.
-              </li>
-            </ul>
+            <span className="text-xl">Difundí la publicación</span>
+            <span>
+              Una vez publicado:
+              <br />
+              <ul>
+                <li>
+                  • Compartí el link en grupos barriales y redes sociales.
+                </li>
+                <li>
+                  • Pedí que lo compartan, siempre usando la misma publicación.
+                </li>
+                <li>
+                  • Cuanta más visibilidad tenga el caso, más chances hay de
+                  resolverlo.
+                </li>
+              </ul>
+            </span>
           </motion.div>
-          <motion.p
+          <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
             className="text-sm border mt-5 border-white/20 flex flex-col gap-3 text-left justify-center p-4 sm:p-5 w-full sm:w-11/12 md:w-full rounded-lg bg-white/20 text-center"
           >
             <span className="text-3xl">3-</span>
-            <span className="text-xl">No tiene chip y no aparece su dueño</span>
-            <span>
-              Ponte en contacto con una protectora o refugio para que te diga la
-              forma y te ayude a encontrarle un nuevo hogar al animal. Sin duda,
-              le habrás salvado la vida.
+            <span className="text-xl">
+              Observá al animal antes de intentar atraparlo
             </span>
-          </motion.p>
+            <span>
+              Antes de acercarte:
+              <br />
+              <ul>
+                <li>• Mirá si está asustado, herido o tranquilo.</li>
+                <li>• Observá si cruza calles sin mirar o busca personas.</li>
+                <li>• Evaluá si podés acercarte sin riesgo.</li>
+                <br />
+                <li>
+                  No todos los animales se dejan agarrar. Forzar la situación
+                  puede empeorarla.
+                </li>
+              </ul>
+            </span>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="text-sm border mt-5 border-white/20 flex flex-col gap-3 text-left justify-center p-4 sm:p-5 w-full sm:w-11/12 md:w-full rounded-lg bg-white/20 text-center"
+          >
+            <span className="text-3xl">4-</span>
+            <span className="text-xl">Acercate con calma</span>
+            <span>
+              Si decidís intentar retenerlo:
+              <br />
+              <ul>
+                <li>• Hablale suave y despacio.</li>
+                <li>• Evitá movimientos bruscos.</li>
+                <li>• Ofrecé agua o comida si tenés.</li>
+                <li>• No lo mires fijo ni lo rodees.</li>
+              </ul>
+            </span>
+
+            <span>
+              Si se deja acercar:
+              <br />
+              <ul>
+                <li>• Hablale suave y despacio.</li>
+                <li>• Evitá movimientos bruscos.</li>
+                <li>• Ofrecé agua o comida si tenés.</li>
+                <li>• No lo mires fijo ni lo rodees.</li>
+              </ul>
+            </span>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="text-sm border mt-5 border-white/20 flex flex-col gap-3 text-left justify-center p-4 sm:p-5 w-full sm:w-11/12 md:w-full rounded-lg bg-white/20 text-center"
+          >
+            <span className="text-3xl">5-</span>
+            <span className="text-xl">
+              Resguardalo si te es posible, aunque sea de forma provisoria
+            </span>
+            <span>
+              En Tucumán no hay lugares oficiales de resguardo, por eso el
+              tránsito solidario es clave:
+              <br />
+              <ul>
+                <li>
+                  • Si podés, ofrecé tránsito provisorio (unas horas o días).
+                </li>
+                <li>
+                  • No es adopción, es solo darle un lugar seguro mientras se
+                  busca ayuda.
+                </li>
+                <li>
+                  • Agua, algo de comida y un espacio tranquilo ya hacen una
+                  gran diferencia.
+                </li>
+              </ul>
+            </span>
+
+            <span>
+              Si no podés llevarlo a tu casa:
+              <br />
+              <ul>
+                <li>• Intentá retenerlo momentáneamente.</li>
+                <li>• Pedí ayuda a vecinos o personas cercanas.</li>
+              </ul>
+            </span>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="text-sm border mt-5 border-white/20 flex flex-col gap-3 text-left justify-center p-4 sm:p-5 w-full sm:w-11/12 md:w-full rounded-lg bg-white/20 text-center"
+          >
+            <span className="text-3xl">6-</span>
+            <span className="text-xl">
+              Pedí ayuda para tránsito o resguardo
+            </span>
+            <span>
+              Si no podés sostener el tránsito:
+              <br />
+              <ul>
+                <li>• Pedí ayuda en la misma publicación.</li>
+                <li>• Contactá rescatistas independientes.</li>
+                <li>
+                  • Pedí colaboración a la comunidad para conseguir un tránsito.
+                </li>
+              </ul>
+            </span>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="text-sm border mt-5 border-white/20 flex flex-col gap-3 text-left justify-center p-4 sm:p-5 w-full sm:w-11/12 md:w-full rounded-lg bg-white/20 text-center"
+          >
+            <span className="text-3xl">7-</span>
+            <span className="text-xl">Mantené el aviso actualizado</span>
+            <span>
+              Si no podés sostener el tránsito:
+              <br />
+              <ul>
+                <li>
+                  • Si cambia la zona donde se lo ve, actualizá la publicación.
+                </li>
+                <li>• Si aparece alguien que puede ayudar, avisalo.</li>
+                <li>
+                  • Cuando el caso se resuelva, marcá el aviso como RESUELTO.
+                </li>
+              </ul>
+            </span>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="text-sm border mt-5 border-white/20 flex flex-col gap-3 text-left justify-center p-4 sm:p-5 w-full sm:w-11/12 md:w-full rounded-lg bg-white/20 text-center"
+          >
+            <span className="text-xl">
+              No hace falta hacerlo todo solo ni hacerlo perfecto. Cada gesto
+              suma: publicar, difundir, resguardar un rato o pedir ayuda. Esta
+              página existe para ordenar esa ayuda comunitaria y hacer que
+              llegue más lejos.
+            </span>
+          </motion.div>
         </div>
       </div>
       <Footer />

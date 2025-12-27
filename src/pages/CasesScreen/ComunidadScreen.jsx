@@ -27,8 +27,9 @@ const ComunidadScreen = () => {
           <motion.p className="text-3xl mb-6">Casos para ayuda</motion.p>
 
           <motion.p className="text-lg mb-12">
-            Aquí podrás encontrar historias, consejos, experiencias y alertas
-            compartidas por nuestra comunidad.
+            Aquí se publican casos que necesitan ayuda concreta: tránsito,
+            insumos, atención veterinaria o difusión. Una forma simple de
+            conectar a quienes ayudan con quienes pueden colaborar.
           </motion.p>
 
           {/* Filtro completamente desacoplado */}

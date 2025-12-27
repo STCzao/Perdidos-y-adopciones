@@ -210,9 +210,13 @@ const HomeScreen = () => {
           transition={{ duration: 0.5, delay: 0.3 }}
           className="border border-white/20 font-medium rounded-lg bg-white/20 p-4 sm:p-5 text-base sm:text-lg md:text-xl text-left max-w-lg md:max-w-2xl leading-relaxed md:ml-8"
         >
-          Invitamos a los colaboradores a enviar sus consultas mediante el
-          formulario. A través de su mensaje podremos informarles sobre las
-          maneras de participar en la iniciativa de perdidos y adopciones.
+          Sumarse a esta iniciativa puede tomar muchas formas. Podés colaborar
+          ofreciendo tránsito provisorio, ayudando con traslados, aportando para
+          tratamientos veterinarios, o medicamentos e insumos, o simplemente
+          difundiendo publicaciones y avisando cuando haya cambios para mantener
+          la información actualizada en la base de datos. Al completar el
+          formulario, vas a poder contarnos de qué manera te gustaría colaborar,
+          según tu tiempo y tus posibilidades.
         </motion.p>
       </div>
       <Footer />

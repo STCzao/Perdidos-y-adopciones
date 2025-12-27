@@ -115,8 +115,9 @@ const ContactScreen = () => {
             ¿Ocurrió algo? Comunícanos tus inquietudes
           </span>
           <span className="text-sm">
-            Este espacio fue pensado para quienes presenten dudas con respecto a
-            la colaboración y el funcionamiento de la página.
+            Si querés sumarte a esta iniciativa, acá podés contarnos de qué
+            manera te gustaría colaborar. Hay distintas formas de ayudar, según
+            tu tiempo y tus posibilidades.
           </span>
         </motion.div>
         <motion.div
@@ -192,12 +193,12 @@ const ContactScreen = () => {
               </div>
 
               <div className="mt-4">
-                <label className="font-medium text-white ml-4">Mensaje</label>
+                <label className="font-medium text-white ml-4">Quiero colaborar</label>
                 <textarea
                   rows="6"
                   name="Mensaje"
                   className="text-white w-full mt-2 p-2 bg-transparent border border-slate-300 rounded-lg resize-none outline-none focus:ring-2 focus-within:ring-white transition-all"
-                  placeholder="Ingrese su mensaje"
+                  placeholder="Indique de qué manera quiere colaborar"
                   value={capturarMensaje}
                   onChange={(e) => setCapturarMensaje(e.target.value)}
                 ></textarea>

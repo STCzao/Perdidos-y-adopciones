@@ -95,17 +95,10 @@ const LoginScreen = ({ iniciarSesion, guardarUsuario }) => {
           <div className="flex flex-col items-center justify-center">
             <h5 className="text-white text-3xl mt-2">¡Hola!</h5>
             <p className="text-sm mt-4">
-              Este espacio nace para organizar, en un solo lugar, la información
-              sobre animales perdidos, encontrados y en adopción en Tucumán,
-              Argentina.
-            </p>
-            <p className="text-sm mt-4">
-              Así, toda la comunidad puede ayudar de manera más sencilla, rápida
-              y confiable.
-            </p>
-            <p className="text-sm mt-4"> 
-              Con tu registro e inicio de sesión podemos mantener la base de
-              datos ordenada y segura.
+              Organizamos la información sobre animales perdidos, encontrados y
+              en adopción en Tucumán, Argentina, para que ayudar sea más fácil.
+              Con tu registro, la base se mantiene segura y ordenada. Muchas
+              gracias!
             </p>
           </div>
 

@@ -29,15 +29,21 @@ export const CrearComunidad = {
 
     useEffect(() => {
       if (open) {
-        setLoading(true);
-        const timer = setTimeout(() => setLoading(false), 600);
-        document.body.style.overflow = "hidden";
-        document.documentElement.style.overflow = "hidden";
-        return () => clearTimeout(timer);
-      } else {
-        document.body.style.overflow = "unset";
-        document.documentElement.style.overflow = "unset";
+        const scrollY = window.scrollY;
+        document.body.style.position = "fixed";
+        document.body.style.top = `-${scrollY}px`;
+        document.body.style.left = "0";
+        document.body.style.right = "0";
       }
+
+      return () => {
+        const scrollY = document.body.style.top;
+        document.body.style.position = "";
+        document.body.style.top = "";
+        document.body.style.left = "";
+        document.body.style.right = "";
+        window.scrollTo(0, parseInt(scrollY || "0") * -1);
+      };
     }, [open]);
 
     useEffect(() => {

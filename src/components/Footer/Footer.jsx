@@ -9,15 +9,11 @@ export default function Footer() {
       <div className="flex flex-col md:flex-row justify-between w-full gap-10 border-b border-white/20 pb-8">
         {/* Logo + Descripción */}
         <div className="md:max-w-md text-center md:text-left">
-          <img
-            className="h-20"
-            src={Logo_footer}
-            alt=""
-          />
+          <img className="h-20" src={Logo_footer} alt="" />
           <p className="mt-6 text-sm leading-relaxed text-white/90">
-            Nuestra plataforma conecta personas con animales perdidos, en
-            adopcion o encontrados. Buscamos ayudar a la comunidad a darles una
-            segunda oportunidad.
+            Una plataforma que conecta personas con animales perdidos,
+            encontrados y en adopción, para que cada caso sea visibilizado y
+            pueda recibir ayuda que merece.
           </p>
         </div>
 
@@ -98,7 +94,7 @@ export default function Footer() {
               >
                 Consultas
               </p>
-              <p>+54 381 675 4618</p>
+              <p>+54 381 570-3940</p>
               <p>perdidosyadopcionesrec@gmail.com</p>
             </div>
           </div>
