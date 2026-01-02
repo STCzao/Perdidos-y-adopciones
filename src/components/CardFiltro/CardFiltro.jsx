@@ -6,7 +6,7 @@ const CardFiltro = ({ filtros, setFiltros }) => {
 
   return (
     <div className="bg-[#763A0D]/70 backdrop-blur max-w-[200px] border border-white/20 rounded-xl shadow-md p-2 text-white font-medium flex flex-col">
-      <h3 className="text-lg font-bold mb-2">Buscar por...</h3>
+      <h3 className="text-l font-bold mb-2">Buscar por...</h3>
 
       {/* Raza (texto libre) */}
       <div>

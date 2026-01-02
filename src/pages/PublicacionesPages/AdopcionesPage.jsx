@@ -56,6 +56,12 @@ const AdopcionesPage = () => {
             {/* Filtros */}
             <div className="w-full lg:w-72 flex flex-col items-center lg:mb-0">
               <CardFiltro filtros={filtros} setFiltros={setFiltros} />
+              {/* Numero de coincidencias */}
+              <div className="flex items-center justify-center">
+                <p className="text-black font-medium text-sm mt-4">
+                  Número de coincidencias: {publicacionesFiltradas.length}
+                </p>
+              </div>
               <motion.button
                 onClick={() => CrearPublicacion.openModal()}
                 className="mt-5 text-black border border-black font-medium w-48 h-11 rounded-full bg-white hover:bg-[#FF7857] transition-opacity"

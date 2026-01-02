@@ -85,6 +85,46 @@ const EncontradosScreen = () => {
               </button>
             </div>
           </motion.div>
+          <motion.div
+            className="w-full flex flex-col sm:flex-row sm:flex-wrap lg:flex-nowrap justify-center items-center gap-10 px-4 mb-15"
+            initial={{
+              opacity: 0,
+            }}
+            animate={{
+              opacity: 1,
+            }}
+            transition={{
+              duration: 0.3,
+              delay: 0.8,
+            }}
+          >
+            <div className="bg-white/20 rounded-lg p-6 w-full border border-white/20 text-left mb-15">
+              Esta página solicita únicamente tu nombre y un número de contacto
+              telefónico, los cuales se incorporan al perfil y a las
+              publicaciones con el solo fin de poder contactarte para informarte
+              sobre animales perdidos, encontrados o en adopción, y para todas
+              las acciones vinculadas al objeto de este sitio.
+              <br />
+              Al enviar una publicación, declarás y aceptás que: Los datos
+              personales ingresados son propios, reales y veraces, y que los
+              brindás de manera voluntaria y consciente, sin existir
+              impedimentos legales o de capacidad para hacerlo.
+              <br />
+              Autorizás expresamente el tratamiento de dichos datos con la única
+              finalidad de colaborar en la búsqueda, denuncia, difusión o
+              adopción responsable de animales domésticos, conforme al objeto de
+              esta página. Tenés conocimiento de que los datos serán tratados de
+              forma confidencial, no serán divulgados ni utilizados para fines
+              distintos a los aquí indicados, y que su acceso se encuentra
+              limitado al administrador del sitio, sin perjuicio de los riesgos
+              propios de cualquier entorno digital.
+              <br />
+              Declarás conocer que podés solicitar en cualquier momento la
+              actualización o eliminación de tus datos personales, de acuerdo
+              con la normativa vigente en materia de protección de datos
+              personales (Ley Nº 25.326).
+            </div>
+          </motion.div>
         </div>
       </div>
       <Footer />

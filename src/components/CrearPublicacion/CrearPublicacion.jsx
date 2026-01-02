@@ -480,8 +480,8 @@ export const CrearPublicacion = {
               </h1>
               <p className="text-white/80 text-sm mt-1">
                 {isEditing
-                  ? "Modifique los datos de la mascota"
-                  : "Complete los datos de la mascota"}
+                  ? "Modifique los datos del animal"
+                  : "Complete los datos del animal"}
               </p>
             </div>
 
