@@ -2,7 +2,7 @@ import React from "react";
 import { motion } from "motion/react";
 
 export const ConfirmModal = React.memo(
-  ({ confirmModal, onClose, onConfirm, type = "publicacion" }) => {
+  ({ confirmModal, onClose, onConfirm, type = "publicacion"}) => {
     if (!confirmModal.isOpen) return null;
 
     const getTitle = () => {
@@ -19,6 +19,8 @@ export const ConfirmModal = React.memo(
           return "Cerrar sesión";
         case "comunidad":
           return "Eliminar caso comunitario"; // <-- agregado
+        case "alerta":
+          return "Cerrar"; 
         default:
           return "Confirmar acción";
       }
@@ -38,6 +40,8 @@ export const ConfirmModal = React.memo(
           return "¿Estás seguro de que quieres cerrar sesión?";
         case "comunidad":
           return `¿Estas seguro de que quieres eliminar el caso "${confirmModal.item?.titulo}"? Esta acción no se puede deshacer.`; // <-- agregado
+        case "alerta":
+          return `El inicio de sesión se cerrará ¿Estás seguro de esta acción?`;
         default:
           return "Confirma la acción para continuar.";
       }

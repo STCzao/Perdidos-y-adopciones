@@ -97,6 +97,8 @@ const LoginScreen = ({ iniciarSesion, guardarUsuario }) => {
             <p className="text-sm mt-4">
               Organizamos la información sobre animales perdidos, encontrados y
               en adopción en Tucumán, Argentina, para que ayudar sea más fácil.
+            </p>
+            <p className="text-sm mt-4">
               Con tu registro, la base se mantiene segura y ordenada. Muchas
               gracias!
             </p>
