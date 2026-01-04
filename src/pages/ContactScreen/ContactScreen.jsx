@@ -21,13 +21,13 @@ const ContactScreen = () => {
     if (capturarNombre.trim() === "") {
       newErrors.nombre = "El nombre es obligatorio.";
       isValid = false;
-    } else if (form.nombre.trim().length <= 3) {
+    } else if (capturarNombre.trim().length <= 3) {
       newErrors.nombre = "El nombre debe tener al menos 3 caracteres";
       isValid = false;
-    } else if (form.nombre.trim().length >= 40) {
+    } else if (capturarNombre.trim().length >= 40) {
       newErrors.nombre = "El nombre no puede tener más de 40 caracteres";
       isValid = false;
-    } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(form.nombre.trim())) {
+    } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(capturarNombre.trim())) {
       newErrors.nombre = "El nombre solo puede contener letras y espacios";
       isValid = false;
     }
@@ -111,9 +111,7 @@ const ContactScreen = () => {
           }}
           className="flex flex-col text-center gap-4 mt-30"
         >
-          <span className="text-3xl">
-            Formulario para colaboradores
-          </span>
+          <span className="text-3xl">Formulario para colaboradores</span>
           <span className="text-sm">
             Si querés sumarte a esta iniciativa, acá podés contarnos de qué
             manera te gustaría colaborar. Hay distintas formas de ayudar, según
@@ -193,7 +191,9 @@ const ContactScreen = () => {
               </div>
 
               <div className="mt-4">
-                <label className="font-medium text-white ml-4">Quiero colaborar</label>
+                <label className="font-medium text-white ml-4">
+                  Quiero colaborar
+                </label>
                 <textarea
                   rows="6"
                   name="Mensaje"
