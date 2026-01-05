@@ -56,7 +56,7 @@ const EncontradosPage = () => {
       <Navbar />
       <div className="min-h-screen bg-[#e6dac6] pt-35 px-4">
         <div className="flex flex-col items-center gap-5 font-medium">
-          <h2 className="text-3xl text-black border border-white mb-3 bg-white/60 rounded-full py-2 px-4">
+          <h2 className="text-3xl text-black border border-white bg-white/60 rounded-full py-2 px-4">
             Animales encontrados
           </h2>
 
@@ -66,13 +66,13 @@ const EncontradosPage = () => {
               <CardFiltro filtros={filtros} setFiltros={setFiltros} />
               {/* Numero de coincidencias */}
               <div className="flex items-center justify-center">
-                <p className="text-black font-medium text-sm mt-4">
+                <p className="text-black font-medium text-sm mt-2">
                   Número de coincidencias: {publicacionesFiltradas.length}
                 </p>
               </div>
               <motion.button
                 onClick={() => CrearPublicacion.openModal()}
-                className="mt-5 text-black border border-black font-medium w-48 h-11 rounded-full bg-white hover:bg-[#FF7857] transition-opacity"
+                className="mt-3 text-black border border-black font-medium w-48 h-11 rounded-full bg-white hover:bg-[#FF7857] transition-opacity"
               >
                 Crear publicación
               </motion.button>
