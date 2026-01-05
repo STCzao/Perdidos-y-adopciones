@@ -26,6 +26,7 @@ const CardGenerica = ({ publicacion }) => {
     edad,
     detalles,
     afinidad,
+    afinidadanimales,
     energia,
     castrado,
     whatsapp,
@@ -62,7 +63,7 @@ const CardGenerica = ({ publicacion }) => {
             />
           )}
 
-          <div className="flex flex-col text-center text-white mb-2 rounded text-sm">
+          <div className="flex flex-col text-center text-white mb-2 rounded text-xs">
             {tipo === "ENCONTRADO" && (
               <div>
                 <h1 className="text-sm font-bold text-white text-center">
@@ -71,7 +72,7 @@ const CardGenerica = ({ publicacion }) => {
               </div>
             )}
           </div>
-          <div className="flex flex-col text-center text-white mb-2 rounded text-sm">
+          <div className="flex flex-col text-center text-white mb-2 rounded text-xs">
             {tipo === "PERDIDO" && (
               <div>
                 <h1 className="text-sm font-bold text-white text-center">
@@ -80,7 +81,7 @@ const CardGenerica = ({ publicacion }) => {
               </div>
             )}
           </div>
-          <div className="flex flex-col text-center text-white mb-2 rounded text-sm">
+          <div className="flex flex-col text-center text-white mb-2 rounded text-xs">
             {tipo === "ADOPCION" && (
               <div>
                 <h1 className="text-sm font-bold text-white text-center">
@@ -96,10 +97,14 @@ const CardGenerica = ({ publicacion }) => {
             {sexo && <p>Sexo: {sexo}</p>}
             {tamaño && <p>Tamaño: {tamaño}</p>}
             {color && <p>Color: {color}</p>}
-
             {(tipo === "PERDIDO" || tipo === "ADOPCION") && <p>Edad: {edad}</p>}
+            {(tipo === "PERDIDO" || tipo === "ENCONTRADO") && (
+              <>
+                {fecha && <p>Fecha: {formatFecha(fecha)}</p>}
+              </>
+            )}
           </div>
-          <p className="text-center bg-white/20 text-white px-2 py-1 rounded text-l mt-2">
+          <p className="text-center bg-white/20 text-white px-1 py-1 rounded text-sm mt-2">
             Ver más detalles (click para girar)
           </p>
         </div>
@@ -107,14 +112,12 @@ const CardGenerica = ({ publicacion }) => {
         {/* Reverso */}
         <div className="absolute w-full h-full [backface-visibility:hidden] [transform:rotateY(180deg)] flex flex-col justify-between bg-[#763A0D]/70 backdrop-blur border border-white/20 rounded-xl shadow-md p-3">
           <div className="text-sm text-white/90 overflow-auto flex-1">
-            {(tipo === "PERDIDO" || tipo === "ENCONTRADO") && (
-              <>
-                {fecha && <p className="mt-2">Fecha: {formatFecha(fecha)}</p>}
-              </>
-            )}
             {tipo === "ADOPCION" && (
               <>
                 {afinidad && <p>Afinidad: {afinidad}</p>}
+                {afinidadanimales && (
+                  <p>Afinidad con otros animales: {afinidadanimales}</p>
+                )}
                 {energia && <p>Energía: {energia}</p>}
                 <p>Castrado: {castrado ? "Sí" : "No"}</p>
               </>
@@ -122,7 +125,7 @@ const CardGenerica = ({ publicacion }) => {
             {detalles && <p className="mt-2">Detalles: {detalles}</p>}
           </div>
           <div>
-            <p className="text-center bg-white/20 text-white px-2 py-1 rounded text-l mt-2">
+            <p className="text-center bg-white/20 text-white px-2 py-1 rounded text-sm mt-2">
               Click para volver
             </p>
           </div>
