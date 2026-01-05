@@ -53,7 +53,7 @@ const PerdidosPage = () => {
       <Navbar />
       <div className="min-h-screen bg-[#e6dac6] pt-35 px-4">
         <div className="flex flex-col items-center gap-5 font-medium">
-          <h2 className="text-3xl text-black border border-white mb-2 bg-white/60 rounded-full py-2 px-4">
+          <h2 className="text-3xl text-black border border-white bg-white/60 rounded-full py-2 px-4">
             Animales perdidos
           </h2>
 
