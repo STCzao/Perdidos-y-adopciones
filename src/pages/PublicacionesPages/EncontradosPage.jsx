@@ -17,6 +17,8 @@ const EncontradosPage = () => {
     sexo: "",
     tamaño: "",
     color: "",
+    especie: "",
+    detalles: "",
   });
 
   useEffect(() => {
@@ -41,8 +43,11 @@ const EncontradosPage = () => {
       (!filtros.edad || pub.edad === filtros.edad) &&
       (!filtros.sexo || pub.sexo === filtros.sexo) &&
       (!filtros.tamaño || pub.tamaño === filtros.tamaño) &&
+      (!filtros.especie || pub.especie === filtros.especie) &&
       (!filtros.color ||
-        pub.color?.toLowerCase().includes(filtros.color.toLowerCase()))
+        pub.color?.toLowerCase().includes(filtros.color.toLowerCase())) &&
+      (!filtros.detalles ||
+        pub.detalles?.toLowerCase().includes(filtros.detalles.toLowerCase()))
     );
   });
 
