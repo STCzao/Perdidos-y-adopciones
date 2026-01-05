@@ -56,11 +56,21 @@ const CardGenerica = ({ publicacion }) => {
             )}
           </div>
           {img && (
-            <img
-              src={img}
-              alt={"Imagen"}
-              className="w-full h-[40vh] sm:h-[20rem] object-cover rounded-lg mb-1"
-            />
+            <div className="relative w-full h-80 rounded-lg overflow-hidden mb-1">
+              {/* Fondo relleno blur */}
+              <img
+                src={img}
+                alt="background"
+                className="absolute inset-0 w-full h-full object-cover blur-lg scale-110 opacity-60"
+              />
+
+              {/* Imagen real */}
+              <img
+                src={img}
+                alt="Imagen"
+                className="relative z-10 max-h-full max-w-full mx-auto object-contain"
+              />
+            </div>
           )}
 
           <div className="flex flex-col text-center text-white mb-2 rounded text-xs">
@@ -99,9 +109,7 @@ const CardGenerica = ({ publicacion }) => {
             {color && <p>Color: {color}</p>}
             {(tipo === "PERDIDO" || tipo === "ADOPCION") && <p>Edad: {edad}</p>}
             {(tipo === "PERDIDO" || tipo === "ENCONTRADO") && (
-              <>
-                {fecha && <p>Fecha: {formatFecha(fecha)}</p>}
-              </>
+              <>{fecha && <p>Fecha: {formatFecha(fecha)}</p>}</>
             )}
           </div>
           <p className="text-center bg-white/20 text-white px-1 py-1 rounded text-sm mt-2">
@@ -122,7 +130,7 @@ const CardGenerica = ({ publicacion }) => {
                 <p>Castrado: {castrado ? "Sí" : "No"}</p>
               </>
             )}
-            {detalles && <p className="mt-2">Detalles: {detalles}</p>}
+            {detalles && <p className="mt-2">Señas particulares y estado del animal: {detalles}</p>}
           </div>
           <div>
             <p className="text-center bg-white/20 text-white px-2 py-1 rounded text-sm mt-2">
