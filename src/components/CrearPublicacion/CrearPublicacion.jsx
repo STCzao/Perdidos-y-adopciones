@@ -877,9 +877,9 @@ export const CrearPublicacion = {
                         <option value="DESCONOZCO">Desconozco</option>
                       </select>
                     </div>
-                    {errors.afinidad && (
+                    {errors.afinidadanimales && (
                       <p className="text-red-400 text-xs mt-1 text-left w-full px-4">
-                        {errors.afinidad}
+                        {errors.afinidadanimales}
                       </p>
                     )}
                   </div>
