@@ -25,6 +25,7 @@ export const CrearPublicacion = {
       edad: "",
       detalles: "",
       afinidad: "",
+      afinidadanimales: "",
       energia: "",
       castrado: false,
       whatsapp: "",
@@ -96,6 +97,8 @@ export const CrearPublicacion = {
         color: editData.color || "",
         detalles: editData.detalles || "",
         afinidad: editData.tipo === "ADOPCION" ? editData.afinidad || "" : "",
+        afinidadanimales:
+          editData.tipo === "ADOPCION" ? editData.afinidadanimales || "" : "",
         energia: editData.tipo === "ADOPCION" ? editData.energia || "" : "",
         castrado: editData.tipo === "ADOPCION" ? !!editData.castrado : false,
         whatsapp: editData.whatsapp || "",
@@ -117,6 +120,7 @@ export const CrearPublicacion = {
         edad: "",
         detalles: "",
         afinidad: "",
+        afinidadanimales: "",
         energia: "",
         castrado: false,
         whatsapp: "",
@@ -144,6 +148,7 @@ export const CrearPublicacion = {
           lugar: "",
           fecha: "",
           afinidad: "",
+          afinidadanimales: "",
           energia: "",
           castrado: false,
         }));
@@ -153,6 +158,7 @@ export const CrearPublicacion = {
           delete newErrors.lugar;
           delete newErrors.fecha;
           delete newErrors.afinidad;
+          delete newErrors.afinidadanimales;
           delete newErrors.energia;
           delete newErrors.castrado;
           return newErrors;
@@ -355,6 +361,11 @@ export const CrearPublicacion = {
           newErrors.afinidad = "La afinidad con niños es obligatoria";
           valid = false;
         }
+        if (!form.afinidadanimales) {
+          newErrors.afinidadanimales =
+            "La afinidad con otros animales es obligatoria";
+          valid = false;
+        }
         if (!form.energia) {
           newErrors.energia = "El nivel de energía es obligatorio";
           valid = false;
@@ -389,6 +400,7 @@ export const CrearPublicacion = {
 
         if (form.tipo === "ADOPCION") {
           datosParaEnviar.afinidad = form.afinidad;
+          datosParaEnviar.afinidadanimales = form.afinidadanimales;
           datosParaEnviar.energia = form.energia;
           datosParaEnviar.castrado = !!form.castrado;
         }
@@ -834,6 +846,35 @@ export const CrearPublicacion = {
                         <option value="ALTA">Alta</option>
                         <option value="MEDIA">Media</option>
                         <option value="BAJA">Baja</option>
+                        <option value="DESCONOZCO">Desconozco</option>
+                      </select>
+                    </div>
+                    {errors.afinidad && (
+                      <p className="text-red-400 text-xs mt-1 text-left w-full px-4">
+                        {errors.afinidad}
+                      </p>
+                    )}
+                  </div>
+                  <div className="mt-4">
+                    <label className="flex items-left text-sm mb-1 ml-2">
+                      Afinidad con animales
+                    </label>
+                    <div className="flex items-center w-full bg-white border border-gray-300/80 h-12 rounded-full overflow-hidden pl-6 gap-2">
+                      <select
+                        name="afinidadanimales"
+                        placeholder="Afinidad con animales *"
+                        value={form.afinidadanimales}
+                        onChange={handleChange}
+                        disabled={submitting}
+                        className="bg-transparent text-gray-500 placeholder-gray-500 outline-none text-sm w-full h-full"
+                      >
+                        <option value="">
+                          Seleccione la afinidad con animales *
+                        </option>
+                        <option value="ALTA">Alta</option>
+                        <option value="MEDIA">Media</option>
+                        <option value="BAJA">Baja</option>
+                        <option value="DESCONOZCO">Desconozco</option>
                       </select>
                     </div>
                     {errors.afinidad && (
