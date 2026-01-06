@@ -126,7 +126,7 @@ const HomeScreen = () => {
 
             <button
               onClick={() => {
-                navigate("/perdidos");
+                navigate("/publicaciones/perdidos");
                 window.scrollTo(0, 0);
               }}
               className="mt-10 text-black border border-black cursor-pointer font-medium w-50 h-11 rounded-full bg-white/70 hover:bg-[#FF7857] transition-opacity"
@@ -157,7 +157,7 @@ const HomeScreen = () => {
             </div>
             <button
               onClick={() => {
-                navigate("/encontrados");
+                navigate("/publicaciones/encontrados");
                 window.scrollTo(0, 0);
               }}
               className="mt-10 text-black border border-black cursor-pointer font-medium w-50 h-11 rounded-full bg-white/70 hover:bg-[#FF7857] transition-opacity"
