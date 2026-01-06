@@ -18,6 +18,7 @@ const PerdidosPage = () => {
     color: "",
     especie: "",
     detalles: "",
+    lugar: "",
   });
 
   useEffect(() => {
@@ -40,7 +41,8 @@ const PerdidosPage = () => {
       (!filtros.edad || pub.edad === filtros.edad) &&
       (!filtros.sexo || pub.sexo === filtros.sexo) &&
       (!filtros.tamaño || pub.tamaño === filtros.tamaño) &&
-      (!filtros.especie || pub.especie === filtros.especie) &&
+      (!filtros.lugar ||
+        pub.lugar?.toLowerCase().includes(filtros.lugar.toLowerCase())) &&
       (!filtros.color ||
         pub.color?.toLowerCase().includes(filtros.color.toLowerCase())) &&
       (!filtros.detalles ||

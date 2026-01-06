@@ -48,34 +48,17 @@ const CardFiltro = ({ filtros, setFiltros }) => {
         </select>
       </div>
 
-      {/* Especie */}
+      {/* Lugar */}
       <div>
-        <label className="text-sm">Especie</label>
-        <select
-          name="especie"
-          value={filtros.especie}
+        <label className="text-sm">Lugar</label>
+        <input
+          type="text"
+          name="lugar"
+          value={filtros.lugar}
           onChange={handleChange}
-          className="w-full mt-1 text-white p-2 rounded bg-white/20 text-black text-xs outline-none"
-        >
-          <option className="text-black" value="">
-            Seleccione la especie *
-          </option>
-          <option className="text-black" value="PERRO">
-            Perro
-          </option>
-          <option className="text-black" value="GATO">
-            Gato
-          </option>
-          <option className="text-black" value="AVE">
-            Ave
-          </option>
-          <option className="text-black" value="CONEJO">
-            Conejo
-          </option>
-          <option className="text-black" value="OTRO">
-            Otro
-          </option>
-        </select>
+          placeholder="Ej: Ciudad, barrio, calle..."
+          className="w-full text-white mt-1 p-2 rounded text-xs bg-white/20 text-black text-black placeholder-white/50 outline-none"
+        />
       </div>
 
       {/* Sexo */}
