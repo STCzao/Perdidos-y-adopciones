@@ -19,7 +19,7 @@ const NavbarContent = () => {
         },
         {
           name: "Ver anuncios de animales perdidos",
-          path: "/perdidos",
+          path: "/publicaciones/perdidos",
         },
         { name: "¿Qué hacer si perdí un animal?", path: "/consejos-perdi" },
       ],
@@ -33,7 +33,7 @@ const NavbarContent = () => {
         },
         {
           name: "Ver anuncios de animales encontrados",
-          path: "/encontrados",
+          path: "/publicaciones/encontrados",
         },
         {
           name: "¿Qué hacer si encontré un animal?",
@@ -50,7 +50,7 @@ const NavbarContent = () => {
         },
         {
           name: "Ver anuncios de animales en adopción",
-          path: "/adopciones",
+          path: "/publicaciones/adopciones",
         },
         {
           name: "¿Qué hacer si quiero adoptar o dar en adopción?",

@@ -6,9 +6,6 @@ import ForgotPasswordScreen from "../src/pages/ForgotPasswordScreen/ForgotPasswo
 import ResetPasswordScreen from "../src/pages/ResetPasswordScreen/ResetPasswordScreen";
 import ProtectedRoutes from "../src/routes/ProtectedRoutes/ProtectedRoutes";
 import HomeScreen from "../src/pages/HomeScreen/HomeScreen";
-import PerdidosPage from "../src/pages/PublicacionesPages/PerdidosPage";
-import EncontradosPage from "./pages/PublicacionesPages/EncontradosPage";
-import AdopcionesPage from "./pages/PublicacionesPages/AdopcionesPage";
 import PerdiScreen from "./pages/WhatDoScreen/PerdiScreen";
 import EncontreScreen from "./pages/WhatDoScreen/EncontreScreen";
 import CasosAyudaScreen from "./pages/CasesScreen/ComunidadScreen.jsx";
@@ -24,6 +21,7 @@ import AdoptarScreen from "./pages/WhatDoScreen/AdoptarScreen.jsx";
 import AdopcionesScreen from "./pages/MediaScreen/AdopcionesScreen.jsx";
 import PerdidosScreen from "./pages/MediaScreen/PerdidosScreen.jsx";
 import EncontradosScreen from "./pages/MediaScreen/EncontradosScreen.jsx";
+import PublicacionesPage from "./pages/PublicacionesPages/PublicacionesPage.jsx";
 
 function App() {
   const [login, setLogin] = useState(false);
@@ -107,28 +105,10 @@ function App() {
             />
 
             <Route
-              path="/perdidos"
+              path="/publicaciones/:tipo"
               element={
                 <ProtectedRoutes login={login}>
-                  <PerdidosPage user={user} />
-                </ProtectedRoutes>
-              }
-            />
-
-            <Route
-              path="/encontrados"
-              element={
-                <ProtectedRoutes login={login}>
-                  <EncontradosPage user={user} />
-                </ProtectedRoutes>
-              }
-            />
-
-            <Route
-              path="/adopciones"
-              element={
-                <ProtectedRoutes login={login}>
-                  <AdopcionesPage user={user} />
+                  <PublicacionesPage user={user} />
                 </ProtectedRoutes>
               }
             />

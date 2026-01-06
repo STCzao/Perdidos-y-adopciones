@@ -52,7 +52,7 @@ const EncontradosScreen = () => {
               </p>
               <button
                 onClick={() => {
-                  navigate("/encontrados");
+                  navigate("/publicaciones/encontrados");
                   window.scrollTo(0, 0);
                 }}
                 className="mt-10 items-end text-white border border-white/40 w-50 h-11 rounded-full bg-white/60 hover:bg-[#FF7857] transition-opacity"
