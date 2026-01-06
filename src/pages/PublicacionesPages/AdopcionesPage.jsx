@@ -18,6 +18,7 @@ const AdopcionesPage = () => {
     color: "",
     especie: "",
     detalles: "",
+    lugar: "",
   });
 
   useEffect(() => {
@@ -40,6 +41,8 @@ const AdopcionesPage = () => {
       (!filtros.edad || pub.edad === filtros.edad) &&
       (!filtros.sexo || pub.sexo === filtros.sexo) &&
       (!filtros.tamaño || pub.tamaño === filtros.tamaño) &&
+      (!filtros.lugar ||
+        pub.lugar?.toLowerCase().includes(filtros.lugar.toLowerCase())) &&
       (!filtros.especie || pub.especie === filtros.especie) &&
       (!filtros.color ||
         pub.color?.toLowerCase().includes(filtros.color.toLowerCase())) &&
