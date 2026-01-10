@@ -122,7 +122,7 @@ const CardGenerica = ({ publicacion }) => {
           <div className="text-sm text-white/90 overflow-auto flex-1">
             {tipo === "ADOPCION" && (
               <>
-                {afinidad && <p>Afinidad: {afinidad}</p>}
+                {afinidad && <p>Afinidad con personas: {afinidad}</p>}
                 {afinidadanimales && (
                   <p>Afinidad con otros animales: {afinidadanimales}</p>
                 )}
