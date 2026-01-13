@@ -44,15 +44,13 @@ const PublicacionesPage = () => {
     const fetchData = async () => {
       setLoading(true);
 
-      const res = await publicacionesService.getPublicaciones(page, 12);
+      const res = await publicacionesService.getPublicaciones({
+        page,
+        limit: 12,
+        tipo: mapTipos[tipo],
+      });
 
-      const lista = res?.data || res?.publicaciones || [];
-
-      const filtradas = lista.filter(
-        (p) => p.tipo?.toUpperCase() === mapTipos[tipo]
-      );
-
-      setPublicaciones(filtradas);
+      setPublicaciones(res?.publicaciones || []);
       setTotalPages(res?.totalPages || 1);
 
       setLoading(false);
@@ -61,11 +59,11 @@ const PublicacionesPage = () => {
     fetchData();
   }, [page, tipo]);
 
-  const publicacionesTipo = publicaciones.filter(
-    (p) => p.tipo?.toUpperCase() === mapTipos[tipo]
-  );
+  useEffect(() => {
+    setPage(1);
+  }, [tipo]);
 
-  const publicacionesFiltradas = publicacionesTipo.filter((pub) => {
+  const publicacionesFiltradas = publicaciones.filter((pub) => {
     return (
       (!filtros.raza ||
         pub.raza?.toLowerCase().includes(filtros.raza.toLowerCase())) &&

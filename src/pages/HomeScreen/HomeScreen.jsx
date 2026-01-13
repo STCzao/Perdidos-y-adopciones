@@ -17,22 +17,25 @@ const HomeScreen = () => {
 
   useEffect(() => {
     const fetchPublicaciones = async () => {
-      const data = await publicacionesService.getPublicaciones();
-      if (data && data.publicaciones) {
-        const publicaciones = data.publicaciones;
+      const [perdidosResp, encontradosResp] = await Promise.all([
+        publicacionesService.getPublicaciones({
+          tipo: "PERDIDO",
+          limit: 4,
+          page: 1,
+        }),
+        publicacionesService.getPublicaciones({
+          tipo: "ENCONTRADO",
+          limit: 4,
+          page: 1,
+        }),
+      ]);
 
-        //Filtramos y ordenamos por fecha descendente
-        const perdidosFiltrados = publicaciones
-          .filter((p) => p.tipo === "PERDIDO")
-          .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
-          .slice(0, 4);
+      if (perdidosResp?.publicaciones) {
+        setPerdidos(perdidosResp.publicaciones);
+      }
 
-        const encontradosFiltrados = publicaciones
-          .filter((p) => p.tipo === "ENCONTRADO")
-          .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
-          .slice(0, 4);
-        setPerdidos(perdidosFiltrados);
-        setEncontrados(encontradosFiltrados);
+      if (encontradosResp?.publicaciones) {
+        setEncontrados(encontradosResp.publicaciones);
       }
     };
 

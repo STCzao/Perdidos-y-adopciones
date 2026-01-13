@@ -1,9 +1,25 @@
 const API_URL = import.meta.env.VITE_API_URL;
 
 export const publicacionesService = {
-  getPublicaciones: async () => {
+  getPublicaciones: async ({
+    page = 1,
+    limit = 12,
+    tipo,
+    estado,
+    search,
+  } = {}) => {
     try {
-      const resp = await fetch(`${API_URL}/publicaciones`);
+      const params = new URLSearchParams();
+
+      params.append("page", page);
+      params.append("limit", limit);
+
+      if (tipo) params.append("tipo", tipo);
+      if (estado) params.append("estado", estado);
+      if (search) params.append("search", search);
+
+      const resp = await fetch(`${API_URL}/publicaciones?${params.toString()}`);
+
       return await resp.json();
     } catch (error) {
       return { success: false, msg: "No se pudieron obtener publicaciones" };
