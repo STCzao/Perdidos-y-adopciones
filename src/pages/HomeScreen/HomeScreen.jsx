@@ -8,7 +8,6 @@ import { publicacionesService } from "../../services/publicaciones";
 import { useEffect, useState } from "react";
 import Img_home from "../../assets/Img_home.png";
 import Img_colab from "../../assets/Img_colab.png";
-import { div } from "framer-motion/client";
 
 const HomeScreen = () => {
   const [perdidos, setPerdidos] = useState([]);

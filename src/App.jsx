@@ -4,7 +4,6 @@ import LoginScreen from "../src/pages/LoginScreen/LoginScreen";
 import RegisterScreen from "../src/pages/RegisterScreen/RegisterScreen";
 import ForgotPasswordScreen from "../src/pages/ForgotPasswordScreen/ForgotPasswordScreen";
 import ResetPasswordScreen from "../src/pages/ResetPasswordScreen/ResetPasswordScreen";
-import ProtectedRoutes from "../src/routes/ProtectedRoutes/ProtectedRoutes";
 import HomeScreen from "../src/pages/HomeScreen/HomeScreen";
 import PerdiScreen from "./pages/WhatDoScreen/PerdiScreen";
 import EncontreScreen from "./pages/WhatDoScreen/EncontreScreen";
@@ -22,6 +21,7 @@ import AdopcionesScreen from "./pages/MediaScreen/AdopcionesScreen.jsx";
 import PerdidosScreen from "./pages/MediaScreen/PerdidosScreen.jsx";
 import EncontradosScreen from "./pages/MediaScreen/EncontradosScreen.jsx";
 import PublicacionesPage from "./pages/PublicacionesPages/PublicacionesPage.jsx";
+import { AuthContext } from "./context/AuthContext";
 
 function App() {
   const [login, setLogin] = useState(false);
@@ -64,6 +64,14 @@ function App() {
   const guardarUsuario = (datos) => {
     setUser(datos);
     setLogin(true);
+    // Notificar al Sidebar para sincronizar su estado de usuario
+    try {
+      window.dispatchEvent(
+        new CustomEvent("userProfileUpdated", { detail: { user: datos } })
+      );
+    } catch (e) {
+      console.warn("No se pudo despachar userProfileUpdated:", e);
+    }
   };
 
   const iniciarSesion = () => setLogin(true);
@@ -75,6 +83,15 @@ function App() {
 
     if (window.adminService?.clearCache) {
       window.adminService.clearCache();
+    }
+
+    // Notificar al Sidebar que el usuario cerró sesión
+    try {
+      window.dispatchEvent(
+        new CustomEvent("userProfileUpdated", { detail: { user: null } })
+      );
+    } catch (e) {
+      console.warn("No se pudo despachar userProfileUpdated:", e);
     }
   };
 
@@ -88,133 +105,55 @@ function App() {
   }
 
   return (
-    <BrowserRouter>
-      {login ? (
+    <AuthContext.Provider value={{ login, user, iniciarSesion, guardarUsuario, cerrarSesion }}>
+      <BrowserRouter>
         <SidebarProvider cerrarSesion={cerrarSesion}>
-          {/* Sidebar global activo solo si login = true */}
+          {/* Sidebar global dentro de SidebarProvider para usar useSidebar() */}
           <SidebarOpciones />
 
           <Routes>
-            <Route
-              path="/"
-              element={
-                <ProtectedRoutes login={login}>
-                  <HomeScreen user={user} />
-                </ProtectedRoutes>
-              }
-            />
+          {/* Rutas públicas - accesibles sin autenticación */}
+          <Route path="/" element={<HomeScreen user={user} />} />
+          <Route path="/publicaciones/:tipo" element={<PublicacionesPage user={user} />} />
+          <Route path="/consejos-perdi" element={<PerdiScreen user={user} />} />
+          <Route path="/consejos-encontre" element={<EncontreScreen user={user} />} />
+          <Route path="/consejos-adopcion" element={<AdoptarScreen user={user} />} />
+          <Route path="/perdidos-informacion" element={<PerdidosScreen user={user} />} />
+          <Route path="/encontrados-informacion" element={<EncontradosScreen user={user} />} />
+          <Route path="/adopciones-informacion" element={<AdopcionesScreen user={user} />} />
+          <Route path="/casos-ayuda" element={<CasosAyudaScreen user={user} />} />
+          <Route path="/contacto" element={<ContactScreen user={user} />} />
 
-            <Route
-              path="/publicaciones/:tipo"
-              element={
-                <ProtectedRoutes login={login}>
-                  <PublicacionesPage user={user} />
-                </ProtectedRoutes>
-              }
-            />
-
-            <Route
-              path="/consejos-perdi"
-              element={
-                <ProtectedRoutes login={login}>
-                  <PerdiScreen user={user} />
-                </ProtectedRoutes>
-              }
-            />
-
-            <Route
-              path="/consejos-encontre"
-              element={
-                <ProtectedRoutes login={login}>
-                  <EncontreScreen user={user} />
-                </ProtectedRoutes>
-              }
-            />
-
-            <Route
-              path="/consejos-adopcion"
-              element={
-                <ProtectedRoutes login={login}>
-                  <AdoptarScreen user={user} />
-                </ProtectedRoutes>
-              }
-            />
-
-            <Route
-              path="/perdidos-informacion"
-              element={
-                <ProtectedRoutes login={login}>
-                  <PerdidosScreen user={user} />
-                </ProtectedRoutes>
-              }
-            />
-
-            <Route
-              path="/encontrados-informacion"
-              element={
-                <ProtectedRoutes login={login}>
-                  <EncontradosScreen user={user} />
-                </ProtectedRoutes>
-              }
-            />
-
-            <Route
-              path="/adopciones-informacion"
-              element={
-                <ProtectedRoutes login={login}>
-                  <AdopcionesScreen user={user} />
-                </ProtectedRoutes>
-              }
-            />
-
-            <Route
-              path="/casos-ayuda"
-              element={
-                <ProtectedRoutes login={login}>
-                  <CasosAyudaScreen user={user} />
-                </ProtectedRoutes>
-              }
-            />
-
-            <Route
-              path="/contacto"
-              element={
-                <ProtectedRoutes login={login}>
-                  <ContactScreen user={user} />
-                </ProtectedRoutes>
-              }
-            />
-
-            <Route path="*" element={<Navigate to="/" />} />
-          </Routes>
-        </SidebarProvider>
-      ) : (
-        <>
-          <Routes>
-            <Route
-              path="/login"
-              element={
+          {/* Rutas de autenticación */}
+          <Route
+            path="/login"
+            element={
+              login ? (
+                <Navigate to="/" />
+              ) : (
                 <LoginScreen
                   iniciarSesion={iniciarSesion}
                   guardarUsuario={guardarUsuario}
                 />
-              }
-            />
-            <Route path="/register" element={<RegisterScreen />} />
-            <Route path="/forgot-password" element={<ForgotPasswordScreen />} />
-            <Route
-              path="/reset-password/:token"
-              element={<ResetPasswordScreen />}
-            />
-            <Route path="*" element={<Navigate to="/login" />} />
-          </Routes>
-        </>
-      )}
+              )
+            }
+          />
+          <Route path="/register" element={login ? <Navigate to="/" /> : <RegisterScreen />} />
+          <Route path="/forgot-password" element={login ? <Navigate to="/" /> : <ForgotPasswordScreen />} />
+          <Route
+            path="/reset-password/:token"
+            element={login ? <Navigate to="/" /> : <ResetPasswordScreen />}
+          />
 
-      {/* Modales Admin accesibles siempre */}
-      <AdminPublicaciones.Component />
-      <AdminUsuarios.Component />
-    </BrowserRouter>
+          <Route path="*" element={<Navigate to="/" />} />
+          </Routes>
+
+          {/* Modales Admin accesibles siempre */}
+          <AdminPublicaciones.Component />
+          <AdminUsuarios.Component />
+        </SidebarProvider>
+      </BrowserRouter>
+    </AuthContext.Provider>
   );
 }
 

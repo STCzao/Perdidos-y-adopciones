@@ -7,7 +7,6 @@ const AdoptarScreen = () => {
   return (
     <div>
       <Navbar />
-
       <div
         className="w-full font-medium min-h-screen text-white flex flex-col items-center justify-center px-4 md:px-10"
         style={{

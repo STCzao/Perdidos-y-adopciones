@@ -4,15 +4,16 @@ import Footer from "../../components/Footer/Footer";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { CrearPublicacion } from "../../components/CrearPublicacion/CrearPublicacion";
+import { useRequireAuth } from "../../hooks/useRequireAuth";
 
 const EncontradosScreen = () => {
   const navigate = useNavigate();
+  const withAuth = useRequireAuth();
 
   return (
     <div>
       <Navbar />
-      <div
-        className="w-full font-medium min-h-screen text-white px-4 md:px-10"
+      <div className="w-full font-medium min-h-screen text-white px-4 md:px-10"
         style={{
           backgroundImage: `url(${Img_publicaciones})`,
           backgroundSize: "cover",
@@ -66,7 +67,7 @@ const EncontradosScreen = () => {
                 ayudarlos a reecontrarse con sus dueños.
               </p>
               <button
-                onClick={() => CrearPublicacion.openModal()}
+                onClick={() => withAuth(() => CrearPublicacion.openModal())}
                 className="mt-10 text-white border border-white/40 font-medium w-50 h-11 rounded-full bg-white/60 hover:bg-[#FF7857] transition-opacity"
               >
                 Crear publicación

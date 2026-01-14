@@ -14,7 +14,6 @@ const ComunidadScreen = () => {
   return (
     <div className="overflow-x-hidden">
       <Navbar />
-
       <div
         className="w-full font-medium min-h-screen text-white flex flex-col items-center justify-start px-4 md:px-10 py-20"
         style={{
