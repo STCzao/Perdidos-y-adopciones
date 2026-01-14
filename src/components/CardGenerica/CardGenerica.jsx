@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useRequireAuth } from "../../hooks/useRequireAuth";
 
 const formatFecha = (fecha) => {
   if (!fecha) return "-";
@@ -12,6 +13,7 @@ const formatFecha = (fecha) => {
 
 const CardGenerica = ({ publicacion }) => {
   const [flipped, setFlipped] = useState(false);
+  const withAuth = useRequireAuth();
 
   const {
     nombreanimal,
@@ -139,10 +141,14 @@ const CardGenerica = ({ publicacion }) => {
           </div>
           {whatsappLink && (
             <a
-              href={whatsappLink}
-              target="_blank"
+              onClick={(e) => {
+                e.preventDefault();
+                withAuth(() => {
+                  window.open(whatsappLink, "_blank");
+                });
+              }}
               rel="noopener noreferrer"
-              className="mt-3 w-full text-center bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-600 transition"
+              className="mt-3 w-full text-center bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-600 transition cursor-pointer"
             >
               Contactar por WhatsApp
             </a>

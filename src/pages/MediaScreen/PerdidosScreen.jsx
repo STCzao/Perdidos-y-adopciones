@@ -4,9 +4,11 @@ import Footer from "../../components/Footer/Footer";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { CrearPublicacion } from "../../components/CrearPublicacion/CrearPublicacion";
+import { useRequireAuth } from "../../hooks/useRequireAuth";
 
 const PerdidosScreen = () => {
   const navigate = useNavigate();
+  const withAuth = useRequireAuth();
   return (
     <div>
       <Navbar />
@@ -65,7 +67,7 @@ const PerdidosScreen = () => {
                 poder obtener una ayuda de la comunidad.
               </p>
               <button
-                onClick={() => CrearPublicacion.openModal()}
+                onClick={() => withAuth(() => CrearPublicacion.openModal())}
                 className="mt-10 text-white border border-white/40 font-medium w-50 h-11 rounded-full bg-white/60 hover:bg-[#FF7857] transition-opacity"
               >
                 Crear publicación

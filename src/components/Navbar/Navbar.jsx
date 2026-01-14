@@ -4,9 +4,11 @@ import { useSidebar } from "../SidebarOpciones/SidebarOpciones";
 import { CrearPublicacion } from "../CrearPublicacion/CrearPublicacion";
 import { EditarPerfil } from "../EditarPerfil/EditarPerfil";
 import { VerPublicaciones } from "../VerPublicaciones/VerPublicaciones";
+import { useRequireAuth } from "../../hooks/useRequireAuth";
 
 const NavbarContent = () => {
   const { open, setOpen } = useSidebar();
+  const withAuth = useRequireAuth();
 
   const navLinks = [
     { name: "Inicio", path: "/" },
@@ -15,7 +17,7 @@ const NavbarContent = () => {
       dropdown: [
         {
           name: "Colocar anuncio de he perdido un animal",
-          action: () => CrearPublicacion.openModal(),
+          action: () => withAuth(() => CrearPublicacion.openModal()),
         },
         {
           name: "Ver anuncios de animales perdidos",
@@ -29,7 +31,7 @@ const NavbarContent = () => {
       dropdown: [
         {
           name: "Colocar anuncio de he encontrado un animal",
-          action: () => CrearPublicacion.openModal(),
+          action: () => withAuth(() => CrearPublicacion.openModal()),
         },
         {
           name: "Ver anuncios de animales encontrados",
@@ -46,7 +48,7 @@ const NavbarContent = () => {
       dropdown: [
         {
           name: "Colocar anuncio de animal en adopción ",
-          action: () => CrearPublicacion.openModal(),
+          action: () => withAuth(() => CrearPublicacion.openModal()),
         },
         {
           name: "Ver anuncios de animales en adopción",
@@ -86,18 +88,20 @@ const NavbarContent = () => {
       <nav
         className={`fixed top-0 left-0 w-full flex items-center justify-between px-8 md:px-16 lg:px-24 xl:px-32 transition-all duration-500 z-50 ${
           isScrolled
-            ? "bg-[#FF7857] shadow-md text-white backdrop-blur-lg py-3"
-            : "bg-transparent text-white py-4 md:py-6"
+            ? "bg-[#FF7857] shadow-md text-white backdrop-blur-lg py-2"
+            : "bg-transparent text-white py-2"
         }`}
       >
         {/* Logo - Mantiene posición a la izquierda */}
         <div
-          className="flex flex-col items-center cursor-pointer drop-shadow-[0_0_2px_black]" // Si está abierto, navegar a Inicio. Si está cerrado, ábrelo.
+          className="flex flex-col items-center cursor-pointer drop-shadow-[0_0_2px_black]"
           onClick={() => {
             if (open) {
               window.location.href = "/"; // Redirige al inicio
             } else {
-              setOpen(true); // Abre el Sidebar
+              // SIEMPRE abre el sidebar, sin importar si está autenticado o no
+              // El sidebar mismo gestiona qué mostrar
+              setOpen(true);
             }
           }}
         >

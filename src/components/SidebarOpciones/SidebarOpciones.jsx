@@ -10,6 +10,7 @@ import { CrearComunidad } from "../CrearComunidad/CrearComunidad";
 import { VerComunidad } from "../VerComunidad/VerComunidad";
 import { useState } from "react";
 import { ConfirmModal } from "../ConfirmModal/ConfirmModal";
+import { useNavigate, useLocation } from "react-router-dom";
 
 // Context y Hook
 const SidebarProviderContext = React.createContext();
@@ -25,13 +26,14 @@ export const SidebarProvider = ({ children, cerrarSesion }) => {
   const [open, setOpen] = React.useState(false);
   const [user, setUser] = React.useState(null);
   const [isAdmin, setIsAdmin] = React.useState(false);
+  const location = useLocation();
 
   // Agregar listener para actualizaciones del perfil
   React.useEffect(() => {
     const handleUserProfileUpdate = (event) => {
-      const updatedUser = event.detail.user;
+      const updatedUser = event.detail?.user ?? null;
       setUser(updatedUser);
-      setIsAdmin(updatedUser.rol === "ADMIN_ROLE");
+      setIsAdmin(!!(updatedUser && updatedUser.rol === "ADMIN_ROLE"));
     };
 
     window.addEventListener("userProfileUpdated", handleUserProfileUpdate);
@@ -67,6 +69,14 @@ export const SidebarProvider = ({ children, cerrarSesion }) => {
     cargarUsuario();
   }, [cargarUsuario]);
 
+  // Cerrar automáticamente el sidebar al entrar a pantallas de auth
+  React.useEffect(() => {
+    const authPaths = ["/login", "/register", "/forgot-password"]; 
+    if (open && (authPaths.includes(location.pathname) || location.pathname.startsWith("/reset-password"))) {
+      setOpen(false);
+    }
+  }, [location.pathname, open]);
+
   return (
     <SidebarProviderContext.Provider
       value={{
@@ -85,6 +95,7 @@ export const SidebarProvider = ({ children, cerrarSesion }) => {
 
 export const SidebarOpciones = () => {
   const { open, setOpen, user, isAdmin, cerrarSesion } = useSidebar();
+  const navigate = useNavigate();
   const [confirmModal, setConfirmModal] = useState({
     isOpen: false,
     item: null,
@@ -98,8 +109,9 @@ export const SidebarOpciones = () => {
   };
 
   const confirmarCerrarSesion = () => {
-    // Tu lógica actual de cierre de sesión
+    // Cerrar sesión y cerrar el sidebar
     cerrarSesion();
+    setOpen(false);
     setConfirmModal({ isOpen: false, item: null });
   };
 
@@ -109,6 +121,58 @@ export const SidebarOpciones = () => {
 
   if (!open) return null;
 
+  // Si NO está autenticado, mostrar opciones de login/registro
+  if (!user) {
+    return (
+      <>
+        <motion.div
+          initial={{ x: "-100%", opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          exit={{ x: "-100%", opacity: 0 }}
+          transition={{ duration: 0.3, ease: "easeInOut" }}
+          className="items-center font-medium fixed min-h-screen top-0 left-0 w-[300px] bg-black p-6 z-[100] flex flex-col gap-4 shadow-lg justify-center"
+        >
+          <h2 className="text-2xl text-white text-center mb-6 font-bold">
+            ¡Bienvenido!
+          </h2>
+          <p className="text-white text-center text-sm mb-4">
+            Inicia sesión o crea una cuenta para acceder a todas las funcionalidades
+          </p>
+          
+          <button
+            onClick={() => {
+              navigate("/login");
+              setOpen(false);
+            }}
+            className="border border-[#FF7857] font-medium w-full h-11 rounded-full text-white bg-[#FF7857] hover:bg-[#FF7857]/80 transition-opacity"
+          >
+            Iniciar Sesión
+          </button>
+          
+          <button
+            onClick={() => {
+              navigate("/register");
+              setOpen(false);
+            }}
+            className="border border-white/20 font-medium w-full h-11 rounded-full text-white bg-white/20 hover:bg-white/40 transition-opacity"
+          >
+            Registrarse
+          </button>
+
+          <div className="mt-10 flex flex-col gap-2 w-full">
+            <button
+              onClick={() => setOpen(false)}
+              className="border border-white/20 font-medium w-full h-11 rounded-full text-white bg-white/20 hover:bg-white/60 transition-opacity"
+            >
+              Cerrar
+            </button>
+          </div>
+        </motion.div>
+      </>
+    );
+  }
+
+  // Si está autenticado, mostrar sidebar normal
   return (
     <>
       <motion.div

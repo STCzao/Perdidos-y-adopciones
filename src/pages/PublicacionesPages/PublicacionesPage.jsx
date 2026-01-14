@@ -8,9 +8,11 @@ import { publicacionesService } from "../../services/publicaciones";
 import { CrearPublicacion } from "../../components/CrearPublicacion/CrearPublicacion";
 import { useParams } from "react-router-dom";
 import ReactPaginate from "react-paginate";
+import { useRequireAuth } from "../../hooks/useRequireAuth";
 
 const PublicacionesPage = () => {
   const { tipo } = useParams();
+  const withAuth = useRequireAuth();
 
   const [publicaciones, setPublicaciones] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -88,8 +90,7 @@ const PublicacionesPage = () => {
     <div>
       <Navbar />
       <div className="min-h-screen bg-[#e6dac6] pt-35 px-4">
-        <div className="flex flex-col items-center gap-5 font-medium">
-          <h2 className="text-3xl text-black border border-white bg-white/60 rounded-full py-2 px-4">
+          <h2 className="font-medium w-fit mx-auto text-center mb-5 text-3xl text-black border border-white bg-white/60 rounded-full py-2 px-4">
             {titulos[tipo]}
           </h2>
 
@@ -103,7 +104,7 @@ const PublicacionesPage = () => {
               </p>
 
               <motion.button
-                onClick={() => CrearPublicacion.openModal()}
+                onClick={() => withAuth(() => CrearPublicacion.openModal())}
                 className="mt-3 text-black border border-black font-medium w-48 h-11 rounded-full bg-white hover:bg-[#FF7857] transition-opacity"
               >
                 Crear publicación
@@ -147,8 +148,7 @@ const PublicacionesPage = () => {
             activeClassName="bg-[#FF7857] text-black"
             disabledClassName="opacity-40 pointer-events-none"
           />
-        </div>
-      </div>
+          </div>
       <Footer />
     </div>
   );

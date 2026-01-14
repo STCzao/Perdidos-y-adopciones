@@ -4,9 +4,11 @@ import Footer from "../../components/Footer/Footer";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { CrearPublicacion } from "../../components/CrearPublicacion/CrearPublicacion";
+import { useRequireAuth } from "../../hooks/useRequireAuth";
 
 const AdopcionesScreen = () => {
   const navigate = useNavigate();
+  const withAuth = useRequireAuth();
 
   return (
     <div>
@@ -66,7 +68,7 @@ const AdopcionesScreen = () => {
                 adopción y así encontrarles un nuevo hogar.
               </p>
               <button
-                onClick={() => CrearPublicacion.openModal()}
+                onClick={() => withAuth(() => CrearPublicacion.openModal())}
                 className="mt-10 text-white border border-white/40 font-medium w-50 h-11 rounded-full bg-white/60 hover:bg-[#FF7857] transition-opacity"
               >
                 Crear publicación
