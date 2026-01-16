@@ -15,7 +15,9 @@ const PublicacionesPage = () => {
   const withAuth = useRequireAuth();
 
   const [publicaciones, setPublicaciones] = useState([]);
+  const [publicacionesTodas, setPublicacionesTodas] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingTotal, setLoadingTotal] = useState(false);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
@@ -65,21 +67,66 @@ const PublicacionesPage = () => {
     setPage(1);
   }, [tipo]);
 
-  const publicacionesFiltradas = publicaciones.filter((pub) => {
-    return (
-      (!filtros.raza ||
-        pub.raza?.toLowerCase().includes(filtros.raza.toLowerCase())) &&
-      (!filtros.edad || pub.edad === filtros.edad) &&
-      (!filtros.sexo || pub.sexo === filtros.sexo) &&
-      (!filtros.tamaño || pub.tamaño === filtros.tamaño) &&
-      (!filtros.lugar ||
-        pub.lugar?.toLowerCase().includes(filtros.lugar.toLowerCase())) &&
-      (!filtros.color ||
-        pub.color?.toLowerCase().includes(filtros.color.toLowerCase())) &&
-      (!filtros.detalles ||
-        pub.detalles?.toLowerCase().includes(filtros.detalles.toLowerCase()))
-    );
-  });
+  useEffect(() => {
+    const fetchAllPublicaciones = async () => {
+      setLoadingTotal(true);
+      try {
+        const firstRes = await publicacionesService.getPublicaciones({
+          page: 1,
+          limit: 100,
+          tipo: mapTipos[tipo],
+        });
+
+        const primeras = firstRes?.publicaciones || [];
+        const totalPagesAll = firstRes?.totalPages || 1;
+
+        if (totalPagesAll <= 1) {
+          setPublicacionesTodas(primeras);
+          return;
+        }
+
+        const requests = [];
+        for (let p = 2; p <= totalPagesAll; p++) {
+          requests.push(
+            publicacionesService.getPublicaciones({
+              page: p,
+              limit: 100,
+              tipo: mapTipos[tipo],
+            })
+          );
+        }
+
+        const results = await Promise.all(requests);
+        const resto = results.flatMap((res) => res?.publicaciones || []);
+        setPublicacionesTodas([...primeras, ...resto]);
+      } finally {
+        setLoadingTotal(false);
+      }
+    };
+
+    fetchAllPublicaciones();
+  }, [tipo]);
+
+  const filtrarPublicaciones = (lista) => {
+    return lista.filter((pub) => {
+      return (
+        (!filtros.raza ||
+          pub.raza?.toLowerCase().includes(filtros.raza.toLowerCase())) &&
+        (!filtros.edad || pub.edad === filtros.edad) &&
+        (!filtros.sexo || pub.sexo === filtros.sexo) &&
+        (!filtros.tamaño || pub.tamaño === filtros.tamaño) &&
+        (!filtros.lugar ||
+          pub.lugar?.toLowerCase().includes(filtros.lugar.toLowerCase())) &&
+        (!filtros.color ||
+          pub.color?.toLowerCase().includes(filtros.color.toLowerCase())) &&
+        (!filtros.detalles ||
+          pub.detalles?.toLowerCase().includes(filtros.detalles.toLowerCase()))
+      );
+    });
+  };
+
+  const publicacionesFiltradasPagina = filtrarPublicaciones(publicaciones);
+  const publicacionesFiltradasTotales = filtrarPublicaciones(publicacionesTodas);
 
   const handlePageClick = (event) => {
     setPage(event.selected + 1);
@@ -100,7 +147,10 @@ const PublicacionesPage = () => {
               <CardFiltro filtros={filtros} setFiltros={setFiltros} />
 
               <p className="text-black font-medium text-sm mt-2">
-                Número de coincidencias: {publicacionesFiltradas.length}
+                Número de coincidencias: {" "}
+                {loadingTotal
+                  ? "Calculando..."
+                  : publicacionesFiltradasTotales.length}
               </p>
 
               <motion.button
@@ -117,8 +167,8 @@ const PublicacionesPage = () => {
                 <div className="flex justify-center items-center col-span-full p-8">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF7857]"></div>
                 </div>
-              ) : publicacionesFiltradas.length > 0 ? (
-                [...publicacionesFiltradas]
+              ) : publicacionesFiltradasPagina.length > 0 ? (
+                [...publicacionesFiltradasPagina]
                   .sort(
                     (a, b) => new Date(b.fecha || 0) - new Date(a.fecha || 0)
                   )
