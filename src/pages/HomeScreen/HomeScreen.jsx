@@ -273,7 +273,7 @@ const HomeScreen = () => {
                 {encontradosCount}
               </motion.p>
               <p className="text-xs mt-1 text-black/70 max-w-[14rem]">
-                Avisos de animales que ya se reencontraron o fueron rescatados.
+                Avisos de animales que fueron rescatados o encontrados.
               </p>
             </div>
           </motion.div>
