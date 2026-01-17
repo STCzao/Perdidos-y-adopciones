@@ -57,7 +57,7 @@ const AdopcionesScreen = () => {
                   navigate("/publicaciones/adopciones");
                   window.scrollTo(0, 0);
                 }}
-                className="mt-10 items-end text-white border border-white/40 w-50 h-11 rounded-full bg-white/60 hover:bg-[#FF7857] transition-opacity"
+                className="mt-10 items-end text-white border border-white/40 w-50 h-11 rounded-full bg-white/60 hover:bg-[#FF7857] transition-colors delay-100 duration-300"
               >
                 Ver todos los anuncios
               </button>
@@ -69,7 +69,7 @@ const AdopcionesScreen = () => {
               </p>
               <button
                 onClick={() => withAuth(() => CrearPublicacion.openModal())}
-                className="mt-10 text-white border border-white/40 font-medium w-50 h-11 rounded-full bg-white/60 hover:bg-[#FF7857] transition-opacity"
+                className="mt-10 text-white border border-white/40 font-medium w-50 h-11 rounded-full bg-white/60 hover:bg-[#FF7857] transition-colors delay-100 duration-300"
               >
                 Crear publicación
               </button>
@@ -84,7 +84,7 @@ const AdopcionesScreen = () => {
                   navigate("/consejos-adopcion");
                   window.scrollTo(0, 0);
                 }}
-                className="mt-10 text-white border border-white/40 font-medium w-50 h-11 rounded-full bg-white/60 hover:bg-[#FF7857] transition-opacity"
+                className="mt-10 text-white border border-white/40 font-medium w-50 h-11 rounded-full bg-white/60 hover:bg-[#FF7857] transition-colors delay-100 duration-300"
               >
                 ¿Qué hacer?
               </button>

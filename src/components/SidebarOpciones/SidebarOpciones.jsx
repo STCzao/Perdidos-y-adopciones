@@ -144,7 +144,7 @@ export const SidebarOpciones = () => {
               navigate("/login");
               setOpen(false);
             }}
-            className="border border-[#FF7857] font-medium w-full h-11 rounded-full text-white bg-[#FF7857] hover:bg-[#FF7857]/80 transition-opacity"
+            className="border border-[#FF7857] font-medium w-full h-11 rounded-full text-white bg-[#FF7857] hover:bg-[#FF7857]/60 transition-colors delay-100 duration-300"
           >
             Iniciar Sesión
           </button>
@@ -154,7 +154,7 @@ export const SidebarOpciones = () => {
               navigate("/register");
               setOpen(false);
             }}
-            className="border border-white/20 font-medium w-full h-11 rounded-full text-white bg-white/20 hover:bg-white/40 transition-opacity"
+            className="border border-white/20 font-medium w-full h-11 rounded-full text-white bg-white/20 hover:bg-white/60 transition-colors delay-100 duration-300"
           >
             Registrarse
           </button>
@@ -162,7 +162,7 @@ export const SidebarOpciones = () => {
           <div className="mt-10 flex flex-col gap-2 w-full">
             <button
               onClick={() => setOpen(false)}
-              className="border border-white/20 font-medium w-full h-11 rounded-full text-white bg-white/20 hover:bg-white/60 transition-opacity"
+              className="border border-white/20 font-medium w-full h-11 rounded-full text-white bg-white/20 hover:bg-white/60 transition-colors delay-100 duration-300"
             >
               Cerrar
             </button>
@@ -187,13 +187,13 @@ export const SidebarOpciones = () => {
         </h2>
         <button
           onClick={() => EditarPerfil.openModal()}
-          className="border border-white/20 font-medium w-full h-11 rounded-full text-white bg-white/20 hover:bg-[#FF7857] transition-opacity"
+          className="border border-white/20 font-medium w-full h-11 rounded-full text-white bg-white/20 hover:bg-[#FF7857] transition-colors delay-100 duration-300"
         >
           Editar perfil
         </button>
         <button
           onClick={() => VerPublicaciones.openModal()}
-          className="border border-white/20 font-medium w-full h-11 rounded-full text-white bg-white/20 hover:bg-[#FF7857] transition-opacity"
+          className="border border-white/20 font-medium w-full h-11 rounded-full text-white bg-white/20 hover:bg-[#FF7857] transition-colors delay-100 duration-300"
         >
           Mis publicaciones
         </button>
@@ -207,26 +207,26 @@ export const SidebarOpciones = () => {
 
             <button
               onClick={() => CrearComunidad.openModal()}
-              className="border border-[#FF7857]/50 font-medium w-full h-11 rounded-full text-white bg-[#FF7857]/20 hover:bg-[#FF7857] transition-opacity"
+              className="border border-[#FF7857]/50 font-medium w-full h-11 rounded-full text-white bg-[#FF7857]/20 hover:bg-[#FF7857] transition-colors delay-100 duration-300"
             >
               Crear caso para ayuda
             </button>
             <button
               onClick={() => AdminPublicaciones.openModal()}
-              className="border border-[#FF7857]/50 font-medium w-full h-11 rounded-full text-white bg-[#FF7857]/20 hover:bg-[#FF7857] transition-opacity"
+              className="border border-[#FF7857]/50 font-medium w-full h-11 rounded-full text-white bg-[#FF7857]/20 hover:bg-[#FF7857] transition-colors delay-100 duration-300"
             >
               Todas las publicaciones
             </button>
 
             <button
               onClick={() => AdminUsuarios.openModal()}
-              className="border border-[#FF7857]/50 font-medium w-full h-11 rounded-full text-white bg-[#FF7857]/20 hover:bg-[#FF7857] transition-opacity"
+              className="border border-[#FF7857]/50 font-medium w-full h-11 rounded-full text-white bg-[#FF7857]/20 hover:bg-[#FF7857] transition-colors delay-100 duration-300"
             >
               Todos los usuarios
             </button>
             <button
               onClick={() => VerComunidad.openModal()}
-              className="border border-[#FF7857]/50 font-medium w-full h-11 rounded-full text-white bg-[#FF7857]/20 hover:bg-[#FF7857] transition-opacity"
+              className="border border-[#FF7857]/50 font-medium w-full h-11 rounded-full text-white bg-[#FF7857]/20 hover:bg-[#FF7857] transition-colors delay-100 duration-300"
             >
               Todos los casos para ayuda
             </button>
@@ -236,14 +236,14 @@ export const SidebarOpciones = () => {
         <div className="mt-10 flex flex-col gap-2 w-full">
           <button
             onClick={() => setOpen(false)}
-            className="border border-white/20 font-medium w-full h-11 rounded-full text-white bg-white/20 hover:bg-white/60 transition-opacity"
+            className="border border-white/20 font-medium w-full h-11 rounded-full text-white bg-white/20 hover:bg-white/60 transition-colors delay-100 duration-300"
           >
             Cerrar
           </button>
 
           <button
             onClick={handleCerrarSesionClick}
-            className="font-medium w-full h-11 rounded-full text-white bg-red-500 hover:bg-red-600 transition-opacity"
+            className="font-medium w-full h-11 rounded-full text-white bg-red-500 hover:bg-red-600 transition-colors delay-100 duration-300"
           >
             Cerrar sesión
           </button>

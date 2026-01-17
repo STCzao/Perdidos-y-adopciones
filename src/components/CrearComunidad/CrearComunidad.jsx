@@ -251,7 +251,7 @@ export const CrearComunidad = {
           >
             <button
               onClick={handleClose}
-              className="absolute top-4 right-4 text-white hover:text-[#FF7857] transition-colors"
+              className="absolute top-4 right-4 text-white hover:text-[#FF7857] transition-colors delay-100 duration-300"
               disabled={submitting}
             >
               <svg
@@ -380,7 +380,7 @@ export const CrearComunidad = {
               <button
                 type="submit"
                 disabled={submitting}
-                className="px-6 py-2 rounded-full text-white bg-white/40 border border-white/70 hover:bg-[#FF7857] transition-colors disabled:opacity-50"
+                className="px-6 py-2 rounded-full text-white bg-white/40 border border-white/70 hover:bg-[#FF7857] transition-colors delay-100 duration-300 disabled:opacity-50"
               >
                 {submitting
                   ? isEditing
