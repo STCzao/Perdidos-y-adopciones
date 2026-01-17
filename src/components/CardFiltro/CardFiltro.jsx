@@ -1,34 +1,54 @@
+import { useState } from "react";
+
 const CardFiltro = ({ filtros, setFiltros }) => {
+  const [isOpenMobile, setIsOpenMobile] = useState(false);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFiltros((prev) => ({ ...prev, [name]: value }));
   };
 
   return (
-    <div className="bg-[#763A0D]/70 backdrop-blur max-w-[200px] border border-white/20 rounded-xl shadow-md p-2 text-white font-medium flex flex-col">
-      <h3 className="text-l font-bold mb-2">Buscar por...</h3>
+    <div className="w-full max-w-xs bg-white/90 border border-[#FF7857]/20 rounded-2xl shadow-md p-4 text-black font-medium flex flex-col gap-3">
+      <button
+        type="button"
+        className="flex items-center justify-between w-full text-sm font-semibold text-black tracking-[0.08em] uppercase mb-1 lg:cursor-default"
+        onClick={() => setIsOpenMobile((prev) => !prev)}
+      >
+        <span>Buscar por</span>
+        <span className="inline-flex lg:hidden items-center justify-center text-[11px] px-2 py-1 rounded-full bg-[#FF7857]/10 text-[#FF7857] border border-[#FF7857]/30">
+          {isOpenMobile ? "Ocultar" : "Mostrar"}
+        </span>
+      </button>
 
-      {/* Raza (texto libre) */}
-      <div>
-        <label className="text-sm">Raza</label>
+      <div
+        className={`flex flex-col gap-3 lg:gap-3 transition-all duration-300 overflow-hidden lg:overflow-visible ${
+          isOpenMobile
+            ? "max-h-[1000px] opacity-100"
+            : "max-h-0 opacity-0 pointer-events-none lg:max-h-none lg:opacity-100 lg:pointer-events-auto"
+        } lg:max-h-none lg:opacity-100 lg:pointer-events-auto`}
+      >
+        {/* Raza (texto libre) */}
+        <div className="flex flex-col gap-1">
+        <label className="text-xs text-black/70">Raza</label>
         <input
           type="text"
           name="raza"
           value={filtros.raza}
           onChange={handleChange}
           placeholder="Ej: Mestizo"
-          className="w-full text-white mt-1 p-2 rounded text-xs bg-white/20 text-black text-black placeholder-white/50 outline-none"
+          className="w-full mt-1 px-3 py-2 rounded-full text-xs bg-white border border-black/10 text-black placeholder-black/40 outline-none focus:border-[#FF7857] focus:ring-1 focus:ring-[#FF7857]/60 transition-colors delay-100 duration-300"
         />
       </div>
 
       {/* Edad (desplegable) */}
-      <div>
-        <label className="text-sm">Edad</label>
+      <div className="flex flex-col gap-1">
+        <label className="text-xs text-black/70">Edad</label>
         <select
           name="edad"
           value={filtros.edad}
           onChange={handleChange}
-          className="w-full mt-1 p-2 text-white rounded bg-white/20 text-black text-xs outline-none"
+          className="w-full mt-1 px-3 py-2 rounded-full bg-white border border-black/10 text-xs text-black outline-none focus:border-[#FF7857] focus:ring-1 focus:ring-[#FF7857]/60 transition-colors delay-100 duration-300"
         >
           <option className="text-black" value="">
             Seleccione la edad *
@@ -49,26 +69,26 @@ const CardFiltro = ({ filtros, setFiltros }) => {
       </div>
 
       {/* Lugar */}
-      <div>
-        <label className="text-sm">Lugar</label>
+      <div className="flex flex-col gap-1">
+        <label className="text-xs text-black/70">Lugar</label>
         <input
           type="text"
           name="lugar"
           value={filtros.lugar}
           onChange={handleChange}
           placeholder="Ej: Ciudad, barrio, calle..."
-          className="w-full text-white mt-1 p-2 rounded text-xs bg-white/20 text-black text-black placeholder-white/50 outline-none"
+          className="w-full mt-1 px-3 py-2 rounded-full text-xs bg-white border border-black/10 text-black placeholder-black/40 outline-none focus:border-[#FF7857] focus:ring-1 focus:ring-[#FF7857]/60 transition-colors delay-100 duration-300"
         />
       </div>
 
       {/* Sexo */}
-      <div>
-        <label className="text-sm">Sexo</label>
+      <div className="flex flex-col gap-1">
+        <label className="text-xs text-black/70">Sexo</label>
         <select
           name="sexo"
           value={filtros.sexo}
           onChange={handleChange}
-          className="w-full mt-1 text-white p-2 rounded bg-white/20 text-black text-xs outline-none"
+          className="w-full mt-1 px-3 py-2 rounded-full bg-white border border-black/10 text-xs text-black outline-none focus:border-[#FF7857] focus:ring-1 focus:ring-[#FF7857]/60 transition-colors delay-100 duration-300"
         >
           <option className="text-black" value="">
             Seleccione el sexo *
@@ -86,13 +106,13 @@ const CardFiltro = ({ filtros, setFiltros }) => {
       </div>
 
       {/* Tamaño */}
-      <div>
-        <label className="text-sm">Tamaño</label>
+      <div className="flex flex-col gap-1">
+        <label className="text-xs text-black/70">Tamaño</label>
         <select
           name="tamaño"
           value={filtros.tamaño}
           onChange={handleChange}
-          className="w-full mt-1 text-white p-2 rounded bg-white/20 text-black text-xs outline-none"
+          className="w-full mt-1 px-3 py-2 rounded-full bg-white border border-black/10 text-xs text-black outline-none focus:border-[#FF7857] focus:ring-1 focus:ring-[#FF7857]/60 transition-colors delay-100 duration-300"
         >
           <option className="text-black" value="">
             Seleccione el tamaño *
@@ -116,30 +136,30 @@ const CardFiltro = ({ filtros, setFiltros }) => {
       </div>
 
       {/* Color (texto libre) */}
-      <div>
-        <label className="text-sm">Color</label>
+      <div className="flex flex-col gap-1">
+        <label className="text-xs text-black/70">Color</label>
         <input
           type="text"
           name="color"
           value={filtros.color}
           onChange={handleChange}
           placeholder="Ej: Marrón"
-          className="w-full text-white mt-1 p-2 text-xs rounded bg-white/20 text-black placeholder-white/50 outline-none"
+          className="w-full mt-1 px-3 py-2 rounded-full text-xs bg-white border border-black/10 text-black placeholder-black/40 outline-none focus:border-[#FF7857] focus:ring-1 focus:ring-[#FF7857]/60 transition-colors delay-100 duration-300"
         />
       </div>
       {/* Señas particulares (texto libre) */}
-      <div>
-        <label className="text-sm">Señas particulares</label>
+      <div className="flex flex-col gap-1">
+        <label className="text-xs text-black/70">Señas particulares</label>
         <input
           type="text"
           name="detalles"
           value={filtros.detalles}
           onChange={handleChange}
           placeholder="Ej: Collar azul, cicatriz, etc"
-          className="w-full text-white mt-1 p-2 rounded text-xs bg-white/20 text-black text-black placeholder-white/50 outline-none"
+          className="w-full mt-1 px-3 py-2 rounded-full text-xs bg-white border border-black/10 text-black placeholder-black/40 outline-none focus:border-[#FF7857] focus:ring-1 focus:ring-[#FF7857]/60 transition-colors delay-100 duration-300"
         />
       </div>
-
+      </div>
     </div>
   );
 };

@@ -12,7 +12,40 @@ import Img_colab from "../../assets/Img_colab.png";
 const HomeScreen = () => {
   const [perdidos, setPerdidos] = useState([]);
   const [encontrados, setEncontrados] = useState([]);
+  const [perdidosCount, setPerdidosCount] = useState(0);
+  const [encontradosCount, setEncontradosCount] = useState(0);
+  const [adopcionesCount, setAdopcionesCount] = useState(0);
   const navigate = useNavigate();
+
+  const obtenerTotalPorTipo = async (tipo) => {
+    const firstRes = await publicacionesService.getPublicaciones({
+      page: 1,
+      limit: 100,
+      tipo,
+    });
+
+    const primeras = firstRes?.publicaciones || [];
+    const totalPagesAll = firstRes?.totalPages || 1;
+
+    if (totalPagesAll <= 1) {
+      return primeras.length;
+    }
+
+    const requests = [];
+    for (let p = 2; p <= totalPagesAll; p++) {
+      requests.push(
+        publicacionesService.getPublicaciones({
+          page: p,
+          limit: 100,
+          tipo,
+        })
+      );
+    }
+
+    const results = await Promise.all(requests);
+    const resto = results.flatMap((res) => res?.publicaciones || []);
+    return primeras.length + resto.length;
+  };
 
   useEffect(() => {
     const fetchPublicaciones = async () => {
@@ -39,6 +72,37 @@ const HomeScreen = () => {
     };
 
     fetchPublicaciones();
+    const fetchContadores = async () => {
+      try {
+        const [totalPerdidos, totalEncontrados, totalAdopciones] =
+          await Promise.all([
+            obtenerTotalPorTipo("PERDIDO"),
+            obtenerTotalPorTipo("ENCONTRADO"),
+            obtenerTotalPorTipo("ADOPCION"),
+          ]);
+
+        setPerdidosCount((prev) =>
+          typeof totalPerdidos === "number"
+            ? Math.max(prev, totalPerdidos)
+            : prev
+        );
+        setEncontradosCount((prev) =>
+          typeof totalEncontrados === "number"
+            ? Math.max(prev, totalEncontrados)
+            : prev
+        );
+        setAdopcionesCount((prev) =>
+          typeof totalAdopciones === "number"
+            ? Math.max(prev, totalAdopciones)
+            : prev
+        );
+      } catch (error) {
+        // Si falla el conteo, simplemente dejamos los contadores en su valor actual
+        console.error("Error obteniendo contadores de publicaciones", error);
+      }
+    };
+
+    fetchContadores();
   }, []);
 
   return (
@@ -79,7 +143,7 @@ const HomeScreen = () => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="border border-white/20 font-medium w-50 h-11 rounded-full text-white bg-white/20 hover:bg-[#FF7857] transition-opacity col-span-1"
+            className="border cursor-pointer border-white/20 font-medium w-50 h-11 rounded-full text-white bg-white/20 hover:bg-[#FF7857] transition-colors delay-100 duration-300 col-span-1"
             onClick={() => {
               navigate("/perdidos-informacion");
               window.scrollTo(0, 0);
@@ -91,7 +155,7 @@ const HomeScreen = () => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="border border-white/20 font-medium w-50 h-11 rounded-full text-white bg-white/20 hover:bg-[#FF7857] transition-opacity col-span-1"
+            className="border cursor-pointer border-white/20 font-medium w-50 h-11 rounded-full text-white bg-white/20 hover:bg-[#FF7857] transition-colors delay-100 duration-300 col-span-1"
             onClick={() => {
               navigate("/encontrados-informacion");
               window.scrollTo(0, 0);
@@ -103,7 +167,7 @@ const HomeScreen = () => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="border border-white/20 font-medium w-50 h-11 rounded-full text-white bg-white/20 hover:bg-[#FF7857] transition-opacity col-span-1"
+            className="border cursor-pointer border-white/20 font-medium w-50 h-11 rounded-full text-white bg-white/20 hover:bg-[#FF7857] transition-colors delay-100 duration-300 col-span-1"
             onClick={() => {
               navigate("/adopciones-informacion");
               window.scrollTo(0, 0);
@@ -113,8 +177,110 @@ const HomeScreen = () => {
           </motion.button>
         </div>
       </div>
+      <div className="flex flex-col items-center gap-10 font-medium py-20 bg-[#e6dac6]">
+        <div className="flex flex-col items-center gap-2 px-4 text-center">
+          <h1 className="text-3xl md:text-4xl text-blackrounded-full py-2 px-5 font-bold tracking-[0.05em]">
+            Casos registrados hasta hoy
+          </h1>
+          <p className="text-sm md:text-base text-center max-w-xl mx-auto px-4 mt-2 text-black">
+            Cada publicación es un acto de amor y esperanza. Gracias por ser
+            parte.
+          </p>
+        </div>
+
+        <motion.div
+          className="w-full flex flex-col sm:flex-row sm:flex-wrap lg:flex-nowrap justify-center items-stretch gap-6 px-4"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+        >
+          <motion.div
+            className="relative cursor-pointer bg-white rounded-2xl px-8 py-8 w-full sm:w-72 shadow-md hover:shadow-xl border border-white/60 text-center overflow-hidden group"
+            whileHover={{ y: -4, scale: 1.02 }}
+            transition={{ type: "spring", stiffness: 200, damping: 18 }}
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-[#ffffff]/10 via-transparent to-[#ff6f61]/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="relative flex flex-col items-center gap-2">
+              <span className="text-xs uppercase tracking-[0.18em] text-[#FF7857]">
+                Casos de alerta
+              </span>
+              <h2 className="text-2xl font-medium text-black flex items-center gap-2">
+                Perdidos
+              </h2>
+              <motion.p
+                key={perdidosCount}
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.3 }}
+                className="text-5xl font-extrabold mt-2 text-[#FF7857] drop-shadow-sm"
+              >
+                {perdidosCount}
+              </motion.p>
+              <p className="text-xs mt-1 text-black/70 max-w-[14rem]">
+                Animales que aún están siendo buscados por su familia.
+              </p>
+            </div>
+          </motion.div>
+
+          <motion.div
+            className="relative cursor-pointer bg-white rounded-2xl px-8 py-8 w-full sm:w-72 shadow-md hover:shadow-xl border border-white/60 text-center overflow-hidden group"
+            whileHover={{ y: -4, scale: 1.02 }}
+            transition={{ type: "spring", stiffness: 200, damping: 18 }}
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-[#FFFFFF]/15 via-transparent to-[#FF7857]/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="relative flex flex-col items-center gap-2">
+              <span className="text-xs uppercase tracking-[0.18em] text-[#FF7857] font-semibold">
+                Esperando hogar
+              </span>
+              <h2 className="text-2xl text-black flex items-center gap-2">
+                Adopciones
+              </h2>
+              <motion.p
+                key={adopcionesCount}
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.3 }}
+                className="text-5xl font-extrabold mt-2 text-[#FF7857] drop-shadow-sm"
+              >
+                {adopcionesCount}
+              </motion.p>
+              <p className="text-xs mt-1 text-black/70 max-w-[14rem]">
+                Publicaciones de animales que buscan una nueva familia.
+              </p>
+            </div>
+          </motion.div>
+
+          <motion.div
+            className="relative cursor-pointer bg-white rounded-2xl px-8 py-8 w-full sm:w-72 shadow-md hover:shadow-xl border border-white/60 text-center overflow-hidden group"
+            whileHover={{ y: -4, scale: 1.02 }}
+            transition={{ type: "spring", stiffness: 200, damping: 18 }}
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-[#ffffff]/12 via-transparent to-[#ff7857]/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="relative flex flex-col items-center gap-2">
+              <span className="text-xs uppercase tracking-[0.18em] text-[#FF7857] font-semibold">
+                Buenas noticias
+              </span>
+              <h2 className="text-2xl font-semibold text-black flex items-center gap-2">
+                Encontrados
+              </h2>
+              <motion.p
+                key={encontradosCount}
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.3 }}
+                className="text-5xl font-extrabold mt-2 text-[#FF7857] drop-shadow-sm"
+              >
+                {encontradosCount}
+              </motion.p>
+              <p className="text-xs mt-1 text-black/70 max-w-[14rem]">
+                Avisos de animales que ya se reencontraron o fueron rescatados.
+              </p>
+            </div>
+          </motion.div>
+        </motion.div>
+      </div>
       <div className="flex flex-col items-center gap-15 font-medium py-20 bg-[#e6dac6]">
-        <h2 className="text-3xl text-black border border-white mt-10 bg-white/60 rounded-full py-2 px-3">
+        <h2 className="text-3xl text-black mt-10 font-bold tracking-[0.05em] ">
           Animales perdidos
         </h2>
 
@@ -131,7 +297,7 @@ const HomeScreen = () => {
                 navigate("/publicaciones/perdidos");
                 window.scrollTo(0, 0);
               }}
-              className="mt-10 text-black border border-black cursor-pointer font-medium w-50 h-11 rounded-full bg-white/70 hover:bg-[#FF7857] transition-opacity"
+              className="mt-3 text-black border border-[#FF7857]/40 cursor-pointer font-medium w-50 h-11 rounded-full bg-white/90 shadow-sm hover:bg-[#FF7857] hover:text-black transition-colors delay-100 duration-300"
             >
               Ver más publicaciones
             </button>
@@ -146,7 +312,7 @@ const HomeScreen = () => {
       </div>
 
       <div className="flex flex-col items-center gap-15 font-medium py-20 bg-[#e6dac6]">
-        <h2 className="text-3xl text-black border border-white mb-8 bg-white/60 rounded-full py-2 px-3">
+        <h2 className="text-3xl text-black mt-10 font-bold tracking-[0.05em] ">
           Animales encontrados
         </h2>
 
@@ -162,7 +328,7 @@ const HomeScreen = () => {
                 navigate("/publicaciones/encontrados");
                 window.scrollTo(0, 0);
               }}
-              className="mt-10 text-black border border-black cursor-pointer font-medium w-50 h-11 rounded-full bg-white/70 hover:bg-[#FF7857] transition-opacity"
+              className="mt-3 text-black border border-[#FF7857]/40 cursor-pointer font-medium w-50 h-11 rounded-full bg-white/90 shadow-sm hover:bg-[#FF7857] hover:text-black transition-colors delay-100 duration-300"
             >
               Ver más publicaciones
             </button>
@@ -188,7 +354,7 @@ const HomeScreen = () => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="w-full sm:text-xl md:text-xl lg:text-3xl xl:text-5xl py-4 px-8 text-center border border-white/20 font-medium rounded-full text-white bg-white/20 flex items-center"
+            className="w-full sm:text-xl md:text-xl lg:text-3xl xl:text-5xl py-4 px-8 text-center border border-white/20 font-bold tracking-[0.05em] rounded-full text-white bg-white/20 flex items-center"
           >
             Sumate a esta iniciativa
           </motion.p>
@@ -201,7 +367,7 @@ const HomeScreen = () => {
               navigate("/contacto");
               window.scrollTo(0, 0);
             }}
-            className="border border-white/20 cursor-pointer font-medium w-52 h-11 rounded-full text-white bg-white/60 hover:bg-[#FF7857] transition-opacity"
+            className="border border-white/20 cursor-pointer font-medium w-52 h-11 rounded-full text-white bg-white/60 hover:bg-[#FF7857] transition-colors delay-100 duration-300"
           >
             Quiero ser colaborador
           </motion.button>

@@ -137,7 +137,7 @@ const PublicacionesPage = () => {
     <div>
       <Navbar />
       <div className="min-h-screen bg-[#e6dac6] pt-35 px-4">
-          <h2 className="font-medium w-fit mx-auto text-center mb-5 text-3xl text-black border border-white bg-white/60 rounded-full py-2 px-4">
+          <h2 className="text-3xl text-black text-center mb-10 font-bold tracking-[0.05em]">
             {titulos[tipo]}
           </h2>
 
@@ -153,12 +153,12 @@ const PublicacionesPage = () => {
                   : publicacionesFiltradasTotales.length}
               </p>
 
-              <motion.button
-                onClick={() => withAuth(() => CrearPublicacion.openModal())}
-                className="mt-3 text-black border border-black font-medium w-48 h-11 rounded-full bg-white hover:bg-[#FF7857] transition-opacity"
-              >
-                Crear publicación
-              </motion.button>
+                      <motion.button
+                        onClick={() => withAuth(() => CrearPublicacion.openModal())}
+                        className="mt-3 text-black border border-[#FF7857]/40 cursor-pointer font-medium w-50 h-11 rounded-full bg-white/90 shadow-sm hover:bg-[#FF7857] hover:text-black transition-colors delay-100 duration-300"
+                      >
+                        Crear publicación
+                      </motion.button>
             </div>
 
             {/* PUBLICACIONES */}
@@ -192,10 +192,10 @@ const PublicacionesPage = () => {
             onPageChange={handlePageClick}
             forcePage={page - 1}
             containerClassName="flex justify-center gap-3 py-6"
-            pageClassName="border rounded px-3 py-1 bg-white"
-            previousClassName="border rounded px-3 py-1 bg-white"
-            nextClassName="border rounded px-3 py-1 bg-white"
-            activeClassName="bg-[#FF7857] text-black"
+                    pageClassName="border border-[#FF7857]/30 rounded-full px-3 py-1 bg-white/90 text-black text-sm shadow-sm hover:bg-[#FF7857]/10 transition-colors delay-100 duration-300"
+                    previousClassName="border border-[#FF7857]/30 rounded-full px-3 py-1 bg-white/90 text-black text-sm shadow-sm hover:bg-[#FF7857]/10 transition-colors delay-100 duration-300"
+                    nextClassName="border border-[#FF7857]/30 rounded-full px-3 py-1 bg-white/90 text-black text-sm shadow-sm hover:bg-[#FF7857]/10 transition-colors delay-100 duration-300"
+                    activeClassName="bg-[#FF7857] text-black border-[#FF7857]"
             disabledClassName="opacity-40 pointer-events-none"
           />
           </div>
