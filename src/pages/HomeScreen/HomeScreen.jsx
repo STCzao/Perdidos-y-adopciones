@@ -6,8 +6,6 @@ import { useNavigate } from "react-router-dom";
 import CardGenerica from "../../components/CardGenerica/CardGenerica";
 import { publicacionesService } from "../../services/publicaciones";
 import { useEffect, useState } from "react";
-import Img_home from "../../assets/Img_home.png";
-import Img_colab from "../../assets/Img_colab.png";
 
 const HomeScreen = () => {
   const [perdidos, setPerdidos] = useState([]);
@@ -111,7 +109,7 @@ const HomeScreen = () => {
       <div
         className="w-full font-medium min-h-screen text-white flex flex-col items-center justify-center px-4 md:px-10"
         style={{
-          backgroundImage: `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url(${Img_home})`,
+          backgroundImage: `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url(${import.meta.env.VITE_HOME_IMG_URL})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
@@ -201,11 +199,11 @@ const HomeScreen = () => {
           >
             <div className="absolute inset-0 bg-gradient-to-br from-[#ffffff]/10 via-transparent to-[#ff6f61]/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             <div className="relative flex flex-col items-center gap-2">
-              <span className="text-xs uppercase tracking-[0.18em] text-[#FF7857]">
-                Casos de alerta
+              <span className="text-xs uppercase tracking-[0.18em] text-black">
+                ¡Se buscan!
               </span>
-              <h2 className="text-2xl font-medium text-black flex items-center gap-2">
-                Perdidos
+              <h2 className="text-2xl font-bold text-white flex items-center px-4 bg-red-500">
+                PERDIDOS
               </h2>
               <motion.p
                 key={perdidosCount}
@@ -229,11 +227,11 @@ const HomeScreen = () => {
           >
             <div className="absolute inset-0 bg-gradient-to-br from-[#FFFFFF]/15 via-transparent to-[#FF7857]/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             <div className="relative flex flex-col items-center gap-2">
-              <span className="text-xs uppercase tracking-[0.18em] text-[#FF7857] font-semibold">
-                Esperando hogar
+              <span className="text-xs uppercase tracking-[0.18em] text-black font-semibold">
+                Esperando un hogar
               </span>
-              <h2 className="text-2xl text-black flex items-center gap-2">
-                Adopciones
+              <h2 className="text-2xl text-white flex items-center px-4 bg-green-500 font-bold">
+                ADOPCIONES
               </h2>
               <motion.p
                 key={adopcionesCount}
@@ -257,11 +255,11 @@ const HomeScreen = () => {
           >
             <div className="absolute inset-0 bg-gradient-to-br from-[#ffffff]/12 via-transparent to-[#ff7857]/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             <div className="relative flex flex-col items-center gap-2">
-              <span className="text-xs uppercase tracking-[0.18em] text-[#FF7857] font-semibold">
-                Buenas noticias
+              <span className="text-xs uppercase tracking-[0.18em] text-black font-semibold">
+                Buscando a su familia
               </span>
-              <h2 className="text-2xl font-semibold text-black flex items-center gap-2">
-                Encontrados
+              <h2 className="text-2xl font-bold text-white flex items-center px-4 bg-blue-500">
+                ENCONTRADOS
               </h2>
               <motion.p
                 key={encontradosCount}
@@ -273,7 +271,7 @@ const HomeScreen = () => {
                 {encontradosCount}
               </motion.p>
               <p className="text-xs mt-1 text-black/70 max-w-[14rem]">
-                Avisos de animales que fueron rescatados o encontrados.
+                Animales a resguardo que están buscando a su familia.
               </p>
             </div>
           </motion.div>
@@ -344,7 +342,7 @@ const HomeScreen = () => {
       <div
         className="w-full font-medium min-h-screen text-white flex flex-col items-center justify-between px-4 md:px-10 py-40 md:flex-row "
         style={{
-          backgroundImage: `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url(${Img_colab})`,
+          backgroundImage: `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url(${import.meta.env.VITE_HOME_COLAB_IMG_URL})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}

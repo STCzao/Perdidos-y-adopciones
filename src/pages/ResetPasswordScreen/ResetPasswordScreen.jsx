@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import Img_login1 from "../../assets/Img_login1.png";
 
 const ResetPasswordScreen = () => {
   const [password, setPassword] = useState("");
@@ -76,7 +75,7 @@ const ResetPasswordScreen = () => {
     <div
       className="w-full font-medium min-h-screen text-white flex flex-col items-center justify-center px-4 md:px-10"
       style={{
-        backgroundImage: `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url(${Img_login1})`,
+        backgroundImage: `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url(${import.meta.env.VITE_ACCESS_IMG_URL})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}

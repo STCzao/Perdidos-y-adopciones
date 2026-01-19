@@ -4,7 +4,6 @@ import Footer from "../../components/Footer/Footer";
 import { useComunidad } from "../../services/Hooks/useComunidad";
 import { useFiltro } from "../../services/Hooks/useFiltro";
 import CardsAyuda from "../../components/CardsAyuda/CardsAyuda";
-import Img_Casos from "../../assets/Img_Casos.jpg";
 import CasoAyudaFiltro from "../../components/CasoAyudaFiltro/CasoAyudaFiltro";
 
 const ComunidadScreen = () => {
@@ -17,7 +16,7 @@ const ComunidadScreen = () => {
       <div
         className="w-full font-medium min-h-screen text-white flex flex-col items-center justify-start px-4 md:px-10 py-20"
         style={{
-          backgroundImage: `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url(${Img_Casos})`,
+          backgroundImage: `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url(${import.meta.env.VITE_CASOS_IMG_URL})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
