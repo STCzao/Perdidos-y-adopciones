@@ -206,7 +206,7 @@ export const CrearPublicacion = {
 
         const response = await fetch(
           "https://api.cloudinary.com/v1_1/dzxp6fhvu/image/upload",
-          { method: "POST", body: formData }
+          { method: "POST", body: formData },
         );
 
         const data = await response.json();
@@ -298,7 +298,7 @@ export const CrearPublicacion = {
         valid = false;
       } else if (
         !/^https:\/\/res\.cloudinary\.com\/.+\/.+\.(jpg|jpeg|png|webp)$/.test(
-          form.img
+          form.img,
         )
       ) {
         newErrors.img = "La URL de imagen no es válida";
@@ -378,7 +378,7 @@ export const CrearPublicacion = {
       try {
         setSubmitting(true);
         setResult(
-          isEditing ? "Actualizando publicación..." : "Creando publicación..."
+          isEditing ? "Actualizando publicación..." : "Creando publicación...",
         );
 
         const datosParaEnviar = {
@@ -392,6 +392,11 @@ export const CrearPublicacion = {
           img: form.img,
           ...(form.detalles?.trim() && { detalles: form.detalles }),
         };
+
+        // Solo agregar estado si es edición
+        if (isEditing && form.estado) {
+          datosParaEnviar.estado = form.estado;
+        }
 
         if (form.tipo === "PERDIDO" || form.tipo === "ADOPCION") {
           datosParaEnviar.nombreanimal = form.nombreanimal;
@@ -414,7 +419,7 @@ export const CrearPublicacion = {
         if (isEditing && editData?._id) {
           result = await publicacionesService.actualizarPublicacion(
             editData._id,
-            datosParaEnviar
+            datosParaEnviar,
           );
         } else {
           result = await publicacionesService.crearPublicacion(datosParaEnviar);
@@ -424,7 +429,7 @@ export const CrearPublicacion = {
           setResult(
             isEditing
               ? "¡Publicación actualizada exitosamente!"
-              : "¡Publicación creada exitosamente!"
+              : "¡Publicación creada exitosamente!",
           );
           resetForm();
           setTimeout(() => setOpen(false), 2000);
@@ -655,13 +660,13 @@ export const CrearPublicacion = {
                 <>
                   <div className="mt-4">
                     <label className="flex items-left text-sm mb-1 ml-2">
-                      Zona/calle (y altura)
+                      Se extravió/encontró en:
                     </label>
                     <div className="flex items-center w-full bg-white border border-gray-300/80 h-12 rounded-full overflow-hidden pl-6 gap-2">
                       <input
                         type="text"
                         name="lugar"
-                        placeholder="Indique el lugar donde perdió/encontró al animal *"
+                        placeholder="Indique la dirección, calle o zona *"
                         value={form.lugar}
                         onChange={handleChange}
                         disabled={submitting}
@@ -967,8 +972,8 @@ export const CrearPublicacion = {
                     ? "Actualizando..."
                     : "Creando..."
                   : editData
-                  ? "Actualizar publicación"
-                  : "Crear publicación"}
+                    ? "Actualizar publicación"
+                    : "Crear publicación"}
               </button>
             </div>
 

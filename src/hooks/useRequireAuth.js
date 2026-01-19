@@ -2,15 +2,8 @@ import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 
-/**
- * Hook para proteger acciones específicas
- * Redirige a login si el usuario no está autenticado
- * 
- * @returns {Function} Función que envuelve la acción a proteger
- * 
- * Uso:
- * const withAuth = useRequireAuth();
- * onClick={() => withAuth(() => CrearPublicacion.openModal())}
+/*
+ * Hook para proteger acciones específicas.Redirige a login si el usuario no está autenticado 
  */
 export const useRequireAuth = () => {
   const navigate = useNavigate();

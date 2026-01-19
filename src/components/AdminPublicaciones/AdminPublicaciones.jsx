@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { adminService } from "../../services/admin";
 import { publicacionesService } from "../../services/publicaciones";
 import { ConfirmModal } from "../ConfirmModal/ConfirmModal";
+import { getEstadosPermitidos } from "../../constants/estadosPublicacion";
 
 let modalControl;
 
@@ -204,7 +205,7 @@ export const AdminPublicaciones = {
 
 const PublicacionItem = React.memo(
   ({ publicacion, onEliminar, onEditarEstado, loading }) => {
-    const estados = ["ACTIVO", "INACTIVO", "ENCONTRADO", "ADOPTADO", "VISTO"];
+    const estados = getEstadosPermitidos(publicacion.tipo);
 
     const handleEstadoChange = (e) => {
       const nuevoEstado = e.target.value;

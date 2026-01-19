@@ -191,7 +191,7 @@ const PublicacionesPage = () => {
             pageRangeDisplayed={3}
             onPageChange={handlePageClick}
             forcePage={page - 1}
-            containerClassName="flex justify-center gap-3 py-6"
+            containerClassName="flex justify-center gap-3 py-6 cursor-pointer"
                     pageClassName="border border-[#FF7857]/30 rounded-full px-3 py-1 bg-white/90 text-black text-sm shadow-sm hover:bg-[#FF7857]/10 transition-colors delay-100 duration-300"
                     previousClassName="border border-[#FF7857]/30 rounded-full px-3 py-1 bg-white/90 text-black text-sm shadow-sm hover:bg-[#FF7857]/10 transition-colors delay-100 duration-300"
                     nextClassName="border border-[#FF7857]/30 rounded-full px-3 py-1 bg-white/90 text-black text-sm shadow-sm hover:bg-[#FF7857]/10 transition-colors delay-100 duration-300"

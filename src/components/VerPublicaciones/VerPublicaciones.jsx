@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { publicacionesService } from "../../services/publicaciones";
 import { ConfirmModal } from "../ConfirmModal/ConfirmModal";
 import { CrearPublicacion } from "../CrearPublicacion/CrearPublicacion";
+import { getEstadosPermitidos } from "../../constants/estadosPublicacion";
 
 let modalControl;
 
@@ -62,11 +63,11 @@ export const VerPublicaciones = {
     const handleEliminar = useCallback(async (publicacion) => {
       try {
         const result = await publicacionesService.borrarPublicacion(
-          publicacion._id
+          publicacion._id,
         );
         if (result.success) {
           setPublicaciones((prev) =>
-            prev.filter((p) => p._id !== publicacion._id)
+            prev.filter((p) => p._id !== publicacion._id),
           );
           return true;
         } else {
@@ -83,11 +84,11 @@ export const VerPublicaciones = {
       try {
         const result = await publicacionesService.actualizarEstado(
           id,
-          nuevoEstado
+          nuevoEstado,
         );
         if (result.success) {
           setPublicaciones((prev) =>
-            prev.map((p) => (p._id === id ? { ...p, estado: nuevoEstado } : p))
+            prev.map((p) => (p._id === id ? { ...p, estado: nuevoEstado } : p)),
           );
           return true;
         } else {
@@ -108,7 +109,7 @@ export const VerPublicaciones = {
 
     const actualizarPublicacionEnLista = useCallback((updated) => {
       setPublicaciones((prev) =>
-        prev.map((p) => (p._id === updated._id ? updated : p))
+        prev.map((p) => (p._id === updated._id ? updated : p)),
       );
     }, []);
 
@@ -242,7 +243,7 @@ export const VerPublicaciones = {
 
 const PublicacionItem = React.memo(
   ({ publicacion, onEliminar, onEditar, onEditarEstado, loading }) => {
-    const estados = ["ACTIVO", "INACTIVO", "ENCONTRADO", "ADOPTADO", "VISTO"];
+    const estados = getEstadosPermitidos(publicacion.tipo);
 
     const handleEstadoChange = (e) => {
       const nuevoEstado = e.target.value;
