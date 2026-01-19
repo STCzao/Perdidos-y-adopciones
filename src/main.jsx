@@ -4,7 +4,7 @@ import './index.css'
 import App from './App.jsx'
 
 // importar favicon desde src/assets
-import favicon from './assets/Logo Perdidos y adopciones - Favicon.png'
+const favicon = import.meta.env.VITE_FAVICON_URL
 
 // crear y agregar el link del favicon al head
 const link = document.createElement('link')

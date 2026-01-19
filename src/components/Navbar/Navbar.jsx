@@ -1,5 +1,4 @@
 import React from "react";
-import Logo from "../../assets/Logo Perdidos y adopciones.png";
 import { useSidebar } from "../SidebarOpciones/SidebarOpciones";
 import { CrearPublicacion } from "../CrearPublicacion/CrearPublicacion";
 import { EditarPerfil } from "../EditarPerfil/EditarPerfil";
@@ -113,7 +112,7 @@ const NavbarContent = () => {
           }}
         >
           <img
-            src={Logo}
+            src={import.meta.env.VITE_NAVBAR_LOGO_URL}
             alt="logo"
             className={`h-16 transition-all duration-300 ${
               isSolidNavbar ? "filter-none" : "invert"
@@ -170,11 +169,11 @@ const NavbarContent = () => {
                         if (window.matchMedia("(hover: hover)").matches) {
                           e.currentTarget.classList.add(
                             "opacity-0",
-                            "invisible"
+                            "invisible",
                           );
                           e.currentTarget.classList.remove(
                             "opacity-100",
-                            "visible"
+                            "visible",
                           );
                         }
                       }}
@@ -198,7 +197,7 @@ const NavbarContent = () => {
                           >
                             {item.name}
                           </a>
-                        )
+                        ),
                       )}
                     </div>
                   </div>
@@ -214,14 +213,17 @@ const NavbarContent = () => {
                   >
                     {link.name}
                   </a>
-                )
+                ),
               )}
             </div>
           </div>
 
           {/* Mobile Menu Button - Mantiene posición */}
           <div className="flex md:hidden items-center gap-3">
-            <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-2 transition-colors delay-100 duration-300 hover:text-[#FF7857]">
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="p-2 transition-colors delay-100 duration-300 hover:text-[#FF7857]"
+            >
               <svg
                 className="h-6 w-6"
                 fill="none"
@@ -288,14 +290,14 @@ const NavbarContent = () => {
                     >
                       {item.name}
                     </a>
-                  )
+                  ),
                 )}
             </div>
           ) : (
             <a key={i} href={link.path} onClick={() => setIsMenuOpen(false)}>
               {link.name}
             </a>
-          )
+          ),
         )}
       </div>
 

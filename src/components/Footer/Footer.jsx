@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router-dom";
-import Logo_footer from "../../assets/Logo Perdidos y adopciones - Favicon.png";
 
 export default function Footer() {
   const navigate = useNavigate();
@@ -9,7 +8,7 @@ export default function Footer() {
       <div className="flex flex-col md:flex-row justify-between w-full gap-10 border-b border-white/20 pb-8">
         {/* Logo + Descripción */}
         <div className="md:max-w-md text-center md:text-left">
-          <img className="h-20" src={Logo_footer} alt="" />
+          <img className="h-20" src={import.meta.env.VITE_FOOTER_IMG_URL} alt="" />
           <p className="mt-6 text-sm leading-relaxed text-white/90">
             Una plataforma que conecta personas con animales perdidos,
             encontrados y en adopción, para que cada caso sea visibilizado y

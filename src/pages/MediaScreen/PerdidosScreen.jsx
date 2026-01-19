@@ -1,5 +1,4 @@
 import Navbar from "../../components/Navbar/Navbar";
-import Img_publicaciones from "../../assets/Img_publicaciones.jpeg";
 import Footer from "../../components/Footer/Footer";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -15,7 +14,7 @@ const PerdidosScreen = () => {
       <div
         className="w-full font-medium min-h-screen text-white px-4 md:px-10"
         style={{
-          backgroundImage: `url(${Img_publicaciones})`,
+          backgroundImage: `url(${import.meta.env.VITE_MEDIA_IMG_URL})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}

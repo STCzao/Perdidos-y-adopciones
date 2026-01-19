@@ -1,5 +1,4 @@
 import { motion } from "framer-motion";
-import Navbar from "../../components/Navbar/Navbar";
 import Footer from "../../components/Footer/Footer";
 import { useState } from "react";
 
@@ -99,7 +98,14 @@ const ContactScreen = () => {
 
   return (
     <div>
-      <div className="w-full font-medium min-h-screen bg-[linear-gradient(rgba(0,0,0,0.7),rgba(0,0,0,0.7)),url(../src/assets/Img_contact.jpg)] bg-cover bg-center text-white flex flex-col items-center justify-center px-4 md:px-10">
+      <div
+        className="w-full font-medium min-h-screen text-white flex flex-col items-center justify-center px-4 md:px-10"
+        style={{
+          backgroundImage: `linear-gradient(rgba(0,0,0,0.7),rgba(0,0,0,0.7)), url(${import.meta.env.VITE_CONTACT_IMG_URL})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
         <motion.div
           initial={{ opacity: 0.0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
