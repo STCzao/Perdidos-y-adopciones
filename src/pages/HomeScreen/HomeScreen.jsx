@@ -36,7 +36,7 @@ const HomeScreen = () => {
           page: p,
           limit: 100,
           tipo,
-        })
+        }),
       );
     }
 
@@ -82,17 +82,17 @@ const HomeScreen = () => {
         setPerdidosCount((prev) =>
           typeof totalPerdidos === "number"
             ? Math.max(prev, totalPerdidos)
-            : prev
+            : prev,
         );
         setEncontradosCount((prev) =>
           typeof totalEncontrados === "number"
             ? Math.max(prev, totalEncontrados)
-            : prev
+            : prev,
         );
         setAdopcionesCount((prev) =>
           typeof totalAdopciones === "number"
             ? Math.max(prev, totalAdopciones)
-            : prev
+            : prev,
         );
       } catch (error) {
         // Si falla el conteo, simplemente dejamos los contadores en su valor actual
@@ -202,7 +202,7 @@ const HomeScreen = () => {
               <span className="text-xs uppercase tracking-[0.18em] text-black">
                 ¡Se buscan!
               </span>
-              <h2 className="text-2xl font-bold text-white flex items-center px-4 bg-red-500">
+              <h2 className="text-2xl font-bold text-white flex items-center px-4 bg-[#FF0000]">
                 PERDIDOS
               </h2>
               <motion.p
@@ -230,7 +230,7 @@ const HomeScreen = () => {
               <span className="text-xs uppercase tracking-[0.18em] text-black font-semibold">
                 Esperando un hogar
               </span>
-              <h2 className="text-2xl text-white flex items-center px-4 bg-green-500 font-bold">
+              <h2 className="text-2xl text-white flex items-center px-4 bg-[#4dac00] font-bold">
                 ADOPCIONES
               </h2>
               <motion.p
@@ -258,7 +258,7 @@ const HomeScreen = () => {
               <span className="text-xs uppercase tracking-[0.18em] text-black font-semibold">
                 Buscando a su familia
               </span>
-              <h2 className="text-2xl font-bold text-white flex items-center px-4 bg-blue-500">
+              <h2 className="text-2xl font-bold text-white flex items-center px-4 bg-[#2165FF]">
                 ENCONTRADOS
               </h2>
               <motion.p

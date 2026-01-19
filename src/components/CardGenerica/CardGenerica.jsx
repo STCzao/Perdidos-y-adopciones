@@ -6,7 +6,7 @@ const formatFecha = (fecha) => {
   const date = new Date(fecha);
   return date.toLocaleDateString("es-AR", {
     day: "2-digit",
-    month: "short",
+    month: "2-digit",
     year: "numeric",
   });
 };
@@ -40,7 +40,7 @@ const CardGenerica = ({ publicacion }) => {
 
   return (
     <div
-      className="font-medium w-full max-w-sm h-[43rem] cursor-pointer flex flex-col overflow-hidden"
+      className="font-medium w-full max-w-sm h-[36rem] rounded-2xl cursor-pointer flex flex-col overflow-hidden"
       onClick={() => setFlipped(!flipped)}
     >
       <div
@@ -49,94 +49,170 @@ const CardGenerica = ({ publicacion }) => {
         }`}
       >
         {/* Frente */}
-        <div className="absolute w-full h-full [backface-visibility:hidden] flex flex-col bg-[#763A0D]/70 backdrop-blur border border-white/20 rounded-xl shadow-md p-3">
-          <div>
-            {tipo && (
-              <span className="flex flex-col italic text-center bg-green-500/20 text-green-300 mb-2 px-2 py-1 rounded text-sm mt-2">
-                Tipo: {tipo}
-              </span>
-            )}
-          </div>
-          {img && (
-            <div className="relative w-full h-80 rounded-lg overflow-hidden mb-1">
-              {/* Fondo relleno blur */}
-              <img
-                src={img}
-                alt="background"
-                className="absolute inset-0 w-full h-full object-cover blur-lg scale-110 opacity-60"
-              />
-
-              {/* Imagen real */}
-              <img
-                src={img}
-                alt="Imagen"
-                className="relative z-10 max-h-full max-w-full mx-auto object-contain"
-              />
-            </div>
+        <div className="absolute w-full h-full [backface-visibility:hidden] flex flex-col bg-white/90 border border-[#FF7857]/20">
+          {tipo === "ADOPCION" && (
+            <span className="text-2xl text-white flex justify-center items-center bg-[#4dac00] font-extrabold">
+              {estado}
+            </span>
+          )}
+          {tipo === "PERDIDO" && (
+            <span className="text-2xl text-white flex justify-center items-center bg-[#FF0000] font-extrabold">
+              {estado}
+            </span>
+          )}
+          {tipo === "ENCONTRADO" && (
+            <span className="text-2xl text-white flex justify-center items-center bg-[#2165FF] font-extrabold">
+              {estado}
+            </span>
           )}
 
-          <div className="flex flex-col text-center text-white mb-2 rounded text-xs">
-            {tipo === "ENCONTRADO" && (
-              <div>
-                <h1 className="text-sm font-bold text-white text-center">
-                  {especie} {tipo} en {lugar}
-                </h1>
+          <div className="flex flex-col pb-3 pl-3 pr-3 pt-2 flex-1 overflow-y-auto will-change-transform [transform:translateZ(0)]">
+            {img && (
+              <div className="relative w-full h-70 rounded-xl overflow-hidden mb-2 bg-[#e6dac6]">
+                {/* Fondo relleno blur */}
+                <img
+                  src={img}
+                  alt="background"
+                  className="absolute inset-0 w-full h-full object-cover blur-lg scale-110 opacity-60"
+                />
+
+                {/* Imagen real */}
+                <img
+                  src={img}
+                  alt="Imagen"
+                  className="relative z-10 max-h-full max-w-full mx-auto object-contain drop-shadow-sm"
+                />
               </div>
             )}
-          </div>
-          <div className="flex flex-col text-center text-white mb-2 rounded text-xs">
-            {tipo === "PERDIDO" && (
-              <div>
-                <h1 className="text-sm font-bold text-white text-center">
-                  Se busca a {nombreanimal} en {lugar}
-                </h1>
+
+            <div className="text-xs text-black space-y-1 flex-1 overflow-y-auto will-change-transform [transform:translateZ(0)]">
+              {tipo === "ADOPCION" && (
+                <span className="text-xl text-[#4dac00] flex justify-center items-center font-extrabold">
+                  {nombreanimal}
+                </span>
+              )}
+              {tipo === "PERDIDO" && (
+                <span className="text-xl text-[#FF0000] flex justify-center items-center font-extrabold">
+                  {nombreanimal}
+                </span>
+              )}
+              <div className="flex flex-wrap gap-1 mt-1 text-sm justify-center">
+                {especie && <p>{especie}</p>}|{sexo && <p>{sexo}</p>}|
+                {tamaño && <p>{tamaño}</p>}
               </div>
-            )}
-          </div>
-          <div className="flex flex-col text-center text-white mb-2 rounded text-xs">
-            {tipo === "ADOPCION" && (
-              <div>
-                <h1 className="text-sm font-bold text-white text-center">
-                  {nombreanimal} se encuentra en busca de un hogar
-                </h1>
+              <div className="flex flex-col justify-center items-center font-light">
+                {raza && (
+                  <p>
+                    <span>Raza:</span> {raza.toUpperCase()}
+                  </p>
+                )}
+
+                {color && (
+                  <p>
+                    <span>Color:</span> {color.toUpperCase()}
+                  </p>
+                )}
+                {tipo === "ADOPCION" && castrado !== undefined && (
+                  <p>
+                    <span>Castrado:</span> {castrado ? "Sí" : "No"}
+                  </p>
+                )}
               </div>
-            )}
+              <div className="flex flex-col justify-center text-center text-sm">
+                {(tipo === "PERDIDO") && lugar && (
+                  <>
+                    <p className="font-light ">Se extravió en:</p>
+                    <p className="font-extrabold ">{lugar}</p>
+                  </>
+                )}
+                {(tipo === "ENCONTRADO") && lugar && (
+                  <>
+                    <p className="font-light ">Se encontró en:</p>
+                    <p className="font-extrabold ">{lugar}</p>
+                  </>
+                )}
+                {fecha && (
+                  <>
+                    <p className="font-extrabold ">{formatFecha(fecha)}</p>
+                  </>
+                )}
+              </div>
+              <div className="flex flex-col justify-center text-center text-sm">
+                {tipo === "ADOPCION" && edad && (
+                  <>
+                    <p className="font-light">Edad:</p>
+                    {edad && <p className="font-extrabold">{edad}</p>}
+                  </>
+                )}
+              </div>
+            </div>
+            <p className="text-center px-2 py-1 font-bold text-black/60 text-[0.8rem]">
+              (Click para VER MÁS DETALLES)
+            </p>
           </div>
-          <div className="text-xs text-white/90 space-y-1 flex-1 overflow-y-auto will-change-transform [transform:translateZ(0)]">
-            {estado && <p>Estado: {estado}</p>}
-            {especie && <p>Especie: {especie}</p>}
-            {raza && <p>Raza: {raza}</p>}
-            {sexo && <p>Sexo: {sexo}</p>}
-            {tamaño && <p>Tamaño: {tamaño}</p>}
-            {color && <p>Color: {color}</p>}
-            {(tipo === "PERDIDO" || tipo === "ADOPCION") && <p>Edad: {edad}</p>}
-            {(tipo === "PERDIDO" || tipo === "ENCONTRADO") && (
-              <>{fecha && <p>Fecha: {formatFecha(fecha)}</p>}</>
-            )}
-          </div>
-          <p className="text-center bg-white/20 text-white px-1 py-1 rounded text-sm mt-2">
-            Ver más detalles (click para girar)
-          </p>
+          {tipo === "ENCONTRADO" && (
+            <p className="text-xl text-white flex justify-center items-center bg-[#2165FF] font-medium tracking-[0.11em]">
+              SECTOR: ENCONTRADO
+            </p>
+          )}
+          {tipo === "PERDIDO" && (
+            <p className="text-xl text-white flex justify-center items-center bg-[#FF0000] font-medium tracking-[0.11em]">
+              SECTOR: PERDIDO
+            </p>
+          )}
+          {tipo === "ADOPCION" && (
+            <p className="text-xl text-white flex justify-center items-center bg-[#4dac00] font-medium tracking-[0.11em]">
+              SECTOR: ADOPCION
+            </p>
+          )}
         </div>
 
         {/* Reverso */}
-        <div className="absolute w-full h-full [backface-visibility:hidden] [transform:rotateY(180deg)] flex flex-col justify-between bg-[#763A0D]/70 backdrop-blur border border-white/20 rounded-xl shadow-md p-3">
-          <div className="text-sm text-white/90 overflow-auto flex-1">
+        <div className="absolute w-full h-full [backface-visibility:hidden] [transform:rotateY(180deg)] flex flex-col justify-between bg-white/95 border border-[#FF7857]/20 p-3">
+          <div className="text-sm text-black/85 overflow-auto flex-1">
             {tipo === "ADOPCION" && (
               <>
-                {afinidad && <p>Afinidad con personas: {afinidad}</p>}
-                {afinidadanimales && (
-                  <p>Afinidad con otros animales: {afinidadanimales}</p>
+                {afinidad && (
+                  <p className="font-light">
+                    <span className="font-semibold">
+                      Afinidad con personas:
+                    </span>{" "}
+                    {afinidad}
+                  </p>
                 )}
-                {energia && <p>Energía: {energia}</p>}
-                <p>Castrado: {castrado ? "Sí" : "No"}</p>
+                {afinidadanimales && (
+                  <p className="font-light">
+                    <span className="font-semibold">
+                      Afinidad con otros animales:
+                    </span>{" "}
+                    {afinidadanimales}
+                  </p>
+                )}
+                {energia && (
+                  <p className="font-light">
+                    <span className="font-semibold">Energía:</span> {energia}
+                  </p>
+                )}
               </>
             )}
-            {detalles && <p className="mt-2">Señas particulares y estado del animal: {detalles}</p>}
+
+            {tipo === "PERDIDO" && edad && (
+              <p className="font-light">
+                <span className="font-semibold">Edad:</span> {edad}
+              </p>
+            )}
+            {detalles && (
+              <p className="mt-2 leading-relaxed font-light">
+                <span className="font-semibold">
+                  Señas particulares y estado del animal:
+                </span>{" "}
+                {detalles}
+              </p>
+            )}
           </div>
           <div>
-            <p className="text-center bg-white/20 text-white px-2 py-1 rounded text-sm mt-2">
-              Click para volver
+            <p className="text-center px-2 py-1 font-bold text-black/60 text-[0.8rem]">
+              (Click para VOLVER ATRÁS)
             </p>
           </div>
           {whatsappLink && (
@@ -148,7 +224,7 @@ const CardGenerica = ({ publicacion }) => {
                 });
               }}
               rel="noopener noreferrer"
-              className="mt-3 w-full text-center bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-600 transition cursor-pointer"
+              className="mt-3 w-full text-center bg-[#4dac00] text-white px-4 py-2 rounded-full hover:bg-[#1ebe57] transition-colors delay-100 duration-300 cursor-pointer text-sm font-semibold"
             >
               Contactar por WhatsApp
             </a>
