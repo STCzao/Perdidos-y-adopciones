@@ -11,8 +11,9 @@ const formatFecha = (fecha) => {
   });
 };
 
-const CardGenerica = ({ publicacion }) => {
+const CardGenerica = ({ publicacion, cardId }) => {
   const [flipped, setFlipped] = useState(false);
+  const [copied, setCopied] = useState(false);
   const withAuth = useRequireAuth();
 
   const {
@@ -38,8 +39,28 @@ const CardGenerica = ({ publicacion }) => {
 
   const whatsappLink = whatsapp ? `https://wa.me/${whatsapp}` : null;
 
+  const mapTipos = {
+    ADOPCION: "adopciones",
+    PERDIDO: "perdidos",
+    ENCONTRADO: "encontrados",
+  };
+
+  const handleCopyLink = async (e) => {
+    e.stopPropagation();
+    const tipoUrl = mapTipos[tipo];
+    const url = `${window.location.origin}/publicaciones/${tipoUrl}#${publicacion._id}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("Error al copiar:", err);
+    }
+  };
+
   return (
     <div
+      id={cardId}
       className="font-medium w-full max-w-sm h-[36rem] rounded-2xl cursor-pointer flex flex-col overflow-hidden"
       onClick={() => setFlipped(!flipped)}
     >
@@ -49,9 +70,11 @@ const CardGenerica = ({ publicacion }) => {
         }`}
       >
         {/* Frente */}
-        <div className={`absolute w-full h-full [backface-visibility:hidden] flex flex-col bg-white border border-[#FF7857]/20 ${
-          flipped ? "invisible" : ""
-        }`}>
+        <div
+          className={`absolute w-full h-full [backface-visibility:hidden] flex flex-col bg-white border border-[#FF7857]/20 ${
+            flipped ? "invisible" : ""
+          }`}
+        >
           {tipo === "ADOPCION" && (
             <span className="text-2xl text-white flex justify-center items-center bg-[#4dac00] font-extrabold">
               {estado}
@@ -121,13 +144,13 @@ const CardGenerica = ({ publicacion }) => {
                 )}
               </div>
               <div className="flex flex-col justify-center text-center text-sm">
-                {(tipo === "PERDIDO") && lugar && (
+                {tipo === "PERDIDO" && lugar && (
                   <>
                     <p className="font-light ">Se extravió en:</p>
                     <p className="font-extrabold ">{lugar}</p>
                   </>
                 )}
-                {(tipo === "ENCONTRADO") && lugar && (
+                {tipo === "ENCONTRADO" && lugar && (
                   <>
                     <p className="font-light ">Se encontró en:</p>
                     <p className="font-extrabold ">{lugar}</p>
@@ -170,9 +193,11 @@ const CardGenerica = ({ publicacion }) => {
         </div>
 
         {/* Reverso */}
-        <div className={`absolute w-full h-full [backface-visibility:hidden] [transform:rotateY(180deg)] flex flex-col justify-between bg-white border border-[#FF7857]/20 p-3 ${
-          !flipped ? "invisible" : ""
-        }`}>
+        <div
+          className={`absolute w-full h-full [backface-visibility:hidden] [transform:rotateY(180deg)] flex flex-col justify-between bg-white border border-[#FF7857]/20 p-3 ${
+            !flipped ? "invisible" : ""
+          }`}
+        >
           <div className="text-sm text-black/85 overflow-auto flex-1">
             {tipo === "ADOPCION" && (
               <>
@@ -219,6 +244,16 @@ const CardGenerica = ({ publicacion }) => {
               (Click para VOLVER ATRÁS)
             </p>
           </div>
+          <button
+            onClick={handleCopyLink}
+            className={`mt-3 w-full text-sm border border-[#FF7857]/40 cursor-pointer font-medium px-4 py-2 rounded-full transition-colors delay-100 duration-300 ${
+              copied
+                ? "bg-[#FF7857] text-white"
+                : "text-black bg-white/90 shadow-sm hover:bg-[#FF7857] hover:text-white"
+            }`}
+          >
+            {copied ? "¡Copiado! " : "Compartir publicación"}
+          </button>
           {whatsappLink && (
             <a
               onClick={(e) => {

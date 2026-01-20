@@ -6,12 +6,13 @@ import CardFiltro from "../../components/CardFiltro/CardFiltro";
 import { useEffect, useState } from "react";
 import { publicacionesService } from "../../services/publicaciones";
 import { CrearPublicacion } from "../../components/CrearPublicacion/CrearPublicacion";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import ReactPaginate from "react-paginate";
 import { useRequireAuth } from "../../hooks/useRequireAuth";
 
 const PublicacionesPage = () => {
   const { tipo } = useParams();
+  const location = useLocation();
   const withAuth = useRequireAuth();
 
   const [publicaciones, setPublicaciones] = useState([]);
@@ -20,6 +21,7 @@ const PublicacionesPage = () => {
   const [loadingTotal, setLoadingTotal] = useState(false);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [hashProcessed, setHashProcessed] = useState(false);
 
   const [filtros, setFiltros] = useState({
     raza: "",
@@ -65,7 +67,72 @@ const PublicacionesPage = () => {
 
   useEffect(() => {
     setPage(1);
+    setHashProcessed(false); // Resetear bandera cuando cambia el tipo
   }, [tipo]);
+
+  const filtrarPublicaciones = (lista) => {
+    return lista.filter((pub) => {
+      return (
+        (!filtros.raza ||
+          pub.raza?.toLowerCase().includes(filtros.raza.toLowerCase())) &&
+        (!filtros.edad || pub.edad === filtros.edad) &&
+        (!filtros.sexo || pub.sexo === filtros.sexo) &&
+        (!filtros.especie || pub.especie === filtros.especie) &&  
+        (!filtros.tamaño || pub.tamaño === filtros.tamaño) &&
+        (!filtros.lugar ||
+          pub.lugar?.toLowerCase().includes(filtros.lugar.toLowerCase())) &&
+        (!filtros.color ||
+          pub.color?.toLowerCase().includes(filtros.color.toLowerCase())) &&
+        (!filtros.detalles ||
+          pub.detalles?.toLowerCase().includes(filtros.detalles.toLowerCase()))
+      );
+    });
+  };
+
+  const publicacionesFiltradasPagina = filtrarPublicaciones(publicaciones);
+  const publicacionesFiltradasTotales = filtrarPublicaciones(publicacionesTodas);
+
+  // Scroll a la tarjeta si viene con hash (solo una vez al cargar)
+  useEffect(() => {
+    const id = location.hash.slice(1); // Elimina el #
+    if (id && !loading && !hashProcessed && publicacionesFiltradasTotales.length > 0) {
+      // Busca en qué página está la tarjeta
+      const tarjetaIndex = publicacionesFiltradasTotales.findIndex(
+        (pub) => pub._id === id
+      );
+
+      if (tarjetaIndex !== -1) {
+        const tarjetaPagina = Math.floor(tarjetaIndex / 12) + 1;
+        
+        // Si está en otra página, navega a esa página
+        if (tarjetaPagina !== page) {
+          setPage(tarjetaPagina);
+        } else {
+          // Si ya está en la página actual, haz scroll
+          setTimeout(() => {
+            const element = document.getElementById(id);
+            if (element) {
+              element.scrollIntoView({ behavior: "smooth", block: "center" });
+            }
+          }, 200);
+        }
+        setHashProcessed(true); // Marcar como procesado
+      }
+    }
+  }, [location.hash, loading, publicacionesFiltradasTotales]);
+
+  // Scroll después de cambiar de página
+  useEffect(() => {
+    const id = location.hash.slice(1);
+    if (id && !loading) {
+      setTimeout(() => {
+        const element = document.getElementById(id);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }, 200);
+    }
+  }, [page, loading]);
 
   useEffect(() => {
     const fetchAllPublicaciones = async () => {
@@ -107,30 +174,10 @@ const PublicacionesPage = () => {
     fetchAllPublicaciones();
   }, [tipo]);
 
-  const filtrarPublicaciones = (lista) => {
-    return lista.filter((pub) => {
-      return (
-        (!filtros.raza ||
-          pub.raza?.toLowerCase().includes(filtros.raza.toLowerCase())) &&
-        (!filtros.edad || pub.edad === filtros.edad) &&
-        (!filtros.sexo || pub.sexo === filtros.sexo) &&
-        (!filtros.especie || pub.especie === filtros.especie) &&  
-        (!filtros.tamaño || pub.tamaño === filtros.tamaño) &&
-        (!filtros.lugar ||
-          pub.lugar?.toLowerCase().includes(filtros.lugar.toLowerCase())) &&
-        (!filtros.color ||
-          pub.color?.toLowerCase().includes(filtros.color.toLowerCase())) &&
-        (!filtros.detalles ||
-          pub.detalles?.toLowerCase().includes(filtros.detalles.toLowerCase()))
-      );
-    });
-  };
-
-  const publicacionesFiltradasPagina = filtrarPublicaciones(publicaciones);
-  const publicacionesFiltradasTotales = filtrarPublicaciones(publicacionesTodas);
-
   const handlePageClick = (event) => {
     setPage(event.selected + 1);
+    // Limpiar el hash para evitar conflictos con los useEffects de scroll
+    window.history.replaceState(null, "", window.location.pathname + window.location.search);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -174,7 +221,7 @@ const PublicacionesPage = () => {
                     (a, b) => new Date(b.fecha || 0) - new Date(a.fecha || 0)
                   )
                   .map((pub) => (
-                    <CardGenerica key={pub._id} publicacion={pub} />
+                    <CardGenerica key={pub._id} publicacion={pub} cardId={pub._id} />
                   ))
               ) : (
                 <div className="col-span-full text-black text-2xl font-medium mt-10 text-center">
