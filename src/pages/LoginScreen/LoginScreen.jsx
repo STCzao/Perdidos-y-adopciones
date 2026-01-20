@@ -94,8 +94,8 @@ const LoginScreen = ({ iniciarSesion, guardarUsuario }) => {
           <div className="flex flex-col items-center justify-center">
             <h5 className="text-white text-3xl mt-2">¡Hola!</h5>
             <p className="text-sm mt-4">
-              Las publicaciones en esta base de datos son gratuitas. Mantén
-              actualizadas tus publicaciones desde tu perfil.
+              Las publicaciones en esta base de datos son gratuitas. Mantenlas
+              actualizadas desde tu perfil.
             </p>
           </div>
 
