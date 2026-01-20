@@ -102,13 +102,7 @@ const NavbarContent = () => {
             !isPublicaciones ? "drop-shadow-[0_0_2px_black]" : ""
           }`}
           onClick={() => {
-            if (open) {
-              window.location.href = "/"; // Redirige al inicio
-            } else {
-              // SIEMPRE abre el sidebar, sin importar si está autenticado o no
-              // El sidebar mismo gestiona qué mostrar
-              setOpen(true);
-            }
+            setOpen(!open);
           }}
         >
           <img
