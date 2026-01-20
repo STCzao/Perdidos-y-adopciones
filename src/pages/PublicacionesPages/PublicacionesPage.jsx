@@ -40,6 +40,9 @@ const PublicacionesPage = () => {
     encontrados: "ENCONTRADO",
   };
 
+  // Estados que son casos exitosos y no deben aparecer en PublicacionesPage
+  const estadosExcluidos = ["YA APARECIO", "APARECIO SU FAMILIA", "ADOPTADO"];
+
   const titulos = {
     perdidos: "Animales perdidos",
     adopciones: "Animales en adopción",
@@ -56,7 +59,12 @@ const PublicacionesPage = () => {
         tipo: mapTipos[tipo],
       });
 
-      setPublicaciones(res?.publicaciones || []);
+      // Filtrar publicaciones para excluir los estados exitosos
+      const publicacionesFiltradas = (res?.publicaciones || []).filter(
+        (pub) => !estadosExcluidos.includes(pub.estado)
+      );
+
+      setPublicaciones(publicacionesFiltradas);
       setTotalPages(res?.totalPages || 1);
 
       setLoading(false);
