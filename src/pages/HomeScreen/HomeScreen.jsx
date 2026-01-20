@@ -276,9 +276,22 @@ const HomeScreen = () => {
             </div>
           </motion.div>
         </motion.div>
+
+        <motion.button
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.6 }}
+          onClick={() => {
+            navigate("/publicaciones-exitosas");
+            window.scrollTo(0, 0);
+          }}
+          className="mt-3 text-black border border-[#FF7857]/40 cursor-pointer font-medium w-50 h-11 rounded-full bg-white/90 shadow-sm hover:bg-[#FF7857] hover:text-black transition-colors delay-100 duration-300"
+        >
+          Ver casos de éxito
+        </motion.button>
       </div>
       <div className="flex flex-col items-center gap-15 font-medium py-20 bg-[#e6dac6]">
-        <h2 className="text-3xl text-black mt-10 font-bold tracking-[0.05em] ">
+        <h2 className="text-3xl text-black font-bold tracking-[0.05em] ">
           Animales perdidos
         </h2>
 

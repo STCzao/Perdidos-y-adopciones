@@ -94,12 +94,8 @@ const LoginScreen = ({ iniciarSesion, guardarUsuario }) => {
           <div className="flex flex-col items-center justify-center">
             <h5 className="text-white text-3xl mt-2">¡Hola!</h5>
             <p className="text-sm mt-4">
-              Organizamos la información sobre animales perdidos, encontrados y
-              en adopción en Tucumán, Argentina, para que ayudar sea más fácil.
-            </p>
-            <p className="text-sm mt-4">
-              Con tu registro, la base se mantiene segura y ordenada. Muchas
-              gracias!
+              Las publicaciones en esta base de datos son gratuitas. Mantén
+              actualizadas tus publicaciones desde tu perfil.
             </p>
           </div>
 

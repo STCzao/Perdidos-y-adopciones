@@ -21,6 +21,7 @@ import AdopcionesScreen from "./pages/MediaScreen/AdopcionesScreen.jsx";
 import PerdidosScreen from "./pages/MediaScreen/PerdidosScreen.jsx";
 import EncontradosScreen from "./pages/MediaScreen/EncontradosScreen.jsx";
 import PublicacionesPage from "./pages/PublicacionesPages/PublicacionesPage.jsx";
+import PublicacionesExitosas from "./pages/PublicacionesPages/PublicacionesExitosas.jsx";
 import { AuthContext } from "./context/AuthContext";
 
 function App() {
@@ -115,6 +116,7 @@ function App() {
           {/* Rutas públicas - accesibles sin autenticación */}
           <Route path="/" element={<HomeScreen user={user} />} />
           <Route path="/publicaciones/:tipo" element={<PublicacionesPage user={user} />} />
+          <Route path="/publicaciones-exitosas" element={<PublicacionesExitosas user={user} />} />
           <Route path="/consejos-perdi" element={<PerdiScreen user={user} />} />
           <Route path="/consejos-encontre" element={<EncontreScreen user={user} />} />
           <Route path="/consejos-adopcion" element={<AdoptarScreen user={user} />} />
