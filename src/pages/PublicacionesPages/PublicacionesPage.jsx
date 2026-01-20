@@ -114,6 +114,7 @@ const PublicacionesPage = () => {
           pub.raza?.toLowerCase().includes(filtros.raza.toLowerCase())) &&
         (!filtros.edad || pub.edad === filtros.edad) &&
         (!filtros.sexo || pub.sexo === filtros.sexo) &&
+        (!filtros.especie || pub.especie === filtros.especie) &&  
         (!filtros.tamaño || pub.tamaño === filtros.tamaño) &&
         (!filtros.lugar ||
           pub.lugar?.toLowerCase().includes(filtros.lugar.toLowerCase())) &&
@@ -144,7 +145,7 @@ const PublicacionesPage = () => {
           <div className="flex flex-col lg:flex-row gap-6 w-full">
             {/* FILTROS */}
             <div className="w-full lg:w-72 flex flex-col items-center lg:mb-0">
-              <CardFiltro filtros={filtros} setFiltros={setFiltros} />
+              <CardFiltro filtros={filtros} setFiltros={setFiltros} tipo={mapTipos[tipo]} />
 
               <p className="text-black font-medium text-sm mt-2">
                 Número de coincidencias: {" "}
