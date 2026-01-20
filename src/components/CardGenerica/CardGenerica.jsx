@@ -49,7 +49,9 @@ const CardGenerica = ({ publicacion }) => {
         }`}
       >
         {/* Frente */}
-        <div className="absolute w-full h-full [backface-visibility:hidden] flex flex-col bg-white border border-[#FF7857]/20">
+        <div className={`absolute w-full h-full [backface-visibility:hidden] flex flex-col bg-white border border-[#FF7857]/20 ${
+          flipped ? "invisible" : ""
+        }`}>
           {tipo === "ADOPCION" && (
             <span className="text-2xl text-white flex justify-center items-center bg-[#4dac00] font-extrabold">
               {estado}
@@ -168,7 +170,9 @@ const CardGenerica = ({ publicacion }) => {
         </div>
 
         {/* Reverso */}
-        <div className="absolute w-full h-full [backface-visibility:hidden] [transform:rotateY(180deg)] flex flex-col justify-between bg-white border border-[#FF7857]/20 p-3">
+        <div className={`absolute w-full h-full [backface-visibility:hidden] [transform:rotateY(180deg)] flex flex-col justify-between bg-white border border-[#FF7857]/20 p-3 ${
+          !flipped ? "invisible" : ""
+        }`}>
           <div className="text-sm text-black/85 overflow-auto flex-1">
             {tipo === "ADOPCION" && (
               <>
