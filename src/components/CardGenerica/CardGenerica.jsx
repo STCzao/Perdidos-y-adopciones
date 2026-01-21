@@ -125,7 +125,7 @@ const CardGenerica = ({ publicacion, cardId }) => {
                 {especie && <p>{especie}</p>}|{sexo && <p>{sexo}</p>}|
                 {tamaño && <p>{tamaño}</p>}
               </div>
-              <div className="flex flex-col justify-center items-center font-light">
+              <div className="flex flex-col justify-center text-center items-center font-light">
                 {raza && (
                   <p>
                     <span>Raza:</span> {raza.toUpperCase()}
