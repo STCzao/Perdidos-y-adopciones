@@ -202,7 +202,7 @@ const PublicacionesPage = () => {
             <div className="w-full lg:w-72 flex flex-col items-center lg:mb-0">
               <CardFiltro filtros={filtros} setFiltros={setFiltros} tipo={mapTipos[tipo]} />
 
-              <p className="text-black font-medium text-sm mt-2">
+              <p className="text-black font-medium text-sm mt-2 border border-[#FF7857]/30 px-3 py-2 rounded-xl bg-white/90 shadow-sm">
                 Número de coincidencias: {" "}
                 {loadingTotal
                   ? "Calculando..."

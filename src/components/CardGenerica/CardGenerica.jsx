@@ -76,17 +76,17 @@ const CardGenerica = ({ publicacion, cardId }) => {
           }`}
         >
           {tipo === "ADOPCION" && (
-            <span className="text-2xl text-white flex justify-center items-center bg-[#4dac00] font-extrabold">
+            <span className="text-xl text-white flex justify-center items-center bg-[#4dac00] font-extrabold">
               {estado}
             </span>
           )}
           {tipo === "PERDIDO" && (
-            <span className="text-2xl text-white flex justify-center items-center bg-[#FF0000] font-extrabold">
+            <span className="text-xl text-white flex justify-center items-center bg-[#FF0000] font-extrabold">
               {estado}
             </span>
           )}
           {tipo === "ENCONTRADO" && (
-            <span className="text-2xl text-white flex justify-center items-center bg-[#2165FF] font-extrabold">
+            <span className="text-xl text-white flex justify-center items-center bg-[#2165FF] font-extrabold">
               {estado}
             </span>
           )}
@@ -171,7 +171,7 @@ const CardGenerica = ({ publicacion, cardId }) => {
                 )}
               </div>
             </div>
-            <p className="text-center px-2 py-1 font-bold text-black/60 text-[0.8rem]">
+            <p className="text-center font-bold text-black/60 text-[0.8rem]">
               (Click para VER MÁS DETALLES)
             </p>
           </div>
@@ -199,13 +199,23 @@ const CardGenerica = ({ publicacion, cardId }) => {
           }`}
         >
           <div className="text-sm text-black/85 overflow-auto flex-1">
+
+          {tipo === "PERDIDO" && (
+                  <span className="text-xl mb-2 text-[#FF0000] flex justify-center items-center font-extrabold">
+                    {nombreanimal}
+                  </span>
+                )}
             {tipo === "ADOPCION" && (
               <>
+                {nombreanimal && (
+                  <span className="text-xl mb-2 text-[#4dac00] flex justify-center items-center font-extrabold">
+                    {nombreanimal}
+                  </span>
+                )}
+                
                 {afinidad && (
                   <p className="font-light">
-                    <span className="font-semibold">
-                      Afinidad con personas:
-                    </span>{" "}
+                    <span className="font-semibold">Afinidad con niños:</span>{" "}
                     {afinidad}
                   </p>
                 )}
@@ -238,9 +248,29 @@ const CardGenerica = ({ publicacion, cardId }) => {
                 {detalles}
               </p>
             )}
+
+            <div className="flex flex-col mt-5 justify-center text-center text-sm">
+              {tipo === "PERDIDO" && lugar && (
+                <>
+                  <p className="font-light ">Se extravió en:</p>
+                  <p className="font-extrabold ">{lugar}</p>
+                </>
+              )}
+              {tipo === "ENCONTRADO" && lugar && (
+                <>
+                  <p className="font-light ">Se encontró en:</p>
+                  <p className="font-extrabold ">{lugar}</p>
+                </>
+              )}
+              {fecha && (
+                <>
+                  <p className="font-extrabold ">{formatFecha(fecha)}</p>
+                </>
+              )}
+            </div>
           </div>
           <div>
-            <p className="text-center px-2 py-1 font-bold text-black/60 text-[0.8rem]">
+            <p className="text-center font-bold text-black/60 text-[0.8rem]">
               (Click para VOLVER ATRÁS)
             </p>
           </div>
@@ -252,7 +282,7 @@ const CardGenerica = ({ publicacion, cardId }) => {
                 : "text-black bg-white/90 shadow-sm hover:bg-[#FF7857] hover:text-white"
             }`}
           >
-            {copied ? "¡Copiado! " : "Compartir publicación"}
+            {copied ? "¡Enlace copiado! " : "Compartir publicación"}
           </button>
           {whatsappLink && (
             <a
