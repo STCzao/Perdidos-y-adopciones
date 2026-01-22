@@ -101,6 +101,26 @@ const PublicacionesPage = () => {
   const publicacionesFiltradasPagina = filtrarPublicaciones(publicaciones);
   const publicacionesFiltradasTotales = filtrarPublicaciones(publicacionesTodas);
 
+  // Determina si hay algún filtro activo (para mostrar resultados globales)
+  const isFiltering = Object.values(filtros).some(
+    (v) => v !== undefined && v !== null && String(v).trim() !== ""
+  );
+
+  // Lista a mostrar: si se está filtrando, mostrar todas las coincidencias (precision),
+  // si no, mostrar únicamente las de la página actual
+  const displayPublicaciones = isFiltering
+    ? publicacionesFiltradasTotales
+    : publicacionesFiltradasPagina;
+
+  // Si se activa un filtro, asegurarse de mostrar desde la primera "página"
+  // (evita ver coincidencias divididas entre páginas). También scrollear arriba.
+  useEffect(() => {
+    if (isFiltering) {
+      setPage(1);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [isFiltering]);
+
   // Scroll a la tarjeta si viene con hash (solo una vez al cargar)
   useEffect(() => {
     const id = location.hash.slice(1); // Elimina el #
@@ -267,15 +287,13 @@ const PublicacionesPage = () => {
 
             {/* PUBLICACIONES */}
             <div className="flex-1 grid grid-cols-1 justify-items-center sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6 mb-15">
-              {loading ? (
+              {(loading || (isFiltering && loadingTotal)) ? (
                 <div className="flex justify-center items-center col-span-full p-8">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF7857]"></div>
                 </div>
-              ) : publicacionesFiltradasPagina.length > 0 ? (
-                [...publicacionesFiltradasPagina]
-                  .sort(
-                    (a, b) => new Date(b.fecha || 0) - new Date(a.fecha || 0)
-                  )
+              ) : displayPublicaciones.length > 0 ? (
+                [...displayPublicaciones]
+                  .sort((a, b) => new Date(b.fecha || 0) - new Date(a.fecha || 0))
                   .map((pub) => (
                     <CardGenerica key={pub._id} publicacion={pub} cardId={pub._id} />
                   ))
@@ -286,7 +304,8 @@ const PublicacionesPage = () => {
               )}
             </div>
           </div>
-          <ReactPaginate
+          {!isFiltering && (
+            <ReactPaginate
             previousLabel={"Anterior"}
             nextLabel={"Siguiente"}
             breakLabel={"..."}
@@ -301,7 +320,8 @@ const PublicacionesPage = () => {
                     nextClassName="border border-[#FF7857]/30 rounded-full px-3 py-1 bg-white/90 text-black text-sm shadow-sm hover:bg-[#FF7857]/10 transition-colors delay-100 duration-300"
                     activeClassName="bg-[#FF7857] text-black border-[#FF7857]"
             disabledClassName="opacity-40 pointer-events-none"
-          />
+            />
+          )}
           </div>
       <Footer />
     </div>
