@@ -17,9 +17,7 @@ import {
 import { AdminPublicaciones } from "./components/AdminPublicaciones/AdminPublicaciones";
 import { AdminUsuarios } from "./components/AdminUsuarios/AdminUsuarios";
 import AdoptarScreen from "./pages/WhatDoScreen/AdoptarScreen.jsx";
-import AdopcionesScreen from "./pages/MediaScreen/AdopcionesScreen.jsx";
-import PerdidosScreen from "./pages/MediaScreen/PerdidosScreen.jsx";
-import EncontradosScreen from "./pages/MediaScreen/EncontradosScreen.jsx";
+import MediaScreen from "./pages/MediaScreen/MediaScreen.jsx";
 import PublicacionesPage from "./pages/PublicacionesPages/PublicacionesPage.jsx";
 import PublicacionesExitosas from "./pages/PublicacionesPages/PublicacionesExitosas.jsx";
 import { AuthContext } from "./context/AuthContext";
@@ -120,9 +118,9 @@ function App() {
           <Route path="/consejos-perdi" element={<PerdiScreen user={user} />} />
           <Route path="/consejos-encontre" element={<EncontreScreen user={user} />} />
           <Route path="/consejos-adopcion" element={<AdoptarScreen user={user} />} />
-          <Route path="/perdidos-informacion" element={<PerdidosScreen user={user} />} />
-          <Route path="/encontrados-informacion" element={<EncontradosScreen user={user} />} />
-          <Route path="/adopciones-informacion" element={<AdopcionesScreen user={user} />} />
+          <Route path="/perdidos-informacion" element={<MediaScreen type="perdidos" />} />
+          <Route path="/encontrados-informacion" element={<MediaScreen type="encontrados" />} />
+          <Route path="/adopciones-informacion" element={<MediaScreen type="adopciones" />} />
           <Route path="/casos-ayuda" element={<CasosAyudaScreen user={user} />} />
           <Route path="/contacto" element={<ContactScreen user={user} />} />
 

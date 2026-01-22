@@ -11,7 +11,7 @@ const formatFecha = (fecha) => {
   });
 };
 
-const CardGenerica = ({ publicacion, cardId }) => {
+const CardGenerica = ({ publicacion, cardId, isSuccessful = false }) => {
   const [flipped, setFlipped] = useState(false);
   const [copied, setCopied] = useState(false);
   const withAuth = useRequireAuth();
@@ -274,6 +274,7 @@ const CardGenerica = ({ publicacion, cardId }) => {
               (Click para VOLVER ATRÁS)
             </p>
           </div>
+          {!isSuccessful && (
           <button
             onClick={handleCopyLink}
             className={`mt-3 w-full text-sm border border-[#FF7857]/40 cursor-pointer font-medium px-4 py-2 rounded-full transition-colors delay-100 duration-300 ${
@@ -284,7 +285,8 @@ const CardGenerica = ({ publicacion, cardId }) => {
           >
             {copied ? "¡Enlace copiado! " : "Compartir publicación"}
           </button>
-          {whatsappLink && (
+          )}
+          {!isSuccessful && whatsappLink && (
             <a
               onClick={(e) => {
                 e.preventDefault();
