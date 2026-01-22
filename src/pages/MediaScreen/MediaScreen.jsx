@@ -4,22 +4,39 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { CrearPublicacion } from "../../components/CrearPublicacion/CrearPublicacion";
 import { useRequireAuth } from "../../hooks/useRequireAuth";
+import { mediaScreenConfig } from "./mediaScreenConfig";
 
-const PerdidosScreen = () => {
+const MediaScreen = ({ type = "adopciones" }) => {
   const navigate = useNavigate();
   const withAuth = useRequireAuth();
+
+  const config = mediaScreenConfig[type];
+
+  if (!config) {
+    return <div>Tipo no válido</div>;
+  }
+
+  const handleAction = (action) => {
+    if (action.type === "navigate") {
+      navigate(action.path);
+      window.scrollTo(0, 0);
+    } else if (action.type === "createPost") {
+      withAuth(() => CrearPublicacion.openModal());
+    }
+  };
+
   return (
     <div>
       <Navbar />
       <div
         className="w-full font-medium min-h-screen text-white px-4 md:px-10"
         style={{
-          backgroundImage: `url(${import.meta.env.VITE_MEDIA_IMG_URL})`,
+          backgroundImage: `linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url(${import.meta.env.VITE_MEDIA_IMG_URL})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
       >
-        <div className="flex flex-col items-center gap-10 pt-40 lg:pt-60">
+        <div className="flex flex-col items-center pt-40 lg:pt-60">
           <motion.p
             className="text-3xl text-center"
             initial={{ opacity: 0, filter: "blur(4px)", y: 10 }}
@@ -30,10 +47,13 @@ const PerdidosScreen = () => {
               ease: "easeInOut",
             }}
           >
-            Sección de animales PERDIDOS
+            {config.title}
           </motion.p>
+          <p className="text-red-600 text-center sm:text-6xl text-5xl font-semibold">
+            {config.tipo}
+          </p>
           <motion.div
-            className="w-full flex flex-col sm:flex-row sm:flex-wrap lg:flex-nowrap justify-center items-center gap-10 px-4 mb-15"
+            className="mt-20 w-full flex flex-col justify-center items-center gap-5 px-4 mb-15"
             initial={{
               opacity: 0,
             }}
@@ -45,48 +65,25 @@ const PerdidosScreen = () => {
               delay: 0.8,
             }}
           >
-            <div className="bg-white/20 rounded-lg p-10 w-80 border border-white/20 text-center">
-              <p>
-                Este apartado fue creado para quienes deseen visualizar todos
-                los animales PERDIDOS de la comunidad.
-              </p>
-              <button
-                onClick={() => {
-                  navigate("/publicaciones/perdidos");
-                  window.scrollTo(0, 0);
-                }}
-                className="mt-10 items-end text-white border border-white/40 w-50 h-11 rounded-full bg-white/60 hover:bg-[#FF7857] transition-colors delay-100 duration-300"
-              >
-                Ver todos los anuncios
-              </button>
-            </div>
-            <div className="bg-white/20 rounded-lg p-10 w-80 border border-white/20 text-center">
-              <p>
-                Aquí podrás crear los anuncios de los animales que perdiste y
-                poder obtener una ayuda de la comunidad.
-              </p>
-              <button
-                onClick={() => withAuth(() => CrearPublicacion.openModal())}
-                className="mt-10 text-white border border-white/40 font-medium w-50 h-11 rounded-full bg-white/60 hover:bg-[#FF7857] transition-colors delay-100 duration-300"
-              >
-                Crear publicación
-              </button>
-            </div>
-            <div className="bg-white/20 rounded-lg p-10 w-80 border border-white/20 text-center">
-              <p>
-                En esta sección podrás consultar información útil sobre qué
-                hacer en caso de que hayas perdido un animal.
-              </p>
-              <button
-                onClick={() => {
-                  navigate("/consejos-perdi");
-                  window.scrollTo(0, 0);
-                }}
-                className="mt-10 text-white border border-white/40 font-medium w-50 h-11 rounded-full bg-white/60 hover:bg-[#FF7857] transition-colors delay-100 duration-300"
-              >
-                ¿Qué hacer?
-              </button>
-            </div>
+            {config.cards.map((card) => (
+              card.id === "advice" ? (
+                <button
+                  onClick={() => handleAction(card.action)}
+                  className="text-red-600 font-medium hover:underline transition-all duration-300"
+                >
+                  {card.buttonText}
+                </button>
+              ) : (
+                <button
+                  onClick={() => handleAction(card.action)}
+                  className={`text-white border border-white/40 font-medium w-50 h-11 rounded-full bg-white/60 hover:bg-[#FF7857] transition-colors delay-100 duration-300 ${
+                    card.id === "view" ? "items-end" : ""
+                  }`}
+                >
+                  {card.buttonText}
+                </button>
+              )
+            ))}
           </motion.div>
           <motion.div
             className="w-full flex flex-col sm:flex-row sm:flex-wrap lg:flex-nowrap justify-center items-center gap-10 px-4 mb-15"
@@ -101,7 +98,7 @@ const PerdidosScreen = () => {
               delay: 0.8,
             }}
           >
-            <div className="bg-white/20 rounded-lg p-6 w-full border border-white/20 text-left mb-15">
+            <div className="rounded-lg p-6 w-full italic text-left mb-15">
               Esta página solicita únicamente tu nombre y un número de contacto
               telefónico, los cuales se incorporan al perfil y a las
               publicaciones con el solo fin de poder contactarte para informarte
@@ -135,4 +132,4 @@ const PerdidosScreen = () => {
   );
 };
 
-export default PerdidosScreen;
+export default MediaScreen;

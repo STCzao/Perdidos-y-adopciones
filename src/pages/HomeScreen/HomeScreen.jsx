@@ -107,72 +107,93 @@ const HomeScreen = () => {
     <div>
       <Navbar />
       <div
-        className="w-full font-medium min-h-screen text-white flex flex-col items-center justify-center px-4 md:px-10"
+        className="w-full min-h-screen flex items-center justify-center text-white relative"
         style={{
           backgroundImage: `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url(${import.meta.env.VITE_HOME_IMG_URL})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
       >
-        <div className="flex flex-col justify-center items-center text-white/90 max-w-4xl">
-          <motion.p
-            initial={{ opacity: 0, y: 10 }}
+        <div className="max-w-4xl text-center px-4 sm:px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="border italic border-white/20 gap-10 text-center font-medium mt-15 flex flex-col p-4 sm:p-5 w-full sm:w-11/12 md:w-full text-base sm:text-lg md:text-xl rounded-lg bg-white/20 mb-8 text-center"
+            transition={{ duration: 0.6, delay: 0.2 }}
           >
-            “Amar y ser amable con los animales nos acerca a nuestra verdadera
-            naturaleza humana.”
-            <span className="text-sm">Dalai Lama</span>
-          </motion.p>
-        </div>
-        <div className="flex flex-col justify-center items-center text-center text-white/90 max-w-4xl mb-10">
-          <motion.p
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-          >
-            Desde acá podés elegir qué tipo de consulta o aviso querés hacer:
-          </motion.p>
-        </div>
-        <div className="mb-10 grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto">
-          {/* Primera fila - 3 botones */}
-          <motion.button
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="border cursor-pointer border-white/20 font-medium w-50 h-11 rounded-full text-white bg-white/20 hover:bg-[#FF7857] transition-colors delay-100 duration-300 col-span-1"
-            onClick={() => {
-              navigate("/perdidos-informacion");
-              window.scrollTo(0, 0);
-            }}
-          >
-            Perdidos
-          </motion.button>
-          <motion.button
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="border cursor-pointer border-white/20 font-medium w-50 h-11 rounded-full text-white bg-white/20 hover:bg-[#FF7857] transition-colors delay-100 duration-300 col-span-1"
-            onClick={() => {
-              navigate("/encontrados-informacion");
-              window.scrollTo(0, 0);
-            }}
-          >
-            Encontrados
-          </motion.button>
-          <motion.button
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="border cursor-pointer border-white/20 font-medium w-50 h-11 rounded-full text-white bg-white/20 hover:bg-[#FF7857] transition-colors delay-100 duration-300 col-span-1"
-            onClick={() => {
-              navigate("/adopciones-informacion");
-              window.scrollTo(0, 0);
-            }}
-          >
-            Adopciones
-          </motion.button>
+            <p className="flex ml-4 sm:ml-12 lg:ml-27 italic uppercase text-white/90 text-lg sm:text-2xl lg:text-3xl font-semibold">
+              BASE DE DATOS
+            </p>
+            <span className="flex ml-8 sm:ml-24 lg:ml-42 text-lg sm:text-2xl lg:text-3xl italic">
+              de animales
+            </span>
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white">
+              <span className="text-[#FF7857]">perdidos y en adopción</span>
+            </h1>
+            <span className="flex justify-end text-lg sm:text-2xl lg:text-3xl mr-4 sm:mr-12 lg:mr-28 italic text-white">
+              {" "}
+              de Tucumán
+            </span>
+            <p className="mt-6 text-white/90 text-base sm:text-lg lg:text-xl max-w-2xl italic mx-auto">
+              Una herramienta comunitaria para registrar y mantener visibles los
+              casos
+            </p>
+
+            <p className="mt-6 text-sm sm:text-base font-semibold">
+              Consultar o publicar:
+            </p>
+
+            <div className="mt-6 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center">
+              <motion.button
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+                className="border cursor-pointer border-white/20 font-medium w-50 h-11 rounded-full text-white bg-white/20 hover:bg-[#FF7857] transition-colors delay-100 duration-300 col-span-1"
+                onClick={() => {
+                  navigate("/perdidos-informacion");
+                  window.scrollTo(0, 0);
+                }}
+              >
+                Perdidos
+              </motion.button>
+              <motion.button
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+                className="border cursor-pointer border-white/20 font-medium w-50 h-11 rounded-full text-white bg-white/20 hover:bg-[#FF7857] transition-colors delay-100 duration-300 col-span-1"
+                onClick={() => {
+                  navigate("/encontrados-informacion");
+                  window.scrollTo(0, 0);
+                }}
+              >
+                Encontrados
+              </motion.button>
+              <motion.button
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+                className="border cursor-pointer border-white/20 font-medium w-50 h-11 rounded-full text-white bg-white/20 hover:bg-[#FF7857] transition-colors delay-100 duration-300 col-span-1"
+                onClick={() => {
+                  navigate("/adopciones-informacion");
+                  window.scrollTo(0, 0);
+                }}
+              >
+                Adopciones
+              </motion.button>
+            </div>
+
+            <motion.blockquote
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.45 }}
+              className="mt-10 text-center text-[#FF7857] italic font-semibold text-xs sm:text-sm lg:text-base"
+            >
+              "Amar y ser amable con los Animales nos acerca a nuestra verdadera
+              naturaleza humana"
+            </motion.blockquote>
+            <p className="text-white font-semibold text-xs sm:text-sm mt-2">
+              Dalai Lama
+            </p>
+          </motion.div>
         </div>
       </div>
       <div className="flex flex-col items-center gap-10 font-medium py-20 bg-[#e6dac6]">
