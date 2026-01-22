@@ -15,6 +15,12 @@ const HomeScreen = () => {
   const [adopcionesCount, setAdopcionesCount] = useState(0);
   const navigate = useNavigate();
 
+  const estadosExitosos = ["YA APARECIO", "APARECIO SU FAMILIA", "ADOPTADO"];
+
+  const isPublicacionExitosa = (publicacion) => {
+    return estadosExitosos.includes(publicacion.estado);
+  };
+
   const obtenerTotalPorTipo = async (tipo) => {
     const firstRes = await publicacionesService.getPublicaciones({
       page: 1,
@@ -320,7 +326,7 @@ const HomeScreen = () => {
           <>
             <div className="grid gap-6 grid-cols-1 justify-items-center sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 flex items-center 2xl:grid-cols-4 px-4 w-full mx-auto">
               {perdidos.map((pub) => (
-                <CardGenerica key={pub._id} publicacion={pub} />
+                <CardGenerica key={pub._id} publicacion={pub} isSuccessful={isPublicacionExitosa(pub)} />
               ))}
             </div>
 
@@ -352,7 +358,7 @@ const HomeScreen = () => {
           <>
             <div className="grid gap-6 grid-cols-1 justify-items-center sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 flex items-center 2xl:grid-cols-4 px-4 w-full mx-auto">
               {encontrados.map((pub) => (
-                <CardGenerica key={pub._id} publicacion={pub} />
+                <CardGenerica key={pub._id} publicacion={pub} isSuccessful={isPublicacionExitosa(pub)} />
               ))}
             </div>
             <button

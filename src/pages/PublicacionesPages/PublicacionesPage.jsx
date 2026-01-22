@@ -6,13 +6,14 @@ import CardFiltro from "../../components/CardFiltro/CardFiltro";
 import { useEffect, useState } from "react";
 import { publicacionesService } from "../../services/publicaciones";
 import { CrearPublicacion } from "../../components/CrearPublicacion/CrearPublicacion";
-import { useParams, useLocation } from "react-router-dom";
+import { useParams, useLocation, useNavigate } from "react-router-dom";
 import ReactPaginate from "react-paginate";
 import { useRequireAuth } from "../../hooks/useRequireAuth";
 
 const PublicacionesPage = () => {
   const { tipo } = useParams();
   const location = useLocation();
+  const navigate = useNavigate();
   const withAuth = useRequireAuth();
 
   const [publicaciones, setPublicaciones] = useState([]);
@@ -125,9 +126,45 @@ const PublicacionesPage = () => {
           }, 200);
         }
         setHashProcessed(true); // Marcar como procesado
+      } else {
+        // Si no encuentra la publicación, verifica si está en las exitosas
+        checkIfInSuccessfulPublications(id);
       }
     }
   }, [location.hash, loading, publicacionesFiltradasTotales]);
+
+  // Función para verificar si la publicación está en las exitosas
+  const checkIfInSuccessfulPublications = async (publicacionId) => {
+    try {
+      // Buscar en cada estado exitoso
+      const estadosExitosos = ["YA APARECIO", "APARECIO SU FAMILIA", "ADOPTADO"];
+      
+      for (const estado of estadosExitosos) {
+        const res = await publicacionesService.getPublicaciones({
+          page: 1,
+          limit: 100,
+          estado: estado,
+        });
+
+        const encontrada = (res?.publicaciones || []).find(
+          (pub) => pub._id === publicacionId
+        );
+
+        if (encontrada) {
+          // Redirigir a PublicacionesExitosas con el hash
+          navigate(`/casos-exito#${publicacionId}`);
+          setHashProcessed(true);
+          return;
+        }
+      }
+      
+      // Si no la encontró en ningún lado, marcar como procesado
+      setHashProcessed(true);
+    } catch (error) {
+      console.error("Error buscando publicación exitosa:", error);
+      setHashProcessed(true);
+    }
+  };
 
   // Scroll después de cambiar de página
   useEffect(() => {
@@ -155,8 +192,13 @@ const PublicacionesPage = () => {
         const primeras = firstRes?.publicaciones || [];
         const totalPagesAll = firstRes?.totalPages || 1;
 
+        // Filtrar publicaciones para excluir los estados exitosos
+        const primeresFiltradas = primeras.filter(
+          (pub) => !estadosExcluidos.includes(pub.estado)
+        );
+
         if (totalPagesAll <= 1) {
-          setPublicacionesTodas(primeras);
+          setPublicacionesTodas(primeresFiltradas);
           return;
         }
 
@@ -173,7 +215,13 @@ const PublicacionesPage = () => {
 
         const results = await Promise.all(requests);
         const resto = results.flatMap((res) => res?.publicaciones || []);
-        setPublicacionesTodas([...primeras, ...resto]);
+        
+        // Filtrar publicaciones para excluir los estados exitosos
+        const restoFiltrado = resto.filter(
+          (pub) => !estadosExcluidos.includes(pub.estado)
+        );
+        
+        setPublicacionesTodas([...primeresFiltradas, ...restoFiltrado]);
       } finally {
         setLoadingTotal(false);
       }

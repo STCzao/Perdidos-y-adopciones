@@ -3,11 +3,14 @@ import Footer from "../../components/Footer/Footer";
 import { motion } from "framer-motion";
 import CardGenerica from "../../components/CardGenerica/CardGenerica";
 import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { publicacionesService } from "../../services/publicaciones";
 
 const PublicacionesExitosas = () => {
+  const location = useLocation();
   const [publicaciones, setPublicaciones] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [hashProcessed, setHashProcessed] = useState(false);
 
   // Estados que representan casos exitosos
   const estadosExitosos = ["YA APARECIO", "APARECIO SU FAMILIA", "ADOPTADO"];
@@ -51,6 +54,34 @@ const PublicacionesExitosas = () => {
     fetchPublicacionesExitosas();
   }, []);
 
+  useEffect(() => {
+    const id = location.hash.slice(1); // Elimina el #
+    if (id && !loading && !hashProcessed && publicacionesFiltradasTotales.length > 0) {
+      // Busca en qué página está la tarjeta
+      const tarjetaIndex = publicacionesFiltradasTotales.findIndex(
+        (pub) => pub._id === id
+      );
+
+      if (tarjetaIndex !== -1) {
+        const tarjetaPagina = Math.floor(tarjetaIndex / 12) + 1;
+        
+        // Si está en otra página, navega a esa página
+        if (tarjetaPagina !== page) {
+          setPage(tarjetaPagina);
+        } else {
+          // Si ya está en la página actual, haz scroll
+          setTimeout(() => {
+            const element = document.getElementById(id);
+            if (element) {
+              element.scrollIntoView({ behavior: "smooth", block: "center" });
+            }
+          }, 200);
+        }
+        setHashProcessed(true); // Marcar como procesado
+      }
+    }
+  }, [location.hash, hashProcessed]);
+
   return (
     <div>
       <Navbar />
@@ -84,7 +115,7 @@ const PublicacionesExitosas = () => {
                       transition={{ duration: 0.3 }}
                       className="w-full h-[36rem] flex justify-center"
                     >
-                      <CardGenerica publicacion={pub} cardId={pub._id} />
+                      <CardGenerica publicacion={pub} cardId={pub._id} isSuccessful={true} />
                     </motion.div>
                   );
                 } catch (error) {
