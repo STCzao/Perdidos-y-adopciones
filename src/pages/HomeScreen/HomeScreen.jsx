@@ -314,7 +314,7 @@ const HomeScreen = () => {
           }}
           className="mt-3 text-black border border-[#FF7857]/40 cursor-pointer font-medium w-50 h-11 rounded-full bg-white/90 shadow-sm hover:bg-[#FF7857] hover:text-black transition-colors delay-100 duration-300"
         >
-          Ver casos de éxito
+          Ver casos resueltos
         </motion.button>
       </div>
       <div className="flex flex-col items-center gap-15 font-medium py-20 bg-[#e6dac6]">

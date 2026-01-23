@@ -88,7 +88,7 @@ const PublicacionesExitosas = () => {
       <div className="min-h-screen bg-[#e6dac6] pt-35 px-4">
         <div className="flex flex-col items-center gap-2 px-4 text-center mb-10">
           <h2 className="text-3xl md:text-4xl text-blackrounded-full py-2 px-5 font-bold tracking-[0.05em]">
-            Casos de Éxito
+            Casos resueltos
           </h2>
           <p className="text-sm font-semibold md:text-base text-center max-w-xl mx-auto px-4 text-black">
             Estas no son solo historias de mascotas. Son historias de familias

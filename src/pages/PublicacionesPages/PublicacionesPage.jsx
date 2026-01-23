@@ -237,8 +237,9 @@ const PublicacionesPage = () => {
         const resto = results.flatMap((res) => res?.publicaciones || []);
         
         // Filtrar publicaciones para excluir los estados exitosos
+        // Solo excluir si el estado existe y está en la lista de excluidos
         const restoFiltrado = resto.filter(
-          (pub) => !estadosExcluidos.includes(pub.estado)
+          (pub) => !pub.estado || !estadosExcluidos.includes(pub.estado)
         );
         
         setPublicacionesTodas([...primeresFiltradas, ...restoFiltrado]);
