@@ -205,7 +205,7 @@ const PublicacionesPage = () => {
       try {
         const firstRes = await publicacionesService.getPublicaciones({
           page: 1,
-          limit: 100,
+          limit: 12,
           tipo: mapTipos[tipo],
         });
 
@@ -227,7 +227,7 @@ const PublicacionesPage = () => {
           requests.push(
             publicacionesService.getPublicaciones({
               page: p,
-              limit: 100,
+              limit: 12,
               tipo: mapTipos[tipo],
             })
           );
