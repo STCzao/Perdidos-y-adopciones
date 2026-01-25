@@ -8,22 +8,49 @@ export const adminService = {
   getTodasPublicaciones: async () => {
     try {
       const token = localStorage.getItem("token");
-      const resp = await fetch(`${API_URL}/publicaciones/admin/todas`, {
+      
+      // Obtener primera página para saber el total
+      const firstRes = await fetch(`${API_URL}/publicaciones/admin/todas?page=1&limit=12`, {
         headers: { "x-token": token || "" },
       });
 
-      if (!resp.ok) {
+      if (!firstRes.ok) {
         let errorMsg = "Error al obtener publicaciones";
-        const errorData = await resp.json().catch(() => ({}));
+        const errorData = await firstRes.json().catch(() => ({}));
         return {
           success: false,
-          msg: errorData.Msg || errorMsg,
+          msg: errorData.msg || errorMsg,
         };
       }
 
-      const data = await resp.json();
-      return { success: true, publicaciones: data.publicaciones || [] };
+      const firstData = await firstRes.json();
+      const publicacionesFirstPage = firstData.publicaciones || [];
+      const totalPages = firstData.totalPages || 1;
+
+      // Si solo hay una página, retornar eso
+      if (totalPages <= 1) {
+        return { success: true, publicaciones: publicacionesFirstPage };
+      }
+
+      // Obtener el resto de las páginas en paralelo
+      const requests = [];
+      for (let p = 2; p <= totalPages; p++) {
+        requests.push(
+          fetch(`${API_URL}/publicaciones/admin/todas?page=${p}&limit=12`, {
+            headers: { "x-token": token || "" },
+          }).then(res => res.json())
+        );
+      }
+
+      const results = await Promise.all(requests);
+      const restPublicaciones = results.flatMap(res => res.publicaciones || []);
+
+      return { 
+        success: true, 
+        publicaciones: [...publicacionesFirstPage, ...restPublicaciones] 
+      };
     } catch (error) {
+      console.error("Error en getTodasPublicaciones:", error);
       return { success: false, msg: "Error de conexión al servidor" };
     }
   },
