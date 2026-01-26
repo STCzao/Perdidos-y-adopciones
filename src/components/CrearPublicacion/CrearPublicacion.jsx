@@ -163,6 +163,21 @@ export const CrearPublicacion = {
           delete newErrors.castrado;
           return newErrors;
         });
+      } else if (name === "whatsapp") {
+        // Solo permitir números para WhatsApp
+        const numericValue = value.replace(/\D/g, "");
+        setForm((prev) => ({
+          ...prev,
+          [name]: numericValue,
+        }));
+
+        if (errors[name]) {
+          setErrors((prev) => {
+            const newErrors = { ...prev };
+            delete newErrors[name];
+            return newErrors;
+          });
+        }
       } else {
         setForm((prev) => ({
           ...prev,
@@ -284,11 +299,14 @@ export const CrearPublicacion = {
       if (!form.whatsapp.trim()) {
         newErrors.whatsapp = "El WhatsApp es obligatorio";
         valid = false;
-      } else if (!/^\+?[0-9\s\-()]{10,15}$/.test(form.whatsapp)) {
-        newErrors.whatsapp = "El formato de WhatsApp no es válido";
+      } else if (!/^[0-9]+$/.test(form.whatsapp)) {
+        newErrors.whatsapp = "El WhatsApp solo debe contener números";
         valid = false;
-      } else if (form.whatsapp.length > 16) {
-        newErrors.whatsapp = "El WhatsApp no puede tener mas de 15 caracteres";
+      } else if (form.whatsapp.length < 10) {
+        newErrors.whatsapp = "El WhatsApp debe tener al menos 10 dígitos";
+        valid = false;
+      } else if (form.whatsapp.length > 15) {
+        newErrors.whatsapp = "El WhatsApp no puede tener más de 15 dígitos";
         valid = false;
       }
 
@@ -813,12 +831,13 @@ export const CrearPublicacion = {
                 </label>
                 <div className="flex items-center w-full bg-white border border-gray-300/80 h-12 rounded-full overflow-hidden pl-6 gap-2">
                   <input
-                    type="text"
+                    type="tel"
                     name="whatsapp"
-                    placeholder="Ingrese un número de teléfono válido *"
+                    placeholder="Ej: 38123456789 (solo números, 10-15 dígitos) *"
                     value={form.whatsapp}
                     onChange={handleChange}
                     disabled={submitting}
+                    maxLength={15}
                     className="bg-transparent text-gray-500 placeholder-gray-500 outline-none text-sm w-full h-full"
                   />
                 </div>
