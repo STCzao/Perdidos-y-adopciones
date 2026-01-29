@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { LazyLoadImage } from "react-lazy-load-image-component";
 import { useRequireAuth } from "../../hooks/useRequireAuth";
 
 const formatFecha = (fecha) => {
@@ -38,8 +39,8 @@ const CardGenerica = ({ publicacion, cardId, isSuccessful = false }) => {
   } = publicacion;
 
   // Generar enlace de WhatsApp con código de país de Argentina (549)
-  const whatsappLink = whatsapp 
-    ? `https://wa.me/549${whatsapp.replace(/\D/g, '')}` 
+  const whatsappLink = whatsapp
+    ? `https://wa.me/549${whatsapp.replace(/\D/g, "")}`
     : null;
 
   const mapTipos = {
@@ -98,17 +99,19 @@ const CardGenerica = ({ publicacion, cardId, isSuccessful = false }) => {
             {img && (
               <div className="relative w-full h-70 rounded-xl overflow-hidden mb-2 bg-[#e6dac6]">
                 {/* Fondo relleno blur */}
-                <img
+                <LazyLoadImage
                   src={img}
                   alt="background"
                   className="absolute inset-0 w-full h-full object-cover blur-lg scale-110 opacity-60"
+                  loading="lazy"
                 />
 
                 {/* Imagen real */}
-                <img
+                <LazyLoadImage
                   src={img}
                   alt="Imagen"
                   className="relative z-10 max-h-full max-w-full mx-auto object-contain drop-shadow-sm"
+                  loading="lazy"
                 />
               </div>
             )}
@@ -202,12 +205,11 @@ const CardGenerica = ({ publicacion, cardId, isSuccessful = false }) => {
           }`}
         >
           <div className="text-sm text-black/85 overflow-auto flex-1">
-
-          {tipo === "PERDIDO" && (
-                  <span className="text-xl mb-2 text-[#FF0000] flex justify-center items-center font-extrabold">
-                    {nombreanimal}
-                  </span>
-                )}
+            {tipo === "PERDIDO" && (
+              <span className="text-xl mb-2 text-[#FF0000] flex justify-center items-center font-extrabold">
+                {nombreanimal}
+              </span>
+            )}
             {tipo === "ADOPCION" && (
               <>
                 {nombreanimal && (
@@ -215,7 +217,7 @@ const CardGenerica = ({ publicacion, cardId, isSuccessful = false }) => {
                     {nombreanimal}
                   </span>
                 )}
-                
+
                 {afinidad && (
                   <p className="font-light">
                     <span className="font-semibold">Afinidad con niños:</span>{" "}
@@ -278,16 +280,16 @@ const CardGenerica = ({ publicacion, cardId, isSuccessful = false }) => {
             </p>
           </div>
           {!isSuccessful && (
-          <button
-            onClick={handleCopyLink}
-            className={`mt-3 w-full text-sm border border-[#FF7857]/40 cursor-pointer font-medium px-4 py-2 rounded-full transition-colors delay-100 duration-300 ${
-              copied
-                ? "bg-[#FF7857] text-white"
-                : "text-black bg-white/90 shadow-sm hover:bg-[#FF7857] hover:text-white"
-            }`}
-          >
-            {copied ? "¡Enlace copiado! " : "Compartir publicación"}
-          </button>
+            <button
+              onClick={handleCopyLink}
+              className={`mt-3 w-full text-sm border border-[#FF7857]/40 cursor-pointer font-medium px-4 py-2 rounded-full transition-colors delay-100 duration-300 ${
+                copied
+                  ? "bg-[#FF7857] text-white"
+                  : "text-black bg-white/90 shadow-sm hover:bg-[#FF7857] hover:text-white"
+              }`}
+            >
+              {copied ? "¡Enlace copiado! " : "Compartir publicación"}
+            </button>
           )}
           {!isSuccessful && whatsappLink && (
             <a

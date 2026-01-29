@@ -21,34 +21,21 @@ const HomeScreen = () => {
     return estadosExitosos.includes(publicacion.estado);
   };
 
+  // Optimizado: usa el campo 'total' de la respuesta en lugar de hacer múltiples requests
   const obtenerTotalPorTipo = async (tipo) => {
-    const firstRes = await publicacionesService.getPublicaciones({
-      page: 1,
-      limit: 100,
-      tipo,
-    });
+    try {
+      const response = await publicacionesService.getPublicaciones({
+        page: 1,
+        limit: 1, // Solo necesitamos el contador, no los datos
+        tipo,
+      });
 
-    const primeras = firstRes?.publicaciones || [];
-    const totalPagesAll = firstRes?.totalPages || 1;
-
-    if (totalPagesAll <= 1) {
-      return primeras.length;
+      // La API devuelve el total de publicaciones en la respuesta
+      return response?.total || response?.publicaciones?.length || 0;
+    } catch (error) {
+      console.error(`Error obteniendo total de ${tipo}:`, error);
+      return 0;
     }
-
-    const requests = [];
-    for (let p = 2; p <= totalPagesAll; p++) {
-      requests.push(
-        publicacionesService.getPublicaciones({
-          page: p,
-          limit: 100,
-          tipo,
-        }),
-      );
-    }
-
-    const results = await Promise.all(requests);
-    const resto = results.flatMap((res) => res?.publicaciones || []);
-    return primeras.length + resto.length;
   };
 
   useEffect(() => {

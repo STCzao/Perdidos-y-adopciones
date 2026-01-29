@@ -101,10 +101,27 @@ export default function RegisterScreen() {
         }
       } else {
         localStorage.setItem("token", data.token);
+        
+        // Guardar refreshToken si viene
+        if (data.refreshToken) {
+          localStorage.setItem("refreshToken", data.refreshToken);
+        }
+        
         setResult("¡Registro exitoso!");
         setForm({ nombre: "", correo: "", password: "", telefono: "" });
         setErrors({});
-        setTimeout(() => navigate("/"), 2000);
+        
+        // Verificar si hay una URL de retorno guardada
+        const returnUrl = localStorage.getItem("returnUrl");
+        
+        setTimeout(() => {
+          if (returnUrl) {
+            localStorage.removeItem("returnUrl");
+            navigate(returnUrl);
+          } else {
+            navigate("/");
+          }
+        }, 2000);
       }
     } catch (error) {
       console.error(error);

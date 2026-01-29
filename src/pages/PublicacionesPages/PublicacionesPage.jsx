@@ -16,13 +16,12 @@ const PublicacionesPage = () => {
   const navigate = useNavigate();
   const withAuth = useRequireAuth();
 
-  const [publicaciones, setPublicaciones] = useState([]);
-  const [publicacionesTodas, setPublicacionesTodas] = useState([]);
+  const [todasLasPublicaciones, setTodasLasPublicaciones] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [loadingTotal, setLoadingTotal] = useState(false);
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const [hashProcessed, setHashProcessed] = useState(false);
+  
+  const ITEMS_PER_PAGE = 12;
 
   const [filtros, setFiltros] = useState({
     raza: "",
@@ -50,29 +49,62 @@ const PublicacionesPage = () => {
     encontrados: "Animales encontrados",
   };
 
+  // Cargar TODAS las publicaciones sin filtrar estados exitosos desde el backend
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchAllPublicaciones = async () => {
       setLoading(true);
+      try {
+        const firstRes = await publicacionesService.getPublicaciones({
+          page: 1,
+          limit: 100,
+          tipo: mapTipos[tipo],
+        });
 
-      const res = await publicacionesService.getPublicaciones({
-        page,
-        limit: 12,
-        tipo: mapTipos[tipo],
-      });
+        const primeras = firstRes?.publicaciones || [];
+        const totalPagesAll = firstRes?.totalPages || 1;
 
-      // Filtrar publicaciones para excluir los estados exitosos
-      const publicacionesFiltradas = (res?.publicaciones || []).filter(
-        (pub) => !estadosExcluidos.includes(pub.estado)
-      );
+        if (totalPagesAll <= 1) {
+          // Filtrar estados exitosos
+          const filtradas = primeras.filter(
+            (pub) => !estadosExcluidos.includes(pub.estado)
+          );
+          setTodasLasPublicaciones(filtradas);
+          setLoading(false);
+          return;
+        }
 
-      setPublicaciones(publicacionesFiltradas);
-      setTotalPages(res?.totalPages || 1);
+        // Cargar todas las páginas
+        const requests = [];
+        for (let p = 2; p <= totalPagesAll; p++) {
+          requests.push(
+            publicacionesService.getPublicaciones({
+              page: p,
+              limit: 100,
+              tipo: mapTipos[tipo],
+            })
+          );
+        }
 
-      setLoading(false);
+        const results = await Promise.all(requests);
+        const resto = results.flatMap((res) => res?.publicaciones || []);
+        
+        // Combinar y filtrar estados exitosos
+        const todas = [...primeras, ...resto];
+        const filtradas = todas.filter(
+          (pub) => !estadosExcluidos.includes(pub.estado)
+        );
+        
+        setTodasLasPublicaciones(filtradas);
+      } catch (error) {
+        console.error("Error cargando publicaciones:", error);
+        setTodasLasPublicaciones([]);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    fetchData();
-  }, [page, tipo]);
+    fetchAllPublicaciones();
+  }, [tipo]);
 
   useEffect(() => {
     setPage(1);
@@ -98,19 +130,28 @@ const PublicacionesPage = () => {
     });
   };
 
-  const publicacionesFiltradasPagina = filtrarPublicaciones(publicaciones);
-  const publicacionesFiltradasTotales = filtrarPublicaciones(publicacionesTodas);
-
-  // Determina si hay algún filtro activo (para mostrar resultados globales)
+  // Aplicar filtros
+  const publicacionesFiltradas = filtrarPublicaciones(todasLasPublicaciones);
+  
+  // Ordenar globalmente por fecha ANTES de paginar
+  const publicacionesOrdenadas = [...publicacionesFiltradas].sort(
+    (a, b) => new Date(b.fecha || 0) - new Date(a.fecha || 0)
+  );
+  
+  // Determina si hay algún filtro activo
   const isFiltering = Object.values(filtros).some(
     (v) => v !== undefined && v !== null && String(v).trim() !== ""
   );
 
-  // Lista a mostrar: si se está filtrando, mostrar todas las coincidencias (precision),
-  // si no, mostrar únicamente las de la página actual
+  // Paginación del lado del cliente
+  const totalPages = Math.ceil(publicacionesOrdenadas.length / ITEMS_PER_PAGE);
+  const startIndex = (page - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  
+  // Si hay filtros, mostrar todas; sino, mostrar solo la página actual
   const displayPublicaciones = isFiltering
-    ? publicacionesFiltradasTotales
-    : publicacionesFiltradasPagina;
+    ? publicacionesOrdenadas
+    : publicacionesOrdenadas.slice(startIndex, endIndex);
 
   // Si se activa un filtro, asegurarse de mostrar desde la primera "página"
   // (evita ver coincidencias divididas entre páginas). También scrollear arriba.
@@ -124,14 +165,14 @@ const PublicacionesPage = () => {
   // Scroll a la tarjeta si viene con hash (solo una vez al cargar)
   useEffect(() => {
     const id = location.hash.slice(1); // Elimina el #
-    if (id && !loading && !hashProcessed && publicacionesFiltradasTotales.length > 0) {
+    if (id && !loading && !hashProcessed && publicacionesOrdenadas.length > 0) {
       // Busca en qué página está la tarjeta
-      const tarjetaIndex = publicacionesFiltradasTotales.findIndex(
+      const tarjetaIndex = publicacionesOrdenadas.findIndex(
         (pub) => pub._id === id
       );
 
       if (tarjetaIndex !== -1) {
-        const tarjetaPagina = Math.floor(tarjetaIndex / 12) + 1;
+        const tarjetaPagina = Math.floor(tarjetaIndex / ITEMS_PER_PAGE) + 1;
         
         // Si está en otra página, navega a esa página
         if (tarjetaPagina !== page) {
@@ -151,7 +192,7 @@ const PublicacionesPage = () => {
         checkIfInSuccessfulPublications(id);
       }
     }
-  }, [location.hash, loading, publicacionesFiltradasTotales]);
+  }, [location.hash, loading, publicacionesOrdenadas]);
 
   // Función para verificar si la publicación está en las exitosas
   const checkIfInSuccessfulPublications = async (publicacionId) => {
@@ -199,58 +240,6 @@ const PublicacionesPage = () => {
     }
   }, [page, loading]);
 
-  useEffect(() => {
-    const fetchAllPublicaciones = async () => {
-      setLoadingTotal(true);
-      try {
-        const firstRes = await publicacionesService.getPublicaciones({
-          page: 1,
-          limit: 12,
-          tipo: mapTipos[tipo],
-        });
-
-        const primeras = firstRes?.publicaciones || [];
-        const totalPagesAll = firstRes?.totalPages || 1;
-
-        // Filtrar publicaciones para excluir los estados exitosos
-        const primeresFiltradas = primeras.filter(
-          (pub) => !estadosExcluidos.includes(pub.estado)
-        );
-
-        if (totalPagesAll <= 1) {
-          setPublicacionesTodas(primeresFiltradas);
-          return;
-        }
-
-        const requests = [];
-        for (let p = 2; p <= totalPagesAll; p++) {
-          requests.push(
-            publicacionesService.getPublicaciones({
-              page: p,
-              limit: 12,
-              tipo: mapTipos[tipo],
-            })
-          );
-        }
-
-        const results = await Promise.all(requests);
-        const resto = results.flatMap((res) => res?.publicaciones || []);
-        
-        // Filtrar publicaciones para excluir los estados exitosos
-        // Solo excluir si el estado existe y está en la lista de excluidos
-        const restoFiltrado = resto.filter(
-          (pub) => !pub.estado || !estadosExcluidos.includes(pub.estado)
-        );
-        
-        setPublicacionesTodas([...primeresFiltradas, ...restoFiltrado]);
-      } finally {
-        setLoadingTotal(false);
-      }
-    };
-
-    fetchAllPublicaciones();
-  }, [tipo]);
-
   const handlePageClick = (event) => {
     setPage(event.selected + 1);
     // Limpiar el hash para evitar conflictos con los useEffects de scroll
@@ -273,9 +262,9 @@ const PublicacionesPage = () => {
 
               <p className="text-black font-medium text-sm mt-2 border border-[#FF7857]/30 px-3 py-2 rounded-xl bg-white/90 shadow-sm">
                 Número de coincidencias: {" "}
-                {loadingTotal
+                {loading
                   ? "Calculando..."
-                  : publicacionesFiltradasTotales.length}
+                  : publicacionesOrdenadas.length}
               </p>
 
                       <motion.button
@@ -288,14 +277,12 @@ const PublicacionesPage = () => {
 
             {/* PUBLICACIONES */}
             <div className="flex-1 grid grid-cols-1 justify-items-center sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6 mb-15">
-              {(loading || (isFiltering && loadingTotal)) ? (
+              {loading ? (
                 <div className="flex justify-center items-center col-span-full p-8">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF7857]"></div>
                 </div>
               ) : displayPublicaciones.length > 0 ? (
-                [...displayPublicaciones]
-                  .sort((a, b) => new Date(b.fecha || 0) - new Date(a.fecha || 0))
-                  .map((pub) => (
+                displayPublicaciones.map((pub) => (
                     <CardGenerica key={pub._id} publicacion={pub} cardId={pub._id} />
                   ))
               ) : (
@@ -315,11 +302,14 @@ const PublicacionesPage = () => {
             pageRangeDisplayed={3}
             onPageChange={handlePageClick}
             forcePage={page - 1}
-            containerClassName="flex justify-center gap-3 py-6 cursor-pointer"
-                    pageClassName="border border-[#FF7857]/30 rounded-full px-3 py-1 bg-white/90 text-black text-sm shadow-sm hover:bg-[#FF7857]/10 transition-colors delay-100 duration-300"
-                    previousClassName="border border-[#FF7857]/30 rounded-full px-3 py-1 bg-white/90 text-black text-sm shadow-sm hover:bg-[#FF7857]/10 transition-colors delay-100 duration-300"
-                    nextClassName="border border-[#FF7857]/30 rounded-full px-3 py-1 bg-white/90 text-black text-sm shadow-sm hover:bg-[#FF7857]/10 transition-colors delay-100 duration-300"
-                    activeClassName="!bg-[#FF7857] !text-white border-[#FF7857]"
+            containerClassName="flex justify-center gap-3 py-6"
+                    pageClassName="cursor-pointer"
+                    pageLinkClassName="block border border-[#FF7857]/30 rounded-full px-3 py-1 bg-white/90 text-black text-sm shadow-sm hover:bg-[#FF7857]/10 transition-colors delay-100 duration-300"
+                    previousClassName="cursor-pointer"
+                    previousLinkClassName="block border border-[#FF7857]/30 rounded-full px-3 py-1 bg-white/90 text-black text-sm shadow-sm hover:bg-[#FF7857]/10 transition-colors delay-100 duration-300"
+                    nextClassName="cursor-pointer"
+                    nextLinkClassName="block border border-[#FF7857]/30 rounded-full px-3 py-1 bg-white/90 text-black text-sm shadow-sm hover:bg-[#FF7857]/10 transition-colors delay-100 duration-300"
+                    activeLinkClassName="!bg-[#FF7857] !text-white border-[#FF7857]"
             disabledClassName="opacity-40 pointer-events-none"
             />
           )}

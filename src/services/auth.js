@@ -1,52 +1,98 @@
-const API_URL = import.meta.env.VITE_API_URL;
+import axiosInstance from '../utils/axiosInstance';
+
 const SEED_TOKEN = import.meta.env.VITE_API_SEED_TOKEN;
 
 // Login
 export const authLogin = async (datos) => {
   try {
-    const resp = await fetch(`${API_URL}/auth/login`, {
-      method: "POST",
+    const { data } = await axiosInstance.post('/auth/login', datos, {
       headers: {
-        "Content-Type": "application/json; charset=UTF-8",
-        "x-token": SEED_TOKEN, // siempre pide token
+        "x-token": SEED_TOKEN,
       },
-      body: JSON.stringify(datos),
     });
 
-    const data = await resp.json();
-
     if (data.token) {
-      localStorage.setItem("token", data.token); // guardamos el JWT real
+      localStorage.setItem("token", data.token);
+      
+      if (data.refreshToken) {
+        localStorage.setItem("refreshToken", data.refreshToken);
+      }
     }
 
     return data;
   } catch (error) {
     console.error(error);
-    return { msg: "Error al iniciar sesion" };
+    return { msg: error.response?.data?.msg || "Error al iniciar sesion" };
   }
 };
 
 // Registro
 export const crearUsuario = async (datos) => {
   try {
-    const resp = await fetch(`${API_URL}/usuarios`, {
-      method: "POST",
+    const { data } = await axiosInstance.post('/usuarios', datos, {
       headers: {
-        "Content-Type": "application/json; charset=UTF-8",
-        "x-token": SEED_TOKEN, // siempre pide token
+        "x-token": SEED_TOKEN,
       },
-      body: JSON.stringify(datos),
     });
 
-    const data = await resp.json();
-
     if (data.token) {
-      localStorage.setItem("token", data.token); // guardamos el JWT real
+      localStorage.setItem("token", data.token);
+      
+      if (data.refreshToken) {
+        localStorage.setItem("refreshToken", data.refreshToken);
+      }
     }
 
     return data;
   } catch (error) {
     console.error(error);
-    return { msg: "Error al registrar usuario" };
+    return { msg: error.response?.data?.msg || "Error al registrar usuario" };
+  }
+};
+
+// Refresh Token - Ya no se usa manualmente, axiosInstance lo maneja
+export const refreshAccessToken = async () => {
+  try {
+    const refreshToken = localStorage.getItem("refreshToken");
+    
+    if (!refreshToken) {
+      throw new Error("No refresh token available");
+    }
+
+    const { data } = await axiosInstance.post('/auth/refresh', { refreshToken });
+
+    if (data.success && data.token) {
+      localStorage.setItem("token", data.token);
+      
+      if (data.refreshToken) {
+        localStorage.setItem("refreshToken", data.refreshToken);
+      }
+      
+      return { success: true, token: data.token };
+    }
+
+    return { success: false, msg: data.msg || "Error al refrescar token" };
+  } catch (error) {
+    console.error("Error refreshing token:", error);
+    return { success: false, msg: "Error al refrescar token" };
+  }
+};
+
+// Logout
+export const logout = async () => {
+  try {
+    const token = localStorage.getItem("token");
+    const refreshToken = localStorage.getItem("refreshToken");
+    
+    if (token && refreshToken) {
+      await axiosInstance.post('/auth/logout', { refreshToken });
+    }
+  } catch (error) {
+    console.error("Error during logout:", error);
+  } finally {
+    // Limpiar localStorage siempre
+    localStorage.removeItem("token");
+    localStorage.removeItem("refreshToken");
+    localStorage.removeItem("user");
   }
 };

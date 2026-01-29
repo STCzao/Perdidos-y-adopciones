@@ -59,9 +59,31 @@ const LoginScreen = ({ iniciarSesion, guardarUsuario }) => {
       } else {
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.usuario));
+        
+        // Guardar refreshToken si viene
+        if (data.refreshToken) {
+          localStorage.setItem("refreshToken", data.refreshToken);
+        }
+        
         guardarUsuario(data.usuario);
         iniciarSesion();
-        navigate("/");
+        
+        // Verificar si hay una URL de retorno guardada
+        const returnUrl = localStorage.getItem("returnUrl");
+        
+        // Limpiar returnUrl inmediatamente
+        if (returnUrl) {
+          localStorage.removeItem("returnUrl");
+        }
+        
+        // Pequeño delay para asegurar que el estado se actualice
+        setTimeout(() => {
+          if (returnUrl) {
+            navigate(returnUrl, { replace: true });
+          } else {
+            navigate("/", { replace: true });
+          }
+        }, 100);
       }
     } catch (error) {
       console.error(error);

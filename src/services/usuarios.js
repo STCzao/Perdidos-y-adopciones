@@ -1,43 +1,9 @@
-const API_URL = import.meta.env.VITE_API_URL;
+import axiosInstance from '../utils/axiosInstance';
 
 export const usuariosService = {
   getMiPerfil: async () => {
     try {
-      const token = localStorage.getItem("token");
-
-      if (!token) {
-        return {
-          ok: false,
-          msg: "No hay token de autenticación",
-        };
-      }
-
-      const resp = await fetch(`${API_URL}/usuarios/mi-perfil`, {
-        method: "GET",
-        headers: {
-          "x-token": token,
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (resp.status === 401) {
-        localStorage.removeItem("token");
-        return {
-          ok: false,
-          msg: "Sesión expirada",
-        };
-      }
-
-      if (!resp.ok) {
-        const errorData = await resp.json().catch(() => ({}));
-        return {
-          ok: false,
-          msg: errorData.msg || "Error al obtener perfil",
-          errors: errorData.errors,
-        };
-      }
-
-      const data = await resp.json();
+      const { data } = await axiosInstance.get('/usuarios/mi-perfil');
 
       return {
         ok: true,
@@ -45,24 +11,25 @@ export const usuariosService = {
       };
     } catch (error) {
       console.error("Error en getMiPerfil:", error);
+      
+      if (error.response?.status === 401) {
+        return {
+          ok: false,
+          msg: "Sesión expirada",
+          status: 401,
+        };
+      }
+
       return {
         ok: false,
-        msg: "Error de conexión al servidor",
+        msg: error.response?.data?.msg || "Error al obtener perfil",
+        errors: error.response?.data?.errors,
       };
     }
   },
 
   actualizarPerfil: async (datos) => {
     try {
-      const token = localStorage.getItem("token");
-
-      if (!token) {
-        return {
-          ok: false,
-          msg: "No hay token de autenticación",
-        };
-      }
-
       // Filtrar solo los campos permitidos
       const datosPermitidos = {};
       if (datos.nombre !== undefined)
@@ -78,44 +45,7 @@ export const usuariosService = {
         };
       }
 
-      const resp = await fetch(`${API_URL}/usuarios/mi-perfil`, {
-        method: "PUT",
-        body: JSON.stringify(datosPermitidos),
-        headers: {
-          "Content-Type": "application/json; charset=UTF-8",
-          "x-token": token,
-        },
-      });
-
-      if (resp.status === 401) {
-        return {
-          ok: false,
-          msg: "Sesión expirada",
-          status: 401
-        };
-      }
-
-      const responseData = await resp.json();
-
-      if (!resp.ok) {
-        // Manejar errores del backend
-        let errorMsg = responseData.msg || "Error al actualizar perfil";
-
-        // Si hay errores específicos, extraerlos
-        if (responseData.errors) {
-          if (Array.isArray(responseData.errors)) {
-            errorMsg = responseData.errors.join(", ");
-          } else if (typeof responseData.errors === "object") {
-            errorMsg = Object.values(responseData.errors).join(", ");
-          }
-        }
-
-        return {
-          ok: false,
-          msg: errorMsg,
-          errors: responseData.errors,
-        };
-      }
+      const { data: responseData } = await axiosInstance.put('/usuarios/mi-perfil', datosPermitidos);
 
       return {
         ok: true,
@@ -125,49 +55,38 @@ export const usuariosService = {
       };
     } catch (error) {
       console.error("Error en actualizarPerfil:", error);
+
+      if (error.response?.status === 401) {
+        return {
+          ok: false,
+          msg: "Sesión expirada",
+          status: 401
+        };
+      }
+
+      let errorMsg = error.response?.data?.msg || "Error al actualizar perfil";
+
+      // Si hay errores específicos, extraerlos
+      if (error.response?.data?.errors) {
+        const errors = error.response.data.errors;
+        if (Array.isArray(errors)) {
+          errorMsg = errors.join(", ");
+        } else if (typeof errors === "object") {
+          errorMsg = Object.values(errors).join(", ");
+        }
+      }
+
       return {
         ok: false,
-        msg: "Error de conexión al servidor",
+        msg: errorMsg,
+        errors: error.response?.data?.errors,
       };
     }
   },
 
   borrarUsuario: async (id) => {
     try {
-      const token = localStorage.getItem("token");
-
-      if (!token) {
-        return {
-          ok: false,
-          msg: "No hay token de autenticación",
-        };
-      }
-
-      const resp = await fetch(`${API_URL}/usuarios/${id}`, {
-        method: "DELETE",
-        headers: {
-          "x-token": token,
-          "Content-Type": "application/json",
-        },
-      });
-
-      // CORREGIR: Manejar tanto 401 como 403
-      if (resp.status === 401 || resp.status === 403) {
-        localStorage.removeItem("token");
-        return {
-          ok: false,
-          msg: "No tiene permisos para esta acción",
-        };
-      }
-
-      const data = await resp.json();
-
-      if (!resp.ok) {
-        return {
-          ok: false,
-          msg: data.msg || "Error al eliminar usuario",
-        };
-      }
+      const { data } = await axiosInstance.delete(`/usuarios/${id}`);
 
       return {
         ok: true,
@@ -175,9 +94,17 @@ export const usuariosService = {
       };
     } catch (error) {
       console.error("Error en borrarUsuario:", error);
+
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        return {
+          ok: false,
+          msg: "No tiene permisos para esta acción",
+        };
+      }
+
       return {
         ok: false,
-        msg: "Error de conexión al servidor",
+        msg: error.response?.data?.msg || "Error al eliminar usuario",
       };
     }
   },

@@ -77,6 +77,28 @@ export const SidebarProvider = ({ children, cerrarSesion }) => {
     }
   }, [location.pathname, open]);
 
+  // Prevenir scroll al abrir/cerrar el sidebar
+  React.useEffect(() => {
+    if (open) {
+      // Guardar la posición actual del scroll
+      const scrollY = window.scrollY;
+      const scrollX = window.scrollX;
+      
+      // Guardar en variable para usar en cleanup
+      const restoreScroll = () => {
+        window.scrollTo(scrollX, scrollY);
+      };
+      
+      // Restaurar inmediatamente por si acaso
+      restoreScroll();
+      
+      // Cleanup cuando se cierre
+      return () => {
+        window.scrollTo(scrollX, scrollY);
+      };
+    }
+  }, [open]);
+
   return (
     <SidebarProviderContext.Provider
       value={{
@@ -141,6 +163,9 @@ export const SidebarOpciones = () => {
           
           <button
             onClick={() => {
+              // Guardar la ubicación actual antes de navegar a login
+              const currentPath = location.pathname + location.search + location.hash;
+              localStorage.setItem("returnUrl", currentPath);
               navigate("/login");
               setOpen(false);
             }}
@@ -151,6 +176,9 @@ export const SidebarOpciones = () => {
           
           <button
             onClick={() => {
+              // Guardar la ubicación actual antes de navegar a register
+              const currentPath = location.pathname + location.search + location.hash;
+              localStorage.setItem("returnUrl", currentPath);
               navigate("/register");
               setOpen(false);
             }}
