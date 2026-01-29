@@ -37,7 +37,10 @@ const CardGenerica = ({ publicacion, cardId, isSuccessful = false }) => {
     estado,
   } = publicacion;
 
-  const whatsappLink = whatsapp ? `https://wa.me/${whatsapp}` : null;
+  // Generar enlace de WhatsApp con código de país de Argentina (549)
+  const whatsappLink = whatsapp 
+    ? `https://wa.me/549${whatsapp.replace(/\D/g, '')}` 
+    : null;
 
   const mapTipos = {
     ADOPCION: "adopciones",
