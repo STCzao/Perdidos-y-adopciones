@@ -11,8 +11,9 @@ export const authLogin = async (datos) => {
       },
     });
 
-    if (data.token) {
-      localStorage.setItem("token", data.token);
+    // Backend devuelve { success, usuario, accessToken, refreshToken }
+    if (data.accessToken) {
+      localStorage.setItem("token", data.accessToken);
       
       if (data.refreshToken) {
         localStorage.setItem("refreshToken", data.refreshToken);
@@ -35,14 +36,8 @@ export const crearUsuario = async (datos) => {
       },
     });
 
-    if (data.token) {
-      localStorage.setItem("token", data.token);
-      
-      if (data.refreshToken) {
-        localStorage.setItem("refreshToken", data.refreshToken);
-      }
-    }
-
+    // Backend solo devuelve { usuario }, NO genera tokens en registro
+    // El usuario debe hacer login después de registrarse
     return data;
   } catch (error) {
     console.error(error);
@@ -61,14 +56,15 @@ export const refreshAccessToken = async () => {
 
     const { data } = await axiosInstance.post('/auth/refresh', { refreshToken });
 
-    if (data.success && data.token) {
-      localStorage.setItem("token", data.token);
+    // Backend devuelve { success, accessToken, refreshToken }
+    if (data.success && data.accessToken) {
+      localStorage.setItem("token", data.accessToken);
       
       if (data.refreshToken) {
         localStorage.setItem("refreshToken", data.refreshToken);
       }
       
-      return { success: true, token: data.token };
+      return { success: true, token: data.accessToken };
     }
 
     return { success: false, msg: data.msg || "Error al refrescar token" };
