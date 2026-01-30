@@ -28,7 +28,7 @@ export const SidebarProvider = ({ children, cerrarSesion }) => {
   const [isAdmin, setIsAdmin] = React.useState(false);
   const location = useLocation();
 
-  // Agregar listener para actualizaciones del perfil
+  // Solo escuchar eventos de actualización del perfil (App.jsx carga el usuario inicial)
   React.useEffect(() => {
     const handleUserProfileUpdate = (event) => {
       const updatedUser = event.detail?.user ?? null;
@@ -42,32 +42,6 @@ export const SidebarProvider = ({ children, cerrarSesion }) => {
       window.removeEventListener("userProfileUpdated", handleUserProfileUpdate);
     };
   }, []);
-
-  const cargarUsuario = React.useCallback(async () => {
-    try {
-      const response = await usuariosService.getMiPerfil();
-
-      if (response.ok && response.usuario) {
-        setUser(response.usuario);
-        setIsAdmin(response.usuario.rol === "ADMIN_ROLE");
-      } else {
-        console.warn(
-          "Error al cargar usuario:",
-          response.msg || "Datos inválidos"
-        );
-        setUser(null);
-        setIsAdmin(false);
-      }
-    } catch (error) {
-      console.error("Error cargando usuario:", error);
-      setUser(null);
-      setIsAdmin(false);
-    }
-  }, []);
-
-  React.useEffect(() => {
-    cargarUsuario();
-  }, [cargarUsuario]);
 
   // Cerrar automáticamente el sidebar al entrar a pantallas de auth
   React.useEffect(() => {
@@ -106,7 +80,6 @@ export const SidebarProvider = ({ children, cerrarSesion }) => {
         setOpen,
         user,
         isAdmin,
-        refreshUser: cargarUsuario,
         cerrarSesion,
       }}
     >

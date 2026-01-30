@@ -27,6 +27,42 @@ function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // --- Funciones de auth (DECLARADAS ANTES DEL useEffect) ---
+  const cerrarSesion = useCallback(() => {
+    setLogin(false);
+    setUser(null);
+    localStorage.removeItem("token");
+    localStorage.removeItem("refreshToken");
+
+    if (window.adminService?.clearCache) {
+      window.adminService.clearCache();
+    }
+
+    // Notificar al Sidebar que el usuario cerró sesión
+    try {
+      window.dispatchEvent(
+        new CustomEvent("userProfileUpdated", { detail: { user: null } })
+      );
+    } catch (e) {
+      console.warn("No se pudo despachar userProfileUpdated:", e);
+    }
+  }, []);
+
+  const guardarUsuario = (datos) => {
+    setUser(datos);
+    setLogin(true);
+    // Notificar al Sidebar para sincronizar su estado de usuario
+    try {
+      window.dispatchEvent(
+        new CustomEvent("userProfileUpdated", { detail: { user: datos } })
+      );
+    } catch (e) {
+      console.warn("No se pudo despachar userProfileUpdated:", e);
+    }
+  };
+
+  const iniciarSesion = () => setLogin(true);
+
   // --- Verificar token al iniciar ---
   useEffect(() => {
     const verificarToken = async () => {
@@ -48,6 +84,10 @@ function App() {
         } else {
           setUser(userData.usuario);
           setLogin(true);
+          // Notificar al Sidebar que el usuario está cargado
+          window.dispatchEvent(
+            new CustomEvent("userProfileUpdated", { detail: { user: userData.usuario } })
+          );
         }
       } catch (err) {
         console.error("Error al verificar token:", err);
@@ -58,42 +98,6 @@ function App() {
 
     verificarToken();
   }, [cerrarSesion]);
-
-  // --- Funciones de auth ---
-  const guardarUsuario = (datos) => {
-    setUser(datos);
-    setLogin(true);
-    // Notificar al Sidebar para sincronizar su estado de usuario
-    try {
-      window.dispatchEvent(
-        new CustomEvent("userProfileUpdated", { detail: { user: datos } })
-      );
-    } catch (e) {
-      console.warn("No se pudo despachar userProfileUpdated:", e);
-    }
-  };
-
-  const iniciarSesion = () => setLogin(true);
-
-  const cerrarSesion = useCallback(() => {
-    setLogin(false);
-    setUser(null);
-    localStorage.removeItem("token");
-    localStorage.removeItem("refreshToken");
-
-    if (window.adminService?.clearCache) {
-      window.adminService.clearCache();
-    }
-
-    // Notificar al Sidebar que el usuario cerró sesión
-    try {
-      window.dispatchEvent(
-        new CustomEvent("userProfileUpdated", { detail: { user: null } })
-      );
-    } catch (e) {
-      console.warn("No se pudo despachar userProfileUpdated:", e);
-    }
-  }, []);
 
   // --- Loading global ---
   if (loading) {
