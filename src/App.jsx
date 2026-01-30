@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import LoginScreen from "../src/pages/LoginScreen/LoginScreen";
 import RegisterScreen from "../src/pages/RegisterScreen/RegisterScreen";
@@ -57,7 +57,7 @@ function App() {
     };
 
     verificarToken();
-  }, []);
+  }, [cerrarSesion]);
 
   // --- Funciones de auth ---
   const guardarUsuario = (datos) => {
@@ -75,10 +75,11 @@ function App() {
 
   const iniciarSesion = () => setLogin(true);
 
-  const cerrarSesion = () => {
+  const cerrarSesion = useCallback(() => {
     setLogin(false);
     setUser(null);
     localStorage.removeItem("token");
+    localStorage.removeItem("refreshToken");
 
     if (window.adminService?.clearCache) {
       window.adminService.clearCache();
@@ -92,7 +93,7 @@ function App() {
     } catch (e) {
       console.warn("No se pudo despachar userProfileUpdated:", e);
     }
-  };
+  }, []);
 
   // --- Loading global ---
   if (loading) {

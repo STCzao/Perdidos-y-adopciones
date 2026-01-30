@@ -100,26 +100,23 @@ export default function RegisterScreen() {
           setResult(data.msg || "Error al registrarse");
         }
       } else {
-        localStorage.setItem("token", data.accessToken);
-        
-        // Guardar refreshToken si viene
-        if (data.refreshToken) {
-          localStorage.setItem("refreshToken", data.refreshToken);
-        }
-        
-        setResult("¡Registro exitoso!");
+        // Backend solo devuelve { usuario }, NO genera tokens en registro
+        setResult("¡Registro exitoso! Redirigiendo al login...");
         setForm({ nombre: "", correo: "", password: "", telefono: "" });
         setErrors({});
+        
+        // Guardar correo para autocompletar en login
+        localStorage.setItem("lastRegisteredEmail", form.correo.trim());
         
         // Verificar si hay una URL de retorno guardada
         const returnUrl = localStorage.getItem("returnUrl");
         
         setTimeout(() => {
+          // Redirigir al login para que el usuario inicie sesión
           if (returnUrl) {
-            localStorage.removeItem("returnUrl");
-            navigate(returnUrl);
+            navigate("/login");
           } else {
-            navigate("/");
+            navigate("/login");
           }
         }, 2000);
       }
