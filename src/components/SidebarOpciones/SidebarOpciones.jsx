@@ -28,12 +28,33 @@ export const SidebarProvider = ({ children, cerrarSesion }) => {
   const [isAdmin, setIsAdmin] = React.useState(false);
   const location = useLocation();
 
-  // Solo escuchar eventos de actualización del perfil (App.jsx carga el usuario inicial)
+  // Inicializar estado del usuario desde localStorage al montar
+  React.useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      try {
+        const parsedUser = JSON.parse(storedUser);
+        setUser(parsedUser);
+        setIsAdmin(parsedUser.rol === "ADMIN_ROLE");
+      } catch (error) {
+        console.error("Error al parsear usuario de localStorage:", error);
+      }
+    }
+  }, []);
+
+  // Escuchar eventos de actualización del perfil
   React.useEffect(() => {
     const handleUserProfileUpdate = (event) => {
       const updatedUser = event.detail?.user ?? null;
       setUser(updatedUser);
       setIsAdmin(!!(updatedUser && updatedUser.rol === "ADMIN_ROLE"));
+      
+      // Sincronizar con localStorage
+      if (updatedUser) {
+        localStorage.setItem("user", JSON.stringify(updatedUser));
+      } else {
+        localStorage.removeItem("user");
+      }
     };
 
     window.addEventListener("userProfileUpdated", handleUserProfileUpdate);

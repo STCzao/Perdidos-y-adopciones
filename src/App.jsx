@@ -51,6 +51,8 @@ function App() {
   const guardarUsuario = (datos) => {
     setUser(datos);
     setLogin(true);
+    // Guardar usuario en localStorage
+    localStorage.setItem("user", JSON.stringify(datos));
     // Notificar al Sidebar para sincronizar su estado de usuario
     try {
       window.dispatchEvent(
@@ -84,6 +86,8 @@ function App() {
         } else {
           setUser(userData.usuario);
           setLogin(true);
+          // Guardar usuario en localStorage para sincronización
+          localStorage.setItem("user", JSON.stringify(userData.usuario));
           // Notificar al Sidebar que el usuario está cargado
           window.dispatchEvent(
             new CustomEvent("userProfileUpdated", { detail: { user: userData.usuario } })
