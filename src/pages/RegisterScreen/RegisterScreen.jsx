@@ -100,7 +100,7 @@ export default function RegisterScreen() {
           setResult(data.msg || "Error al registrarse");
         }
       } else {
-        localStorage.setItem("token", data.token);
+        localStorage.setItem("token", data.accessToken);
         
         // Guardar refreshToken si viene
         if (data.refreshToken) {

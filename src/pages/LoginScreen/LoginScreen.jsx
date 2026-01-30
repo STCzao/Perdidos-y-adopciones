@@ -57,7 +57,7 @@ const LoginScreen = ({ iniciarSesion, guardarUsuario }) => {
         if (data.errors) setErrors(data.errors);
         else setResult(data.msg || "Error al iniciar sesión");
       } else {
-        localStorage.setItem("token", data.token);
+        localStorage.setItem("token", data.accessToken);
         localStorage.setItem("user", JSON.stringify(data.usuario));
         
         // Guardar refreshToken si viene
