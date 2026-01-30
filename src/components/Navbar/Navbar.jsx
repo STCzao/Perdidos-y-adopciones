@@ -101,8 +101,17 @@ const NavbarContent = () => {
           className={`flex flex-col items-center cursor-pointer ${
             !isPublicaciones ? "drop-shadow-[0_0_2px_black]" : ""
           }`}
-          onClick={() => {
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            // Guardar posición de scroll antes de cambiar el estado
+            const currentScrollY = window.scrollY;
+            const currentScrollX = window.scrollX;
             setOpen(!open);
+            // Restaurar posición inmediatamente
+            requestAnimationFrame(() => {
+              window.scrollTo(currentScrollX, currentScrollY);
+            });
           }}
         >
           <img
@@ -111,6 +120,7 @@ const NavbarContent = () => {
             className={`h-16 transition-all duration-300 ${
               isSolidNavbar ? "filter-none" : "invert"
             }`}
+            draggable="false"
           />
           <div className="flex ml-1 items-center font-medium">
             <span>Perfil</span>

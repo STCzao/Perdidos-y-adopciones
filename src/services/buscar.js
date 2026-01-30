@@ -1,17 +1,13 @@
-const API_URL = import.meta.env.VITE_API_URL;
+import axiosInstance from '../utils/axiosInstance';
 
 export const buscarPublicaciones = async (termino, tipo = "") => {
   try {
-    const resp = await fetch(
-      `${API_URL}/publicaciones?termino=${termino}&tipo=${tipo.toUpperCase()}`,
-      {
-        headers: token ? { "x-token": token } : {},
-      }
-    );
-
-    return await resp.json();
+    const { data } = await axiosInstance.get(`/publicaciones?termino=${termino}&tipo=${tipo.toUpperCase()}`);
+    return data;
   } catch (error) {
     console.log(error);
-    return { msg: "Error en búsqueda de publicaciones" };
+    return { 
+      msg: error.response?.data?.msg || "Error en búsqueda de publicaciones" 
+    };
   }
 };

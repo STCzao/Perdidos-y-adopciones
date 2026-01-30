@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL;
+import axiosInstance from '../utils/axiosInstance';
 
 export const publicacionesService = {
   getPublicaciones: async ({
@@ -18,154 +18,85 @@ export const publicacionesService = {
       if (estado) params.append("estado", estado);
       if (search) params.append("search", search);
 
-      const resp = await fetch(`${API_URL}/publicaciones?${params.toString()}`);
-
-      return await resp.json();
+      const { data } = await axiosInstance.get(`/publicaciones?${params.toString()}`);
+      return data;
     } catch (error) {
-      return { success: false, msg: "No se pudieron obtener publicaciones" };
+      return { success: false, msg: error.response?.data?.msg || "No se pudieron obtener publicaciones" };
     }
   },
 
   getPublicacionesUsuario: async (id) => {
     try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        return {
-          success: false,
-          msg: "No hay token disponible",
-        };
-      }
-
-      const resp = await fetch(`${API_URL}/publicaciones/usuario/${id}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json; charset=UTF-8",
-          "x-token": token,
-        },
-      });
-
-      // Verificar si la respuesta es OK
-      if (!resp.ok) {
-        const errorData = await resp.json();
-        return {
-          success: false,
-          msg: errorData.msg || "Error al obtener publicaciones",
-          status: resp.status,
-        };
-      }
-
-      const data = await resp.json();
+      const { data } = await axiosInstance.get(`/publicaciones/usuario/${id}`);
       return data;
     } catch (error) {
       console.error("Error en getPublicacionesUsuario:", error);
       return {
         success: false,
-        msg: "No se pudieron obtener publicaciones del usuario",
+        msg: error.response?.data?.msg || "No se pudieron obtener publicaciones del usuario",
+        status: error.response?.status,
       };
     }
   },
 
   getPublicacionById: async (id) => {
     try {
-      const resp = await fetch(`${API_URL}/publicaciones/${id}`);
-      return await resp.json();
+      const { data } = await axiosInstance.get(`/publicaciones/${id}`);
+      return data;
     } catch (error) {
-      return { success: false, msg: "No se pudo obtener publicación" };
+      return { success: false, msg: error.response?.data?.msg || "No se pudo obtener publicación" };
     }
   },
 
   crearPublicacion: async (datos) => {
     try {
-      const token = localStorage.getItem("token");
-
-      const resp = await fetch(`${API_URL}/publicaciones`, {
-        method: "POST",
-        body: JSON.stringify(datos),
-        headers: {
-          "Content-Type": "application/json; charset=UTF-8",
-          "x-token": token,
-        },
-      });
-
-      const data = await resp.json();
-
-      if (!resp.ok) {
-        return { success: false, ...data };
-      }
-
+      const { data } = await axiosInstance.post('/publicaciones', datos);
       return data;
     } catch (error) {
-      return { success: false, msg: "Error de conexión al servidor" };
+      return { 
+        success: false, 
+        msg: error.response?.data?.msg || "Error de conexión al servidor",
+        ...error.response?.data 
+      };
     }
   },
 
   actualizarPublicacion: async (id, datos) => {
     try {
-      const token = localStorage.getItem("token");
-
-      const resp = await fetch(`${API_URL}/publicaciones/${id}`, {
-        method: "PUT",
-        body: JSON.stringify(datos),
-        headers: {
-          "Content-Type": "application/json; charset=UTF-8",
-          "x-token": token,
-        },
-      });
-
-      const data = await resp.json();
-
-      if (!resp.ok) {
-        return {
-          success: false,
-          ...data,
-          status: resp.status,
-        };
-      }
-
+      const { data } = await axiosInstance.put(`/publicaciones/${id}`, datos);
       return data;
     } catch (error) {
-      return { success: false, msg: "Error de conexión al servidor" };
+      return {
+        success: false,
+        msg: error.response?.data?.msg || "Error de conexión al servidor",
+        status: error.response?.status,
+        ...error.response?.data,
+      };
     }
   },
 
   actualizarEstado: async (id, estado) => {
     try {
-      const token = localStorage.getItem("token");
-      const resp = await fetch(`${API_URL}/publicaciones/${id}/estado`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "x-token": token || "",
-        },
-        body: JSON.stringify({ estado }),
-      });
-
-      if (!resp.ok) {
-        const errorData = await resp.json();
-        return {
-          success: false,
-          msg: errorData.msg || "Error al actualizar estado",
-        };
-      }
-
-      const data = await resp.json();
+      const { data } = await axiosInstance.put(`/publicaciones/${id}/estado`, { estado });
       return { success: true, publicacion: data.publicacion };
     } catch (error) {
       console.error("Error actualizando estado:", error);
-      return { success: false, msg: "Error de conexion al servidor" };
+      return { 
+        success: false, 
+        msg: error.response?.data?.msg || "Error de conexion al servidor" 
+      };
     }
   },
 
   borrarPublicacion: async (id) => {
     try {
-      const token = localStorage.getItem("token");
-      const resp = await fetch(`${API_URL}/publicaciones/${id}`, {
-        method: "DELETE",
-        headers: { "x-token": token },
-      });
-      return await resp.json();
+      const { data } = await axiosInstance.delete(`/publicaciones/${id}`);
+      return data;
     } catch (error) {
-      return { success: false, msg: "Error de conexión al servidor" };
+      return { 
+        success: false, 
+        msg: error.response?.data?.msg || "Error de conexión al servidor" 
+      };
     }
   },
 };

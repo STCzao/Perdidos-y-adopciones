@@ -1,3 +1,5 @@
+import { LazyLoadImage } from "react-lazy-load-image-component";
+
 const CardsAyuda = ({ pub }) => {
   const { titulo, contenido, categoria, usuario, img } = pub;
 
@@ -27,10 +29,12 @@ const CardsAyuda = ({ pub }) => {
         {/* IMAGEN */}
         {img && (
           <div className="w-full mt-3">
-            <img
+            <LazyLoadImage
               src={img}
               alt={titulo || "imagen de caso"}
+              effect="blur"
               className="w-full h-50 object-cover rounded-lg"
+              loading="lazy"
             />
           </div>
         )}

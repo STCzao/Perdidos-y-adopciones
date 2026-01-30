@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL;
+import axiosInstance from '../utils/axiosInstance';
 
 const cache = { publicaciones: null, usuarios: null, timestamp: null };
 const CACHE_DURATION = 30000;
@@ -7,23 +7,9 @@ export const adminService = {
   
   getTodasPublicaciones: async () => {
     try {
-      const token = localStorage.getItem("token");
-      
       // Obtener primera página para saber el total
-      const firstRes = await fetch(`${API_URL}/publicaciones/admin/todas?page=1&limit=12`, {
-        headers: { "x-token": token || "" },
-      });
+      const { data: firstData } = await axiosInstance.get('/publicaciones/admin/todas?page=1&limit=12');
 
-      if (!firstRes.ok) {
-        let errorMsg = "Error al obtener publicaciones";
-        const errorData = await firstRes.json().catch(() => ({}));
-        return {
-          success: false,
-          msg: errorData.msg || errorMsg,
-        };
-      }
-
-      const firstData = await firstRes.json();
       const publicacionesFirstPage = firstData.publicaciones || [];
       const totalPages = firstData.totalPages || 1;
 
@@ -36,14 +22,12 @@ export const adminService = {
       const requests = [];
       for (let p = 2; p <= totalPages; p++) {
         requests.push(
-          fetch(`${API_URL}/publicaciones/admin/todas?page=${p}&limit=12`, {
-            headers: { "x-token": token || "" },
-          }).then(res => res.json())
+          axiosInstance.get(`/publicaciones/admin/todas?page=${p}&limit=12`)
         );
       }
 
       const results = await Promise.all(requests);
-      const restPublicaciones = results.flatMap(res => res.publicaciones || []);
+      const restPublicaciones = results.flatMap(res => res.data.publicaciones || []);
 
       return { 
         success: true, 
@@ -51,7 +35,10 @@ export const adminService = {
       };
     } catch (error) {
       console.error("Error en getTodasPublicaciones:", error);
-      return { success: false, msg: "Error de conexión al servidor" };
+      return { 
+        success: false, 
+        msg: error.response?.data?.msg || "Error de conexión al servidor" 
+      };
     }
   },
 
@@ -65,24 +52,7 @@ export const adminService = {
         return cache.usuarios;
       }
 
-      const token = localStorage.getItem("token");
-      if (!token) {
-      }
-
-      const resp = await fetch(`${API_URL}/usuarios`, {
-        headers: { "x-token": token || "" },
-      });
-
-      if (!resp.ok) {
-        let errorMsg = "Error al obtener usuarios";
-        try {
-          const errorData = await resp.json();
-          errorMsg = errorData.msg || errorMsg;
-        } catch (jsonErr) {}
-        return { msg: errorMsg };
-      }
-
-      const data = await resp.json();
+      const { data } = await axiosInstance.get('/usuarios');
 
       const usuarios =
         data.usuarios || data.data || (Array.isArray(data) ? data : []) || [];
@@ -93,30 +63,22 @@ export const adminService = {
 
       return result;
     } catch (error) {
-      return { msg: "Error de conexión al servidor" };
+      return { 
+        msg: error.response?.data?.msg || "Error de conexión al servidor" 
+      };
     }
   },
 
   cambiarEstadoUsuario: async (id, estado) => {
     try {
-      const token = localStorage.getItem("token");
-      const resp = await fetch(`${API_URL}/usuarios/${id}/estado`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "x-token": token || "",
-        },
-        body: JSON.stringify({ estado }),
-      });
-
-      const data = await resp.json();
-      if (!resp.ok) {
-        return { ok: false, msg: data.msg || "Error al actualizar el estado" };
-      }
+      const { data } = await axiosInstance.put(`/usuarios/${id}/estado`, { estado });
 
       return { ok: true, usuario: data.usuario };
     } catch (error) {
-      return { ok: false, msg: "Error de conexión al servidor" };
+      return { 
+        ok: false, 
+        msg: error.response?.data?.msg || "Error de conexión al servidor" 
+      };
     }
   },
 
