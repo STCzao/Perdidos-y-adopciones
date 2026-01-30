@@ -48,8 +48,13 @@ axiosInstance.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
+    // Si el error NO es 401, rechazar inmediatamente
+    if (error.response?.status !== 401) {
+      return Promise.reject(error);
+    }
+
     // Si el error es 401 y no hemos intentado refrescar aún
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (!originalRequest._retry) {
       if (isRefreshing) {
         // Si ya se está refrescando, poner en cola
         return new Promise((resolve, reject) => {
@@ -82,10 +87,14 @@ axiosInstance.interceptors.response.use(
           refreshToken
         });
 
-        const { token: newToken, refreshToken: newRefreshToken } = response.data;
+        const { accessToken, refreshToken: newRefreshToken } = response.data;
+
+        if (!accessToken) {
+          throw new Error('No se recibió accessToken en la respuesta del refresh');
+        }
 
         // Guardar nuevos tokens
-        localStorage.setItem('token', newToken);
+        localStorage.setItem('token', accessToken);
         if (newRefreshToken) {
           localStorage.setItem('refreshToken', newRefreshToken);
         }
@@ -93,10 +102,10 @@ axiosInstance.interceptors.response.use(
         // Actualizar header y reintentar request original
         axiosInstance.defaults.headers.common['x-token'] = newToken;
         originalRequest.headers['x-token'] = newToken;
+accessToken;
+        originalRequest.headers['x-token'] = accessToken;
 
-        processQueue(null, newToken);
-
-        return axiosInstance(originalRequest);
+        processQueue(null, accessriginalRequest);
       } catch (refreshError) {
         processQueue(refreshError, null);
         
