@@ -22,12 +22,10 @@ const ComunidadScreen = () => {
         }}
       >
         <div className="flex flex-col w-full max-w-5xl text-center text-white/90 mt-20">
-          <motion.p className="text-3xl mb-6">Casos para ayuda</motion.p>
+          <motion.p className="text-3xl mb-6">Historias & consejos</motion.p>
 
           <motion.p className="text-lg mb-12">
-            Aquí se publican casos que necesitan ayuda concreta: tránsito,
-            insumos, atención veterinaria o difusión. Una forma simple de
-            conectar a quienes ayudan con quienes pueden colaborar.
+            Casos reales, tips para usar la base y claves para un cuidado responsable
           </motion.p>
 
           {/* Filtro completamente desacoplado */}

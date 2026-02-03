@@ -68,8 +68,7 @@ const CardFiltro = ({ filtros, setFiltros, tipo }) => {
             onChange={handleChange}
             className="w-full mt-1 px-3 py-2 rounded-full bg-white border border-black/50 text-xs text-black/50 outline-none focus:border-[#FF7857] focus:ring-1 focus:ring-[#FF7857]/60 transition-colors delay-100 duration-300"
           >
-            <option value="">Seleccione el sexo *</option>
-            <option value="DESCONOZCO">Desconozco</option>
+            <option value="">Desconozco</option>
             <option value="MACHO">Macho</option>
             <option value="HEMBRA">Hembra</option>
           </select>
@@ -97,8 +96,7 @@ const CardFiltro = ({ filtros, setFiltros, tipo }) => {
             onChange={handleChange}
             className="w-full mt-1 px-3 py-2 rounded-full bg-white border border-black/50 text-xs text-black/50 outline-none focus:border-[#FF7857] focus:ring-1 focus:ring-[#FF7857]/60 transition-colors delay-100 duration-300"
           >
-            <option value="">Seleccione el tamaño *</option>
-            <option value="SIN ESPECIFICAR">Sin especificar</option>
+            <option value="">Sin especificar</option>
             <option value="MINI">Mini</option>
             <option value="PEQUEÑO">Pequeño</option>
             <option value="MEDIANO">Mediano</option>
@@ -129,8 +127,8 @@ const CardFiltro = ({ filtros, setFiltros, tipo }) => {
               onChange={handleChange}
               className="w-full mt-1 px-3 py-2 rounded-full bg-white border border-black/50 text-xs text-black/50 outline-none focus:border-[#FF7857] focus:ring-1 focus:ring-[#FF7857]/60 transition-colors delay-100 duration-300"
             >
-              <option value="">Seleccione la edad *</option>
-              <option value="SIN ESPECIFICAR">Sin especificar</option>
+              <option value="">Sin especificar</option>
+              <option value="JOVEN">Joven</option>
               <option value="CACHORRO">Cachorro</option>
               <option value="ADULTO">Adulto</option>
               <option value="MAYOR">Mayor</option>

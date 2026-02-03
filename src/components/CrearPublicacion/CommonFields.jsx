@@ -1,9 +1,21 @@
-import { SelectField, InputField, TextAreaField, ImageUploadField } from "./FormFields";
+import {
+  SelectField,
+  InputField,
+  TextAreaField,
+  ImageUploadField,
+} from "./FormFields";
 
 /**
  * Campos comunes a todos los tipos de publicaciones
  */
-export const CommonFields = ({ form, handleChange, errors, submitting, handleImageUpload, uploading }) => {
+export const CommonFields = ({
+  form,
+  handleChange,
+  errors,
+  submitting,
+  handleImageUpload,
+  uploading,
+}) => {
   return (
     <>
       {/* Tipo */}
@@ -75,8 +87,9 @@ export const CommonFields = ({ form, handleChange, errors, submitting, handleIma
           placeholder="Seleccione la edad de su animal *"
           options={[
             { value: "SIN ESPECIFICAR", label: "Sin especificar" },
-            { value: "CACHORRO", label: "Cachorro (hasta 12 meses)" },
-            { value: "ADULTO", label: "Adulto (1 a 10 años)" },
+            { value: "JOVEN", label: "Joven (0 a 12 meses)" },
+            { value: "CACHORRO", label: "Cachorro (1 a 4 años)" },
+            { value: "ADULTO", label: "Adulto (5 a 10 años)" },
             { value: "MAYOR", label: "Mayor (Más de 10 años)" },
           ]}
         />
