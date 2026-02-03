@@ -21,6 +21,7 @@ import MediaScreen from "./pages/MediaScreen/MediaScreen.jsx";
 import PublicacionesPage from "./pages/PublicacionesPages/PublicacionesPage.jsx";
 import PublicacionesExitosas from "./pages/PublicacionesPages/PublicacionesExitosas.jsx";
 import { AuthContext } from "./context/AuthContext";
+import { logout } from "./services/authService";
 
 function App() {
   const [login, setLogin] = useState(false);
@@ -28,11 +29,18 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   // --- Funciones de auth (DECLARADAS ANTES DEL useEffect) ---
-  const cerrarSesion = useCallback(() => {
+  const cerrarSesion = useCallback(async () => {
+    try {
+      await logout();
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
+      localStorage.removeItem("token");
+      localStorage.removeItem("refreshToken");
+      localStorage.removeItem("user");
+    }
+
     setLogin(false);
     setUser(null);
-    localStorage.removeItem("token");
-    localStorage.removeItem("refreshToken");
 
     if (window.adminService?.clearCache) {
       window.adminService.clearCache();
@@ -41,7 +49,7 @@ function App() {
     // Notificar al Sidebar que el usuario cerró sesión
     try {
       window.dispatchEvent(
-        new CustomEvent("userProfileUpdated", { detail: { user: null } })
+        new CustomEvent("userProfileUpdated", { detail: { user: null } }),
       );
     } catch (e) {
       console.warn("No se pudo despachar userProfileUpdated:", e);
@@ -56,7 +64,7 @@ function App() {
     // Notificar al Sidebar para sincronizar su estado de usuario
     try {
       window.dispatchEvent(
-        new CustomEvent("userProfileUpdated", { detail: { user: datos } })
+        new CustomEvent("userProfileUpdated", { detail: { user: datos } }),
       );
     } catch (e) {
       console.warn("No se pudo despachar userProfileUpdated:", e);
@@ -90,7 +98,9 @@ function App() {
           localStorage.setItem("user", JSON.stringify(userData.usuario));
           // Notificar al Sidebar que el usuario está cargado
           window.dispatchEvent(
-            new CustomEvent("userProfileUpdated", { detail: { user: userData.usuario } })
+            new CustomEvent("userProfileUpdated", {
+              detail: { user: userData.usuario },
+            }),
           );
         }
       } catch (err) {
@@ -113,48 +123,83 @@ function App() {
   }
 
   return (
-    <AuthContext.Provider value={{ login, user, iniciarSesion, guardarUsuario, cerrarSesion }}>
+    <AuthContext.Provider
+      value={{ login, user, iniciarSesion, guardarUsuario, cerrarSesion }}
+    >
       <BrowserRouter>
         <SidebarProvider cerrarSesion={cerrarSesion}>
           {/* Sidebar global dentro de SidebarProvider para usar useSidebar() */}
           <SidebarOpciones />
 
           <Routes>
-          {/* Rutas públicas - accesibles sin autenticación */}
-          <Route path="/" element={<HomeScreen user={user} />} />
-          <Route path="/publicaciones/:tipo" element={<PublicacionesPage user={user} />} />
-          <Route path="/casos-resueltos" element={<PublicacionesExitosas user={user} />} />
-          <Route path="/consejos-perdi" element={<PerdiScreen user={user} />} />
-          <Route path="/consejos-encontre" element={<EncontreScreen user={user} />} />
-          <Route path="/consejos-adopcion" element={<AdoptarScreen user={user} />} />
-          <Route path="/perdidos-informacion" element={<MediaScreen type="perdidos" />} />
-          <Route path="/encontrados-informacion" element={<MediaScreen type="encontrados" />} />
-          <Route path="/adopciones-informacion" element={<MediaScreen type="adopciones" />} />
-          <Route path="/casos-ayuda" element={<CasosAyudaScreen user={user} />} />
-          <Route path="/contacto" element={<ContactScreen user={user} />} />
+            {/* Rutas públicas - accesibles sin autenticación */}
+            <Route path="/" element={<HomeScreen user={user} />} />
+            <Route
+              path="/publicaciones/:tipo"
+              element={<PublicacionesPage user={user} />}
+            />
+            <Route
+              path="/casos-resueltos"
+              element={<PublicacionesExitosas user={user} />}
+            />
+            <Route
+              path="/consejos-perdi"
+              element={<PerdiScreen user={user} />}
+            />
+            <Route
+              path="/consejos-encontre"
+              element={<EncontreScreen user={user} />}
+            />
+            <Route
+              path="/consejos-adopcion"
+              element={<AdoptarScreen user={user} />}
+            />
+            <Route
+              path="/perdidos-informacion"
+              element={<MediaScreen type="perdidos" />}
+            />
+            <Route
+              path="/encontrados-informacion"
+              element={<MediaScreen type="encontrados" />}
+            />
+            <Route
+              path="/adopciones-informacion"
+              element={<MediaScreen type="adopciones" />}
+            />
+            <Route
+              path="/casos-ayuda"
+              element={<CasosAyudaScreen user={user} />}
+            />
+            <Route path="/contacto" element={<ContactScreen user={user} />} />
 
-          {/* Rutas de autenticación */}
-          <Route
-            path="/login"
-            element={
-              login ? (
-                <Navigate to="/" />
-              ) : (
-                <LoginScreen
-                  iniciarSesion={iniciarSesion}
-                  guardarUsuario={guardarUsuario}
-                />
-              )
-            }
-          />
-          <Route path="/register" element={login ? <Navigate to="/" /> : <RegisterScreen />} />
-          <Route path="/forgot-password" element={login ? <Navigate to="/" /> : <ForgotPasswordScreen />} />
-          <Route
-            path="/reset-password/:token"
-            element={login ? <Navigate to="/" /> : <ResetPasswordScreen />}
-          />
+            {/* Rutas de autenticación */}
+            <Route
+              path="/login"
+              element={
+                login ? (
+                  <Navigate to="/" />
+                ) : (
+                  <LoginScreen
+                    iniciarSesion={iniciarSesion}
+                    guardarUsuario={guardarUsuario}
+                  />
+                )
+              }
+            />
+            <Route
+              path="/register"
+              element={login ? <Navigate to="/" /> : <RegisterScreen />}
+            />
+            <Route
+              path="/forgot-password"
+              element={login ? <Navigate to="/" /> : <ForgotPasswordScreen />}
+            />
+            <Route
+              path="/reset-password/:token"
+              element={login ? <Navigate to="/" /> : <ResetPasswordScreen />}
+            />
 
-          <Route path="*" element={<Navigate to="/" />} />
+            <Route path="*" element={<Navigate to="/" />} />
           </Routes>
 
           {/* Modales Admin accesibles siempre */}
