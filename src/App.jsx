@@ -123,7 +123,7 @@ function App() {
           {/* Rutas públicas - accesibles sin autenticación */}
           <Route path="/" element={<HomeScreen user={user} />} />
           <Route path="/publicaciones/:tipo" element={<PublicacionesPage user={user} />} />
-          <Route path="/publicaciones-exitosas" element={<PublicacionesExitosas user={user} />} />
+          <Route path="/casos-resueltos" element={<PublicacionesExitosas user={user} />} />
           <Route path="/consejos-perdi" element={<PerdiScreen user={user} />} />
           <Route path="/consejos-encontre" element={<EncontreScreen user={user} />} />
           <Route path="/consejos-adopcion" element={<AdoptarScreen user={user} />} />

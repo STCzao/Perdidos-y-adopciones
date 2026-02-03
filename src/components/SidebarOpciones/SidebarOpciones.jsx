@@ -260,7 +260,7 @@ export const SidebarOpciones = () => {
             onClick={() => setOpen(false)}
             className="border border-white/20 font-medium w-full h-11 rounded-full text-white bg-white/20 hover:bg-white/60 transition-colors delay-100 duration-300"
           >
-            Cerrar
+            Cerrar menú
           </button>
 
           <button

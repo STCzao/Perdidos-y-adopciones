@@ -91,7 +91,7 @@ const PublicacionesExitosas = () => {
             Casos resueltos
           </h2>
           <p className="text-sm font-semibold md:text-base text-center max-w-xl mx-auto px-4 text-black">
-            Estas no son solo historias de mascotas. Son historias de familias
+            Estas no son solo historias de animales. Son historias de familias
             reunidas, de segundas oportunidades, y de la fé restaurada en la
             bondad.
           </p>

@@ -61,7 +61,11 @@ const NavbarContent = () => {
       ],
     },
     {
-      name: "Casos para ayuda",
+      name: "Casos resueltos",
+      path: "/casos-resueltos",
+    },
+    {
+      name: "Historias & consejos",
       path: "/casos-ayuda",
     },
   ];
@@ -122,20 +126,20 @@ const NavbarContent = () => {
             }`}
             draggable="false"
           />
-          <div className="flex ml-1 items-center font-medium">
+          <div className="flex ml-1 items-center text-sm font-medium">
             <span>Perfil</span>
           </div>
         </div>
 
         {/* Contenedor para todos los elementos de la derecha */}
-        <div className="flex items-center gap-8">
+        <div className="flex items-center text-sm">
           {/* Desktop Nav - Ahora a la derecha */}
           <div
             className={`hidden md:flex items-center ${
               !isPublicaciones ? "drop-shadow-[0_0_2px_black]" : ""
             }`}
           >
-            <div className="flex items-center gap-8">
+            <div className="flex items-center gap-6 ml-10">
               {navLinks.map((link, i) =>
                 link.dropdown ? (
                   <div key={i} className="relative group">

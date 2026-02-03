@@ -296,7 +296,7 @@ const HomeScreen = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.6 }}
           onClick={() => {
-            navigate("/publicaciones-exitosas");
+            navigate("/casos-resueltos");
             window.scrollTo(0, 0);
           }}
           className="mt-3 text-black border border-[#FF7857]/40 cursor-pointer font-medium w-50 h-11 rounded-full bg-white/90 shadow-sm hover:bg-[#FF7857] hover:text-black transition-colors delay-100 duration-300"
