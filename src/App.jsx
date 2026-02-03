@@ -21,7 +21,7 @@ import MediaScreen from "./pages/MediaScreen/MediaScreen.jsx";
 import PublicacionesPage from "./pages/PublicacionesPages/PublicacionesPage.jsx";
 import PublicacionesExitosas from "./pages/PublicacionesPages/PublicacionesExitosas.jsx";
 import { AuthContext } from "./context/AuthContext";
-import { logout } from "./services/authService";
+import { logout } from "./services/auth.js";
 
 function App() {
   const [login, setLogin] = useState(false);
