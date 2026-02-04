@@ -87,8 +87,8 @@ export const CommonFields = ({
           placeholder="Seleccione la edad de su animal *"
           options={[
             { value: "SIN ESPECIFICAR", label: "Sin especificar" },
-            { value: "JOVEN", label: "Joven (0 a 12 meses)" },
-            { value: "CACHORRO", label: "Cachorro (1 a 4 años)" },
+            { value: "CACHORRO", label: "Cachorro (0 a 12 meses)" },
+            { value: "JOVEN", label: "Joven (1 a 4 años)" },
             { value: "ADULTO", label: "Adulto (5 a 10 años)" },
             { value: "MAYOR", label: "Mayor (Más de 10 años)" },
           ]}
