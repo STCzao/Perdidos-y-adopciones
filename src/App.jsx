@@ -19,10 +19,9 @@ import { AdminUsuarios } from "./components/AdminUsuarios/AdminUsuarios";
 import AdoptarScreen from "./pages/WhatDoScreen/AdoptarScreen.jsx";
 import MediaScreen from "./pages/MediaScreen/MediaScreen.jsx";
 import PublicacionesPage from "./pages/PublicacionesPages/PublicacionesPage.jsx";
-import PublicacionesExitosas from "./pages/PublicacionesPages/PublicacionesExitosas.jsx";
 import { AuthContext } from "./context/AuthContext";
 import { logout } from "./services/auth.js";
-import PreviewPDF from "./pages/PreviewPDF/PreviewPDF.jsx";
+
 
 function App() {
   const [login, setLogin] = useState(false);
@@ -138,10 +137,6 @@ function App() {
             <Route
               path="/publicaciones/:tipo"
               element={<PublicacionesPage user={user} />}
-            />
-            <Route
-              path="/casos-resueltos"
-              element={<PublicacionesExitosas user={user} />}
             />
             <Route
               path="/consejos-perdi"
