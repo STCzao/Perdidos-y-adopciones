@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { LazyLoadImage } from "react-lazy-load-image-component";
 import { useRequireAuth } from "../../hooks/useRequireAuth";
+import { generarPDFPublicacion } from "../CardPDF/CardPDF.JSX";
 
 const formatFecha = (fecha) => {
   if (!fecha) return "-";
@@ -15,6 +16,7 @@ const formatFecha = (fecha) => {
 const CardGenerica = ({ publicacion, cardId, isSuccessful = false }) => {
   const [flipped, setFlipped] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [generatingPDF, setGeneratingPDF] = useState(false);
   const withAuth = useRequireAuth();
 
   const {
@@ -60,6 +62,22 @@ const CardGenerica = ({ publicacion, cardId, isSuccessful = false }) => {
     } catch (err) {
       console.error("Error al copiar:", err);
     }
+  };
+
+  const handleExportarPDF = async (e) => {
+    e.stopPropagation();
+    withAuth(async () => {
+      try {
+        setGeneratingPDF(true);
+        const fileName = `${tipo}_${nombreanimal || especie}_${new Date().getTime()}.pdf`;
+        await generarPDFPublicacion(publicacion, fileName);
+        setTimeout(() => setGeneratingPDF(false), 1500);
+      } catch (error) {
+        console.error("Error al generar PDF:", error);
+        alert("Hubo un error al generar el PDF. Por favor, intenta nuevamente.");
+        setGeneratingPDF(false);
+      }
+    });
   };
 
   return (
@@ -279,6 +297,19 @@ const CardGenerica = ({ publicacion, cardId, isSuccessful = false }) => {
               (Click para VOLVER ATRÁS)
             </p>
           </div>
+          {!isSuccessful && (
+            <button
+              onClick={handleExportarPDF}
+              disabled={generatingPDF}
+              className={`mt-3 w-full text-sm border cursor-pointer font-medium px-4 py-2 rounded-full transition-colors delay-100 duration-300 ${
+                generatingPDF
+                  ? "bg-blue-500 text-white border-blue-500 cursor-wait"
+                  : "text-blue-600 bg-blue-50 border-blue-400 shadow-sm hover:bg-blue-500 hover:text-white"
+              }`}
+            >
+              {generatingPDF ? " Generando PDF..." : "Descargar cartel en PDF"}
+            </button>
+          )}
           {!isSuccessful && (
             <button
               onClick={handleCopyLink}

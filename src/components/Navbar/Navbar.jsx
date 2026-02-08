@@ -75,8 +75,9 @@ const NavbarContent = () => {
   const [mobileDropdownOpen, setMobileDropdownOpen] = React.useState({});
 
   const location = useLocation();
+  const isResueltos = location.pathname.startsWith("/casos-resueltos");
   const isPublicaciones = location.pathname.startsWith("/publicaciones");
-  const isSolidNavbar = isPublicaciones || isScrolled;
+  const isSolidNavbar = isPublicaciones || isResueltos || isScrolled;
 
   React.useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 10);
@@ -103,7 +104,7 @@ const NavbarContent = () => {
         {/* Logo - Mantiene posición a la izquierda */}
         <div
           className={`flex flex-col items-center cursor-pointer ${
-            !isPublicaciones ? "drop-shadow-[0_0_2px_black]" : ""
+            !isPublicaciones || !isResueltos ? "drop-shadow-[0_0_2px_black]" : ""
           }`}
           onClick={(e) => {
             e.preventDefault();
@@ -136,7 +137,7 @@ const NavbarContent = () => {
           {/* Desktop Nav - Ahora a la derecha */}
           <div
             className={`hidden md:flex items-center ${
-              !isPublicaciones ? "drop-shadow-[0_0_2px_black]" : ""
+              !isPublicaciones || !isResueltos ? "drop-shadow-[0_0_2px_black]" : ""
             }`}
           >
             <div className="flex items-center gap-6 ml-10">
