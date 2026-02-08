@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { LOCALIDADES_TUCUMAN } from "../../constants/localidades";
 
 const CardFiltro = ({ filtros, setFiltros, tipo }) => {
   const [isOpenMobile, setIsOpenMobile] = useState(false);
@@ -13,6 +14,7 @@ const CardFiltro = ({ filtros, setFiltros, tipo }) => {
       raza: "",
       edad: "",
       lugar: "",
+      localidad: "",
       sexo: "",
       tamaño: "",
       color: "",
@@ -35,11 +37,11 @@ const CardFiltro = ({ filtros, setFiltros, tipo }) => {
       </button>
 
       <div
-        className={`flex flex-col gap-3 lg:gap-3 transition-all duration-300 overflow-hidden lg:overflow-visible ${
+        className={`flex flex-col gap-3 lg:gap-3 transition-all duration-300 ${
           isOpenMobile
-            ? "max-h-[1000px] opacity-100"
-            : "max-h-0 opacity-0 pointer-events-none lg:max-h-none lg:opacity-100 lg:pointer-events-auto"
-        } lg:max-h-none lg:opacity-100 lg:pointer-events-auto`}
+            ? "max-h-[1000px] opacity-100 overflow-visible"
+            : "max-h-0 opacity-0 overflow-hidden pointer-events-none lg:max-h-none lg:opacity-100 lg:pointer-events-auto lg:overflow-visible"
+        } lg:max-h-none lg:opacity-100 lg:pointer-events-auto lg:overflow-visible`}
       >
         {/* Especie (desplegable) */}
         <div className="flex flex-col gap-1">
@@ -136,18 +138,40 @@ const CardFiltro = ({ filtros, setFiltros, tipo }) => {
           </div>
         )}
 
-        {/* Lugar */}
-        <div className="flex flex-col gap-1">
-          <label className="text-xs text-black">Lugar</label>
-          <input
-            type="text"
-            name="lugar"
-            value={filtros.lugar}
-            onChange={handleChange}
-            placeholder="Ej: Ciudad, barrio, calle..."
-            className="w-full mt-1 px-3 py-2 rounded-full text-xs bg-white border border-black/50 text-black/50 placeholder-black/40 outline-none focus:border-[#FF7857] focus:ring-1 focus:ring-[#FF7857]/60 transition-colors delay-100 duration-300"
-          />
-        </div>
+        {/* Localidad */}
+        {(tipo === "PERDIDO" || tipo === "ENCONTRADO") && (
+          <div className="flex flex-col gap-1">
+            <label className="text-xs text-black">Localidad</label>
+            <select
+              name="localidad"
+              value={filtros.localidad}
+              onChange={handleChange}
+              className="w-full mt-1 px-3 py-2 rounded-full bg-white border border-black/50 text-xs text-black/50 outline-none focus:border-[#FF7857] focus:ring-1 focus:ring-[#FF7857]/60 transition-colors delay-100 duration-300"
+            >
+              <option value="">Todas las localidades</option>
+              {LOCALIDADES_TUCUMAN.map((localidad) => (
+                <option key={localidad} value={localidad}>
+                  {localidad}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {/* Zona/Barrio */}
+        {(tipo === "PERDIDO" || tipo === "ENCONTRADO") && (
+          <div className="flex flex-col gap-1">
+            <label className="text-xs text-black">Zona/Barrio/Calle</label>
+            <input
+              type="text"
+              name="lugar"
+              value={filtros.lugar}
+              onChange={handleChange}
+              placeholder="Ej: Centro, Barrio Norte, San Martín..."
+              className="w-full mt-1 px-3 py-2 rounded-full text-xs bg-white border border-black/50 text-black placeholder-black/40 outline-none focus:border-[#FF7857] focus:ring-1 focus:ring-[#FF7857]/60 transition-colors delay-100 duration-300"
+            />
+          </div>
+        )}
 
         {/* Señas particulares (texto libre) */}
         <div className="flex flex-col gap-1">

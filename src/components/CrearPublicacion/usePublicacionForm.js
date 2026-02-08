@@ -9,6 +9,7 @@ export const usePublicacionForm = (editData) => {
     especie: "",
     tipo: "",
     raza: "",
+    localidad: "",
     lugar: "",
     fecha: "",
     sexo: "",
@@ -47,6 +48,10 @@ export const usePublicacionForm = (editData) => {
       especie: editData.especie || "",
       tipo: editData.tipo || "",
       raza: editData.raza || "",
+      localidad:
+        editData.tipo === "PERDIDO" || editData.tipo === "ENCONTRADO"
+          ? editData.localidad || ""
+          : "",
       lugar:
         editData.tipo === "PERDIDO" || editData.tipo === "ENCONTRADO"
           ? editData.lugar || ""
@@ -78,6 +83,7 @@ export const usePublicacionForm = (editData) => {
         tipo: value,
         nombreanimal: "",
         edad: "",
+        localidad: "",
         lugar: "",
         fecha: "",
         afinidad: "",
@@ -88,6 +94,7 @@ export const usePublicacionForm = (editData) => {
 
       setErrors((prev) => {
         const newErrors = { ...prev };
+        delete newErrors.localidad;
         delete newErrors.lugar;
         delete newErrors.fecha;
         delete newErrors.afinidad;

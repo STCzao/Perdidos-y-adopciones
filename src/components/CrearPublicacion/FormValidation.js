@@ -82,6 +82,11 @@ export const validateForm = (form) => {
 
   // VALIDACIONES SEGÚN TIPO
   if (form.tipo === "PERDIDO" || form.tipo === "ENCONTRADO") {
+    if (!form.localidad) {
+      newErrors.localidad = "La localidad es obligatoria";
+      valid = false;
+    }
+
     if (!form.lugar.trim()) {
       newErrors.lugar = "El lugar es obligatorio";
       valid = false;

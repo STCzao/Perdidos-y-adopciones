@@ -24,6 +24,7 @@ const CardGenerica = ({ publicacion, cardId, isSuccessful = false }) => {
     especie,
     tipo,
     raza,
+    localidad,
     lugar,
     fecha,
     sexo,
@@ -168,16 +169,18 @@ const CardGenerica = ({ publicacion, cardId, isSuccessful = false }) => {
                 )}
               </div>
               <div className="flex flex-col justify-center text-center text-sm">
-                {tipo === "PERDIDO" && lugar && (
+                {tipo === "PERDIDO" && (localidad || lugar) && (
                   <>
                     <p className="font-light ">Se extravió en:</p>
-                    <p className="font-extrabold ">{lugar}</p>
+                    {localidad && <p className="font-extrabold ">{localidad}</p>}
+                    {lugar && <p className="font-semibold text-xs">{lugar}</p>}
                   </>
                 )}
-                {tipo === "ENCONTRADO" && lugar && (
+                {tipo === "ENCONTRADO" && (localidad || lugar) && (
                   <>
                     <p className="font-light ">Se encontró en:</p>
-                    <p className="font-extrabold ">{lugar}</p>
+                    {localidad && <p className="font-extrabold ">{localidad}</p>}
+                    {lugar && <p className="font-semibold text-xs">{lugar}</p>}
                   </>
                 )}
                 {fecha && (
@@ -273,16 +276,18 @@ const CardGenerica = ({ publicacion, cardId, isSuccessful = false }) => {
             )}
 
             <div className="flex flex-col mt-5 justify-center text-center text-sm">
-              {tipo === "PERDIDO" && lugar && (
+              {tipo === "PERDIDO" && (localidad || lugar) && (
                 <>
                   <p className="font-light ">Se extravió en:</p>
-                  <p className="font-extrabold ">{lugar}</p>
+                  {localidad && <p className="font-extrabold ">{localidad}</p>}
+                  {lugar && <p className="font-semibold text-xs">{lugar}</p>}
                 </>
               )}
-              {tipo === "ENCONTRADO" && lugar && (
+              {tipo === "ENCONTRADO" && (localidad || lugar) && (
                 <>
                   <p className="font-light ">Se encontró en:</p>
-                  <p className="font-extrabold ">{lugar}</p>
+                  {localidad && <p className="font-extrabold ">{localidad}</p>}
+                  {lugar && <p className="font-semibold text-xs">{lugar}</p>}
                 </>
               )}
               {fecha && (

@@ -248,7 +248,8 @@ const PublicacionItem = React.memo(
             )}
             {publicacion.tipo === "ENCONTRADO" && (
               <span className="text-white/70">
-                Título: {publicacion.especie} encontrado en {publicacion.lugar}{" "}
+                Título: {publicacion.especie} encontrado en{" "}
+                {publicacion.localidad || publicacion.lugar || "ubicación desconocida"}
               </span>
             )}
             {publicacion.tipo === "ADOPCION" && (
