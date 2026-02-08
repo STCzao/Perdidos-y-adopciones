@@ -22,6 +22,7 @@ import PublicacionesPage from "./pages/PublicacionesPages/PublicacionesPage.jsx"
 import PublicacionesExitosas from "./pages/PublicacionesPages/PublicacionesExitosas.jsx";
 import { AuthContext } from "./context/AuthContext";
 import { logout } from "./services/auth.js";
+import PreviewPDF from "./pages/PreviewPDF/PreviewPDF.jsx";
 
 function App() {
   const [login, setLogin] = useState(false);
@@ -171,6 +172,9 @@ function App() {
               element={<CasosAyudaScreen user={user} />}
             />
             <Route path="/contacto" element={<ContactScreen user={user} />} />
+            
+            {/* Ruta de previsualización PDF */}
+            <Route path="/preview-pdf" element={<PreviewPDF />} />
 
             {/* Rutas de autenticación */}
             <Route
