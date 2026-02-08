@@ -115,6 +115,7 @@ export const CrearPublicacion = {
         }
 
         if (form.tipo === "PERDIDO" || form.tipo === "ENCONTRADO") {
+          datosParaEnviar.localidad = form.localidad;
           datosParaEnviar.lugar = form.lugar;
           datosParaEnviar.fecha = form.fecha;
         }

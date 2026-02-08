@@ -31,6 +31,7 @@ const PublicacionesPage = () => {
     color: "",
     especie: "",
     detalles: "",
+    localidad: "",
     lugar: "",
   });
 
@@ -120,6 +121,7 @@ const PublicacionesPage = () => {
         (!filtros.sexo || pub.sexo === filtros.sexo) &&
         (!filtros.especie || pub.especie === filtros.especie) &&  
         (!filtros.tamaño || pub.tamaño === filtros.tamaño) &&
+        (!filtros.localidad || pub.localidad === filtros.localidad) &&
         (!filtros.lugar ||
           pub.lugar?.toLowerCase().includes(filtros.lugar.toLowerCase())) &&
         (!filtros.color ||

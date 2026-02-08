@@ -48,6 +48,7 @@ const CardPdf = ({ publicacion, fileName }) => {
     especie,
     tipo,
     raza,
+    localidad,
     lugar,
     fecha,
     sexo,
@@ -442,7 +443,7 @@ const CardPdf = ({ publicacion, fileName }) => {
             backgroundColor: "#ffffff",
           }}
         >
-          {(tipo === "PERDIDO" || tipo === "ENCONTRADO") && lugar ? (
+          {(tipo === "PERDIDO" || tipo === "ENCONTRADO") && (localidad || lugar) ? (
             <div
               style={{
                 height: "100%",
@@ -452,6 +453,8 @@ const CardPdf = ({ publicacion, fileName }) => {
                 justifyContent: "center",
                 gap: "8px",
                 textAlign: "center",
+                paddingLeft: "16px",
+                paddingRight: "16px",
               }}
             >
               <p
@@ -464,19 +467,35 @@ const CardPdf = ({ publicacion, fileName }) => {
               >
                 {config.ubicacionLabel}
               </p>
-              <p
-                style={{
-                  color: "#000000",
-                  letterSpacing: "0.02em",
-                  fontSize: "2rem",
-                  fontWeight: "bold",
-                  textTransform: "uppercase",
-                  lineHeight: "1.2",
-                  margin: 0,
-                }}
-              >
-                {lugar}
-              </p>
+              {localidad && (
+                <p
+                  style={{
+                    color: "#000000",
+                    letterSpacing: "0.02em",
+                    fontSize: "2rem",
+                    fontWeight: "bold",
+                    textTransform: "uppercase",
+                    lineHeight: "1.2",
+                    margin: 0,
+                  }}
+                >
+                  {localidad}
+                </p>
+              )}
+              {lugar && (
+                <p
+                  style={{
+                    color: "#000000",
+                    letterSpacing: "0.01em",
+                    fontSize: "1.25rem",
+                    fontWeight: "600",
+                    lineHeight: "1.2",
+                    margin: 0,
+                  }}
+                >
+                  {lugar}
+                </p>
+              )}
               {fecha && (
                 <p
                   style={{
