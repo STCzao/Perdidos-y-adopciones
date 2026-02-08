@@ -21,7 +21,7 @@ import MediaScreen from "./pages/MediaScreen/MediaScreen.jsx";
 import PublicacionesPage from "./pages/PublicacionesPages/PublicacionesPage.jsx";
 import { AuthContext } from "./context/AuthContext";
 import { logout } from "./services/auth.js";
-
+import PublicacionesExitosas from "./pages/PublicacionesPages/PublicacionesExitosas.jsx";
 
 function App() {
   const [login, setLogin] = useState(false);
@@ -139,6 +139,11 @@ function App() {
               element={<PublicacionesPage user={user} />}
             />
             <Route
+              path="/casos-resueltos"
+              element={<PublicacionesExitosas user={user} />}
+            />
+
+            <Route
               path="/consejos-perdi"
               element={<PerdiScreen user={user} />}
             />
@@ -167,7 +172,6 @@ function App() {
               element={<CasosAyudaScreen user={user} />}
             />
             <Route path="/contacto" element={<ContactScreen user={user} />} />
-            
 
             {/* Rutas de autenticación */}
             <Route
