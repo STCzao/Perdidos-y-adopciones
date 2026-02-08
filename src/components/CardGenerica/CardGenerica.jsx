@@ -196,7 +196,7 @@ const CardGenerica = ({ publicacion, cardId, isSuccessful = false }) => {
               </div>
             </div>
             <p className="text-center font-bold text-black/60 text-[0.8rem]">
-              (Click para VER MÁS DETALLES)
+              (Click para más detalles y contacto)
             </p>
           </div>
           {tipo === "ENCONTRADO" && (
