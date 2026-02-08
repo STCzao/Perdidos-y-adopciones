@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { LazyLoadImage } from "react-lazy-load-image-component";
 import { useRequireAuth } from "../../hooks/useRequireAuth";
-import { generarPDFPublicacion } from "../CardPDF/CardPDF.JSX";
+import { generarPDFPublicacion } from "../CardPdf/CardPdf.jsx";
 
 const formatFecha = (fecha) => {
   if (!fecha) return "-";
