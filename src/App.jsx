@@ -168,8 +168,6 @@ function App() {
             />
             <Route path="/contacto" element={<ContactScreen user={user} />} />
             
-            {/* Ruta de previsualización PDF */}
-            <Route path="/preview-pdf" element={<PreviewPDF />} />
 
             {/* Rutas de autenticación */}
             <Route
