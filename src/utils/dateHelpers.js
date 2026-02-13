@@ -7,7 +7,7 @@ export const formatFecha = (fecha) => {
   if (!fecha) return "-";
 
   //Si ya tiene formato DD/MM/YYYY, devolverlo tal cual
-  if (fecha.include("/")) return fecha;
+  if (fecha.includes("/")) return fecha;
 
   if (fecha.includes("-")) {
     const [year, month, day] = fecha.split("-");
