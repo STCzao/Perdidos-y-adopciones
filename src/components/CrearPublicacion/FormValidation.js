@@ -1,6 +1,7 @@
 /**
  * Validaciones para el formulario de publicaciones
  */
+import { validarFechaNoFutura } from "../../utils/dateHelpers";
 
 export const validateForm = (form) => {
   let valid = true;
@@ -8,7 +9,8 @@ export const validateForm = (form) => {
 
   // Validación detalles
   if (form.detalles.trim().length > 251) {
-    newErrors.detalles = "Los detalles no pueden contener más de 250 caracteres";
+    newErrors.detalles =
+      "Los detalles no pueden contener más de 250 caracteres";
     valid = false;
   }
 
@@ -74,7 +76,9 @@ export const validateForm = (form) => {
     newErrors.img = "La imagen es obligatoria";
     valid = false;
   } else if (
-    !/^https:\/\/res\.cloudinary\.com\/.+\/.+\.(jpg|jpeg|png|webp)$/.test(form.img)
+    !/^https:\/\/res\.cloudinary\.com\/.+\/.+\.(jpg|jpeg|png|webp)$/.test(
+      form.img,
+    )
   ) {
     newErrors.img = "La URL de imagen no es válida";
     valid = false;
@@ -98,18 +102,9 @@ export const validateForm = (form) => {
     if (!form.fecha.trim()) {
       newErrors.fecha = "La fecha es obligatoria";
       valid = false;
-    } else {
-      const fechaIngresada = new Date(form.fecha);
-      const hoy = new Date();
-
-      // Normalizar
-      fechaIngresada.setHours(0, 0, 0, 0);
-      hoy.setHours(0, 0, 0, 0);
-
-      if (fechaIngresada > hoy) {
-        newErrors.fecha = "La fecha no puede ser mayor al día actual";
-        valid = false;
-      }
+    } else if (!validarFechaNoFutura(form.fecha)) {
+      newErrors.fecha = "La fecha no puede ser mayor al día actual";
+      valid = false;
     }
   }
 
@@ -127,7 +122,8 @@ export const validateForm = (form) => {
       newErrors.nombreanimal = "El nombre del animal es obligatorio";
       valid = false;
     } else if (form.nombreanimal.trim().length > 61) {
-      newErrors.nombreanimal = "El nombre no puede contener más de 60 caracteres";
+      newErrors.nombreanimal =
+        "El nombre no puede contener más de 60 caracteres";
       valid = false;
     } else if (form.nombreanimal.trim().length < 3) {
       newErrors.nombreanimal = "El nombre debe tener al menos 3 caracteres";
@@ -142,7 +138,8 @@ export const validateForm = (form) => {
       valid = false;
     }
     if (!form.afinidadanimales) {
-      newErrors.afinidadanimales = "La afinidad con otros animales es obligatoria";
+      newErrors.afinidadanimales =
+        "La afinidad con otros animales es obligatoria";
       valid = false;
     }
     if (!form.energia) {

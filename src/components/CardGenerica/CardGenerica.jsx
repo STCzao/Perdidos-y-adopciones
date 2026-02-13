@@ -2,16 +2,7 @@ import { useState } from "react";
 import { LazyLoadImage } from "react-lazy-load-image-component";
 import { useRequireAuth } from "../../hooks/useRequireAuth";
 import { generarPDFPublicacion } from "../CardPdf/CardPdf.jsx";
-
-const formatFecha = (fecha) => {
-  if (!fecha) return "-";
-  const date = new Date(fecha);
-  return date.toLocaleDateString("es-AR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
-};
+import { formatFecha } from "../../utils/dateHelpers.js";
 
 const CardGenerica = ({ publicacion, cardId, isSuccessful = false }) => {
   const [flipped, setFlipped] = useState(false);
