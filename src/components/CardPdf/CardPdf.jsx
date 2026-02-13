@@ -1,16 +1,7 @@
 import { useRef } from "react";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
-
-const formatFecha = (fecha) => {
-  if (!fecha) return "-";
-  const date = new Date(fecha);
-  return date.toLocaleDateString("es-AR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
-};
+import { formatFecha } from "../../utils/dateHelpers";
 
 const waitForAssets = async (element) => {
   if (!element) return;

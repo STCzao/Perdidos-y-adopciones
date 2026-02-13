@@ -37,9 +37,7 @@ const PublicacionesExitosas = () => {
 
         // Ordenar por fecha de creación (descendente - más recientes primero)
         const publicacionesOrdenadas = todasLasPublicaciones.sort(
-          (a, b) =>
-            new Date(b.fechaCreacion || b.fecha) -
-            new Date(a.fechaCreacion || a.fecha),
+          (a, b) => new Date(b.fechaCreacion) - new Date(a.fechaCreacion), // fechaCreacion es Date, está bien
         );
 
         setPublicaciones(publicacionesOrdenadas);
@@ -56,15 +54,20 @@ const PublicacionesExitosas = () => {
 
   useEffect(() => {
     const id = location.hash.slice(1); // Elimina el #
-    if (id && !loading && !hashProcessed && publicacionesFiltradasTotales.length > 0) {
+    if (
+      id &&
+      !loading &&
+      !hashProcessed &&
+      publicacionesFiltradasTotales.length > 0
+    ) {
       // Busca en qué página está la tarjeta
       const tarjetaIndex = publicacionesFiltradasTotales.findIndex(
-        (pub) => pub._id === id
+        (pub) => pub._id === id,
       );
 
       if (tarjetaIndex !== -1) {
         const tarjetaPagina = Math.floor(tarjetaIndex / 12) + 1;
-        
+
         // Si está en otra página, navega a esa página
         if (tarjetaPagina !== page) {
           setPage(tarjetaPagina);
@@ -115,7 +118,11 @@ const PublicacionesExitosas = () => {
                       transition={{ duration: 0.3 }}
                       className="w-full h-[36rem] flex justify-center"
                     >
-                      <CardGenerica publicacion={pub} cardId={pub._id} isSuccessful={true} />
+                      <CardGenerica
+                        publicacion={pub}
+                        cardId={pub._id}
+                        isSuccessful={true}
+                      />
                     </motion.div>
                   );
                 } catch (error) {
