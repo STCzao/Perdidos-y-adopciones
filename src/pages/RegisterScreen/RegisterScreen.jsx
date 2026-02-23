@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { crearUsuario } from "../../services/auth";
 
 export default function RegisterScreen() {
   const [form, setForm] = useState({
@@ -13,7 +14,6 @@ export default function RegisterScreen() {
   const [result, setResult] = useState("");
   const [show, setShow] = useState(false);
 
-  const API_URL = import.meta.env.VITE_API_URL;
   const navigate = useNavigate();
 
   const handleChange = (e) =>
@@ -65,10 +65,10 @@ export default function RegisterScreen() {
     if (!form.password.trim()) {
       newErrors.password = "La contraseña es obligatoria";
       valid = false;
-    } else if (form.password.trim().length < 5) {
+    } else if (form.password.trim().length < 6) {
       newErrors.password = "La contraseña debe tener al menos 6 caracteres";
       valid = false;
-    } else if (form.password.trim().length > 16) {
+    } else if (form.password.trim().length > 15) {
       newErrors.password = "La contraseña no puede tener más de 15 caracteres";
       valid = false;
     }
@@ -78,47 +78,24 @@ export default function RegisterScreen() {
 
     try {
       setResult("Registrando...");
-      const resp = await fetch(`${API_URL}/usuarios`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          nombre: form.nombre.trim(),
-          correo: form.correo.trim(),
-          password: form.password.trim(),
-          telefono: form.telefono.trim(),
-        }),
+      const data = await crearUsuario({
+        nombre: form.nombre.trim(),
+        correo: form.correo.trim(),
+        password: form.password.trim(),
+        telefono: form.telefono.trim(),
       });
 
-      const data = await resp.json();
-
-      if (!resp.ok) {
-        if (data.errors) {
-          // Los errores del backend van a los campos específicos
-          setErrors(data.errors);
-        } else {
-          // Si no hay estructura errors, mostramos en result
-          setResult(data.msg || "Error al registrarse");
-        }
+      if (!data.usuario) {
+        if (data.errors) setErrors(data.errors);
+        else setResult(data.msg || "Error al registrarse");
       } else {
-        // Backend solo devuelve { usuario }, NO genera tokens en registro
         setResult("¡Registro exitoso! Redirigiendo al login...");
         setForm({ nombre: "", correo: "", password: "", telefono: "" });
         setErrors({});
-        
-        // Guardar correo para autocompletar en login
+
         localStorage.setItem("lastRegisteredEmail", form.correo.trim());
-        
-        // Verificar si hay una URL de retorno guardada
-        const returnUrl = localStorage.getItem("returnUrl");
-        
-        setTimeout(() => {
-          // Redirigir al login para que el usuario inicie sesión
-          if (returnUrl) {
-            navigate("/login");
-          } else {
-            navigate("/login");
-          }
-        }, 2000);
+
+        setTimeout(() => navigate("/login"), 2000);
       }
     } catch (error) {
       console.error(error);

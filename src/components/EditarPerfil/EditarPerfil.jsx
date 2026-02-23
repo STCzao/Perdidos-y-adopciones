@@ -189,6 +189,9 @@ export const EditarPerfil = {
         if (res.ok) {
           setResult("Cuenta eliminada exitosamente. Redirigiendo...");
           localStorage.removeItem("token");
+          localStorage.removeItem("refreshToken");
+          localStorage.removeItem("user");
+          window.dispatchEvent(new CustomEvent("forceLogout"));
           setTimeout(() => {
             window.location.href = "/";
           }, 1500);

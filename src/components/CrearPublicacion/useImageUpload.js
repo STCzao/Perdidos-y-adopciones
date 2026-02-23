@@ -1,7 +1,11 @@
+const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+const UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+
 /**
  * Hook para manejar la subida de imágenes a Cloudinary
  */
 export const useImageUpload = (setFormImage, setErrors) => {
+
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -24,10 +28,10 @@ export const useImageUpload = (setFormImage, setErrors) => {
     try {
       const formData = new FormData();
       formData.append("file", file);
-      formData.append("upload_preset", "pet_uploads");
+      formData.append("upload_preset", UPLOAD_PRESET);
 
       const response = await fetch(
-        "https://api.cloudinary.com/v1_1/dzxp6fhvu/image/upload",
+        `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
         { method: "POST", body: formData }
       );
 

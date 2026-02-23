@@ -3,7 +3,7 @@ import * as authService from './auth';
 import * as usuariosService from './usuarios';
 import * as publicacionesService from './publicaciones';
 import * as buscarService from './buscar';
-import * as casosAyudaService from './casosayuda';
+import * as comunidadService from './comunidad';
 
 // Exportamos todo junto
 export {
@@ -11,5 +11,5 @@ export {
   usuariosService,
   publicacionesService,
   buscarService,
-  casosAyudaService
+  comunidadService
 };

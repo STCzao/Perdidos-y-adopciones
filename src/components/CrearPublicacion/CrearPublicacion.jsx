@@ -23,7 +23,7 @@ export const CrearPublicacion = {
     const [submitting, setSubmitting] = useState(false);
     const [editData, setEditData] = useState(null);
 
-    const { form, errors, setErrors, handleChange, resetForm, setFormImage } =
+    const { form, errors, setErrors, handleChange, resetForm, setFormImage, razasPorEspecie } =
       usePublicacionForm(editData);
 
     const { handleImageUpload: uploadImage } = useImageUpload(setFormImage, setErrors);
@@ -215,6 +215,7 @@ export const CrearPublicacion = {
                 submitting={submitting}
                 handleImageUpload={handleImageUploadWrapper}
                 uploading={uploading}
+                razasPorEspecie={razasPorEspecie}
               />
 
               <PerdidoEncontradoFields

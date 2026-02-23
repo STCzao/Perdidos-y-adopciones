@@ -1,10 +1,7 @@
 import { useState, useEffect } from "react";
+import { publicacionesService } from "../../services/publicaciones";
 
-/**
- * Hook personalizado para gestionar el estado del formulario de publicaciones
- */
-export const usePublicacionForm = (editData) => {
-  const initialFormState = {
+const initialFormState = {
     nombreanimal: "",
     especie: "",
     tipo: "",
@@ -23,7 +20,19 @@ export const usePublicacionForm = (editData) => {
     castrado: false,
     whatsapp: "",
     img: "",
-  };
+};
+
+/**
+ * Hook personalizado para gestionar el estado del formulario de publicaciones
+ */
+export const usePublicacionForm = (editData) => {
+  const [razasPorEspecie, setRazasPorEspecie] = useState({});
+
+  useEffect(() => {
+    publicacionesService.getRazas().then((res) => {
+      if (res.razasPorEspecie) setRazasPorEspecie(res.razasPorEspecie);
+    });
+  }, []);
 
   const [form, setForm] = useState(initialFormState);
   const [errors, setErrors] = useState({});
@@ -77,7 +86,15 @@ export const usePublicacionForm = (editData) => {
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
 
-    if (name === "tipo") {
+    if (name === "especie") {
+      setForm((prev) => ({ ...prev, especie: value, raza: "" }));
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors.especie;
+        delete newErrors.raza;
+        return newErrors;
+      });
+    } else if (name === "tipo") {
       setForm((prev) => ({
         ...prev,
         tipo: value,
@@ -146,5 +163,6 @@ export const usePublicacionForm = (editData) => {
     handleChange,
     resetForm,
     setFormImage,
+    razasPorEspecie,
   };
 };

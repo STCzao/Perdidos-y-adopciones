@@ -1,15 +1,9 @@
 import axiosInstance from '../utils/axiosInstance';
 
-const SEED_TOKEN = import.meta.env.VITE_API_SEED_TOKEN;
-
 // Login
 export const authLogin = async (datos) => {
   try {
-    const { data } = await axiosInstance.post('/auth/login', datos, {
-      headers: {
-        "x-token": SEED_TOKEN,
-      },
-    });
+    const { data } = await axiosInstance.post('/auth/login', datos);
 
     // Backend devuelve { success, usuario, accessToken, refreshToken }
     if (data.accessToken) {
@@ -23,25 +17,21 @@ export const authLogin = async (datos) => {
     return data;
   } catch (error) {
     console.error(error);
-    return { msg: error.response?.data?.msg || "Error al iniciar sesion" };
+    return { msg: error.response?.data?.msg || "Error al iniciar sesion", ...error.response?.data };
   }
 };
 
 // Registro
 export const crearUsuario = async (datos) => {
   try {
-    const { data } = await axiosInstance.post('/usuarios', datos, {
-      headers: {
-        "x-token": SEED_TOKEN,
-      },
-    });
+    const { data } = await axiosInstance.post('/usuarios', datos);
 
     // Backend solo devuelve { usuario }, NO genera tokens en registro
     // El usuario debe hacer login después de registrarse
     return data;
   } catch (error) {
     console.error(error);
-    return { msg: error.response?.data?.msg || "Error al registrar usuario" };
+    return { msg: error.response?.data?.msg || "Error al registrar usuario", ...error.response?.data };
   }
 };
 

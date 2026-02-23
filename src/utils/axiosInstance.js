@@ -75,11 +75,11 @@ axiosInstance.interceptors.response.use(
       const refreshToken = localStorage.getItem("refreshToken");
 
       if (!refreshToken) {
-        // No hay refresh token, cerrar sesión
+        // No hay refresh token, notificar al contexto React para cerrar sesión
         localStorage.removeItem("token");
         localStorage.removeItem("refreshToken");
         localStorage.removeItem("user");
-        window.location.href = "/login";
+        window.dispatchEvent(new CustomEvent("forceLogout"));
         return Promise.reject(error);
       }
 
@@ -112,11 +112,11 @@ axiosInstance.interceptors.response.use(
       } catch (refreshError) {
         processQueue(refreshError, null);
 
-        // Refresh falló, cerrar sesión
+        // Refresh falló, notificar al contexto React para cerrar sesión
         localStorage.removeItem("token");
         localStorage.removeItem("refreshToken");
         localStorage.removeItem("user");
-        window.location.href = "/login";
+        window.dispatchEvent(new CustomEvent("forceLogout"));
 
         return Promise.reject(refreshError);
       } finally {
