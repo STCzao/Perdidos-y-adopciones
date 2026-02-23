@@ -1,12 +1,17 @@
 import { useState } from "react";
 import { LOCALIDADES_TUCUMAN } from "../../constants/localidades";
 
-const CardFiltro = ({ filtros, setFiltros, tipo }) => {
+const CardFiltro = ({ filtros, setFiltros, tipo, razasPorEspecie = {} }) => {
   const [isOpenMobile, setIsOpenMobile] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFiltros((prev) => ({ ...prev, [name]: value }));
+    if (name === "especie") {
+      // Al cambiar especie, resetear raza para evitar valores inconsistentes
+      setFiltros((prev) => ({ ...prev, especie: value, raza: "" }));
+    } else {
+      setFiltros((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleClearFilters = () => {
@@ -76,17 +81,25 @@ const CardFiltro = ({ filtros, setFiltros, tipo }) => {
           </select>
         </div>
 
-        {/* Raza (texto libre) */}
+        {/* Raza (select filtrado por especie) */}
         <div className="flex flex-col gap-1">
           <label className="text-xs text-black">Raza</label>
-          <input
-            type="text"
+          <select
             name="raza"
             value={filtros.raza}
             onChange={handleChange}
-            placeholder="Ej: Mestizo"
-            className="w-full mt-1 px-3 py-2 rounded-full text-xs bg-white border border-black/50 text-black placeholder-black/40 outline-none focus:border-[#FF7857] focus:ring-1 focus:ring-[#FF7857]/60 transition-colors delay-100 duration-300"
-          />
+            disabled={!filtros.especie}
+            className="w-full mt-1 px-3 py-2 rounded-full bg-white border border-black/50 text-xs text-black/50 outline-none focus:border-[#FF7857] focus:ring-1 focus:ring-[#FF7857]/60 transition-colors delay-100 duration-300 disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            <option value="">
+              {filtros.especie ? "Todas las razas" : "Seleccione especie primero"}
+            </option>
+            {(razasPorEspecie[filtros.especie] || []).map((raza) => (
+              <option key={raza} value={raza}>
+                {raza}
+              </option>
+            ))}
+          </select>
         </div>
 
         {/* Tamaño */}

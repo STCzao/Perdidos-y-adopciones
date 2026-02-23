@@ -3,44 +3,45 @@ import Footer from "../../components/Footer/Footer";
 import { motion } from "framer-motion";
 import CardGenerica from "../../components/CardGenerica/CardGenerica";
 import { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
 import { publicacionesService } from "../../services/publicaciones";
 
+const ESTADOS_EXITOSOS = ["YA APARECIO", "APARECIO SU FAMILIA", "ADOPTADO"];
+
+// Descarga todas las páginas de un estado dado (respetando el cap de 50 del backend)
+const fetchTodasLasPaginasDeEstado = async (estado) => {
+  const primera = await publicacionesService.getPublicaciones({ page: 1, limit: 50, estado });
+  const publicaciones = primera?.publicaciones || [];
+  const totalPages = primera?.totalPages || 1;
+
+  if (totalPages <= 1) return publicaciones;
+
+  const requests = [];
+  for (let p = 2; p <= totalPages; p++) {
+    requests.push(publicacionesService.getPublicaciones({ page: p, limit: 50, estado }));
+  }
+  const resto = await Promise.all(requests);
+  return [...publicaciones, ...resto.flatMap((r) => r?.publicaciones || [])];
+};
+
 const PublicacionesExitosas = () => {
-  const location = useLocation();
   const [publicaciones, setPublicaciones] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [hashProcessed, setHashProcessed] = useState(false);
-
-  // Estados que representan casos exitosos
-  const estadosExitosos = ["YA APARECIO", "APARECIO SU FAMILIA", "ADOPTADO"];
 
   useEffect(() => {
     const fetchPublicacionesExitosas = async () => {
       setLoading(true);
       try {
-        // Traer publicaciones con cada estado de éxito
-        const requests = estadosExitosos.map((estado) =>
-          publicacionesService.getPublicaciones({
-            page: 1,
-            limit: 100,
-            estado: estado,
-          }),
+        // Traer todas las páginas de cada estado exitoso en paralelo
+        const resultados = await Promise.all(
+          ESTADOS_EXITOSOS.map((estado) => fetchTodasLasPaginasDeEstado(estado)),
         );
 
-        const results = await Promise.all(requests);
-
-        // Combinar todos los resultados
-        const todasLasPublicaciones = results.flatMap(
-          (res) => res?.publicaciones || [],
-        );
+        const todas = resultados.flat();
 
         // Ordenar por fecha de creación (descendente - más recientes primero)
-        const publicacionesOrdenadas = todasLasPublicaciones.sort(
-          (a, b) => new Date(b.fechaCreacion) - new Date(a.fechaCreacion), // fechaCreacion es Date, está bien
-        );
+        todas.sort((a, b) => new Date(b.fechaCreacion) - new Date(a.fechaCreacion));
 
-        setPublicaciones(publicacionesOrdenadas);
+        setPublicaciones(todas);
       } catch (error) {
         console.error("Error al obtener publicaciones exitosas:", error);
         setPublicaciones([]);
@@ -51,39 +52,6 @@ const PublicacionesExitosas = () => {
 
     fetchPublicacionesExitosas();
   }, []);
-
-  useEffect(() => {
-    const id = location.hash.slice(1); // Elimina el #
-    if (
-      id &&
-      !loading &&
-      !hashProcessed &&
-      publicacionesFiltradasTotales.length > 0
-    ) {
-      // Busca en qué página está la tarjeta
-      const tarjetaIndex = publicacionesFiltradasTotales.findIndex(
-        (pub) => pub._id === id,
-      );
-
-      if (tarjetaIndex !== -1) {
-        const tarjetaPagina = Math.floor(tarjetaIndex / 12) + 1;
-
-        // Si está en otra página, navega a esa página
-        if (tarjetaPagina !== page) {
-          setPage(tarjetaPagina);
-        } else {
-          // Si ya está en la página actual, haz scroll
-          setTimeout(() => {
-            const element = document.getElementById(id);
-            if (element) {
-              element.scrollIntoView({ behavior: "smooth", block: "center" });
-            }
-          }, 200);
-        }
-        setHashProcessed(true); // Marcar como procesado
-      }
-    }
-  }, [location.hash, hashProcessed]);
 
   return (
     <div>

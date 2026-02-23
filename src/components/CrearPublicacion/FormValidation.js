@@ -20,12 +20,9 @@ export const validateForm = (form) => {
     valid = false;
   }
 
-  // Validación raza
-  if (!form.raza.trim()) {
+  // Validación raza (ahora es un select controlado por el backend)
+  if (!form.raza) {
     newErrors.raza = "La raza es obligatoria";
-    valid = false;
-  } else if (form.raza.trim().length > 41) {
-    newErrors.raza = "La raza no puede contener más de 40 caracteres";
     valid = false;
   }
 

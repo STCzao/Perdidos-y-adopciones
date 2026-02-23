@@ -15,6 +15,7 @@ export const CommonFields = ({
   submitting,
   handleImageUpload,
   uploading,
+  razasPorEspecie = {},
 }) => {
   return (
     <>
@@ -96,15 +97,22 @@ export const CommonFields = ({
       )}
 
       {/* Raza */}
-      <InputField
+      <SelectField
         label="Raza"
         name="raza"
-        type="text"
         value={form.raza}
         onChange={handleChange}
-        disabled={submitting}
+        disabled={submitting || !form.especie}
         error={errors.raza}
-        placeholder="Ingrese la raza de su animal *"
+        placeholder={
+          !form.especie
+            ? "Seleccione primero la especie"
+            : "Seleccione la raza de su animal *"
+        }
+        options={(razasPorEspecie[form.especie] || []).map((r) => ({
+          value: r,
+          label: r,
+        }))}
       />
 
       {/* Color */}

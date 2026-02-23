@@ -1,6 +1,16 @@
 import axiosInstance from '../utils/axiosInstance';
 
 export const publicacionesService = {
+  getRazas: async () => {
+    try {
+      const { data } = await axiosInstance.get('/publicaciones/razas');
+      return data; // { razas: [...], razasPorEspecie: { PERRO: [...], ... } }
+    } catch (error) {
+      console.error('Error en getRazas:', error);
+      return { success: false, razas: [], razasPorEspecie: {} };
+    }
+  },
+
   getPublicaciones: async ({
     page = 1,
     limit = 12,

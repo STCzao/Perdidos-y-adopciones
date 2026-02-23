@@ -1,6 +1,6 @@
 import axiosInstance from '../utils/axiosInstance';
 
-const cache = { publicaciones: null, usuarios: null, timestamp: null };
+const cache = { usuarios: null, usuariosTimestamp: null };
 const CACHE_DURATION = 30000;
 
 export const adminService = {
@@ -46,8 +46,8 @@ export const adminService = {
     try {
       if (
         cache.usuarios &&
-        cache.timestamp &&
-        Date.now() - cache.timestamp < CACHE_DURATION
+        cache.usuariosTimestamp &&
+        Date.now() - cache.usuariosTimestamp < CACHE_DURATION
       ) {
         return cache.usuarios;
       }
@@ -59,7 +59,7 @@ export const adminService = {
       const result = { usuarios };
 
       cache.usuarios = result;
-      cache.timestamp = Date.now();
+      cache.usuariosTimestamp = Date.now();
 
       return result;
     } catch (error) {
@@ -83,8 +83,7 @@ export const adminService = {
   },
 
   clearCache: () => {
-    cache.publicaciones = null;
     cache.usuarios = null;
-    cache.timestamp = null;
+    cache.usuariosTimestamp = null;
   },
 };

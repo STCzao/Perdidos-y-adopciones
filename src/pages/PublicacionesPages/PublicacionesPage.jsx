@@ -11,6 +11,23 @@ import ReactPaginate from "react-paginate";
 import { useRequireAuth } from "../../hooks/useRequireAuth";
 import { compareFechas } from "../../utils/dateHelpers";
 
+const ITEMS_PER_PAGE = 12;
+
+const mapTipos = {
+  perdidos: "PERDIDO",
+  adopciones: "ADOPCION",
+  encontrados: "ENCONTRADO",
+};
+
+// Estados que son casos exitosos y no deben aparecer en PublicacionesPage
+const estadosExcluidos = ["YA APARECIO", "APARECIO SU FAMILIA", "ADOPTADO"];
+
+const titulos = {
+  perdidos: "Animales perdidos",
+  adopciones: "Animales en adopción",
+  encontrados: "Animales encontrados",
+};
+
 const PublicacionesPage = () => {
   const { tipo } = useParams();
   const location = useLocation();
@@ -21,8 +38,14 @@ const PublicacionesPage = () => {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [hashProcessed, setHashProcessed] = useState(false);
+  const [razasPorEspecie, setRazasPorEspecie] = useState({});
 
-  const ITEMS_PER_PAGE = 12;
+  // Cargar catálogo de razas una sola vez al montar
+  useEffect(() => {
+    publicacionesService.getRazas().then((res) => {
+      if (res.razasPorEspecie) setRazasPorEspecie(res.razasPorEspecie);
+    });
+  }, []);
 
   const [filtros, setFiltros] = useState({
     raza: "",
@@ -36,21 +59,6 @@ const PublicacionesPage = () => {
     lugar: "",
   });
 
-  const mapTipos = {
-    perdidos: "PERDIDO",
-    adopciones: "ADOPCION",
-    encontrados: "ENCONTRADO",
-  };
-
-  // Estados que son casos exitosos y no deben aparecer en PublicacionesPage
-  const estadosExcluidos = ["YA APARECIO", "APARECIO SU FAMILIA", "ADOPTADO"];
-
-  const titulos = {
-    perdidos: "Animales perdidos",
-    adopciones: "Animales en adopción",
-    encontrados: "Animales encontrados",
-  };
-
   // Cargar TODAS las publicaciones sin filtrar estados exitosos desde el backend
   useEffect(() => {
     const fetchAllPublicaciones = async () => {
@@ -58,7 +66,7 @@ const PublicacionesPage = () => {
       try {
         const firstRes = await publicacionesService.getPublicaciones({
           page: 1,
-          limit: 100,
+          limit: 50,
           tipo: mapTipos[tipo],
         });
 
@@ -81,7 +89,7 @@ const PublicacionesPage = () => {
           requests.push(
             publicacionesService.getPublicaciones({
               page: p,
-              limit: 100,
+              limit: 50,
               tipo: mapTipos[tipo],
             }),
           );
@@ -116,8 +124,7 @@ const PublicacionesPage = () => {
   const filtrarPublicaciones = (lista) => {
     return lista.filter((pub) => {
       return (
-        (!filtros.raza ||
-          pub.raza?.toLowerCase().includes(filtros.raza.toLowerCase())) &&
+        (!filtros.raza || pub.raza === filtros.raza) &&
         (!filtros.edad || pub.edad === filtros.edad) &&
         (!filtros.sexo || pub.sexo === filtros.sexo) &&
         (!filtros.especie || pub.especie === filtros.especie) &&
@@ -200,36 +207,13 @@ const PublicacionesPage = () => {
   // Función para verificar si la publicación está en las exitosas
   const checkIfInSuccessfulPublications = async (publicacionId) => {
     try {
-      // Buscar en cada estado exitoso
-      const estadosExitosos = [
-        "YA APARECIO",
-        "APARECIO SU FAMILIA",
-        "ADOPTADO",
-      ];
-
-      for (const estado of estadosExitosos) {
-        const res = await publicacionesService.getPublicaciones({
-          page: 1,
-          limit: 100,
-          estado: estado,
-        });
-
-        const encontrada = (res?.publicaciones || []).find(
-          (pub) => pub._id === publicacionId,
-        );
-
-        if (encontrada) {
-          // Redirigir a PublicacionesExitosas con el hash
-          navigate(`/casos-exito#${publicacionId}`);
-          setHashProcessed(true);
-          return;
-        }
+      const res = await publicacionesService.getPublicacionById(publicacionId);
+      if (res?.publicacion && estadosExcluidos.includes(res.publicacion.estado)) {
+        navigate(`/casos-exito#${publicacionId}`);
       }
-
-      // Si no la encontró en ningún lado, marcar como procesado
-      setHashProcessed(true);
     } catch (error) {
       console.error("Error buscando publicación exitosa:", error);
+    } finally {
       setHashProcessed(true);
     }
   };
@@ -273,6 +257,7 @@ const PublicacionesPage = () => {
               filtros={filtros}
               setFiltros={setFiltros}
               tipo={mapTipos[tipo]}
+              razasPorEspecie={razasPorEspecie}
             />
 
             <p className="text-black font-medium text-sm mt-2 border border-[#FF7857]/30 px-3 py-2 rounded-xl bg-white/90 shadow-sm">

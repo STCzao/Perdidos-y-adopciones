@@ -1,10 +1,11 @@
 "use client";
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useContext } from "react";
 import { motion } from "framer-motion";
 import { publicacionesService } from "../../services/publicaciones";
 import { ConfirmModal } from "../ConfirmModal/ConfirmModal";
 import { CrearPublicacion } from "../CrearPublicacion/CrearPublicacion";
 import { getEstadosPermitidos } from "../../constants/estadosPublicacion";
+import { AuthContext } from "../../context/AuthContext";
 
 let modalControl;
 
@@ -12,6 +13,7 @@ export const VerPublicaciones = {
   openModal: () => modalControl?.setOpen(true),
 
   Component: React.memo(() => {
+    const { user } = useContext(AuthContext);
     const [open, setOpen] = useState(false);
     const [publicaciones, setPublicaciones] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -44,11 +46,8 @@ export const VerPublicaciones = {
       try {
         setLoading(true);
         setError("");
-        const userData = localStorage.getItem("user");
-        if (!userData) return setError("Usuario no loggeado");
-        const user = JSON.parse(userData);
-        const userId = user._id || user.id || user.uid;
-        if (!userId) return setError("ID de usuario no encontrado");
+        const userId = user?._id || user?.id || user?.uid;
+        if (!userId) return setError("Usuario no autenticado");
 
         const resp = await publicacionesService.getPublicacionesUsuario(userId);
         if (resp?.success) setPublicaciones(resp.publicaciones || []);
@@ -58,7 +57,7 @@ export const VerPublicaciones = {
       } finally {
         setLoading(false);
       }
-    }, []);
+    }, [user]);
 
     const handleEliminar = useCallback(async (publicacion) => {
       try {

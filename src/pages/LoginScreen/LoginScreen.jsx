@@ -1,17 +1,18 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { authLogin } from "../../services/auth";
 
 const LoginScreen = ({ iniciarSesion, guardarUsuario }) => {
-  const [correo, setCorreo] = useState("");
+  const [correo, setCorreo] = useState(
+    () => localStorage.getItem("lastRegisteredEmail") || ""
+  );
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({});
   const [result, setResult] = useState("");
   const [show, setShow] = useState(false);
 
   const navigate = useNavigate();
-
-  const API_URL = import.meta.env.VITE_API_URL;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -42,47 +43,26 @@ const LoginScreen = ({ iniciarSesion, guardarUsuario }) => {
 
     try {
       setResult("Ingresando...");
-      const resp = await fetch(`${API_URL}/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          correo: correo.trim(),
-          password: password.trim(),
-        }),
+      const data = await authLogin({
+        correo: correo.trim(),
+        password: password.trim(),
       });
 
-      const data = await resp.json();
-
-      if (!resp.ok) {
+      if (!data.accessToken) {
         if (data.errors) setErrors(data.errors);
         else setResult(data.msg || "Error al iniciar sesión");
       } else {
-        localStorage.setItem("token", data.accessToken);
-        localStorage.setItem("user", JSON.stringify(data.usuario));
-        
-        // Guardar refreshToken si viene
-        if (data.refreshToken) {
-          localStorage.setItem("refreshToken", data.refreshToken);
-        }
-        
-        guardarUsuario(data.usuario);
+        // authLogin ya guarda token y refreshToken en localStorage
+        guardarUsuario(data.usuario); // también guarda user en localStorage y notifica el Sidebar
         iniciarSesion();
-        
-        // Verificar si hay una URL de retorno guardada
+        localStorage.removeItem("lastRegisteredEmail");
+
         const returnUrl = localStorage.getItem("returnUrl");
-        
-        // Limpiar returnUrl inmediatamente
-        if (returnUrl) {
-          localStorage.removeItem("returnUrl");
-        }
-        
-        // Pequeño delay para asegurar que el estado se actualice
+        if (returnUrl) localStorage.removeItem("returnUrl");
+
         setTimeout(() => {
-          if (returnUrl) {
-            navigate(returnUrl, { replace: true });
-          } else {
-            navigate("/", { replace: true });
-          }
+          if (returnUrl) navigate(returnUrl, { replace: true });
+          else navigate("/", { replace: true });
         }, 100);
       }
     } catch (error) {

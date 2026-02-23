@@ -56,7 +56,7 @@ function App() {
     }
   }, []);
 
-  const guardarUsuario = (datos) => {
+  const guardarUsuario = useCallback((datos) => {
     setUser(datos);
     setLogin(true);
     // Guardar usuario en localStorage
@@ -69,9 +69,9 @@ function App() {
     } catch (e) {
       console.warn("No se pudo despachar userProfileUpdated:", e);
     }
-  };
+  }, []);
 
-  const iniciarSesion = () => setLogin(true);
+  const iniciarSesion = useCallback(() => setLogin(true), []);
 
   // --- Verificar token al iniciar ---
   useEffect(() => {
@@ -111,6 +111,13 @@ function App() {
     };
 
     verificarToken();
+  }, [cerrarSesion]);
+
+  // --- Escuchar logout forzado desde axiosInstance (token expirado sin refresh) ---
+  useEffect(() => {
+    const handleForceLogout = () => cerrarSesion();
+    window.addEventListener("forceLogout", handleForceLogout);
+    return () => window.removeEventListener("forceLogout", handleForceLogout);
   }, [cerrarSesion]);
 
   // --- Loading global ---
