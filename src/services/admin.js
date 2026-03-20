@@ -1,4 +1,4 @@
-import axiosInstance from '../utils/axiosInstance';
+import axiosInstance from './api';
 
 const cache = { usuarios: null, usuariosTimestamp: null };
 const CACHE_DURATION = 30000;
@@ -52,12 +52,25 @@ export const adminService = {
         return cache.usuarios;
       }
 
-      const { data } = await axiosInstance.get('/usuarios');
+      const { data: firstData } = await axiosInstance.get('/usuarios?page=1&limit=20');
+      const usuariosPrimeraPagina = firstData.usuarios || firstData.data || (Array.isArray(firstData) ? firstData : []);
+      const totalPages = firstData.totalPages || 1;
 
-      const usuarios =
-        data.usuarios || data.data || (Array.isArray(data) ? data : []) || [];
-      const result = { usuarios };
+      let todosUsuarios = [...usuariosPrimeraPagina];
 
+      if (totalPages > 1) {
+        const requests = [];
+        for (let p = 2; p <= totalPages; p++) {
+          requests.push(axiosInstance.get(`/usuarios?page=${p}&limit=20`));
+        }
+        const results = await Promise.all(requests);
+        const restUsuarios = results.flatMap(res =>
+          res.data.usuarios || res.data.data || (Array.isArray(res.data) ? res.data : [])
+        );
+        todosUsuarios = [...todosUsuarios, ...restUsuarios];
+      }
+
+      const result = { usuarios: todosUsuarios };
       cache.usuarios = result;
       cache.usuariosTimestamp = Date.now();
 
