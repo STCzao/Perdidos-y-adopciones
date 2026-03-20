@@ -1,27 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import LoginScreen from "../src/pages/LoginScreen/LoginScreen";
-import RegisterScreen from "../src/pages/RegisterScreen/RegisterScreen";
-import ForgotPasswordScreen from "../src/pages/ForgotPasswordScreen/ForgotPasswordScreen";
-import ResetPasswordScreen from "../src/pages/ResetPasswordScreen/ResetPasswordScreen";
-import HomeScreen from "../src/pages/HomeScreen/HomeScreen";
-import PerdiScreen from "./pages/WhatDoScreen/PerdiScreen";
-import EncontreScreen from "./pages/WhatDoScreen/EncontreScreen";
-import CasosAyudaScreen from "./pages/CasesScreen/ComunidadScreen.jsx";
-import ContactScreen from "./pages/ContactScreen/ContactScreen";
-import { usuariosService } from "./services/usuarios";
-import {
-  SidebarProvider,
-  SidebarOpciones,
-} from "./components/SidebarOpciones/SidebarOpciones.jsx";
-import { AdminPublicaciones } from "./components/AdminPublicaciones/AdminPublicaciones";
-import { AdminUsuarios } from "./components/AdminUsuarios/AdminUsuarios";
-import AdoptarScreen from "./pages/WhatDoScreen/AdoptarScreen.jsx";
-import MediaScreen from "./pages/MediaScreen/MediaScreen.jsx";
-import PublicacionesPage from "./pages/PublicacionesPages/PublicacionesPage.jsx";
+import { BrowserRouter } from "react-router-dom";
+import { SidebarProvider } from "./components/layout/SidebarOpciones.jsx";
 import { AuthContext } from "./context/AuthContext";
 import { logout } from "./services/auth.js";
-import PublicacionesExitosas from "./pages/PublicacionesPages/PublicacionesExitosas.jsx";
+import { usuariosService } from "./services/usuarios";
+import AppRouter from "./router/AppRouter.jsx";
+import { ErrorBoundary } from "./components/ui/ErrorBoundary.jsx";
 
 function App() {
   const [login, setLogin] = useState(false);
@@ -130,92 +114,17 @@ function App() {
   }
 
   return (
-    <AuthContext.Provider
-      value={{ login, user, iniciarSesion, guardarUsuario, cerrarSesion }}
-    >
-      <BrowserRouter>
-        <SidebarProvider cerrarSesion={cerrarSesion}>
-          {/* Sidebar global dentro de SidebarProvider para usar useSidebar() */}
-          <SidebarOpciones />
-
-          <Routes>
-            {/* Rutas públicas - accesibles sin autenticación */}
-            <Route path="/" element={<HomeScreen user={user} />} />
-            <Route
-              path="/publicaciones/:tipo"
-              element={<PublicacionesPage user={user} />}
-            />
-            <Route
-              path="/casos-resueltos"
-              element={<PublicacionesExitosas user={user} />}
-            />
-
-            <Route
-              path="/consejos-perdi"
-              element={<PerdiScreen user={user} />}
-            />
-            <Route
-              path="/consejos-encontre"
-              element={<EncontreScreen user={user} />}
-            />
-            <Route
-              path="/consejos-adopcion"
-              element={<AdoptarScreen user={user} />}
-            />
-            <Route
-              path="/perdidos-informacion"
-              element={<MediaScreen type="perdidos" />}
-            />
-            <Route
-              path="/encontrados-informacion"
-              element={<MediaScreen type="encontrados" />}
-            />
-            <Route
-              path="/adopciones-informacion"
-              element={<MediaScreen type="adopciones" />}
-            />
-            <Route
-              path="/casos-ayuda"
-              element={<CasosAyudaScreen user={user} />}
-            />
-            <Route path="/contacto" element={<ContactScreen user={user} />} />
-
-            {/* Rutas de autenticación */}
-            <Route
-              path="/login"
-              element={
-                login ? (
-                  <Navigate to="/" />
-                ) : (
-                  <LoginScreen
-                    iniciarSesion={iniciarSesion}
-                    guardarUsuario={guardarUsuario}
-                  />
-                )
-              }
-            />
-            <Route
-              path="/register"
-              element={login ? <Navigate to="/" /> : <RegisterScreen />}
-            />
-            <Route
-              path="/forgot-password"
-              element={login ? <Navigate to="/" /> : <ForgotPasswordScreen />}
-            />
-            <Route
-              path="/reset-password/:token"
-              element={login ? <Navigate to="/" /> : <ResetPasswordScreen />}
-            />
-
-            <Route path="*" element={<Navigate to="/" />} />
-          </Routes>
-
-          {/* Modales Admin accesibles siempre */}
-          <AdminPublicaciones.Component />
-          <AdminUsuarios.Component />
-        </SidebarProvider>
-      </BrowserRouter>
-    </AuthContext.Provider>
+    <ErrorBoundary>
+      <AuthContext.Provider
+        value={{ login, user, iniciarSesion, guardarUsuario, cerrarSesion }}
+      >
+        <BrowserRouter>
+          <SidebarProvider cerrarSesion={cerrarSesion}>
+            <AppRouter />
+          </SidebarProvider>
+        </BrowserRouter>
+      </AuthContext.Provider>
+    </ErrorBoundary>
   );
 }
 

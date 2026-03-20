@@ -1,4 +1,4 @@
-import axiosInstance from '../utils/axiosInstance';
+import axiosInstance from './api';
 
 // Login
 export const authLogin = async (datos) => {
