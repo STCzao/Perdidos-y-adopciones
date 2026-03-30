@@ -8,6 +8,7 @@ export default function PasswordInput({
   show,
   onToggle,
   placeholder = "Contraseña",
+  name = "password",
   className = "",
 }) {
   return (
@@ -16,6 +17,7 @@ export default function PasswordInput({
     >
       <input
         type={show ? "text" : "password"}
+        name={name}
         placeholder={placeholder}
         className="bg-transparent text-gray-500 placeholder-gray-500 outline-none text-sm w-full h-full"
         value={value}
