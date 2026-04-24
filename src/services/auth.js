@@ -1,84 +1,89 @@
-import axiosInstance from './api';
+import axiosInstance, { clearAccessToken, setAccessToken } from "./api";
 
-// Login
+const mapAxiosError = (error, fallbackMsg) => ({
+  success: false,
+  msg: error.response?.data?.msg || fallbackMsg,
+  errors: error.response?.data?.errors || {},
+  ...error.response?.data,
+});
+
 export const authLogin = async (datos) => {
   try {
-    const { data } = await axiosInstance.post('/auth/login', datos);
+    const { data } = await axiosInstance.post("/auth/login", datos);
 
-    // Backend devuelve { success, usuario, accessToken, refreshToken }
-    if (data.accessToken) {
-      localStorage.setItem("token", data.accessToken);
-      
-      if (data.refreshToken) {
-        localStorage.setItem("refreshToken", data.refreshToken);
-      }
+    if (data?.accessToken) {
+      setAccessToken(data.accessToken);
     }
 
     return data;
   } catch (error) {
-    console.error(error);
-    return { msg: error.response?.data?.msg || "Error al iniciar sesion", ...error.response?.data };
+    return mapAxiosError(error, "Error al iniciar sesión");
   }
 };
 
-// Registro
 export const crearUsuario = async (datos) => {
   try {
-    const { data } = await axiosInstance.post('/usuarios', datos);
-
-    // Backend solo devuelve { usuario }, NO genera tokens en registro
-    // El usuario debe hacer login después de registrarse
+    const { data } = await axiosInstance.post("/usuarios", datos);
     return data;
   } catch (error) {
-    console.error(error);
-    return { msg: error.response?.data?.msg || "Error al registrar usuario", ...error.response?.data };
+    return mapAxiosError(error, "Error al registrar usuario");
   }
 };
 
-// Refresh Token - Ya no se usa manualmente, axiosInstance lo maneja
 export const refreshAccessToken = async () => {
   try {
-    const refreshToken = localStorage.getItem("refreshToken");
-    
-    if (!refreshToken) {
-      throw new Error("No refresh token available");
+    const { data } = await axiosInstance.post("/auth/refresh", {});
+
+    if (data?.accessToken) {
+      setAccessToken(data.accessToken);
+      return { success: true, accessToken: data.accessToken };
     }
 
-    const { data } = await axiosInstance.post('/auth/refresh', { refreshToken });
-
-    // Backend devuelve { success, accessToken, refreshToken }
-    if (data.success && data.accessToken) {
-      localStorage.setItem("token", data.accessToken);
-      
-      if (data.refreshToken) {
-        localStorage.setItem("refreshToken", data.refreshToken);
-      }
-      
-      return { success: true, token: data.accessToken };
-    }
-
-    return { success: false, msg: data.msg || "Error al refrescar token" };
+    return {
+      success: false,
+      msg: data?.msg || "No se pudo refrescar la sesión",
+    };
   } catch (error) {
-    console.error("Error refreshing token:", error);
-    return { success: false, msg: "Error al refrescar token" };
+    clearAccessToken();
+    return mapAxiosError(error, "No se pudo refrescar la sesión");
   }
 };
 
-// Logout
 export const logout = async () => {
   try {
-    const token = localStorage.getItem("token");
-    const refreshToken = localStorage.getItem("refreshToken");
-    
-    if (token && refreshToken) {
-      await axiosInstance.post('/auth/logout', { refreshToken });
-    }
+    await axiosInstance.post("/auth/logout", {});
   } catch (error) {
     console.error("Error during logout:", error);
   } finally {
-    // Limpiar localStorage siempre
-    localStorage.removeItem("token");
-    localStorage.removeItem("refreshToken");
-    localStorage.removeItem("user");
+    clearAccessToken();
+  }
+};
+
+export const logoutAll = async () => {
+  try {
+    const { data } = await axiosInstance.post("/auth/logout-all", {});
+    return data;
+  } catch (error) {
+    return mapAxiosError(error, "No se pudo cerrar la sesión en todos los dispositivos");
+  } finally {
+    clearAccessToken();
+  }
+};
+
+export const forgotPassword = async (correo) => {
+  try {
+    const { data } = await axiosInstance.post("/auth/forgot-password", { correo });
+    return data;
+  } catch (error) {
+    return mapAxiosError(error, "No se pudo procesar la solicitud");
+  }
+};
+
+export const resetPassword = async (token, body) => {
+  try {
+    const { data } = await axiosInstance.post(`/auth/reset-password/${token}`, body);
+    return data;
+  } catch (error) {
+    return mapAxiosError(error, "No se pudo actualizar la contraseña");
   }
 };

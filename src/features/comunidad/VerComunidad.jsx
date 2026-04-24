@@ -5,7 +5,7 @@ import ModalShell from "../../components/ui/ModalShell";
 import { comunidadService } from "../../services/comunidad";
 import { ConfirmModal } from "../../components/ui/ConfirmModal";
 import { CrearComunidad } from "./CrearComunidad";
-import { useSidebar } from "../../components/layout/SidebarOpciones";
+import { useAuth } from "../../context/AuthContext";
 
 let modalControl;
 
@@ -23,7 +23,7 @@ export const VerComunidad = {
       action: "",
     });
 
-    const { user } = useSidebar();
+    const { user } = useAuth();
 
     modalControl = { setOpen };
 

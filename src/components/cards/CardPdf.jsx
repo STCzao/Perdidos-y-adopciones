@@ -2,6 +2,7 @@ import { useRef } from "react";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { formatFecha } from "../../utils/dateHelpers";
+import { getTipoColorMeta } from "../../utils/publicacionColors";
 
 const waitForAssets = async (element) => {
   if (!element) return;
@@ -25,6 +26,17 @@ const waitForAssets = async (element) => {
   );
 
   await Promise.all([fontReady, imageReady]);
+};
+
+const getWhatsappValue = (publicacion) => {
+  const rawValue =
+    publicacion?.whatsapp ||
+    publicacion?.telefono ||
+    publicacion?.contacto ||
+    publicacion?.numero ||
+    "";
+
+  return String(rawValue).trim();
 };
 
 /**
@@ -51,23 +63,23 @@ const CardPdf = ({ publicacion, fileName }) => {
     afinidadanimales,
     energia,
     castrado,
-    whatsapp,
     img,
     estado,
   } = publicacion;
+  const whatsapp = getWhatsappValue(publicacion);
 
   // Configuración de colores y textos según tipo
   const tipoConfig = {
     PERDIDO: {
-      color: "#FF0000",
+      color: getTipoColorMeta("PERDIDO").accent,
       ubicacionLabel: "Extraviado en:",
     },
     ENCONTRADO: {
-      color: "#2165FF",
+      color: getTipoColorMeta("ENCONTRADO").accent,
       ubicacionLabel: "Encontrado en:",
     },
     ADOPCION: {
-      color: "#4dac00",
+      color: getTipoColorMeta("ADOPCION").accent,
       ubicacionLabel: null,
     },
   };

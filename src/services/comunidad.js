@@ -20,7 +20,7 @@ export const comunidadService = {
     } catch (error) {
       return { 
         success: false, 
-        msg: error.response?.data?.msg || "No se encontro la publicacion" 
+        msg: error.response?.data?.msg || "No se encontró la publicación" 
       };
     }
   },
@@ -32,7 +32,7 @@ export const comunidadService = {
     } catch (error) {
       return { 
         success: false, 
-        msg: error.response?.data?.msg || "Error de conexion al servidor" 
+        msg: error.response?.data?.msg || "Error de conexión al servidor" 
       };
     }
   },
@@ -44,7 +44,7 @@ export const comunidadService = {
     } catch (error) {
       return { 
         success: false, 
-        msg: error.response?.data?.msg || "Error de conexion al servidor" 
+        msg: error.response?.data?.msg || "Error de conexión al servidor" 
       };
     }
   },
@@ -56,7 +56,7 @@ export const comunidadService = {
     } catch (error) {
       return { 
         success: false, 
-        msg: error.response?.data?.msg || "Error de conexion al servidor" 
+        msg: error.response?.data?.msg || "Error de conexión al servidor" 
       };
     }
   },

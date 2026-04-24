@@ -1,9 +1,9 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { SidebarOpciones } from "../components/layout/SidebarOpciones";
+import Home from "../features/home/pages/Home";
+import PublicacionDetalle from "../features/publicaciones/pages/PublicacionDetalle";
 import { AdminPublicaciones } from "../features/publicaciones/AdminPublicaciones";
 import { AdminUsuarios } from "../features/usuarios/AdminUsuarios";
-import Home from "../pages/Home";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 import ForgotPassword from "../pages/ForgotPassword";
@@ -22,15 +22,16 @@ const AppRouter = () => {
 
   return (
     <>
-      {/* Sidebar global dentro de SidebarProvider para usar useSidebar() */}
-      <SidebarOpciones />
-
       <Routes>
         {/* Rutas públicas - accesibles sin autenticación */}
         <Route path="/" element={<Home user={user} />} />
         <Route
           path="/publicaciones/:tipo"
           element={<Publicaciones user={user} />}
+        />
+        <Route
+          path="/publicaciones/:tipo/:id"
+          element={<PublicacionDetalle user={user} />}
         />
         <Route
           path="/casos-resueltos"

@@ -1,51 +1,35 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
+import { forgotPassword } from "../services/auth";
 import { validateForgotPasswordForm } from "../utils/validators";
 import AuthLayout from "../components/layout/AuthLayout";
 
-const ForgotPasswordScreen = () => {
+export default function ForgotPasswordScreen() {
   const [correo, setCorreo] = useState("");
   const [result, setResult] = useState("");
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
 
-  const API_URL = import.meta.env.VITE_API_URL;
+  const genericMessage =
+    "Si el correo existe, te enviaremos instrucciones para restablecer tu contraseña.";
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
     const newErrors = validateForgotPasswordForm({ correo });
     setErrors(newErrors);
     if (Object.keys(newErrors).length) return;
 
-    try {
-      setIsLoading(true);
-      setResult("Enviando correo...");
-      const resp = await fetch(`${API_URL}/auth/forgot-password`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ correo: correo.trim() }),
-      });
-      const data = await resp.json();
+    setIsLoading(true);
+    setResult("Enviando correo...");
 
-      if (!resp.ok) {
-        // Solo para errores de servidor
-        if (
-          data.msg &&
-          (data.msg.includes("servidor") || data.msg.includes("conexión"))
-        ) {
-          setResult(data.msg);
-        } else if (data.errors) {
-          // Errores de validación van a los campos
-          setErrors(data.errors);
-        }
-      } else {
-        // Mensaje de éxito
-        setResult(
-          "Se envió un correo a Spam con instrucciones para restablecer tu contraseña"
-        );
-      }
+    try {
+      await forgotPassword(correo.trim().toLowerCase());
+      setResult(genericMessage);
+      setErrors({});
     } catch (error) {
       console.error(error);
-      setResult("Error en la conexión al servidor");
+      setResult(genericMessage);
     } finally {
       setIsLoading(false);
     }
@@ -53,54 +37,50 @@ const ForgotPasswordScreen = () => {
 
   return (
     <AuthLayout onSubmit={handleSubmit}>
-          <h1 className="text-white text-3xl mt-2 font-medium">
-            Recuperar contraseña
-          </h1>
-          <p className="text-white text-sm mt-2 font-medium">
-            Ingresa tu correo
-          </p>
+      <div className="flex flex-col items-start">
+        <span className="text-[0.62rem] font-bold uppercase tracking-[0.22em] text-[#dbe7b5]">
+          Recuperar acceso
+        </span>
+        <h1 className="font-editorial mt-3 text-[2.3rem] leading-[0.96] text-white sm:text-[2.45rem]">
+          Restablece tu contraseña.
+        </h1>
+        <p className="mt-2 max-w-md text-[0.95rem] leading-relaxed text-white/74">
+          Escribe tu correo y te enviaremos un enlace para continuar.
+        </p>
+      </div>
 
-          <div className="flex items-center w-full mt-8 bg-white border border-gray-300/80 h-12 rounded-full overflow-hidden pl-6 gap-2">
-            <input
-              type="email"
-              placeholder="Correo"
-              className="bg-transparent text-gray-500 placeholder-gray-500 outline-none text-sm w-full h-full"
-              value={correo}
-              onChange={(e) => setCorreo(e.target.value)}
-            />
-          </div>
-          {errors.correo && (
-            <p className="text-red-400 text-xs mt-1 text-left w-full px-4">
-              {errors.correo}
-            </p>
-          )}
+      <label className="mt-8 block w-full text-left text-sm font-semibold text-white/84">
+        Correo
+        <div className="mt-2 flex h-13 w-full items-center rounded-[1.4rem] border border-white/12 bg-white/92 px-5 shadow-sm transition-colors duration-300 focus-within:border-[#f4c89e] focus-within:ring-2 focus-within:ring-[#f4c89e]/45">
+          <input
+            type="email"
+            placeholder="tuemail@email.com"
+            className="h-full w-full bg-transparent text-sm text-[#3d332d] placeholder:text-[#7e7066] outline-none"
+            value={correo}
+            onChange={(event) => setCorreo(event.target.value)}
+            autoComplete="email"
+          />
+        </div>
+      </label>
+      {errors.correo && <p className="mt-2 text-left text-xs text-red-300">{errors.correo}</p>}
 
-          <button
-            type="submit"
-            className="mt-6 w-full h-11 rounded-full text-white bg-white/20 border border-white/70 hover:bg-[#FF7857] transition-colors delay-100 duration-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-            disabled={isLoading}
-          >
-            Enviar correo
-          </button>
+      <button
+        type="submit"
+        className="mt-8 h-12 w-full cursor-pointer rounded-full bg-[#f4c89e] text-sm font-bold text-[#2a1f19] shadow-[0_14px_35px_rgba(244,200,158,0.18)] transition-transform duration-300 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
+        disabled={isLoading}
+      >
+        {isLoading ? "Enviando..." : "Enviar correo"}
+      </button>
 
-          {/* Result solo para errores de servidor y mensajes de éxito */}
-          {result && (
-            <p
-              className={`text-center mt-3 ${
-                result.includes("envió") ? "text-green-400" : "text-white"
-              }`}
-            >
-              {result}
-            </p>
-          )}
+      {result && <p className="mt-4 text-center text-sm text-white/84">{result}</p>}
 
-          <p className="text-white text-sm mt-5 mb-6">
-            <a className="text-white underline" href="/login">
-              Volver al inicio de sesión
-            </a>
-          </p>
+      <div className="mt-6 flex flex-col gap-3 text-sm text-white/80">
+        <p>
+          <Link className="font-semibold text-[#f4c89e] hover:underline" to="/login">
+            Volver al inicio de sesión
+          </Link>
+        </p>
+      </div>
     </AuthLayout>
   );
-};
-
-export default ForgotPasswordScreen;
+}

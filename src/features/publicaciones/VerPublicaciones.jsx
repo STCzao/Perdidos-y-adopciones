@@ -7,8 +7,18 @@ import { ConfirmModal } from "../../components/ui/ConfirmModal";
 import { CrearPublicacion } from "./CrearPublicacion/CrearPublicacion";
 import { getEstadosPermitidos } from "../../utils/estadosPublicacion";
 import { AuthContext } from "../../context/AuthContext";
+import { getTipoColorMeta } from "../../utils/publicacionColors";
 
 let modalControl;
+
+const getTipoBadgeStyle = (tipo) => {
+  const meta = getTipoColorMeta(tipo);
+
+  return {
+    backgroundColor: `${meta.accent}33`,
+    color: meta.accent,
+  };
+};
 
 export const VerPublicaciones = {
   openModal: () => modalControl?.setOpen(true),
@@ -262,7 +272,10 @@ const PublicacionItem = React.memo(
           </h3>
 
           <div className="flex flex-wrap gap-2 mt-2 text-sm text-white/80">
-            <span className="bg-blue-500/20 text-blue-300 px-2 py-1 rounded">
+            <span
+              className="px-2 py-1 rounded"
+              style={getTipoBadgeStyle(publicacion.tipo)}
+            >
               {publicacion.tipo}
             </span>
 

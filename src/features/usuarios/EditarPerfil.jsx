@@ -1,11 +1,51 @@
-"use client";
-import React, { useState, useEffect, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { usuariosService } from "../../services/usuarios";
 import { ConfirmModal } from "../../components/ui/ConfirmModal";
 import ModalShell from "../../components/ui/ModalShell";
+import PasswordInput from "../../components/forms/PasswordInput";
+import { useImageUpload } from "../publicaciones/CrearPublicacion/useImageUpload";
+import {
+  validateChangePasswordForm,
+  validateCloudinaryUrl,
+  validateNombre,
+  validateTelefono,
+} from "../../utils/validators";
 
 let modalControl;
+
+const createProfileForm = (usuario) => ({
+  nombre: usuario?.nombre || "",
+  telefono: usuario?.telefono || "",
+  img: usuario?.img || "",
+});
+
+const EMPTY_PASSWORD_FORM = {
+  currentPassword: "",
+  newPassword: "",
+  confirmPassword: "",
+};
+
+const inputClassName =
+  "mt-2 flex h-12 w-full items-center rounded-[1.1rem] border border-[#d4c6b7] bg-[#fffdf9] px-4 text-sm text-[#3d332d] shadow-[0_12px_30px_rgba(59,43,34,0.06)] transition-colors duration-300 focus-within:border-[#c97b57] focus-within:ring-2 focus-within:ring-[#c97b57]/15";
+
+const sectionClassName =
+  "rounded-[1.35rem] border border-[#d8cabc] bg-[linear-gradient(180deg,rgba(255,252,247,0.98),rgba(248,242,234,0.92))] p-5 shadow-[0_16px_45px_rgba(57,42,31,0.08)]";
+
+const dispatchUserProfileUpdated = (user) => {
+  window.dispatchEvent(new CustomEvent("userProfileUpdated", { detail: { user } }));
+};
+
+const getInitials = (nombre = "") =>
+  nombre
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part.charAt(0).toUpperCase())
+    .join("") || "US";
+
+const FieldError = ({ message }) =>
+  message ? <p className="mt-2 text-xs text-[#a84632]">{message}</p> : null;
 
 export const EditarPerfil = {
   openModal: () => modalControl?.setOpen(true),
@@ -14,231 +54,281 @@ export const EditarPerfil = {
     const [open, setOpen] = useState(false);
     const [userData, setUserData] = useState(null);
     const [loading, setLoading] = useState(false);
-    const [submitting, setSubmitting] = useState(false);
-    const [result, setResult] = useState("");
-    const [errors, setErrors] = useState({});
+    const [savingProfile, setSavingProfile] = useState(false);
+    const [changingPassword, setChangingPassword] = useState(false);
+    const [uploadingImage, setUploadingImage] = useState(false);
+    const [profileResult, setProfileResult] = useState("");
+    const [passwordResult, setPasswordResult] = useState("");
+    const [profileErrors, setProfileErrors] = useState({});
+    const [passwordErrors, setPasswordErrors] = useState({});
     const [confirmModal, setConfirmModal] = useState({
       isOpen: false,
       action: "",
     });
-    const [editingField, setEditingField] = useState(null);
-
-    const [form, setForm] = useState({ nombre: "", telefono: "" });
+    const [profileForm, setProfileForm] = useState(createProfileForm(null));
+    const [passwordForm, setPasswordForm] = useState(EMPTY_PASSWORD_FORM);
+    const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+    const [showNewPassword, setShowNewPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     modalControl = { setOpen };
 
-    useEffect(() => {
-      if (open) {
-        document.body.style.overflow = "hidden";
-        cargarDatosUsuario();
-      } else {
-        document.body.style.overflow = "unset";
+    const { handleImageUpload } = useImageUpload(
+      (url) => setProfileForm((current) => ({ ...current, img: url })),
+      setProfileErrors,
+    );
+
+    const avatarContent = useMemo(() => {
+      if (profileForm.img) {
+        return (
+          <img
+            src={profileForm.img}
+            alt={`Foto de perfil de ${userData?.nombre || "usuario"}`}
+            className="h-full w-full object-cover"
+          />
+        );
       }
-      return () => {
-        document.body.style.overflow = "unset";
-      };
-    }, [open]);
+
+      return (
+        <span className="text-lg font-bold tracking-[0.08em] text-[#fff7ef]">
+          {getInitials(profileForm.nombre || userData?.nombre)}
+        </span>
+      );
+    }, [profileForm.img, profileForm.nombre, userData?.nombre]);
+
+    const resetStates = useCallback(
+      (usuario = userData) => {
+        setProfileForm(createProfileForm(usuario));
+        setPasswordForm(EMPTY_PASSWORD_FORM);
+        setProfileErrors({});
+        setPasswordErrors({});
+        setProfileResult("");
+        setPasswordResult("");
+        setShowCurrentPassword(false);
+        setShowNewPassword(false);
+        setShowConfirmPassword(false);
+      },
+      [userData],
+    );
 
     const cargarDatosUsuario = useCallback(async () => {
       setLoading(true);
-      setResult("");
+      setProfileResult("");
+      setPasswordResult("");
+
       try {
         const response = await usuariosService.getMiPerfil();
-        if (response.ok && response.usuario) {
-          setUserData(response.usuario);
-          setForm({
-            nombre: response.usuario.nombre || "",
-            telefono: response.usuario.telefono || "",
-          });
-        } else {
-          setResult(response.msg || "Error al cargar perfil");
-          if (
-            response.msg?.includes("token") ||
-            response.msg?.includes("sesión")
-          ) {
-            setTimeout(() => {
-              setOpen(false);
-              resetForm();
-            }, 3000);
-          }
+
+        if (!response.ok || !response.usuario) {
+          setProfileResult(response.msg || "No se pudo cargar el perfil");
+          return;
         }
+
+        setUserData(response.usuario);
+        setProfileForm(createProfileForm(response.usuario));
+        setPasswordForm(EMPTY_PASSWORD_FORM);
+        setProfileErrors({});
+        setPasswordErrors({});
       } catch (error) {
-        setResult("Error de conexión al servidor");
+        console.error(error);
+        setProfileResult("Error de conexión al cargar el perfil");
       } finally {
         setLoading(false);
       }
     }, []);
 
-    const resetForm = () => {
-      if (userData) {
-        setForm({
-          nombre: userData.nombre || "",
-          telefono: userData.telefono || "",
-        });
-      }
-      setErrors({});
-      setResult("");
-      setEditingField(null);
-    };
-
-    const handleChange = (e) => {
-      const { name, value } = e.target;
-      setForm((prev) => ({ ...prev, [name]: value }));
-      if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
-    };
-
-    const validarCampo = (campo, valor) => {
-      const valorTrimmed = valor.trim();
-      if (!valorTrimmed) return `El ${campo} es obligatorio`;
-
-      switch (campo) {
-        case "nombre":
-          if (valorTrimmed.length < 3)
-            return "Debe tener al menos 3 caracteres";
-          if (valorTrimmed.length > 40)
-            return "No puede tener más de 40 caracteres";
-          if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(valorTrimmed))
-            return "Solo puede contener letras y espacios";
-          break;
-        case "telefono":
-          if (!/^[0-9]{7,15}$/.test(valorTrimmed))
-            return "Debe contener 7-15 dígitos";
-          break;
-        default:
-          return "";
-      }
-      return "";
-    };
-
-    const startEditing = (fieldName) => setEditingField(fieldName);
-
-    const cancelEditing = (fieldName) => {
-      setEditingField(null);
-      if (userData)
-        setForm((prev) => ({
-          ...prev,
-          [fieldName]: userData[fieldName] || "",
-        }));
-      setErrors((prev) => ({ ...prev, [fieldName]: "" }));
-    };
-
-    const saveField = async (fieldName) => {
-      const value = form[fieldName].trim();
-      const originalValue = userData[fieldName] || "";
-
-      if (value === originalValue) {
-        setEditingField(null);
-        return;
+    useEffect(() => {
+      if (!open) {
+        document.body.style.overflow = "unset";
+        return undefined;
       }
 
-      const error = validarCampo(fieldName, value);
-      if (error) {
-        setErrors((prev) => ({ ...prev, [fieldName]: error }));
-        return;
+      document.body.style.overflow = "hidden";
+      cargarDatosUsuario();
+
+      return () => {
+        document.body.style.overflow = "unset";
+      };
+    }, [open, cargarDatosUsuario]);
+
+    const handleClose = () => {
+      setOpen(false);
+      resetStates();
+    };
+
+    const handleProfileFieldChange = (event) => {
+      const { name, value } = event.target;
+      setProfileForm((current) => ({ ...current, [name]: value }));
+
+      if (profileErrors[name]) {
+        setProfileErrors((current) => ({ ...current, [name]: "" }));
       }
+    };
+
+    const handlePasswordFieldChange = (event) => {
+      const { name, value } = event.target;
+      setPasswordForm((current) => ({ ...current, [name]: value }));
+
+      if (passwordErrors[name]) {
+        setPasswordErrors((current) => ({ ...current, [name]: "" }));
+      }
+    };
+
+    const handleUploadProfileImage = async (event) => {
+      setUploadingImage(true);
+      setProfileResult("");
 
       try {
-        setSubmitting(true);
-        setResult(
-          `Actualizando ${fieldName === "nombre" ? "nombre" : "teléfono"}...`
-        );
+        const result = await handleImageUpload(event);
+        if (result?.success) {
+          setProfileResult("Imagen lista para guardar.");
+        }
+      } finally {
+        setUploadingImage(false);
+        event.target.value = "";
+      }
+    };
 
+    const validateProfileForm = () => {
+      const nextErrors = {};
+
+      const nombreError = validateNombre(profileForm.nombre);
+      if (nombreError) nextErrors.nombre = nombreError;
+
+      const telefonoError = validateTelefono(profileForm.telefono);
+      if (telefonoError) nextErrors.telefono = telefonoError;
+
+      if (profileForm.img?.trim()) {
+        const imageError = validateCloudinaryUrl(profileForm.img);
+        if (imageError) nextErrors.img = imageError;
+      }
+
+      return nextErrors;
+    };
+
+    const handleSaveProfile = async (event) => {
+      event.preventDefault();
+
+      const nextErrors = validateProfileForm();
+      setProfileErrors(nextErrors);
+      if (Object.keys(nextErrors).length) return;
+
+      setSavingProfile(true);
+      setProfileResult("Guardando cambios...");
+
+      try {
         const response = await usuariosService.actualizarPerfil({
-          [fieldName]: value,
+          nombre: profileForm.nombre,
+          telefono: profileForm.telefono,
+          img: profileForm.img,
         });
 
-        if (response.ok && response.usuario) {
-          setResult("¡Campo actualizado exitosamente!");
-          setUserData(response.usuario);
-          setEditingField(null);
-          window.dispatchEvent(
-            new CustomEvent("userProfileUpdated", {
-              detail: { user: response.usuario },
-            })
-          );
-          setTimeout(() => setResult(""), 3000);
-        } else {
-          setResult(response.msg || "Error al actualizar");
-          if (
-            response.msg?.includes("token") ||
-            response.msg?.includes("sesión")
-          ) {
-            setTimeout(() => {
-              setOpen(false);
-              resetForm();
-            }, 3000);
-          }
+        if (!response.ok || !response.usuario) {
+          setProfileErrors(response.errors || {});
+          setProfileResult(response.msg || "No se pudo actualizar el perfil");
+          return;
         }
+
+        setUserData(response.usuario);
+        setProfileForm(createProfileForm(response.usuario));
+        setProfileResult("Perfil actualizado correctamente.");
+        dispatchUserProfileUpdated(response.usuario);
       } catch (error) {
-        setResult("Error de conexión");
+        console.error(error);
+        setProfileResult("Error de conexión al guardar el perfil");
       } finally {
-        setSubmitting(false);
+        setSavingProfile(false);
+      }
+    };
+
+    const handleChangePassword = async () => {
+      const nextErrors = validateChangePasswordForm(passwordForm);
+      setPasswordErrors(nextErrors);
+      if (Object.keys(nextErrors).length) return;
+
+      setChangingPassword(true);
+      setPasswordResult("Actualizando contraseña...");
+
+      try {
+        const response = await usuariosService.cambiarPassword({
+          currentPassword: passwordForm.currentPassword.trim(),
+          newPassword: passwordForm.newPassword.trim(),
+          confirmPassword: passwordForm.confirmPassword.trim(),
+        });
+
+        if (!response.ok) {
+          setPasswordErrors(response.errors || {});
+          setPasswordResult(response.msg || "No se pudo cambiar la contraseña");
+          return;
+        }
+
+        setPasswordForm(EMPTY_PASSWORD_FORM);
+        setPasswordErrors({});
+        setPasswordResult(
+          "Contraseña actualizada. Si tu sesión se cierra, vuelve a ingresar.",
+        );
+      } catch (error) {
+        console.error(error);
+        setPasswordResult("Error de conexión al cambiar la contraseña");
+      } finally {
+        setChangingPassword(false);
       }
     };
 
     const handleEliminarCuenta = async () => {
       const userId = userData?.uid;
+
       if (!userId) {
-        setResult("Error: No se pudo obtener el ID del usuario");
+        setProfileResult("No se pudo identificar la cuenta a eliminar");
         setConfirmModal({ isOpen: false, action: "" });
         return;
       }
 
-      setSubmitting(true);
+      setSavingProfile(true);
+
       try {
-        const res = await usuariosService.borrarUsuario(userId);
-        if (res.ok) {
-          setResult("Cuenta eliminada exitosamente. Redirigiendo...");
-          localStorage.removeItem("token");
-          localStorage.removeItem("refreshToken");
-          localStorage.removeItem("user");
-          window.dispatchEvent(new CustomEvent("forceLogout"));
-          setTimeout(() => {
-            window.location.href = "/";
-          }, 1500);
-        } else {
-          setResult(res.msg || "Error al eliminar cuenta");
+        const response = await usuariosService.borrarUsuario(userId);
+
+        if (!response.ok) {
+          setProfileResult(response.msg || "No se pudo eliminar la cuenta");
+          return;
         }
+
+        setProfileResult("Cuenta eliminada correctamente.");
+        dispatchUserProfileUpdated(null);
+        window.dispatchEvent(new CustomEvent("forceLogout"));
+
+        setTimeout(() => {
+          window.location.href = "/";
+        }, 1000);
       } catch (error) {
-        setResult("Error de conexión al eliminar cuenta");
+        console.error(error);
+        setProfileResult("Error de conexión al eliminar la cuenta");
       } finally {
-        setSubmitting(false);
+        setSavingProfile(false);
         setConfirmModal({ isOpen: false, action: "" });
       }
-    };
-
-    const openConfirmModal = (action) =>
-      setConfirmModal({ isOpen: true, action });
-    const closeConfirmModal = () =>
-      setConfirmModal({ isOpen: false, action: "" });
-    const handleConfirm = () => {
-      if (confirmModal.action === "delete") handleEliminarCuenta();
-    };
-
-    const handleKeyPress = (e, fieldName) => {
-      if (e.key === "Enter") saveField(fieldName);
-      else if (e.key === "Escape") cancelEditing(fieldName);
     };
 
     if (!open) return null;
 
     return (
       <AnimatePresence>
-        <ModalShell className="p-4">
+        <ModalShell className="p-3 sm:p-5">
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            className="flex flex-col items-center w-full max-w-md"
+            initial={{ opacity: 0, y: 18, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 18, scale: 0.98 }}
+            transition={{ duration: 0.22, ease: "easeOut" }}
+            className="w-full max-w-5xl"
           >
-            <div className="relative w-full text-center border border-white/70 rounded-2xl px-6 py-6 shadow-lg bg-white/10 backdrop-blur-sm">
+            <div className="relative max-h-[92vh] overflow-y-auto rounded-[1.7rem] border border-[#ccbba9] bg-[linear-gradient(180deg,rgba(246,238,229,0.98),rgba(237,227,216,0.96))] p-4 shadow-[0_30px_90px_rgba(31,20,14,0.24)] sm:p-6">
               <button
-                onClick={() => {
-                  setOpen(false);
-                  resetForm();
-                }}
-                className="absolute top-4 right-4 text-white hover:text-[#FF7857] transition-colors cursor-pointer"
-                disabled={submitting}
+                type="button"
+                onClick={handleClose}
+                className="absolute right-4 top-4 cursor-pointer rounded-full border border-[#d1c2b5] bg-white/70 p-2 text-[#5c4b42] transition-colors duration-200 hover:bg-white"
+                aria-label="Cerrar perfil"
+                disabled={savingProfile || changingPassword}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -246,234 +336,272 @@ export const EditarPerfil = {
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="2"
-                  className="w-5 h-5"
+                  className="h-5 w-5"
                 >
                   <line x1="18" y1="6" x2="6" y2="18" />
                   <line x1="6" y1="6" x2="18" y2="18" />
                 </svg>
               </button>
 
-              <h1 className="text-white text-2xl sm:text-3xl mt-2 font-medium">
-                Mi perfil
-              </h1>
-              <p className="text-white/80 text-sm mt-1">
-                Gestiona tu información personal
-              </p>
+              <div className="pr-12">
+                <span className="text-[0.68rem] font-bold uppercase tracking-[0.24em] text-[#8d6e5c]">
+                  Gestión de perfil
+                </span>
+                <h1 className="font-editorial mt-3 text-[2rem] leading-[0.96] text-[#231a15] sm:text-[2.35rem]">
+                  Mi perfil
+                </h1>
+                <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[#5b4d43]">
+                  Actualiza tus datos, gestiona tu foto y administra lo esencial de
+                  tu cuenta.
+                </p>
+              </div>
 
               {loading ? (
-                <div className="flex justify-center items-center p-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF7857]" />
+                <div className="flex min-h-[320px] items-center justify-center">
+                  <div className="h-10 w-10 animate-spin rounded-full border-b-2 border-[#c97b57]" />
+                </div>
+              ) : !userData ? (
+                <div className="mt-6 rounded-[1.35rem] border border-[#d7c6b4] bg-[#fffaf4] p-6 text-center">
+                  <p className="text-sm text-[#5b4d43]">No se pudo cargar la información.</p>
+                  {profileResult && <p className="mt-3 text-sm text-[#9c4d3a]">{profileResult}</p>}
+                  <button
+                    type="button"
+                    onClick={cargarDatosUsuario}
+                    className="mt-5 cursor-pointer rounded-full bg-[#2a1f19] px-5 py-2 text-sm font-semibold text-white transition-colors duration-200 hover:bg-[#3b2c23]"
+                  >
+                    Reintentar
+                  </button>
                 </div>
               ) : (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="space-y-4 mt-6"
-                >
-                  {!loading && !userData && (
-                    <div className="text-center p-4 bg-yellow-500/20 rounded-lg">
-                      <p className="text-yellow-400 text-sm mb-2">
-                        No se pudieron cargar los datos
+                <div className="mt-6 grid gap-5 xl:grid-cols-[1.15fr_0.9fr]">
+                  <form className="space-y-5" onSubmit={handleSaveProfile}>
+                    <section className={sectionClassName}>
+                      <div className="flex flex-col gap-5 md:flex-row md:items-start">
+                        <div className="flex flex-col items-center md:w-[180px] md:items-start">
+                          <div className="flex h-28 w-28 items-center justify-center overflow-hidden rounded-[1.1rem] bg-[#443128]">
+                            {avatarContent}
+                          </div>
+
+                          <label className="mt-4 w-full cursor-pointer rounded-full border border-[#c97b57]/25 bg-[#fff7ee] px-4 py-2 text-center text-sm font-semibold text-[#5d4437] transition-colors duration-200 hover:bg-[#fff2e4]">
+                            {uploadingImage ? "Subiendo..." : "Cambiar foto"}
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={handleUploadProfileImage}
+                              disabled={uploadingImage || savingProfile}
+                            />
+                          </label>
+
+                          <p className="mt-3 text-center text-xs leading-relaxed text-[#7a695d] md:text-left">
+                            Si no cargas foto, mostraremos tus iniciales.
+                          </p>
+                          <FieldError message={profileErrors.img} />
+                        </div>
+
+                        <div className="grid flex-1 gap-4 sm:grid-cols-2">
+                          <div className="sm:col-span-2">
+                            <p className="text-[0.68rem] font-bold uppercase tracking-[0.18em] text-[#8d7a6d]">
+                              Datos principales
+                            </p>
+                          </div>
+
+                          <label className="text-sm font-semibold text-[#352820] sm:col-span-2">
+                            Nombre completo
+                            <div className={inputClassName}>
+                              <input
+                                type="text"
+                                name="nombre"
+                                value={profileForm.nombre}
+                                onChange={handleProfileFieldChange}
+                                className="h-full w-full bg-transparent outline-none"
+                                maxLength={40}
+                                autoComplete="name"
+                              />
+                            </div>
+                            <FieldError message={profileErrors.nombre} />
+                          </label>
+
+                          <label className="text-sm font-semibold text-[#352820]">
+                            Teléfono
+                            <div className={inputClassName}>
+                              <input
+                                type="text"
+                                name="telefono"
+                                value={profileForm.telefono}
+                                onChange={handleProfileFieldChange}
+                                className="h-full w-full bg-transparent outline-none"
+                                maxLength={15}
+                                autoComplete="tel"
+                              />
+                            </div>
+                            <FieldError message={profileErrors.telefono} />
+                          </label>
+
+                          <div className="text-sm font-semibold text-[#352820]">
+                            Correo
+                            <div className={`${inputClassName} bg-[#f4eee7] text-[#7c6d62]`}>
+                              <input
+                                type="email"
+                                value={userData.correo || ""}
+                                disabled
+                                className="h-full w-full cursor-not-allowed bg-transparent outline-none"
+                              />
+                            </div>
+                            <p className="mt-2 text-xs text-[#7f6c5f]">
+                              El correo no puede modificarse desde aquí.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {profileResult && (
+                        <p
+                          className={`mt-5 text-sm ${
+                            profileResult.includes("correctamente") ||
+                            profileResult.includes("lista")
+                              ? "text-[#4d6a2e]"
+                              : "text-[#9c4d3a]"
+                          }`}
+                        >
+                          {profileResult}
+                        </p>
+                      )}
+
+                      <div className="mt-5 flex flex-wrap gap-3">
+                        <button
+                          type="submit"
+                          className="cursor-pointer rounded-full bg-[#2a1f19] px-5 py-2.5 text-sm font-semibold text-white transition-colors duration-200 hover:bg-[#3a2c24] disabled:cursor-not-allowed disabled:opacity-60"
+                          disabled={savingProfile || uploadingImage}
+                        >
+                          {savingProfile ? "Guardando..." : "Guardar perfil"}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => resetStates()}
+                          className="cursor-pointer rounded-full border border-[#cbb9aa] bg-[#fff8f0] px-5 py-2.5 text-sm font-semibold text-[#4e3c31] transition-colors duration-200 hover:bg-white"
+                          disabled={savingProfile || uploadingImage}
+                        >
+                          Descartar cambios
+                        </button>
+                      </div>
+                    </section>
+
+                    <section className={sectionClassName}>
+                      <div className="flex flex-col gap-1">
+                        <p className="text-[0.68rem] font-bold uppercase tracking-[0.18em] text-[#8d7a6d]">
+                          Contraseña
+                        </p>
+                        <h2 className="text-lg font-semibold text-[#271d17]">
+                          Cambiar contraseña
+                        </h2>
+                      </div>
+
+                      <div className="mt-5 grid gap-4">
+                        <label className="text-sm font-semibold text-[#352820]">
+                          Contraseña actual
+                          <PasswordInput
+                            className="mt-2 !rounded-[1.1rem] !border-[#d4c6b7] !bg-[#fffdf9] !shadow-[0_12px_30px_rgba(59,43,34,0.06)]"
+                            value={passwordForm.currentPassword}
+                            onChange={handlePasswordFieldChange}
+                            show={showCurrentPassword}
+                            onToggle={() => setShowCurrentPassword((value) => !value)}
+                            name="currentPassword"
+                            placeholder="Escribe tu contraseña actual"
+                          />
+                          <FieldError message={passwordErrors.currentPassword} />
+                        </label>
+
+                        <div className="grid gap-4 md:grid-cols-2">
+                          <label className="text-sm font-semibold text-[#352820]">
+                            Nueva contraseña
+                            <PasswordInput
+                              className="mt-2 !rounded-[1.1rem] !border-[#d4c6b7] !bg-[#fffdf9] !shadow-[0_12px_30px_rgba(59,43,34,0.06)]"
+                              value={passwordForm.newPassword}
+                              onChange={handlePasswordFieldChange}
+                              show={showNewPassword}
+                              onToggle={() => setShowNewPassword((value) => !value)}
+                              name="newPassword"
+                              placeholder="Entre 8 y 64 caracteres"
+                            />
+                            <FieldError message={passwordErrors.newPassword} />
+                          </label>
+
+                          <label className="text-sm font-semibold text-[#352820]">
+                            Confirmar nueva contraseña
+                            <PasswordInput
+                              className="mt-2 !rounded-[1.1rem] !border-[#d4c6b7] !bg-[#fffdf9] !shadow-[0_12px_30px_rgba(59,43,34,0.06)]"
+                              value={passwordForm.confirmPassword}
+                              onChange={handlePasswordFieldChange}
+                              show={showConfirmPassword}
+                              onToggle={() => setShowConfirmPassword((value) => !value)}
+                              name="confirmPassword"
+                              placeholder="Repite la nueva contraseña"
+                            />
+                            <FieldError message={passwordErrors.confirmPassword} />
+                          </label>
+                        </div>
+                      </div>
+
+                      {passwordResult && (
+                        <p
+                          className={`mt-5 text-sm ${
+                            passwordResult.includes("actualizada")
+                              ? "text-[#4d6a2e]"
+                              : "text-[#9c4d3a]"
+                          }`}
+                        >
+                          {passwordResult}
+                        </p>
+                      )}
+
+                      <div className="mt-5">
+                        <button
+                          type="button"
+                          onClick={handleChangePassword}
+                          className="cursor-pointer rounded-full bg-[#c97b57] px-5 py-2.5 text-sm font-semibold text-white transition-colors duration-200 hover:bg-[#b86a47] disabled:cursor-not-allowed disabled:opacity-60"
+                          disabled={changingPassword}
+                        >
+                          {changingPassword ? "Actualizando..." : "Actualizar contraseña"}
+                        </button>
+                      </div>
+                    </section>
+                  </form>
+
+                  <div className="space-y-5">
+                    <section className="rounded-[1.35rem] border border-[#d8b8ac] bg-[linear-gradient(180deg,rgba(255,247,244,0.98),rgba(249,235,231,0.94))] p-5 shadow-[0_16px_45px_rgba(57,42,31,0.08)]">
+                      <div className="flex flex-col gap-1">
+                        <p className="text-[0.68rem] font-bold uppercase tracking-[0.18em] text-[#a06b5d]">
+                          Zona sensible
+                        </p>
+                        <h2 className="text-lg font-semibold text-[#3b231d]">
+                          Eliminar cuenta
+                        </h2>
+                      </div>
+
+                      <p className="mt-3 text-sm leading-relaxed text-[#6d5148]">
+                        Esta acción elimina tu cuenta y no se puede deshacer.
                       </p>
+
                       <button
                         type="button"
-                        onClick={cargarDatosUsuario}
-                        className="px-4 py-2 bg-yellow-500 text-white rounded-full hover:bg-yellow-600 transition-colors text-sm cursor-pointer"
+                        onClick={() => setConfirmModal({ isOpen: true, action: "delete" })}
+                        className="mt-5 w-full cursor-pointer rounded-full bg-[#b84e3c] px-5 py-2.5 text-sm font-semibold text-white transition-colors duration-200 hover:bg-[#a54232] disabled:cursor-not-allowed disabled:opacity-60"
+                        disabled={savingProfile}
                       >
-                        Reintentar Carga
+                        Eliminar cuenta
                       </button>
-                    </div>
-                  )}
-
-                  {/* Campo Nombre */}
-                  <div className="space-y-2">
-                    <label className="text-white text-sm text-left block pl-4">
-                      Nombre completo
-                    </label>
-                    <div className="flex items-center w-full bg-white border border-gray-300/80 h-12 rounded-full overflow-hidden pl-4 sm:pl-6 pr-2">
-                      <input
-                        type="text"
-                        name="nombre"
-                        placeholder="Ingresa tu nombre completo"
-                        value={form.nombre}
-                        onChange={handleChange}
-                        onFocus={() => startEditing("nombre")}
-                        onKeyDown={(e) => handleKeyPress(e, "nombre")}
-                        disabled={
-                          submitting ||
-                          (editingField && editingField !== "nombre") ||
-                          !userData
-                        }
-                        className="bg-transparent text-gray-500 placeholder-gray-500 outline-none text-sm w-full h-full px-2 disabled:opacity-50"
-                        maxLength={40}
-                      />
-                      {editingField === "nombre" && (
-                        <div className="flex gap-1 ml-2">
-                          <button
-                            type="button"
-                            onClick={() => saveField("nombre")}
-                            disabled={submitting}
-                            className="p-1 text-green-600 hover:text-green-800 disabled:opacity-50 cursor-pointer"
-                            title="Guardar"
-                          >
-                            <svg
-                              className="w-4 h-4"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M5 13l4 4L19 7"
-                              />
-                            </svg>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => cancelEditing("nombre")}
-                            disabled={submitting}
-                            className="p-1 text-red-600 hover:text-red-800 disabled:opacity-50 cursor-pointer"
-                            title="Cancelar"
-                          >
-                            <svg
-                              className="w-4 h-4"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M6 18L18 6M6 6l12 12"
-                              />
-                            </svg>
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                    {errors.nombre && (
-                      <p className="text-red-400 text-xs mt-1 text-left w-full px-4">
-                        {errors.nombre}
-                      </p>
-                    )}
-                    <p className="text-gray-400 text-xs text-left pl-4">
-                      {form.nombre.length}/40 caracteres
-                    </p>
+                    </section>
                   </div>
-
-                  {/* Campo Teléfono */}
-                  <div className="space-y-2">
-                    <label className="text-white text-sm text-left block pl-4">
-                      Teléfono
-                    </label>
-                    <div className="flex items-center w-full bg-white border border-gray-300/80 h-12 rounded-full overflow-hidden pl-4 sm:pl-6 pr-2">
-                      <input
-                        type="text"
-                        name="telefono"
-                        placeholder="Ingresa tu número de teléfono"
-                        value={form.telefono}
-                        onChange={handleChange}
-                        onFocus={() => startEditing("telefono")}
-                        onKeyDown={(e) => handleKeyPress(e, "telefono")}
-                        disabled={
-                          submitting ||
-                          (editingField && editingField !== "telefono") ||
-                          !userData
-                        }
-                        className="bg-transparent text-gray-500 placeholder-gray-500 outline-none text-sm w-full h-full px-2 disabled:opacity-50"
-                        maxLength={15}
-                      />
-                      {editingField === "telefono" && (
-                        <div className="flex gap-1 ml-2">
-                          <button
-                            type="button"
-                            onClick={() => saveField("telefono")}
-                            disabled={submitting}
-                            className="p-1 text-green-600 hover:text-green-800 disabled:opacity-50 cursor-pointer"
-                            title="Guardar"
-                          >
-                            <svg
-                              className="w-4 h-4"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M5 13l4 4L19 7"
-                              />
-                            </svg>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => cancelEditing("telefono")}
-                            disabled={submitting}
-                            className="p-1 text-red-600 hover:text-red-800 disabled:opacity-50 cursor-pointer"
-                            title="Cancelar"
-                          >
-                            <svg
-                              className="w-4 h-4"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M6 18L18 6M6 6l12 12"
-                              />
-                            </svg>
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                    {errors.telefono && (
-                      <p className="text-red-400 text-xs mt-1 text-left w-full px-4">
-                        {errors.telefono}
-                      </p>
-                    )}
-                  </div>
-
-                  {result && (
-                    <p
-                      className={`text-center mt-4 text-sm ${
-                        result.includes("exitosamente")
-                          ? "text-green-400"
-                          : result.includes("token") ||
-                            result.includes("sesión")
-                          ? "text-yellow-400"
-                          : "text-red-400"
-                      }`}
-                    >
-                      {result}
-                    </p>
-                  )}
-
-                  <div className="flex align-center justify-center gap-3 pt-4">
-                    <button
-                      type="button"
-                      onClick={() => openConfirmModal("delete")}
-                      disabled={submitting || !userData}
-                      className="mt-4 w-50 py-2 rounded-full text-white bg-red-500 hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                    >
-                      {submitting ? "Eliminando..." : "Eliminar Cuenta"}
-                    </button>
-                  </div>
-                </motion.div>
+                </div>
               )}
             </div>
           </motion.div>
 
           <ConfirmModal
             confirmModal={confirmModal}
-            onClose={closeConfirmModal}
-            onConfirm={handleConfirm}
+            onClose={() => setConfirmModal({ isOpen: false, action: "" })}
+            onConfirm={handleEliminarCuenta}
             type="perfil"
           />
         </ModalShell>

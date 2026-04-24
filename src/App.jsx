@@ -1,8 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { BrowserRouter } from "react-router-dom";
-import { SidebarProvider } from "./components/layout/SidebarOpciones.jsx";
 import { AuthContext } from "./context/AuthContext";
-import { logout } from "./services/auth.js";
+import { logout, refreshAccessToken } from "./services/auth.js";
 import { usuariosService } from "./services/usuarios";
 import AppRouter from "./router/AppRouter.jsx";
 import { ErrorBoundary } from "./components/ui/ErrorBoundary.jsx";
@@ -12,103 +11,106 @@ function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // --- Funciones de auth (DECLARADAS ANTES DEL useEffect) ---
+  const syncUser = useCallback((nextUser) => {
+    try {
+      window.dispatchEvent(
+        new CustomEvent("userProfileUpdated", { detail: { user: nextUser } }),
+      );
+    } catch (error) {
+      console.warn("No se pudo despachar userProfileUpdated:", error);
+    }
+  }, []);
+
   const cerrarSesion = useCallback(async () => {
     try {
       await logout();
     } catch (error) {
       console.error("Error al cerrar sesión:", error);
-      localStorage.removeItem("token");
-      localStorage.removeItem("refreshToken");
-      localStorage.removeItem("user");
     }
 
     setLogin(false);
     setUser(null);
+    syncUser(null);
 
     if (window.adminService?.clearCache) {
       window.adminService.clearCache();
     }
+  }, [syncUser]);
 
-    // Notificar al Sidebar que el usuario cerró sesión
-    try {
-      window.dispatchEvent(
-        new CustomEvent("userProfileUpdated", { detail: { user: null } }),
-      );
-    } catch (e) {
-      console.warn("No se pudo despachar userProfileUpdated:", e);
-    }
-  }, []);
-
-  const guardarUsuario = useCallback((datos) => {
-    setUser(datos);
-    setLogin(true);
-    // Guardar usuario en localStorage
-    localStorage.setItem("user", JSON.stringify(datos));
-    // Notificar al Sidebar para sincronizar su estado de usuario
-    try {
-      window.dispatchEvent(
-        new CustomEvent("userProfileUpdated", { detail: { user: datos } }),
-      );
-    } catch (e) {
-      console.warn("No se pudo despachar userProfileUpdated:", e);
-    }
-  }, []);
+  const guardarUsuario = useCallback(
+    (datos) => {
+      setUser(datos);
+      setLogin(true);
+      syncUser(datos);
+    },
+    [syncUser],
+  );
 
   const iniciarSesion = useCallback(() => setLogin(true), []);
 
-  // --- Verificar token al iniciar ---
   useEffect(() => {
-    const verificarToken = async () => {
-      const token = localStorage.getItem("token");
-
-      if (!token) {
-        setLoading(false);
-        setLogin(false);
-        return;
-      }
+    const bootstrapSession = async () => {
+      setLoading(true);
 
       try {
+        const refreshed = await refreshAccessToken();
+
+        if (!refreshed.success) {
+          setLogin(false);
+          setUser(null);
+          syncUser(null);
+          return;
+        }
+
         const userData = await usuariosService.getMiPerfil();
 
-        if (!userData.ok) {
-          if (userData.status === 401 || userData.msg === "Sesion expirada") {
-            cerrarSesion();
-          }
-        } else {
-          setUser(userData.usuario);
-          setLogin(true);
-          // Guardar usuario en localStorage para sincronización
-          localStorage.setItem("user", JSON.stringify(userData.usuario));
-          // Notificar al Sidebar que el usuario está cargado
-          window.dispatchEvent(
-            new CustomEvent("userProfileUpdated", {
-              detail: { user: userData.usuario },
-            }),
-          );
+        if (!userData.ok || !userData.usuario) {
+          setLogin(false);
+          setUser(null);
+          syncUser(null);
+          return;
         }
-      } catch (err) {
-        console.error("Error al verificar token:", err);
+
+        setUser(userData.usuario);
+        setLogin(true);
+        syncUser(userData.usuario);
+      } catch (error) {
+        console.error("Error al iniciar sesión persistida:", error);
+        setLogin(false);
+        setUser(null);
+        syncUser(null);
       } finally {
         setLoading(false);
       }
     };
 
-    verificarToken();
-  }, [cerrarSesion]);
+    bootstrapSession();
+  }, [syncUser]);
 
-  // --- Escuchar logout forzado desde axiosInstance (token expirado sin refresh) ---
   useEffect(() => {
-    const handleForceLogout = () => cerrarSesion();
+    const handleForceLogout = () => {
+      cerrarSesion();
+    };
+
     window.addEventListener("forceLogout", handleForceLogout);
     return () => window.removeEventListener("forceLogout", handleForceLogout);
   }, [cerrarSesion]);
 
-  // --- Loading global ---
+  useEffect(() => {
+    const handleUserProfileUpdate = (event) => {
+      const nextUser = event.detail?.user ?? null;
+      setUser(nextUser);
+      setLogin(!!nextUser);
+    };
+
+    window.addEventListener("userProfileUpdated", handleUserProfileUpdate);
+    return () => window.removeEventListener("userProfileUpdated", handleUserProfileUpdate);
+  }, []);
+
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF7857]"></div>
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-[#FF7857]" />
       </div>
     );
   }
@@ -119,9 +121,7 @@ function App() {
         value={{ login, user, iniciarSesion, guardarUsuario, cerrarSesion }}
       >
         <BrowserRouter>
-          <SidebarProvider cerrarSesion={cerrarSesion}>
-            <AppRouter />
-          </SidebarProvider>
+          <AppRouter />
         </BrowserRouter>
       </AuthContext.Provider>
     </ErrorBoundary>

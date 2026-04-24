@@ -1,15 +1,36 @@
-import { useState } from "react";
+import { Link } from "react-router-dom";
 import { LazyLoadImage } from "react-lazy-load-image-component";
-import { useRequireAuth } from "../../hooks/useRequireAuth";
-import { generarPDFPublicacion } from "./CardPdf.jsx";
 import { formatFecha } from "../../utils/dateHelpers.js";
+import { getPublicacionDetailPath } from "../../features/publicaciones/utils/publicacionPaths";
+import { getTipoColorMeta } from "../../utils/publicacionColors.js";
+
+const cardMeta = {
+  ADOPCION: {
+    label: "Cuidado",
+    locationLabel: "Zona de referencia",
+  },
+  PERDIDO: {
+    label: "Busqueda activa",
+    locationLabel: "Se extravio en",
+  },
+  ENCONTRADO: {
+    label: "Resguardo activo",
+    locationLabel: "Se encontro en",
+  },
+};
+
+const formatBooleanish = (value) => {
+  if (value === undefined || value === null || value === "") return "";
+  if (typeof value === "boolean") return value ? "Si" : "No";
+
+  const normalized = String(value).trim().toLowerCase();
+  if (["si", "sí", "yes", "true", "apto", "compatible"].includes(normalized)) return "Si";
+  if (["no", "false", "no apto", "no compatible"].includes(normalized)) return "No";
+
+  return String(value).trim();
+};
 
 const CardGenerica = ({ publicacion, cardId, isSuccessful = false }) => {
-  const [flipped, setFlipped] = useState(false);
-  const [copied, setCopied] = useState(false);
-  const [generatingPDF, setGeneratingPDF] = useState(false);
-  const withAuth = useRequireAuth();
-
   const {
     nombreanimal,
     especie,
@@ -18,11 +39,9 @@ const CardGenerica = ({ publicacion, cardId, isSuccessful = false }) => {
     localidad,
     lugar,
     fecha,
-    sexo,
-    tamaño,
-    color,
     edad,
-    detalles,
+    sexo,
+    color,
     afinidad,
     afinidadanimales,
     energia,
@@ -32,309 +51,176 @@ const CardGenerica = ({ publicacion, cardId, isSuccessful = false }) => {
     estado,
   } = publicacion;
 
-  // Generar enlace de WhatsApp con código de país de Argentina (549)
+  const tamano =
+    publicacion["tamaño"] ||
+    publicacion["tamaÃ±o"] ||
+    publicacion["tamaÃƒÂ±o"] ||
+    publicacion["tamaÃƒÆ’Ã‚Â±o"] ||
+    publicacion["tamaÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â±o"] ||
+    publicacion["tamaÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â±o"];
+  const meta = {
+    ...getTipoColorMeta(tipo),
+    ...(cardMeta[tipo] || cardMeta.PERDIDO),
+  };
+  const detailPath = getPublicacionDetailPath(publicacion);
   const whatsappLink = whatsapp
-    ? `https://wa.me/549${whatsapp.replace(/\D/g, "")}`
+    ? `https://wa.me/549${String(whatsapp).replace(/\D/g, "")}`
     : null;
-
-  const mapTipos = {
-    ADOPCION: "adopciones",
-    PERDIDO: "perdidos",
-    ENCONTRADO: "encontrados",
-  };
-
-  const handleCopyLink = async (e) => {
-    e.stopPropagation();
-    const tipoUrl = mapTipos[tipo];
-    const url = `${window.location.origin}/publicaciones/${tipoUrl}#${publicacion._id}`;
-    try {
-      await navigator.clipboard.writeText(url);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error("Error al copiar:", err);
-    }
-  };
-
-  const handleExportarPDF = async (e) => {
-    e.stopPropagation();
-    withAuth(async () => {
-      try {
-        setGeneratingPDF(true);
-        const fileName = `${tipo}_${nombreanimal || especie}_${new Date().getTime()}.pdf`;
-        await generarPDFPublicacion(publicacion, fileName);
-        setTimeout(() => setGeneratingPDF(false), 1500);
-      } catch (error) {
-        console.error("Error al generar PDF:", error);
-        alert("Hubo un error al generar el PDF. Por favor, intenta nuevamente.");
-        setGeneratingPDF(false);
-      }
-    });
-  };
+  const primaryLocation = localidad || lugar;
+  const locationSummary =
+    localidad && lugar ? `${localidad} / ${lugar}` : primaryLocation;
+  const isAdoption = tipo === "ADOPCION";
+  const adoptionFields = [
+    { label: "Sexo", value: sexo },
+    { label: "Color", value: color },
+    { label: "Convivencia con ninos", value: formatBooleanish(afinidad) },
+    {
+      label: "Convivencia con animales",
+      value: formatBooleanish(afinidadanimales),
+    },
+    { label: "Nivel de energia", value: energia },
+    { label: "Castrado", value: formatBooleanish(castrado) },
+  ]
+    .filter((field) => field.value)
+    .slice(0, 4);
 
   return (
-    <div
+    <article
       id={cardId}
-      className="font-medium w-full max-w-sm h-[36rem] rounded-2xl cursor-pointer flex flex-col overflow-hidden"
-      onClick={() => setFlipped(!flipped)}
+      className="group flex h-[30.6rem] w-full max-w-[21rem] flex-col overflow-hidden rounded-[0.95rem] border border-[#2f241d]/10 bg-[linear-gradient(180deg,rgba(255,250,244,0.98),rgba(248,240,229,0.92))] shadow-[0_22px_48px_rgba(36,25,20,0.08)] transition-transform duration-300 hover:-translate-y-1 sm:rounded-[1rem]"
     >
-      <div
-        className={`relative w-full h-full transition-transform duration-500 [transform-style:preserve-3d] ${
-          flipped ? "[transform:rotateY(180deg)]" : ""
-        }`}
-      >
-        {/* Frente */}
-        <div
-          className={`absolute w-full h-full [backface-visibility:hidden] flex flex-col bg-white border border-[#FF7857]/20 ${
-            flipped ? "invisible" : ""
-          }`}
-        >
-          {tipo === "ADOPCION" && (
-            <span className="text-xl text-white flex justify-center items-center bg-[#4dac00] font-extrabold">
-              {estado}
-            </span>
-          )}
-          {tipo === "PERDIDO" && (
-            <span className="text-xl text-white flex justify-center items-center bg-[#FF0000] font-extrabold">
-              {estado}
-            </span>
-          )}
-          {tipo === "ENCONTRADO" && (
-            <span className="text-xl text-white flex justify-center items-center bg-[#2165FF] font-extrabold">
-              {estado}
-            </span>
-          )}
-
-          <div className="flex flex-col pb-3 pl-3 pr-3 pt-2 flex-1 overflow-y-auto will-change-transform [transform:translateZ(0)]">
-            {img && (
-              <div className="relative w-full h-70 rounded-xl overflow-hidden mb-2 bg-[#e6dac6]">
-                {/* Fondo relleno blur */}
-                <LazyLoadImage
-                  src={img}
-                  alt="background"
-                  className="absolute inset-0 w-full h-full object-cover blur-lg scale-110 opacity-60"
-                  loading="lazy"
-                />
-
-                {/* Imagen real */}
-                <LazyLoadImage
-                  src={img}
-                  alt="Imagen"
-                  className="relative z-10 max-h-full max-w-full mx-auto object-contain drop-shadow-sm"
-                  loading="lazy"
-                />
-              </div>
-            )}
-
-            <div className="text-xs text-black space-y-1 flex-1 overflow-y-auto will-change-transform [transform:translateZ(0)]">
-              {tipo === "ADOPCION" && (
-                <span className="text-xl text-[#4dac00] flex justify-center items-center font-extrabold">
-                  {nombreanimal}
-                </span>
-              )}
-              {tipo === "PERDIDO" && (
-                <span className="text-xl text-[#FF0000] flex justify-center items-center font-extrabold">
-                  {nombreanimal}
-                </span>
-              )}
-              <div className="flex flex-wrap gap-1 mt-1 text-sm justify-center">
-                {especie && <p>{especie}</p>}|{sexo && <p>{sexo}</p>}|
-                {tamaño && <p>{tamaño}</p>}
-              </div>
-              <div className="flex flex-col justify-center text-center items-center font-light">
-                {raza && (
-                  <p>
-                    <span>Raza:</span> {raza.toUpperCase()}
-                  </p>
-                )}
-
-                {color && (
-                  <p>
-                    <span>Color:</span> {color.toUpperCase()}
-                  </p>
-                )}
-                {tipo === "ADOPCION" && castrado !== undefined && (
-                  <p>
-                    <span>Castrado:</span> {castrado ? "Sí" : "No"}
-                  </p>
-                )}
-              </div>
-              <div className="flex flex-col justify-center text-center text-sm">
-                {tipo === "PERDIDO" && (localidad || lugar) && (
-                  <>
-                    <p className="font-light ">Se extravió en:</p>
-                    {localidad && <p className="font-extrabold ">{localidad}</p>}
-                    {lugar && <p className="font-semibold text-xs">{lugar}</p>}
-                  </>
-                )}
-                {tipo === "ENCONTRADO" && (localidad || lugar) && (
-                  <>
-                    <p className="font-light ">Se encontró en:</p>
-                    {localidad && <p className="font-extrabold ">{localidad}</p>}
-                    {lugar && <p className="font-semibold text-xs">{lugar}</p>}
-                  </>
-                )}
-                {fecha && (
-                  <>
-                    <p className="font-extrabold ">{formatFecha(fecha)}</p>
-                  </>
-                )}
-              </div>
-              <div className="flex flex-col justify-center text-center text-sm">
-                {tipo === "ADOPCION" && edad && (
-                  <>
-                    <p className="font-light">Edad:</p>
-                    {edad && <p className="font-extrabold">{edad}</p>}
-                  </>
-                )}
-              </div>
+      <div className="relative p-2.5">
+        {img ? (
+          <div className="relative h-[13.1rem] overflow-hidden rounded-[0.42rem] bg-[#e6dac6]">
+            <div className="absolute left-3 top-3 z-20">
+              <span
+                className="rounded-[0.4rem] px-2.5 py-1 text-[0.54rem] font-bold uppercase tracking-[0.14em] text-white shadow-sm"
+                style={{ backgroundColor: meta.accent }}
+              >
+                {estado}
+              </span>
             </div>
-            <p className="text-center font-bold text-black/60 text-[0.8rem]">
-              (Click para más detalles y contacto)
-            </p>
+            <div className="absolute right-3 top-3 z-20">
+              <span className="rounded-[0.4rem] border border-white/45 bg-white/80 px-2.5 py-1 text-[0.53rem] font-bold uppercase tracking-[0.14em] text-[#5f4c41] backdrop-blur-sm">
+                {meta.label}
+              </span>
+            </div>
+            <div
+              className="absolute inset-0 opacity-90"
+              style={{
+                background: `linear-gradient(180deg, rgba(36,25,20,0.04), rgba(36,25,20,0.18)), radial-gradient(circle at top, ${meta.accentSoft}55, transparent 58%)`,
+              }}
+            />
+            <LazyLoadImage
+              src={img}
+              alt="background"
+              className="absolute inset-0 h-full w-full scale-105 object-cover blur-lg opacity-35"
+              loading="lazy"
+            />
+            <LazyLoadImage
+              src={img}
+              alt={nombreanimal || especie || "Imagen de publicacion"}
+              className="relative z-10 block h-full w-full scale-[1.08] object-contain px-1.5 py-1.5"
+              loading="lazy"
+            />
           </div>
-          {tipo === "ENCONTRADO" && (
-            <p className="text-xl text-white flex justify-center items-center bg-[#2165FF] font-medium tracking-[0.11em]">
-              SECTOR: ENCONTRADO
+        ) : (
+          <div className="flex h-[13.1rem] items-center justify-center rounded-[0.42rem] bg-[#e6dac6] text-sm font-medium text-[#6f5546]">
+            Sin imagen
+          </div>
+        )}
+      </div>
+
+      <div className="flex min-h-0 flex-1 flex-col px-3.5 pb-3.5">
+        <div className="flex items-start justify-between gap-2 border-b border-[#2f241d]/8 pb-1.5">
+          <div className="min-w-0">
+            <p className="text-[0.56rem] font-bold uppercase tracking-[0.22em] text-[#7b6557]">
+              {tipo}
             </p>
-          )}
-          {tipo === "PERDIDO" && (
-            <p className="text-xl text-white flex justify-center items-center bg-[#FF0000] font-medium tracking-[0.11em]">
-              SECTOR: PERDIDO
-            </p>
-          )}
-          {tipo === "ADOPCION" && (
-            <p className="text-xl text-white flex justify-center items-center bg-[#4dac00] font-medium tracking-[0.11em]">
-              SECTOR: ADOPCION
+            <h3
+              className="font-editorial mt-1 line-clamp-2 text-[1.38rem] leading-[0.94]"
+              style={{ color: meta.accent }}
+            >
+              {nombreanimal || especie}
+            </h3>
+          </div>
+
+          {fecha && (
+            <p className="shrink-0 pt-0.5 text-right text-[0.58rem] font-semibold uppercase tracking-[0.16em] text-[#8a7365]">
+              {formatFecha(fecha)}
             </p>
           )}
         </div>
 
-        {/* Reverso */}
-        <div
-          className={`absolute w-full h-full [backface-visibility:hidden] [transform:rotateY(180deg)] flex flex-col justify-between bg-white border border-[#FF7857]/20 p-3 ${
-            !flipped ? "invisible" : ""
-          }`}
-        >
-          <div className="text-sm text-black/85 overflow-auto flex-1">
-            {tipo === "PERDIDO" && (
-              <span className="text-xl mb-2 text-[#FF0000] flex justify-center items-center font-extrabold">
-                {nombreanimal}
-              </span>
-            )}
-            {tipo === "ADOPCION" && (
-              <>
-                {nombreanimal && (
-                  <span className="text-xl mb-2 text-[#4dac00] flex justify-center items-center font-extrabold">
-                    {nombreanimal}
-                  </span>
-                )}
+        <div className="mt-1.5 flex flex-wrap gap-x-2 gap-y-0.5 text-[0.74rem] font-medium text-[#5f4c41]">
+          {raza && <span>{raza}</span>}
+          {edad && <span>{raza ? "/ " : ""}{edad}</span>}
+          {tamano && <span>{raza || edad ? "/ " : ""}{tamano}</span>}
+          {!raza && !edad && !tamano && especie && <span>{especie}</span>}
+        </div>
 
-                {afinidad && (
-                  <p className="font-light">
-                    <span className="font-semibold">Afinidad con niños:</span>{" "}
-                    {afinidad}
-                  </p>
-                )}
-                {afinidadanimales && (
-                  <p className="font-light">
-                    <span className="font-semibold">
-                      Afinidad con otros animales:
-                    </span>{" "}
-                    {afinidadanimales}
-                  </p>
-                )}
-                {energia && (
-                  <p className="font-light">
-                    <span className="font-semibold">Energía:</span> {energia}
-                  </p>
-                )}
-              </>
-            )}
-
-            {tipo === "PERDIDO" && edad && (
-              <p className="font-light">
-                <span className="font-semibold">Edad:</span> {edad}
-              </p>
-            )}
-            {detalles && (
-              <p className="mt-2 leading-relaxed font-light">
-                <span className="font-semibold">
-                  Señas particulares y estado del animal:
-                </span>{" "}
-                {detalles}
-              </p>
-            )}
-
-            <div className="flex flex-col mt-5 justify-center text-center text-sm">
-              {tipo === "PERDIDO" && (localidad || lugar) && (
-                <>
-                  <p className="font-light ">Se extravió en:</p>
-                  {localidad && <p className="font-extrabold ">{localidad}</p>}
-                  {lugar && <p className="font-semibold text-xs">{lugar}</p>}
-                </>
-              )}
-              {tipo === "ENCONTRADO" && (localidad || lugar) && (
-                <>
-                  <p className="font-light ">Se encontró en:</p>
-                  {localidad && <p className="font-extrabold ">{localidad}</p>}
-                  {lugar && <p className="font-semibold text-xs">{lugar}</p>}
-                </>
-              )}
-              {fecha && (
-                <>
-                  <p className="font-extrabold ">{formatFecha(fecha)}</p>
-                </>
+        {isAdoption ? (
+          <div className="mt-2 rounded-[0.7rem] border border-[#2f241d]/8 bg-white/70 px-3 py-2.5">
+            <p className="text-[0.56rem] font-bold uppercase tracking-[0.2em] text-[#7b6557]">
+              Perfil de adopcion
+            </p>
+            <div className="mt-1.5 grid grid-cols-2 gap-x-3 gap-y-1 text-[0.76rem] leading-snug text-[#241914]">
+              {adoptionFields.map((field) => (
+                <p
+                  key={field.label}
+                  className={`min-w-0 ${
+                    field.label.startsWith("Convive con") ? "col-span-2" : ""
+                  }`}
+                >
+                  <span className="font-semibold text-[#6a574b]">{field.label}:</span>{" "}
+                  <span className="break-words">{field.value}</span>
+                </p>
+              ))}
+              {adoptionFields.length === 0 && (
+                <p className="text-[#6a574b]">Sin detalles adicionales.</p>
               )}
             </div>
           </div>
-          <div>
-            <p className="text-center font-bold text-black/60 text-[0.8rem]">
-              (Click para VOLVER ATRÁS)
+        ) : (
+          <div className="mt-2 rounded-[0.7rem] border border-[#2f241d]/8 bg-white/70 px-3 py-2.5">
+            <p className="text-[0.56rem] font-bold uppercase tracking-[0.2em] text-[#7b6557]">
+              {meta.locationLabel}
+            </p>
+            <p className="mt-1 line-clamp-3 min-h-[3.4rem] text-[0.88rem] font-semibold leading-snug text-[#241914]">
+              {locationSummary || "Sin ubicacion informada"}
             </p>
           </div>
-          {!isSuccessful && (
-            <button
-              onClick={handleExportarPDF}
-              disabled={generatingPDF}
-              className={`mt-3 w-full text-sm border cursor-pointer font-medium px-4 py-2 rounded-full transition-colors delay-100 duration-300 ${
-                generatingPDF
-                  ? "bg-blue-500 text-white border-blue-500 cursor-wait"
-                  : "text-blue-600 bg-blue-50 border-blue-400 shadow-sm hover:bg-blue-500 hover:text-white"
-              }`}
+        )}
+
+        <div className="mt-auto pt-2">
+          <div
+            className={`grid gap-2 ${
+              whatsappLink && !isSuccessful ? "grid-cols-[1.1fr_0.9fr]" : "grid-cols-1"
+            }`}
+          >
+            <Link
+              to={detailPath}
+              state={{ publicacion }}
+              className="rounded-[0.6rem] border border-[#2f241d]/10 bg-white px-3 py-2.5 text-center text-[0.7rem] font-semibold uppercase tracking-[0.08em] text-[#241914] transition-colors hover:bg-[#efe2d0]"
             >
-              {generatingPDF ? " Generando PDF..." : "Descargar cartel en PDF"}
-            </button>
-          )}
-          {!isSuccessful && (
-            <button
-              onClick={handleCopyLink}
-              className={`mt-3 w-full text-sm border border-[#FF7857]/40 cursor-pointer font-medium px-4 py-2 rounded-full transition-colors delay-100 duration-300 ${
-                copied
-                  ? "bg-[#FF7857] text-white"
-                  : "text-black bg-white/90 shadow-sm hover:bg-[#FF7857] hover:text-white"
-              }`}
-            >
-              {copied ? "¡Enlace copiado! " : "Compartir publicación"}
-            </button>
-          )}
-          {!isSuccessful && whatsappLink && (
-            <a
-              onClick={(e) => {
-                e.preventDefault();
-                withAuth(() => {
-                  window.open(whatsappLink, "_blank");
-                });
-              }}
-              rel="noopener noreferrer"
-              className="mt-3 w-full text-center bg-[#4dac00] text-white px-4 py-2 rounded-full hover:bg-[#1ebe57] transition-colors delay-100 duration-300 cursor-pointer text-sm font-semibold"
-            >
-              Contactar por WhatsApp
-            </a>
-          )}
+              Ver detalle
+            </Link>
+
+            {!isSuccessful && whatsappLink && (
+              <a
+                href={whatsappLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-[0.6rem] px-3 py-2.5 text-center text-[0.7rem] font-semibold uppercase tracking-[0.08em] text-white transition-opacity hover:opacity-92"
+                style={{ backgroundColor: meta.accent }}
+              >
+                WhatsApp
+              </a>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </article>
   );
 };
 

@@ -2,10 +2,10 @@ const CasoAyudaFiltro = ({ value, onChange }) => {
   return (
     <input
       type="text"
-      placeholder="Buscar por creador..."
+      placeholder="Buscar por autor"
       value={value}
-      onChange={(e) => onChange(e.target.value)}
-      className="p-2 rounded-lg bg-white/5 border border-white text-white placeholder-white/50 focus:outline-none"
+      onChange={(event) => onChange(event.target.value)}
+      className="h-12 w-full max-w-md rounded-full border border-white/18 bg-white/10 px-5 text-[0.95rem] text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-[#f4c89e]/60"
     />
   );
 };

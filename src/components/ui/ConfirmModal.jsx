@@ -3,7 +3,7 @@ import { motion } from "motion/react";
 import ModalShell from "./ModalShell";
 
 export const ConfirmModal = React.memo(
-  ({ confirmModal, onClose, onConfirm, type = "publicacion"}) => {
+  ({ confirmModal, onClose, onConfirm, type = "publicacion" }) => {
     if (!confirmModal.isOpen) return null;
 
     const getTitle = () => {
@@ -19,9 +19,9 @@ export const ConfirmModal = React.memo(
         case "sesion":
           return "Cerrar sesión";
         case "comunidad":
-          return "Eliminar caso comunitario"; // <-- agregado
+          return "Eliminar caso comunitario";
         case "alerta":
-          return "Cerrar"; 
+          return "Cerrar";
         default:
           return "Confirmar acción";
       }
@@ -30,19 +30,19 @@ export const ConfirmModal = React.memo(
     const getMessage = () => {
       switch (type) {
         case "perfil":
-          return "¿Estas seguro de que quieres eliminar tu perfil? Esta acción no puede deshacerse.";
+          return "¿Estás seguro de que quieres eliminar tu perfil? Esta acción no puede deshacerse.";
         case "publicacion":
-          return `¿Estas seguro de que quieres eliminar esta publicación? Esta acción no se puede deshacer.`;
+          return "¿Estás seguro de que quieres eliminar esta publicación? Esta acción no se puede deshacer.";
         case "usuario":
-          return `¿Estas seguro de que quieres ${
+          return `¿Estás seguro de que quieres ${
             confirmModal.item?.estado ? "desactivar" : "activar"
           } al usuario "${confirmModal.item?.nombre}"?`;
         case "sesion":
           return "¿Estás seguro de que quieres cerrar sesión?";
         case "comunidad":
-          return `¿Estas seguro de que quieres eliminar el caso "${confirmModal.item?.titulo}"? Esta acción no se puede deshacer.`; // <-- agregado
+          return `¿Estás seguro de que quieres eliminar el caso "${confirmModal.item?.titulo}"? Esta acción no se puede deshacer.`;
         case "alerta":
-          return `El inicio de sesión se cerrará ¿Estás seguro de esta acción?`;
+          return "El inicio de sesión se cerrará. ¿Estás seguro de esta acción?";
         default:
           return "Confirma la acción para continuar.";
       }
@@ -54,25 +54,25 @@ export const ConfirmModal = React.memo(
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.8, opacity: 0 }}
-          className="bg-white rounded-lg shadow-lg p-6 w-full max-w-sm text-center"
+          className="w-full max-w-sm rounded-lg bg-white p-6 text-center shadow-lg"
         >
-          <h2 className="text-red-500 text-lg font-semibold mb-4">
+          <h2 className="mb-4 text-lg font-semibold text-red-500">
             {getTitle()}
           </h2>
 
-          <p className="text-black mb-6">{getMessage()}</p>
+          <p className="mb-6 text-black">{getMessage()}</p>
 
           <div className="flex justify-center gap-4">
             <button
               onClick={onClose}
-              className="px-4 py-2 rounded-full bg-black text-white hover:bg-black-400 transition cursor-pointer"
+              className="cursor-pointer rounded-full bg-black px-4 py-2 text-white transition hover:bg-black/80"
             >
               Cancelar
             </button>
 
             <button
               onClick={onConfirm}
-              className="px-4 py-2 rounded-full bg-red-500 text-white hover:bg-red-600 transition cursor-pointer"
+              className="cursor-pointer rounded-full bg-red-500 px-4 py-2 text-white transition hover:bg-red-600"
             >
               Confirmar
             </button>
@@ -80,5 +80,5 @@ export const ConfirmModal = React.memo(
         </motion.div>
       </ModalShell>
     );
-  }
+  },
 );
