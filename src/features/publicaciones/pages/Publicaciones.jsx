@@ -2,15 +2,15 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import ReactPaginate from "react-paginate";
-import Navbar from "../components/layout/Navbar";
-import Footer from "../components/layout/Footer";
-import CardGenerica from "../components/cards/CardGenerica";
-import CardFiltro from "../components/forms/CardFiltro";
-import { publicacionesService } from "../services/publicaciones";
-
-import { useRequireAuth } from "../hooks/useRequireAuth";
-import { compareFechas } from "../utils/dateHelpers";
-import { getTipoColorMeta } from "../utils/publicacionColors";
+import Navbar from "../../../components/layout/Navbar";
+import Footer from "../../../components/layout/Footer";
+import CardFiltro from "../../../components/forms/CardFiltro";
+import { publicacionesService } from "../../../services/publicaciones";
+import { useRequireAuth } from "../../../hooks/useRequireAuth";
+import { compareFechas } from "../../../utils/dateHelpers";
+import { getTipoColorMeta } from "../../../utils/publicacionColors";
+import CardGenerica from "../components/CardGenerica";
+import { getPublicacionTamano } from "../utils/publicacionFields";
 
 const ITEMS_PER_PAGE = 12;
 
@@ -138,12 +138,7 @@ const PublicacionesPage = () => {
 
   const filtrarPublicaciones = (lista) =>
     lista.filter((publicacion) => {
-      const tamanoPublicacion =
-        publicacion["tamaño"] ||
-        publicacion["tamaÃ±o"] ||
-        publicacion["tamaÃƒÂ±o"] ||
-        publicacion["tamaÃƒÆ’Ã‚Â±o"] ||
-        publicacion["tamaÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â±o"];
+      const tamanoPublicacion = getPublicacionTamano(publicacion);
 
       return (
         (!filtros.raza || publicacion.raza === filtros.raza) &&
@@ -227,7 +222,7 @@ const PublicacionesPage = () => {
         navigate(`/casos-exito#${publicacionId}`);
       }
     } catch (error) {
-      console.error("Error buscando publicación exitosa:", error);
+      console.error("Error buscando publicaciÃ³n exitosa:", error);
     } finally {
       setHashProcessed(true);
     }
@@ -316,7 +311,6 @@ const PublicacionesPage = () => {
             </div>
 
             <div className="space-y-6">
-
               <div className="grid grid-cols-1 justify-items-center gap-5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
                 {loading ? (
                   <div className="col-span-full flex min-h-[16rem] items-center justify-center">

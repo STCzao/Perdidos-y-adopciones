@@ -2,7 +2,7 @@
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import CardGenerica from "../../../components/cards/CardGenerica";
+import CardGenerica from "../../publicaciones/components/CardGenerica";
 import RedirectCard from "../../../components/cards/RedirectCard";
 import Footer from "../../../components/layout/Footer";
 import Navbar from "../../../components/layout/Navbar";
@@ -162,7 +162,7 @@ const HomeScreen = () => {
       <Navbar />
 
       <section
-        className="relative isolate overflow-hidden"
+        className="relative isolate flex min-h-dvh items-center overflow-hidden"
         style={{
           background:
             "linear-gradient(180deg, #2c211d 0%, #43302a 58%, #5a3f35 100%)",
@@ -180,7 +180,7 @@ const HomeScreen = () => {
         <div className="pointer-events-none absolute left-[-10rem] top-36 h-72 w-72 rounded-full bg-[#D62828]/20 blur-3xl" />
         <div className="pointer-events-none absolute right-[-8rem] top-24 h-80 w-80 rounded-full bg-[#2165FF]/12 blur-3xl" />
 
-        <div className="relative w-full px-3 pb-8 pt-20 sm:px-5 sm:pb-12 sm:pt-24 lg:px-8 lg:pb-12 lg:pt-24">
+        <div className="relative w-full px-3 pb-7 pt-22 sm:px-5 sm:pb-10 sm:pt-28 lg:px-8 lg:pb-10 lg:pt-28">
           <motion.div
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
@@ -194,13 +194,13 @@ const HomeScreen = () => {
           >
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(244,200,158,0.18),transparent_26%),radial-gradient(circle_at_right,rgba(219,231,181,0.14),transparent_24%),linear-gradient(180deg,rgba(24,18,16,0.08),rgba(24,18,16,0.46))]" />
 
-            <div className="relative grid min-h-[26rem] gap-4 p-3.5 text-white sm:p-5 lg:min-h-[29rem] lg:grid-cols-[1.12fr_0.88fr] lg:items-center lg:gap-4 lg:p-5">
-              <div className="flex flex-col justify-center rounded-[1.45rem] border border-white/10 bg-[rgba(22,17,15,0.44)] p-4 backdrop-blur-sm sm:rounded-[1.8rem] sm:p-5 lg:min-h-[22rem] lg:max-w-[47rem] lg:p-6">
-                <span className="inline-flex w-fit rounded-full border border-white/14 bg-white/8 px-4 py-2 text-[0.68rem] font-bold uppercase tracking-[0.28em] text-[#f5e7d9] backdrop-blur-sm">
+            <div className="relative grid min-h-[min(40rem,calc(100dvh-7.5rem))] gap-3 p-3 text-white sm:p-5 lg:grid-cols-[1.12fr_0.88fr] lg:items-center lg:gap-4 lg:p-5">
+              <div className="flex flex-col justify-center rounded-[1.25rem] border border-white/10 bg-[rgba(22,17,15,0.44)] p-4 backdrop-blur-sm sm:rounded-[1.8rem] sm:p-5 lg:min-h-[22rem] lg:max-w-[47rem] lg:p-6">
+                <span className="inline-flex w-fit rounded-full border border-white/14 bg-white/8 px-3.5 py-1.5 text-[0.6rem] font-bold uppercase tracking-[0.22em] text-[#f5e7d9] backdrop-blur-sm sm:px-4 sm:py-2 sm:text-[0.68rem] sm:tracking-[0.28em]">
                   Base de datos comunitaria de Tucumán
                 </span>
 
-                <h1 className="font-editorial mt-5 max-w-4xl text-[2.15rem] leading-[0.9] sm:text-[3rem] lg:text-[3.7rem]">
+                <h1 className="font-editorial mt-4 max-w-4xl text-[1.8rem] leading-[0.92] sm:mt-5 sm:text-[3rem] lg:text-[3.7rem]">
                   Animales perdidos,
                   <span className="block text-[#f4c89e]">
                     encontrados y en adopción
@@ -210,7 +210,7 @@ const HomeScreen = () => {
                   </span>
                 </h1>
 
-                <p className="mt-4 max-w-xl text-[0.94rem] leading-relaxed text-[#f2e8e0]/84">
+                <p className="mt-3 max-w-xl text-[0.88rem] leading-relaxed text-[#f2e8e0]/84 sm:mt-4 sm:text-[0.94rem]">
                   Una herramienta comunitaria para registrar y mantener visibles
                   los casos.
                 </p>
@@ -218,20 +218,20 @@ const HomeScreen = () => {
                 <div className="mt-5 flex flex-col gap-3 sm:flex-row">
                   <button
                     onClick={openCreatePublication}
-                    className="cursor-pointer rounded-full bg-[#f4c89e] px-6 py-3 text-sm font-bold text-[#2a1f19] shadow-[0_16px_40px_rgba(244,200,158,0.24)] transition-transform duration-300 hover:-translate-y-0.5"
+                    className="cursor-pointer rounded-full bg-[#f4c89e] px-5 py-3 text-sm font-bold text-[#2a1f19] shadow-[0_16px_40px_rgba(244,200,158,0.24)] transition-transform duration-300 hover:-translate-y-0.5 sm:px-6"
                   >
                     Publicar un caso
                   </button>
                 </div>
               </div>
 
-              <div className="self-center justify-self-end rounded-[2rem] border border-white/10 bg-[rgba(18,14,12,0.42)] p-3 backdrop-blur-sm lg:w-full lg:max-w-[28rem]">
-                <div className="flex items-start justify-between gap-5 px-2 pb-2 pt-1">
+              <div className="self-center justify-self-end rounded-[1.35rem] border border-white/10 bg-[rgba(18,14,12,0.42)] p-3 backdrop-blur-sm sm:rounded-[2rem] lg:w-full lg:max-w-[28rem]">
+                <div className="flex items-start justify-between gap-5 px-1.5 pb-2 pt-1 sm:px-2">
                   <div>
-                    <span className="text-[0.68rem] font-bold uppercase tracking-[0.24em] text-[#f5e7d9]">
+                    <span className="text-[0.58rem] font-bold uppercase tracking-[0.18em] text-[#f5e7d9] sm:text-[0.68rem] sm:tracking-[0.24em]">
                       Elegi tu punto de partida
                     </span>
-                    <h2 className="font-editorial mt-2 max-w-2xl text-[1.9rem] leading-none text-[#fff8ef] sm:text-[2.15rem]">
+                    <h2 className="font-editorial mt-2 max-w-2xl text-[1.5rem] leading-none text-[#fff8ef] sm:text-[2.15rem]">
                       Tres caminos directos.
                     </h2>
                   </div>

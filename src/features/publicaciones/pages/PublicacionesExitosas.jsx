@@ -1,10 +1,10 @@
-import Navbar from "../components/layout/Navbar";
-import Footer from "../components/layout/Footer";
-import { motion } from "framer-motion";
-import CardExitosa from "../components/cards/CardExitosa";
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import ReactPaginate from "react-paginate";
-import { publicacionesService } from "../services/publicaciones";
+import Navbar from "../../../components/layout/Navbar";
+import Footer from "../../../components/layout/Footer";
+import { publicacionesService } from "../../../services/publicaciones";
+import CardExitosa from "../components/CardExitosa";
 
 const ESTADOS_EXITOSOS = ["YA APARECIO", "APARECIO SU FAMILIA", "ADOPTADO"];
 const ITEMS_PER_PAGE = 12;
@@ -22,10 +22,10 @@ const fetchTodasLasPaginasDeEstado = async (estado) => {
   }
 
   const resto = await Promise.all(requests);
-  return [...publicaciones, ...resto.flatMap((r) => r?.publicaciones || [])];
+  return [...publicaciones, ...resto.flatMap((response) => response?.publicaciones || [])];
 };
 
-const PublicacionesExitosas = () => {
+const PublicacionesExitosasPage = () => {
   const [publicaciones, setPublicaciones] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -110,14 +110,14 @@ const PublicacionesExitosas = () => {
                 <div className="h-9 w-9 animate-spin rounded-full border-b-2 border-[#d46f49]" />
               </div>
             ) : displayPublicaciones.length > 0 ? (
-              displayPublicaciones.map((pub) => (
+              displayPublicaciones.map((publicacion) => (
                 <motion.div
-                  key={pub._id}
+                  key={publicacion._id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <CardExitosa publicacion={pub} cardId={pub._id} />
+                  <CardExitosa publicacion={publicacion} cardId={publicacion._id} />
                 </motion.div>
               ))
             ) : (
@@ -126,7 +126,7 @@ const PublicacionesExitosas = () => {
                   Sin resultados
                 </p>
                 <p className="mt-3 text-[1.1rem] font-semibold text-[#241914]">
-                  No hay casos resueltos todavía.
+                  No hay casos resueltos todavÃ­a.
                 </p>
               </div>
             )}
@@ -163,4 +163,4 @@ const PublicacionesExitosas = () => {
   );
 };
 
-export default PublicacionesExitosas;
+export default PublicacionesExitosasPage;

@@ -1,8 +1,8 @@
 import { useRef } from "react";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
-import { formatFecha } from "../../utils/dateHelpers";
-import { getTipoColorMeta } from "../../utils/publicacionColors";
+import { formatFecha } from "../../../utils/dateHelpers";
+import { getTipoColorMeta } from "../../../utils/publicacionColors";
 
 const waitForAssets = async (element) => {
   if (!element) return;

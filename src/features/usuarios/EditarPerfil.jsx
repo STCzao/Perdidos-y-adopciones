@@ -27,10 +27,10 @@ const EMPTY_PASSWORD_FORM = {
 };
 
 const inputClassName =
-  "mt-2 flex h-12 w-full items-center rounded-[1.1rem] border border-[#d4c6b7] bg-[#fffdf9] px-4 text-sm text-[#3d332d] shadow-[0_12px_30px_rgba(59,43,34,0.06)] transition-colors duration-300 focus-within:border-[#c97b57] focus-within:ring-2 focus-within:ring-[#c97b57]/15";
+  "mt-2 flex h-12 w-full items-center rounded-[1.1rem] border border-[color:var(--shell-line)] bg-[color:var(--shell-surface)] px-4 text-sm text-[#3d332d] shadow-[0_12px_30px_rgba(59,43,34,0.06)] transition-colors duration-300 focus-within:border-[color:var(--shell-accent-strong)] focus-within:ring-2 focus-within:ring-[color:var(--shell-accent-strong)]/15";
 
 const sectionClassName =
-  "rounded-[1.35rem] border border-[#d8cabc] bg-[linear-gradient(180deg,rgba(255,252,247,0.98),rgba(248,242,234,0.92))] p-5 shadow-[0_16px_45px_rgba(57,42,31,0.08)]";
+  "rounded-[1.35rem] border border-[color:var(--shell-line)] bg-[linear-gradient(180deg,rgba(255,250,244,0.98),rgba(248,240,229,0.96))] p-5 shadow-[0_16px_45px_rgba(57,42,31,0.08)]";
 
 const dispatchUserProfileUpdated = (user) => {
   window.dispatchEvent(new CustomEvent("userProfileUpdated", { detail: { user } }));
@@ -46,6 +46,21 @@ const getInitials = (nombre = "") =>
 
 const FieldError = ({ message }) =>
   message ? <p className="mt-2 text-xs text-[#a84632]">{message}</p> : null;
+
+const StatusMessage = ({ message }) => {
+  if (!message) return null;
+
+  const isPositive =
+    message.includes("correctamente") ||
+    message.includes("lista") ||
+    message.includes("actualizada");
+
+  return (
+    <p className={`mt-5 text-sm ${isPositive ? "text-[#4d6a2e]" : "text-[#9c4d3a]"}`}>
+      {message}
+    </p>
+  );
+};
 
 export const EditarPerfil = {
   openModal: () => modalControl?.setOpen(true),
@@ -131,7 +146,7 @@ export const EditarPerfil = {
         setPasswordErrors({});
       } catch (error) {
         console.error(error);
-        setProfileResult("Error de conexión al cargar el perfil");
+        setProfileResult("Error de conexiÃƒÂ³n al cargar el perfil");
       } finally {
         setLoading(false);
       }
@@ -235,7 +250,7 @@ export const EditarPerfil = {
         dispatchUserProfileUpdated(response.usuario);
       } catch (error) {
         console.error(error);
-        setProfileResult("Error de conexión al guardar el perfil");
+        setProfileResult("Error de conexiÃƒÂ³n al guardar el perfil");
       } finally {
         setSavingProfile(false);
       }
@@ -247,7 +262,7 @@ export const EditarPerfil = {
       if (Object.keys(nextErrors).length) return;
 
       setChangingPassword(true);
-      setPasswordResult("Actualizando contraseña...");
+      setPasswordResult("Actualizando contraseÃƒÂ±a...");
 
       try {
         const response = await usuariosService.cambiarPassword({
@@ -258,18 +273,18 @@ export const EditarPerfil = {
 
         if (!response.ok) {
           setPasswordErrors(response.errors || {});
-          setPasswordResult(response.msg || "No se pudo cambiar la contraseña");
+          setPasswordResult(response.msg || "No se pudo cambiar la contraseÃƒÂ±a");
           return;
         }
 
         setPasswordForm(EMPTY_PASSWORD_FORM);
         setPasswordErrors({});
         setPasswordResult(
-          "Contraseña actualizada. Si tu sesión se cierra, vuelve a ingresar.",
+          "ContraseÃƒÂ±a actualizada. Si tu sesiÃƒÂ³n se cierra, vuelve a ingresar.",
         );
       } catch (error) {
         console.error(error);
-        setPasswordResult("Error de conexión al cambiar la contraseña");
+        setPasswordResult("Error de conexiÃƒÂ³n al cambiar la contraseÃƒÂ±a");
       } finally {
         setChangingPassword(false);
       }
@@ -303,7 +318,7 @@ export const EditarPerfil = {
         }, 1000);
       } catch (error) {
         console.error(error);
-        setProfileResult("Error de conexión al eliminar la cuenta");
+        setProfileResult("Error de conexiÃƒÂ³n al eliminar la cuenta");
       } finally {
         setSavingProfile(false);
         setConfirmModal({ isOpen: false, action: "" });
@@ -322,7 +337,7 @@ export const EditarPerfil = {
             transition={{ duration: 0.22, ease: "easeOut" }}
             className="w-full max-w-5xl"
           >
-            <div className="relative max-h-[92vh] overflow-y-auto rounded-[1.7rem] border border-[#ccbba9] bg-[linear-gradient(180deg,rgba(246,238,229,0.98),rgba(237,227,216,0.96))] p-4 shadow-[0_30px_90px_rgba(31,20,14,0.24)] sm:p-6">
+            <div className="relative max-h-[92vh] overflow-y-auto rounded-[1.7rem] border border-[color:var(--shell-line)] bg-[linear-gradient(180deg,rgba(255,250,244,0.98),rgba(248,240,229,0.96))] p-4 shadow-[0_30px_90px_rgba(31,20,14,0.24)] sm:p-6">
               <button
                 type="button"
                 onClick={handleClose}
@@ -402,7 +417,7 @@ export const EditarPerfil = {
                         <div className="grid flex-1 gap-4 sm:grid-cols-2">
                           <div className="sm:col-span-2">
                             <p className="text-[0.68rem] font-bold uppercase tracking-[0.18em] text-[#8d7a6d]">
-                              Datos principales
+                              Datos de la cuenta
                             </p>
                           </div>
 
@@ -449,24 +464,13 @@ export const EditarPerfil = {
                               />
                             </div>
                             <p className="mt-2 text-xs text-[#7f6c5f]">
-                              El correo no puede modificarse desde aquí.
+                              El correo no puede modificarse­.
                             </p>
                           </div>
                         </div>
                       </div>
 
-                      {profileResult && (
-                        <p
-                          className={`mt-5 text-sm ${
-                            profileResult.includes("correctamente") ||
-                            profileResult.includes("lista")
-                              ? "text-[#4d6a2e]"
-                              : "text-[#9c4d3a]"
-                          }`}
-                        >
-                          {profileResult}
-                        </p>
-                      )}
+                      <StatusMessage message={profileResult} />
 
                       <div className="mt-5 flex flex-wrap gap-3">
                         <button
@@ -543,17 +547,7 @@ export const EditarPerfil = {
                         </div>
                       </div>
 
-                      {passwordResult && (
-                        <p
-                          className={`mt-5 text-sm ${
-                            passwordResult.includes("actualizada")
-                              ? "text-[#4d6a2e]"
-                              : "text-[#9c4d3a]"
-                          }`}
-                        >
-                          {passwordResult}
-                        </p>
-                      )}
+                      <StatusMessage message={passwordResult} />
 
                       <div className="mt-5">
                         <button
@@ -582,6 +576,13 @@ export const EditarPerfil = {
                       <p className="mt-3 text-sm leading-relaxed text-[#6d5148]">
                         Esta acción elimina tu cuenta y no se puede deshacer.
                       </p>
+
+                      <div className="mt-4 rounded-[1rem] border border-[#d8b8ac] bg-white/55 px-4 py-3">
+                        <p className="text-xs leading-relaxed text-[#7b5d54]">
+                          Si continuás, se cerrará tu sesión y no podrás recuperar esta
+                          cuenta.
+                        </p>
+                      </div>
 
                       <button
                         type="button"

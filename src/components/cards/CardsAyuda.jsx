@@ -4,9 +4,9 @@ const CardsAyuda = ({ pub }) => {
   const { titulo, contenido, categoria, usuario, img } = pub;
 
   return (
-    <div className="flex h-[480px] w-full max-w-[350px] flex-col gap-3 overflow-hidden rounded-lg border border-white/20 bg-white/20 p-4 text-center sm:p-5">
+    <div className="flex min-h-[25rem] w-full max-w-[350px] flex-col gap-3 overflow-hidden rounded-[1rem] border border-white/20 bg-white/20 p-4 text-center sm:min-h-[30rem] sm:p-5">
       <div className="flex h-full flex-col">
-        <h3 className="line-clamp-2 text-[1.02rem] font-semibold leading-snug text-white">
+        <h3 className="line-clamp-2 text-[0.96rem] font-semibold leading-snug text-white sm:text-[1.02rem]">
           {titulo || "Sin titulo"}
         </h3>
 
@@ -22,14 +22,14 @@ const CardsAyuda = ({ pub }) => {
               src={img}
               alt={titulo || "imagen de caso"}
               effect="blur"
-              className="h-50 w-full rounded-lg object-cover"
+              className="h-44 w-full rounded-[0.9rem] object-cover sm:h-50"
               loading="lazy"
             />
           </div>
         )}
 
-        <div className="mt-3 mb-2 flex-1 overflow-y-auto pr-1">
-          <p className="whitespace-pre-wrap text-[0.86rem] leading-relaxed text-white/88">
+        <div className="mb-2 mt-3 flex-1 overflow-y-auto pr-1">
+          <p className="whitespace-pre-wrap text-[0.82rem] leading-relaxed text-white/88 sm:text-[0.86rem]">
             {contenido}
           </p>
         </div>

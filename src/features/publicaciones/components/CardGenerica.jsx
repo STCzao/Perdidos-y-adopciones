@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom";
 import { LazyLoadImage } from "react-lazy-load-image-component";
-import { formatFecha } from "../../utils/dateHelpers.js";
-import { getPublicacionDetailPath } from "../../features/publicaciones/utils/publicacionPaths";
-import { getTipoColorMeta } from "../../utils/publicacionColors.js";
+import { formatFecha } from "../../../utils/dateHelpers.js";
+import { getTipoColorMeta } from "../../../utils/publicacionColors.js";
+import { getPublicacionDetailPath } from "../utils/publicacionPaths";
+import { getPublicacionTamano } from "../utils/publicacionFields";
 
 const cardMeta = {
   ADOPCION: {
@@ -51,13 +52,7 @@ const CardGenerica = ({ publicacion, cardId, isSuccessful = false }) => {
     estado,
   } = publicacion;
 
-  const tamano =
-    publicacion["tamaño"] ||
-    publicacion["tamaÃ±o"] ||
-    publicacion["tamaÃƒÂ±o"] ||
-    publicacion["tamaÃƒÆ’Ã‚Â±o"] ||
-    publicacion["tamaÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â±o"] ||
-    publicacion["tamaÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â±o"];
+  const tamano = getPublicacionTamano(publicacion);
   const meta = {
     ...getTipoColorMeta(tipo),
     ...(cardMeta[tipo] || cardMeta.PERDIDO),

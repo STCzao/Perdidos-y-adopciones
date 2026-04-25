@@ -21,7 +21,7 @@ export default function RedirectCard({
 
   return (
     <article
-      className={`group relative flex h-full flex-col overflow-hidden rounded-[2rem] p-5 ${surfaceClasses[surface]} ${className}`}
+      className={`group relative flex h-full flex-col overflow-hidden rounded-[1.35rem] p-4 sm:rounded-[2rem] sm:p-5 ${surfaceClasses[surface]} ${className}`}
     >
       <div
         className="absolute right-0 top-0 h-24 w-24 rounded-full blur-2xl"
@@ -31,7 +31,7 @@ export default function RedirectCard({
       <div className="relative flex h-full flex-col">
         {badge && (
           <span
-            className="inline-flex rounded-full px-3 py-1 text-[0.62rem] font-bold uppercase tracking-[0.24em]"
+            className="inline-flex rounded-full px-3 py-1 text-[0.58rem] font-bold uppercase tracking-[0.2em] sm:text-[0.62rem] sm:tracking-[0.24em]"
             style={{
               color: isDark ? accent : "#ffffff",
               backgroundColor: isDark ? accentSoft : accent,
@@ -43,7 +43,7 @@ export default function RedirectCard({
 
         {value !== undefined && value !== null ? (
           <p
-            className={`mt-5 text-6xl font-black leading-none ${
+            className={`mt-4 text-[2.8rem] font-black leading-none sm:mt-5 sm:text-6xl ${
               isDark ? "text-[#fff8ef]" : "text-[#241914]"
             }`}
           >
@@ -51,7 +51,7 @@ export default function RedirectCard({
           </p>
         ) : (
           <h3
-            className={`font-editorial mt-3 text-[1.7rem] leading-none ${
+            className={`font-editorial mt-3 text-[1.38rem] leading-none sm:text-[1.7rem] ${
               isDark ? "text-[#fff8ef]" : "text-[#241914]"
             }`}
           >
@@ -61,7 +61,7 @@ export default function RedirectCard({
 
         {title && value !== undefined && value !== null && (
           <h3
-            className={`mt-3 text-lg font-bold leading-tight ${
+            className={`mt-3 text-[1rem] font-bold leading-tight sm:text-lg ${
               isDark ? "text-[#fff8ef]" : "text-[#241914]"
             }`}
           >
@@ -71,7 +71,7 @@ export default function RedirectCard({
 
         {description && (
           <p
-            className={`mt-4 text-sm leading-relaxed ${
+            className={`mt-3 text-[0.84rem] leading-relaxed sm:mt-4 sm:text-sm ${
               isDark ? "text-white/78" : "text-[#5a4a3f]"
             }`}
           >
@@ -80,12 +80,12 @@ export default function RedirectCard({
         )}
 
         {actions.length > 0 ? (
-          <div className="mt-auto flex flex-wrap gap-2 pt-5">
+          <div className="mt-auto flex flex-col gap-2 pt-4 sm:flex-wrap sm:flex-row sm:pt-5">
             {actions.map((action) => (
               <button
                 key={action.label}
                 onClick={action.onClick}
-                className={`inline-flex min-h-11 items-center justify-center rounded-full px-4 py-2.5 text-sm font-semibold transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${
+                className={`inline-flex min-h-10 w-full items-center justify-center rounded-full px-4 py-2.5 text-[0.84rem] font-semibold transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 sm:min-h-11 sm:w-auto sm:text-sm ${
                   action.variant === "primary"
                     ? "text-white focus-visible:ring-white/80 focus-visible:ring-offset-transparent"
                     : isDark

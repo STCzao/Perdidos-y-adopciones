@@ -5,30 +5,31 @@ import Navbar from "../../../components/layout/Navbar";
 import Footer from "../../../components/layout/Footer";
 import { publicacionesService } from "../../../services/publicaciones";
 import { formatFecha } from "../../../utils/dateHelpers";
-import { generarPDFPublicacion } from "../../../components/cards/CardPdf";
-import { getPublicacionSlug } from "../utils/publicacionPaths";
 import { getTipoColorMeta } from "../../../utils/publicacionColors";
+import { generarPDFPublicacion } from "../components/CardPdf";
+import { getPublicacionSlug } from "../utils/publicacionPaths";
+import { getPublicacionTamano } from "../utils/publicacionFields";
 
 const tipoMeta = {
   PERDIDO: {
     accent: getTipoColorMeta("PERDIDO").accent,
     badge: "PERDIDO",
-    locationLabel: "Se extravió en",
+    locationLabel: "Se extraviÃ³ en",
     section: "Sector: perdido",
-    family: "Búsqueda activa",
+    family: "BÃºsqueda activa",
   },
   ENCONTRADO: {
     accent: getTipoColorMeta("ENCONTRADO").accent,
     badge: "ENCONTRADO",
-    locationLabel: "Se encontró en",
+    locationLabel: "Se encontrÃ³ en",
     section: "Sector: encontrado",
     family: "Resguardo activo",
   },
   ADOPCION: {
     accent: getTipoColorMeta("ADOPCION").accent,
-    badge: "ADOPCIÓN",
+    badge: "ADOPCIÃ“N",
     locationLabel: "Zona de referencia",
-    section: "Sector: adopción",
+    section: "Sector: adopciÃ³n",
     family: "Nuevo hogar",
   },
 };
@@ -40,10 +41,10 @@ const itemClass =
 
 const formatBooleanish = (value) => {
   if (value === undefined || value === null || value === "") return "";
-  if (typeof value === "boolean") return value ? "Sí" : "No";
+  if (typeof value === "boolean") return value ? "SÃ­" : "No";
 
   const normalized = String(value).trim().toLowerCase();
-  if (["si", "sí", "yes", "true", "apto", "compatible"].includes(normalized)) return "Sí";
+  if (["si", "sÃ­", "yes", "true", "apto", "compatible"].includes(normalized)) return "SÃ­";
   if (["no", "false", "no apto", "no compatible"].includes(normalized)) return "No";
 
   return String(value).trim();
@@ -80,7 +81,7 @@ export default function PublicacionDetalle() {
         const response = await publicacionesService.getPublicacionById(id);
         setPublicacion(response?.publicacion || null);
       } catch (error) {
-        console.error("Error cargando publicación:", error);
+        console.error("Error cargando publicaciÃ³n:", error);
         setPublicacion(null);
       } finally {
         setLoading(false);
@@ -125,11 +126,7 @@ export default function PublicacionDetalle() {
   const backPath = publicacion
     ? `/publicaciones/${getPublicacionSlug(publicacion.tipo)}`
     : "/";
-  const tamano =
-    publicacion?.["tamaño"] ||
-    publicacion?.["tamaÃ±o"] ||
-    publicacion?.["tamaÃƒÂ±o"] ||
-    publicacion?.["tamaÃƒÆ’Ã‚Â±o"];
+  const tamano = getPublicacionTamano(publicacion);
   const fallbackPublicacion = location.state?.publicacion;
   const whatsappRaw =
     publicacion?.whatsapp ||
@@ -151,21 +148,21 @@ export default function PublicacionDetalle() {
     { label: "Color", value: publicacion?.color },
     { label: "Sexo", value: publicacion?.sexo },
     { label: "Edad", value: publicacion?.edad },
-    { label: "Tamaño", value: tamano },
+    { label: "TamaÃ±o", value: tamano },
     { label: "Castrado", value: formatBooleanish(publicacion?.castrado) },
   ].filter((field) => field.value);
   const adoptionFields =
     publicacion?.tipo === "ADOPCION"
       ? [
           {
-            label: "Convive con niños",
+            label: "Convive con niÃ±os",
             value: formatBooleanish(publicacion?.afinidad),
           },
           {
             label: "Convive con otros animales",
             value: formatBooleanish(publicacion?.afinidadanimales),
           },
-          { label: "Nivel de energía", value: publicacion?.energia },
+          { label: "Nivel de energÃ­a", value: publicacion?.energia },
         ].filter((field) => field.value)
       : [];
 
@@ -194,7 +191,7 @@ export default function PublicacionDetalle() {
           ) : !publicacion ? (
             <div className="mx-auto max-w-3xl rounded-[0.95rem] border border-[#2f241d]/10 bg-white/80 p-8 text-center shadow-sm">
               <h1 className="text-2xl font-semibold text-[#241914]">
-                No encontramos esta publicación
+                No encontramos esta publicaciÃ³n
               </h1>
               <Link
                 to="/"
@@ -210,7 +207,7 @@ export default function PublicacionDetalle() {
                   to={backPath}
                   className="inline-flex items-center gap-2 rounded-[0.6rem] border border-[#2f241d]/10 bg-white/85 px-4 py-2 text-sm font-semibold text-[#241914] shadow-sm transition-colors hover:bg-white"
                 >
-                  <span aria-hidden="true">←</span>
+                  <span aria-hidden="true">â†</span>
                   Volver al listado
                 </Link>
               </div>
@@ -263,7 +260,7 @@ export default function PublicacionDetalle() {
                                 : "border-[#D62828]/35 bg-white text-[#241914] hover:bg-[#D62828]/10"
                             }`}
                           >
-                            {copied ? "Enlace copiado" : "Compartir publicación"}
+                            {copied ? "Enlace copiado" : "Compartir publicaciÃ³n"}
                           </button>
 
                           {whatsappLink && (
@@ -326,7 +323,7 @@ export default function PublicacionDetalle() {
                             {meta.locationLabel}
                           </p>
                           <p className="mt-1 text-[0.9rem] font-semibold leading-snug text-[#241914]">
-                            {primaryLocation || "Sin ubicación informada"}
+                            {primaryLocation || "Sin ubicaciÃ³n informada"}
                           </p>
                           {secondaryLocation && (
                             <p className="mt-1 text-[0.78rem] leading-snug text-[#5e463d]">
@@ -363,7 +360,7 @@ export default function PublicacionDetalle() {
                       {adoptionFields.length > 0 && (
                         <div className={panelClass}>
                           <h2 className="text-[0.64rem] font-bold uppercase tracking-[0.18em] text-[#7b6557]">
-                            Perfil de adopción
+                            Perfil de adopciÃ³n
                           </h2>
                           <div className="mt-2.5 grid gap-2 sm:grid-cols-2">
                             {adoptionFields.map((field) => (

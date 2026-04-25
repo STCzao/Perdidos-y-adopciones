@@ -44,24 +44,24 @@ const NAV_LINKS = [
 const MOBILE_PRIMARY_LINKS = [
   { key: "inicio", label: "Inicio", path: "/", icon: "home" },
   {
-    key: "publicaciones",
-    label: "Publicaciones",
+    key: "perdidos",
+    label: "Perdidos",
     path: "/publicaciones/perdidos",
+    icon: "pin",
+  },
+  {
+    key: "encontrados",
+    label: "Encontrados",
+    path: "/publicaciones/encontrados",
     icon: "search",
   },
+  {
+    key: "adopciones",
+    label: "Adopciones",
+    path: "/publicaciones/adopciones",
+    icon: "heart",
+  },
   { key: "crear", label: "Crear", action: "create", icon: "plus" },
-  {
-    key: "resueltos",
-    label: "Resueltos",
-    path: "/casos-resueltos",
-    icon: "check",
-  },
-  {
-    key: "comunidad",
-    label: "Comunidad",
-    path: "/casos-ayuda",
-    icon: "people",
-  },
 ];
 
 const getInitials = (nombre = "") =>
@@ -85,7 +85,7 @@ const ProfileAvatar = ({ user, className = "" }) => {
 
   return (
     <div
-      className={`flex h-10 w-10 items-center justify-center rounded-[0.95rem] bg-[#f4c89e] text-sm font-bold tracking-[0.08em] text-[#2a1f19] ${className}`}
+      className={`flex h-10 w-10 items-center justify-center rounded-[0.95rem] bg-[color:var(--shell-bark)] text-sm font-bold tracking-[0.08em] text-white ${className}`}
     >
       {getInitials(user?.nombre)}
     </div>
@@ -105,11 +105,20 @@ const BottomNavIcon = ({ type, active = false }) => {
       aria-hidden="true"
     >
       {type === "home" && <path d="M3 11.5 12 4l9 7.5M5 10.5V20h14v-9.5" />}
+      {type === "pin" && (
+        <>
+          <path d="M12 21s6-5.4 6-11a6 6 0 1 0-12 0c0 5.6 6 11 6 11Z" />
+          <circle cx="12" cy="10" r="2.2" />
+        </>
+      )}
       {type === "search" && (
         <>
           <circle cx="11" cy="11" r="6.5" />
           <path d="m16 16 4.5 4.5" />
         </>
+      )}
+      {type === "heart" && (
+        <path d="M12 20.5s-6.8-4.4-8.7-8.2C1.8 9.4 3.2 6 6.8 6c2 0 3.3 1 4.2 2.3C11.9 7 13.2 6 15.2 6c3.6 0 5 3.4 3.5 6.3-1.9 3.8-8.7 8.2-8.7 8.2Z" />
       )}
       {type === "plus" && (
         <>
@@ -130,6 +139,14 @@ const BottomNavIcon = ({ type, active = false }) => {
   );
 };
 
+const getGreetingByHour = (date = new Date()) => {
+  const hour = date.getHours();
+
+  if (hour < 12) return "¡Buenos dias!";
+  if (hour < 20) return "¡Buenas tardes!";
+  return "¡Buenas noches!";
+};
+
 const NavbarContent = () => {
   const { login, user, cerrarSesion } = useAuth();
   const withAuth = useRequireAuth();
@@ -145,6 +162,7 @@ const NavbarContent = () => {
     isOpen: false,
     item: null,
   });
+  const [greeting, setGreeting] = React.useState(() => getGreetingByHour());
 
   const isAdmin = !!(user && user.rol === "ADMIN_ROLE");
 
@@ -179,6 +197,15 @@ const NavbarContent = () => {
     setIsDesktopProfileMenuOpen(false);
     setIsMobileProfileMenuOpen(false);
   }, [location.pathname]);
+
+  React.useEffect(() => {
+    const updateGreeting = () => setGreeting(getGreetingByHour());
+
+    updateGreeting();
+    const intervalId = window.setInterval(updateGreeting, 60000);
+
+    return () => window.clearInterval(intervalId);
+  }, []);
 
   const navigateTo = (path) => {
     navigate(path);
@@ -216,7 +243,7 @@ const NavbarContent = () => {
         <button
           key={item.name}
           onClick={handleCreatePost}
-          className="w-full cursor-pointer rounded-[0.95rem] bg-[#f4c89e] px-3 py-2 text-left text-sm font-semibold text-[#2a1f19] transition-colors duration-300 hover:bg-[#ffd8b6]"
+          className="w-full cursor-pointer rounded-[0.95rem] bg-[color:var(--shell-bark)] px-3 py-2 text-left text-sm font-semibold text-white transition-colors duration-300 hover:bg-[#45362d]"
         >
           {item.name}
         </button>
@@ -227,7 +254,7 @@ const NavbarContent = () => {
       <button
         key={item.name}
         onClick={() => navigateTo(item.path)}
-        className="w-full cursor-pointer rounded-[0.95rem] px-3 py-2 text-left text-sm font-medium text-white/88 transition-colors duration-300 hover:bg-white/10 hover:text-white"
+        className="w-full cursor-pointer rounded-[0.95rem] px-3 py-2 text-left text-sm font-medium text-[#241914] transition-colors duration-300 hover:bg-[color:var(--shell-surface-alt)] hover:text-[#241914]"
       >
         {item.name}
       </button>
@@ -257,9 +284,9 @@ const NavbarContent = () => {
 
   const isMobileBottomLinkActive = (item) => {
     if (item.key === "inicio") return location.pathname === "/";
-    if (item.key === "publicaciones") return location.pathname.startsWith("/publicaciones");
-    if (item.key === "resueltos") return location.pathname.startsWith("/casos-resueltos");
-    if (item.key === "comunidad") return location.pathname.startsWith("/casos-ayuda");
+    if (item.key === "perdidos") return location.pathname === "/publicaciones/perdidos";
+    if (item.key === "encontrados") return location.pathname === "/publicaciones/encontrados";
+    if (item.key === "adopciones") return location.pathname === "/publicaciones/adopciones";
     return false;
   };
 
@@ -271,8 +298,8 @@ const NavbarContent = () => {
           onClick={() => navigateTo(item.path)}
           className={`w-full cursor-pointer text-left text-sm font-medium transition-colors duration-300 ${
             isMobile
-              ? "rounded-[0.95rem] border border-white/8 bg-white/8 px-3 py-2 text-white hover:bg-white/12"
-              : "rounded-[0.95rem] px-3 py-2 text-white/88 hover:bg-white/10 hover:text-white"
+              ? "rounded-[0.95rem] border border-[#2f241d]/8 bg-white/64 px-3 py-2 text-[#241914] hover:bg-[color:var(--shell-surface-alt)]"
+              : "rounded-[0.95rem] px-3 py-2 text-[#241914] hover:bg-[color:var(--shell-surface-alt)] hover:text-[#241914]"
           }`}
         >
           {item.label}
@@ -284,11 +311,11 @@ const NavbarContent = () => {
           className={`w-full cursor-pointer text-left text-sm font-medium transition-colors duration-300 ${
             isMobile
               ? item.tone === "danger"
-                ? "rounded-[0.95rem] border border-[#b84e3c]/25 bg-[#b84e3c]/12 px-3 py-2 text-[#f1b0a4] hover:bg-[#b84e3c]/18"
-                : "rounded-[0.95rem] border border-white/8 bg-white/8 px-3 py-2 text-white hover:bg-white/12"
+                ? "rounded-[0.95rem] border border-[#b84e3c]/18 bg-[#f8d8d0] px-3 py-2 text-[#a44939] hover:bg-[#f3c8be]"
+                : "rounded-[0.95rem] border border-[#2f241d]/8 bg-white/64 px-3 py-2 text-[#241914] hover:bg-[color:var(--shell-surface-alt)]"
               : item.tone === "danger"
-                ? "rounded-[0.95rem] px-3 py-2 text-[#f1b0a4] hover:bg-[#b84e3c]/14 hover:text-white"
-                : "rounded-[0.95rem] px-3 py-2 text-white/88 hover:bg-white/10 hover:text-white"
+                ? "rounded-[0.95rem] px-3 py-2 text-[#a44939] hover:bg-[#f8d8d0]"
+                : "rounded-[0.95rem] px-3 py-2 text-[#241914] hover:bg-[color:var(--shell-surface-alt)] hover:text-[#241914]"
           }`}
         >
           {item.label}
@@ -298,31 +325,29 @@ const NavbarContent = () => {
 
   return (
     <>
-      <nav ref={navRef} className="fixed left-0 top-0 z-50 w-full px-3 pt-2.5 sm:px-5 lg:px-8">
+      <nav ref={navRef} className="fixed left-0 top-0 z-50 w-full px-2.5 pt-2 sm:px-5 sm:pt-2.5 lg:px-8">
         <div
-          className={`mx-auto flex max-w-[1680px] items-center justify-between gap-4 rounded-[1.35rem] border px-3 py-2.5 transition-all duration-500 sm:px-4 ${
+          className={`mx-auto flex max-w-[1680px] items-center justify-between gap-2 rounded-[1.15rem] border px-2.5 py-2 transition-all duration-500 sm:gap-4 sm:rounded-[1.35rem] sm:px-4 sm:py-2.5 ${
             isSolidNavbar
-              ? "border-white/10 bg-[rgba(32,23,20,0.82)] shadow-[0_20px_60px_rgba(20,15,13,0.22)] backdrop-blur-xl"
-              : "border-white/12 bg-[rgba(36,26,22,0.34)] shadow-[0_20px_60px_rgba(20,15,13,0.14)] backdrop-blur-md"
+              ? "border-[#2f241d]/10 bg-[rgba(255,250,244,0.92)] shadow-[0_18px_45px_rgba(31,20,14,0.12)] backdrop-blur-xl"
+              : "border-[#2f241d]/8 bg-[rgba(255,250,244,0.82)] shadow-[0_18px_45px_rgba(31,20,14,0.1)] backdrop-blur-xl"
           }`}
         >
           <button
             onClick={() => navigateTo("/")}
-            className="flex shrink-0 cursor-pointer items-center gap-3 rounded-[1rem] bg-transparent px-1 py-1 text-left transition-colors duration-300 hover:bg-white/4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f4c89e] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
+            className="flex shrink-0 cursor-pointer items-center gap-3 rounded-[1rem] bg-transparent px-1 py-1 text-left transition-colors duration-300 hover:bg-[color:var(--shell-surface-alt)]/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--shell-bark)] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
             aria-label="Ir al inicio"
           >
             <img
               src={import.meta.env.VITE_NAVBAR_LOGO_URL}
               alt="Perdidos y Adopciones"
-              className={`h-12 w-auto max-w-[8.2rem] object-contain transition-all duration-300 ${
-                isSolidNavbar ? "filter-none" : "invert"
-              }`}
+              className="h-11 w-auto max-w-[8rem] object-contain transition-all duration-300 sm:h-14 sm:max-w-[9.8rem]"
               draggable="false"
             />
           </button>
 
           <div className="hidden min-w-0 flex-1 items-center justify-center md:flex">
-            <div className="flex items-center gap-1 rounded-[1rem] border border-white/10 bg-[rgba(255,255,255,0.05)] px-2 py-1.5 backdrop-blur-sm">
+            <div className="flex items-center gap-1 rounded-[1rem] border border-[#2f241d]/8 bg-[rgba(255,255,255,0.62)] px-2 py-1.5 backdrop-blur-sm">
               {NAV_LINKS.map((link) =>
                 link.items ? (
                   <div
@@ -339,7 +364,7 @@ const NavbarContent = () => {
                         )
                       }
                       onFocus={() => openDesktopDropdown(link.name)}
-                      className="flex cursor-pointer items-center gap-2 rounded-[0.95rem] px-4 py-1.5 text-sm font-semibold text-white transition-colors duration-300 hover:bg-white/10 hover:text-[#f4c89e] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f4c89e] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
+                       className="flex cursor-pointer items-center gap-2 rounded-[0.95rem] px-4 py-1.5 text-sm font-semibold text-[#241914] transition-colors duration-300 hover:bg-[color:var(--shell-surface-alt)] hover:text-[#241914] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--shell-bark)] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
                       aria-haspopup="menu"
                       aria-expanded={activeDesktopDropdown === link.name}
                       aria-controls={`desktop-dropdown-${link.name}`}
@@ -360,7 +385,7 @@ const NavbarContent = () => {
 
                     <div
                       id={`desktop-dropdown-${link.name}`}
-                      className={`absolute left-1/2 top-full z-20 mt-2 flex min-w-[220px] -translate-x-1/2 flex-col gap-2 rounded-[1.15rem] border border-white/10 bg-[rgba(28,20,17,0.92)] p-3 shadow-[0_22px_70px_rgba(20,15,13,0.22)] backdrop-blur-xl transition-all duration-200 ${
+                       className={`absolute left-1/2 top-full z-20 mt-2 flex min-w-[220px] -translate-x-1/2 flex-col gap-2 rounded-[1.15rem] border border-[#2f241d]/10 bg-[rgba(255,250,244,0.96)] p-3 shadow-[0_20px_55px_rgba(20,15,13,0.14)] backdrop-blur-xl transition-all duration-200 ${
                         activeDesktopDropdown === link.name
                           ? "visible translate-y-0 opacity-100"
                           : "invisible translate-y-2 opacity-0"
@@ -377,10 +402,10 @@ const NavbarContent = () => {
                     className={({ isActive }) =>
                       `rounded-[0.95rem] px-4 py-2 text-sm font-semibold transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f4c89e] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent ${
                         isActive
-                          ? "bg-[#f4c89e] text-[#2a1f19] shadow-[0_10px_24px_rgba(244,200,158,0.18)]"
-                          : "border border-white/8 bg-white/8 text-white hover:border-white/14 hover:bg-white/12 hover:text-[#f4c89e]"
-                      }`
-                    }
+                          ? "bg-[color:var(--shell-bark)] text-white shadow-[0_10px_24px_rgba(47,36,29,0.16)]"
+                          : "border border-[#2f241d]/8 bg-white/56 text-[#241914] hover:border-[#2f241d]/12 hover:bg-[color:var(--shell-surface-alt)] hover:text-[#241914]"
+                       }`
+                     }
                   >
                     {link.name}
                   </NavLink>
@@ -392,13 +417,13 @@ const NavbarContent = () => {
           <div className="hidden shrink-0 items-center gap-2 md:flex">
             <button
               onClick={handleCreatePost}
-              className="cursor-pointer rounded-[0.95rem] bg-[#f4c89e] px-5 py-2 text-sm font-bold text-[#2a1f19] shadow-[0_10px_24px_rgba(244,200,158,0.18)] transition-transform duration-300 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f4c89e] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
+              className="cursor-pointer rounded-[0.95rem] bg-[color:var(--shell-bark)] px-5 py-2 text-sm font-bold text-white shadow-[0_10px_24px_rgba(47,36,29,0.16)] transition-transform duration-300 hover:-translate-y-0.5 hover:bg-[#45362d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--shell-bark)] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
             >
               Publicar caso
             </button>
             <button
               onClick={() => navigateTo("/contacto")}
-              className="cursor-pointer rounded-[0.95rem] border border-white/10 bg-white/6 px-4 py-2 text-sm font-semibold text-white transition-colors duration-300 hover:bg-white/10 hover:text-[#f4c89e] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f4c89e] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
+               className="cursor-pointer rounded-[0.95rem] border border-[#2f241d]/10 bg-white/58 px-4 py-2 text-sm font-semibold text-[#241914] transition-colors duration-300 hover:bg-[color:var(--shell-surface-alt)] hover:text-[#241914] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--shell-bark)] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
             >
               Colaborar
             </button>
@@ -407,16 +432,16 @@ const NavbarContent = () => {
               <button
                 type="button"
                 onClick={() => setIsDesktopProfileMenuOpen((value) => !value)}
-                className="flex cursor-pointer items-center gap-3 rounded-[1rem] border border-white/10 bg-white/6 px-2.5 py-2 text-white transition-colors duration-300 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f4c89e] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
+                className="flex cursor-pointer items-center gap-3 rounded-[1rem] border border-[#2f241d]/10 bg-white/58 px-2.5 py-2 text-[#241914] transition-colors duration-300 hover:bg-[color:var(--shell-surface-alt)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--shell-bark)] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
                 aria-expanded={isDesktopProfileMenuOpen}
                 aria-haspopup="menu"
               >
                 <ProfileAvatar user={user} />
                 <div className="min-w-0 text-left">
-                  <p className="max-w-[11rem] truncate text-sm font-semibold text-white">
-                    {login ? user?.nombre || "Mi cuenta" : "Mi cuenta"}
+                  <p className="max-w-[13rem] truncate text-sm font-semibold text-[#241914]">
+                    {login ? greeting : "Mi cuenta"}
                   </p>
-                  <p className="text-[0.7rem] uppercase tracking-[0.16em] text-white/56">
+                  <p className="text-[0.7rem] uppercase tracking-[0.16em] text-[#6f5f53]">
                     {login ? "Perfil" : "Acceso"}
                   </p>
                 </div>
@@ -434,7 +459,7 @@ const NavbarContent = () => {
               </button>
 
               <div
-                className={`absolute right-0 top-full z-20 mt-2 flex min-w-[260px] flex-col gap-2 rounded-[1.15rem] border border-white/10 bg-[rgba(28,20,17,0.94)] p-3 shadow-[0_22px_70px_rgba(20,15,13,0.22)] backdrop-blur-xl transition-all duration-200 ${
+                className={`absolute right-0 top-full z-20 mt-2 flex min-w-[260px] flex-col gap-2 rounded-[1.15rem] border border-[#2f241d]/10 bg-[rgba(255,250,244,0.96)] p-3 shadow-[0_20px_55px_rgba(20,15,13,0.14)] backdrop-blur-xl transition-all duration-200 ${
                   isDesktopProfileMenuOpen
                     ? "visible translate-y-0 opacity-100"
                     : "invisible translate-y-2 opacity-0"
@@ -442,9 +467,9 @@ const NavbarContent = () => {
                 role="menu"
               >
                 {login && (
-                  <div className="rounded-[1rem] border border-white/8 bg-white/6 px-3 py-3">
-                    <p className="text-sm font-semibold text-white">{user?.nombre}</p>
-                    <p className="mt-1 text-xs text-white/62">{user?.correo}</p>
+                    <div className="rounded-[1rem] border border-[#2f241d]/8 bg-white/64 px-3 py-3">
+                      <p className="text-sm font-semibold text-[#241914]">{user?.nombre}</p>
+                      <p className="mt-1 text-xs text-[#6f5f53]">{user?.correo}</p>
                   </div>
                 )}
                 {renderProfileMenuButtons()}
@@ -452,15 +477,20 @@ const NavbarContent = () => {
             </div>
           </div>
 
-          <div className="flex items-center gap-3 md:hidden">
+          <div className="flex items-center gap-2 md:hidden">
             <button
               type="button"
               onClick={() => setIsMobileProfileMenuOpen((value) => !value)}
-              className="flex cursor-pointer items-center gap-2 rounded-[1rem] border border-white/10 bg-white/8 px-2 py-2 text-white transition-colors duration-300 hover:bg-white/12 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f4c89e] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
-              aria-expanded={isMobileProfileMenuOpen}
-              aria-haspopup="menu"
-            >
+               className="flex cursor-pointer items-center gap-2 rounded-[0.9rem] border border-[#2f241d]/10 bg-white/58 px-2 py-1.5 text-[#241914] transition-colors duration-300 hover:bg-[color:var(--shell-surface-alt)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--shell-bark)] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
+               aria-expanded={isMobileProfileMenuOpen}
+               aria-haspopup="menu"
+             >
               <ProfileAvatar user={user} className="h-9 w-9" />
+              {login && (
+                <span className="max-w-[7.5rem] truncate text-[0.74rem] font-semibold text-[#241914]">
+                  {greeting}
+                </span>
+              )}
               <svg
                 className={`h-4 w-4 transition-transform duration-300 ${
                   isMobileProfileMenuOpen ? "rotate-180" : ""
@@ -483,12 +513,12 @@ const NavbarContent = () => {
               : "invisible -translate-y-2 opacity-0"
           }`}
         >
-          <div className="ml-auto max-w-[320px] rounded-[1.15rem] border border-white/10 bg-[rgba(28,20,17,0.94)] p-3 shadow-[0_22px_70px_rgba(20,15,13,0.22)] backdrop-blur-xl">
-            <div className="rounded-[1rem] border border-white/8 bg-white/6 px-3 py-3">
-              <p className="text-sm font-semibold text-white">
-                {login ? user?.nombre || "Mi cuenta" : "Mi cuenta"}
+          <div className="ml-auto max-w-[320px] rounded-[1.15rem] border border-[#2f241d]/10 bg-[rgba(255,250,244,0.96)] p-3 shadow-[0_20px_55px_rgba(20,15,13,0.14)] backdrop-blur-xl">
+            <div className="rounded-[1rem] border border-[#2f241d]/8 bg-white/64 px-3 py-3">
+              <p className="text-sm font-semibold text-[#241914]">
+                {login ? greeting : "Mi cuenta"}
               </p>
-              <p className="mt-1 text-xs text-white/62">
+              <p className="mt-1 text-xs text-[#6f5f53]">
                 {login ? user?.correo || "Perfil" : "Acceso a tu cuenta"}
               </p>
             </div>
@@ -498,10 +528,8 @@ const NavbarContent = () => {
         </div>
       </nav>
 
-      <div className="md:hidden h-18" />
-
-      <div className="fixed inset-x-0 bottom-0 z-50 border-t border-[#2f241d]/10 bg-[rgba(255,249,242,0.94)] px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 shadow-[0_-16px_45px_rgba(31,20,14,0.14)] backdrop-blur-xl md:hidden">
-        <div className="mx-auto grid max-w-[560px] grid-cols-5 gap-2">
+      <div className="fixed inset-x-0 bottom-0 z-50 border-t border-[color:var(--shell-line)]/70 bg-[rgba(255,250,244,0.96)] px-2 pb-[max(0.65rem,env(safe-area-inset-bottom))] pt-1.5 shadow-[0_-16px_45px_rgba(31,20,14,0.12)] backdrop-blur-xl md:hidden">
+        <div className="mx-auto grid max-w-[560px] grid-cols-5 gap-1.5">
           {MOBILE_PRIMARY_LINKS.map((item) => {
             const isActive = isMobileBottomLinkActive(item);
             const isCreate = item.action === "create";
@@ -511,17 +539,17 @@ const NavbarContent = () => {
                 key={item.key}
                 type="button"
                 onClick={() => (isCreate ? handleCreatePost() : navigateTo(item.path))}
-                className={`flex min-h-[3.7rem] cursor-pointer flex-col items-center justify-center gap-1 rounded-[1rem] px-2 text-center transition-all duration-200 ${
+                className={`flex min-h-[3.35rem] cursor-pointer flex-col items-center justify-center gap-1 rounded-[0.95rem] px-1.5 text-center transition-all duration-200 ${
                   isCreate
-                    ? "bg-[#f4c89e] text-[#2a1f19] shadow-[0_12px_30px_rgba(244,200,158,0.22)]"
+                    ? "bg-[color:var(--shell-bark)] text-white shadow-[0_12px_30px_rgba(47,36,29,0.16)]"
                     : isActive
-                      ? "bg-[#f0dcc8] text-[#2a1f19]"
-                      : "text-[#6f5f53] hover:bg-[#f7ede2]"
+                      ? "bg-[color:var(--shell-surface-alt)] text-[color:var(--shell-bark)]"
+                      : "text-[#6f5f53] hover:bg-[color:var(--shell-surface-soft)]"
                 }`}
                 aria-label={item.label}
               >
                 <BottomNavIcon type={item.icon} active={isActive || isCreate} />
-                <span className="text-[0.68rem] font-semibold leading-none">{item.label}</span>
+                <span className="text-[0.62rem] font-semibold leading-none">{item.label}</span>
               </button>
             );
           })}

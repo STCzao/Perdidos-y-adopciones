@@ -6,6 +6,24 @@
   --nature-sand: #f6efe4;
   --nature-paper: #fbf6ef;
   --nature-bark: #5a3f35;
+  --shell-ink: #241914;
+  --shell-bark: #2f241d;
+  --shell-muted: #5f4c41;
+  --shell-surface: #fffaf4;
+  --shell-surface-soft: #f8f0e5;
+  --shell-surface-alt: #efe2d0;
+  --shell-line: #d8cabc;
+  --shell-accent: #f4c89e;
+  --shell-accent-strong: #c97b57;
+  --shell-danger: #d62828;
+  --shell-danger-soft: #f8d8d0;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  min-height: 100%;
 }
 
 body {
