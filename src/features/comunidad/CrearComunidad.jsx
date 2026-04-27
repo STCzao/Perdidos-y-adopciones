@@ -16,14 +16,14 @@ export const CrearComunidad = {
     const [form, setForm] = useState({
       titulo: "",
       contenido: "",
-      categoria: "INFORMACION",
+      categoria: "HISTORIA",
       img: "",
     });
     const [errors, setErrors] = useState({});
     const [result, setResult] = useState("");
     const [uploading, setUploading] = useState(false);
     const [submitting, setSubmitting] = useState(false);
-    const [loading, setLoading] = useState(false);
+    const [, setLoading] = useState(false);
     const [editData, setEditData] = useState(null);
 
     modalControl = { setOpen, setEditData };
@@ -43,7 +43,7 @@ export const CrearComunidad = {
         document.body.style.top = "";
         document.body.style.left = "";
         document.body.style.right = "";
-        window.scrollTo(0, parseInt(scrollY || "0") * -1);
+        window.scrollTo(0, parseInt(scrollY || "0", 10) * -1);
       };
     }, [open]);
 
@@ -58,7 +58,7 @@ export const CrearComunidad = {
         setForm({
           titulo: editData.titulo || "",
           contenido: editData.contenido || "",
-          categoria: editData.categoria || "INFORMACION",
+          categoria: editData.categoria || "HISTORIA",
           img: editData.img || "",
         });
       } else {
@@ -70,7 +70,7 @@ export const CrearComunidad = {
       setForm({
         titulo: "",
         contenido: "",
-        categoria: "INFORMACION",
+        categoria: "HISTORIA",
         img: "",
       });
       setErrors({});
@@ -86,11 +86,12 @@ export const CrearComunidad = {
     const handleChange = (e) => {
       const { name, value } = e.target;
       setForm((prev) => ({ ...prev, [name]: value }));
+
       if (errors[name]) {
         setErrors((prev) => {
-          const copy = { ...prev };
-          delete copy[name];
-          return copy;
+          const next = { ...prev };
+          delete next[name];
+          return next;
         });
       }
     };
@@ -102,14 +103,14 @@ export const CrearComunidad = {
       setErrors((prev) => ({ ...prev, img: "" }));
 
       if (!file.type.startsWith("image/")) {
-        setErrors((prev) => ({ ...prev, img: "Solo se permiten imagenes" }));
+        setErrors((prev) => ({ ...prev, img: "Solo se permiten imágenes" }));
         return;
       }
 
       if (file.size > 5 * 1024 * 1024) {
         setErrors((prev) => ({
           ...prev,
-          img: "La imagen no puede superar 5MB",
+          img: "La imagen no puede superar 5 MB",
         }));
         return;
       }
@@ -122,7 +123,7 @@ export const CrearComunidad = {
 
         const response = await fetch(
           `https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload`,
-          { method: "POST", body: formData }
+          { method: "POST", body: formData },
         );
 
         const data = await response.json();
@@ -130,10 +131,10 @@ export const CrearComunidad = {
         if (data.secure_url) {
           setForm((prev) => ({ ...prev, img: data.secure_url }));
         } else {
-          setErrors((prev) => ({ ...prev, img: "Error al subir imagen" }));
+          setErrors((prev) => ({ ...prev, img: "Error al subir la imagen" }));
         }
-      } catch (error) {
-        setErrors((prev) => ({ ...prev, img: "Error de conexion" }));
+      } catch {
+        setErrors((prev) => ({ ...prev, img: "Error de conexión" }));
       } finally {
         setUploading(false);
       }
@@ -144,15 +145,12 @@ export const CrearComunidad = {
       if (submitting) return;
 
       let valid = true;
-      let newErrors = {};
+      const newErrors = {};
 
       if (!form.titulo.trim()) {
         newErrors.titulo = "El título es obligatorio";
         valid = false;
-      } else if (form.titulo.trim().length < 10) {
-        newErrors.titulo = "El título debe tener al menos 10 caracteres";
-        valid = false;
-      } else if (form.titulo.trim().length > 81) {
+      } else if (form.titulo.trim().length > 80) {
         newErrors.titulo = "El título no puede contener más de 80 caracteres";
         valid = false;
       }
@@ -160,28 +158,23 @@ export const CrearComunidad = {
       if (!form.contenido.trim()) {
         newErrors.contenido = "El contenido es obligatorio";
         valid = false;
-      } else if (form.contenido.trim().length < 20) {
-        newErrors.contenido = "El contenido debe tener al menos 20 caracteres";
-        valid = false;
-      } else if (form.contenido.trim().length > 3001) {
-        newErrors.contenido =
-          "El contenido no puede contener más de 3000 caracteres";
+      } else if (form.contenido.trim().length > 3000) {
+        newErrors.contenido = "El contenido no puede contener más de 3000 caracteres";
         valid = false;
       }
 
       if (!form.categoria) {
-        newErrors.categoria = "La categoria es obligatoria";
+        newErrors.categoria = "La categoría es obligatoria";
+        valid = false;
+      } else if (!["HISTORIA", "ALERTA"].includes(form.categoria)) {
+        newErrors.categoria = "La categoría debe ser HISTORIA o ALERTA";
         valid = false;
       }
 
       if (!form.img.trim()) {
         newErrors.img = "La imagen es obligatoria";
         valid = false;
-      } else if (
-        !/^https:\/\/res\.cloudinary\.com\/.+\/.+\.(jpg|jpeg|png|webp)$/.test(
-          form.img
-        )
-      ) {
+      } else if (!/^https:\/\/res\.cloudinary\.com\/.+\/.+\.(jpg|jpeg|png|webp)$/.test(form.img)) {
         newErrors.img = "La URL de imagen no es válida";
         valid = false;
       }
@@ -191,6 +184,7 @@ export const CrearComunidad = {
 
       try {
         setSubmitting(true);
+        setLoading(true);
         setResult(editData ? "Actualizando..." : "Creando...");
 
         const datosParaEnviar = {
@@ -200,39 +194,30 @@ export const CrearComunidad = {
           img: form.img,
         };
 
-        let resp;
-        if (editData && editData._id) {
-          resp = await comunidadService.actualizarComunidad(
-            editData._id,
-            datosParaEnviar
-          );
-        } else {
-          resp = await comunidadService.crearComunidad(datosParaEnviar);
-        }
+        const response =
+          editData && editData._id
+            ? await comunidadService.actualizarComunidad(editData._id, datosParaEnviar)
+            : await comunidadService.crearComunidad(datosParaEnviar);
 
-        if (resp.success) {
-          setResult(
-            editData ? "Actualizado correctamente" : "Creado correctamente"
-          );
+        if (response.success) {
+          setResult(editData ? "Actualizado correctamente" : "Creado correctamente");
           resetForm();
           setTimeout(() => setOpen(false), 1200);
-          const eventName = editData
-            ? "comunidadActualizada"
-            : "comunidadCreada";
-          const payload = resp.comunidad || resp.post || datosParaEnviar;
+
+          const eventName = editData ? "comunidadActualizada" : "comunidadCreada";
+          const payload = response.comunidad || response.post || datosParaEnviar;
           window.dispatchEvent(new CustomEvent(eventName, { detail: payload }));
+        } else if (response.errors) {
+          setErrors(response.errors);
+          setResult(response.msg || "Error en validación");
         } else {
-          if (resp.errors) {
-            setErrors(resp.errors);
-            setResult(resp.msg || "Error en validacion");
-          } else {
-            setResult(resp.msg || "Error al procesar");
-          }
+          setResult(response.msg || "Error al procesar");
         }
-      } catch (error) {
-        setResult("Error de conexion al servidor");
+      } catch {
+        setResult("Error de conexión al servidor");
       } finally {
         setSubmitting(false);
+        setLoading(false);
       }
     };
 
@@ -244,15 +229,16 @@ export const CrearComunidad = {
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="flex flex-col items-center text-white/90 w-full max-w-2xl max-h-[80vh]"
+          className="flex max-h-[80vh] w-full max-w-2xl flex-col items-center text-white/90"
         >
           <form
             onSubmit={handleSubmit}
-            className="flex flex-col max-w-6xl w-full text-center border border-white/70 rounded-2xl px-8 py-6 shadow-lg bg-white/10 backdrop-blur-sm max-h-[80vh]"
+            className="flex max-h-[80vh] w-full max-w-6xl flex-col rounded-2xl border border-white/70 bg-white/10 px-8 py-6 text-center shadow-lg backdrop-blur-sm"
           >
             <button
               onClick={handleClose}
-              className="absolute top-4 right-4 text-white hover:text-[#FF7857] transition-colors delay-100 duration-300 cursor-pointer"
+              type="button"
+              className="absolute right-4 top-4 cursor-pointer text-white transition-colors delay-100 duration-300 hover:text-[#FF7857]"
               disabled={submitting}
             >
               <svg
@@ -263,7 +249,7 @@ export const CrearComunidad = {
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                className="w-5 h-5"
+                className="h-5 w-5"
               >
                 <line x1="18" y1="6" x2="6" y2="18" />
                 <line x1="6" y1="6" x2="18" y2="18" />
@@ -271,20 +257,18 @@ export const CrearComunidad = {
             </button>
 
             <div className="flex flex-col items-center justify-center">
-              <h1 className="text-white text-3xl mt-2 font-medium">
+              <h1 className="mt-2 text-3xl font-medium text-white">
                 {isEditing ? "Editar caso de ayuda" : "Crear caso de ayuda"}
               </h1>
-              <p className="text-white/80 text-sm mt-1">
-                {isEditing ? "Modifique el contenido" : "Complete los datos"}
+              <p className="mt-1 text-sm text-white/80">
+                {isEditing ? "Modificá el contenido" : "Completá los datos"}
               </p>
             </div>
 
-            <div className="overflow-y-auto mt-4 space-y-4 flex-1">
+            <div className="mt-4 flex-1 space-y-4 overflow-y-auto">
               <div className="mt-4">
-                <label className="flex items-left text-sm mb-1 ml-2">
-                  Título
-                </label>
-                <div className="flex items-center w-full bg-white border border-gray-300/80 h-12 rounded-full overflow-hidden pl-6 gap-2">
+                <label className="mb-1 ml-2 flex items-left text-sm">Título</label>
+                <div className="flex h-12 w-full items-center gap-2 overflow-hidden rounded-full border border-gray-300/80 bg-white pl-6">
                   <input
                     type="text"
                     name="titulo"
@@ -292,32 +276,29 @@ export const CrearComunidad = {
                     value={form.titulo}
                     onChange={handleChange}
                     disabled={submitting}
-                    className="bg-transparent text-gray-500 placeholder-gray-500 outline-none text-sm w-full h-full"
+                    className="h-full w-full bg-transparent text-sm text-gray-500 outline-none placeholder:text-gray-500"
                   />
                 </div>
                 {errors.titulo && (
-                  <p className="text-red-400 text-xs mt-1 text-left w-full px-4">
+                  <p className="mt-1 w-full px-4 text-left text-xs text-red-400">
                     {errors.titulo}
                   </p>
                 )}
               </div>
+
               <div className="mt-4">
-                <label className="flex items-left text-sm mb-1 ml-2">
-                  Imagen
-                </label>
-                <div className="flex items-center justify-center w-full bg-white border border-gray-300/80 h-12 rounded-full overflow-hidden gap-2">
+                <label className="mb-1 ml-2 flex items-left text-sm">Imagen</label>
+                <div className="flex h-12 w-full items-center justify-center gap-2 overflow-hidden rounded-full border border-gray-300/80 bg-white">
                   <input
                     type="file"
                     accept="image/*"
                     onChange={handleImageUpload}
                     disabled={uploading || submitting}
-                    className="bg-transparent text-gray-500 outline-none text-sm w-full file:h-10 file:ml-2 file:p-3 file:px-2 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#FF7857] file:text-white hover:file:bg-[#E5674F] file:cursor-pointer cursor-pointer text-center"
+                    className="cursor-pointer bg-transparent text-center text-sm text-gray-500 outline-none file:ml-2 file:h-10 file:cursor-pointer file:rounded-full file:border-0 file:bg-[#FF7857] file:p-3 file:px-2 file:text-sm file:font-semibold file:text-white hover:file:bg-[#E5674F]"
                   />
                 </div>
                 {errors.img && (
-                  <p className="text-red-400 text-xs mt-1 text-left w-full px-4">
-                    {errors.img}
-                  </p>
+                  <p className="mt-1 w-full px-4 text-left text-xs text-red-400">{errors.img}</p>
                 )}
 
                 {form.img && (
@@ -325,17 +306,15 @@ export const CrearComunidad = {
                     <img
                       src={form.img}
                       alt="Vista previa"
-                      className="w-40 h-40 object-cover rounded-2xl border border-white/50"
+                      className="h-40 w-40 rounded-2xl border border-white/50 object-cover"
                     />
                   </div>
                 )}
               </div>
 
               <div className="mt-4">
-                <label className="flex items-left text-sm mb-1 ml-2">
-                  Contenido
-                </label>
-                <div className="flex items-center w-full bg-white border border-gray-300/80 min-h-12 rounded-2xl overflow-hidden p-4 gap-2">
+                <label className="mb-1 ml-2 flex items-left text-sm">Contenido</label>
+                <div className="flex w-full items-center gap-2 overflow-hidden rounded-2xl border border-gray-300/80 bg-white p-4">
                   <textarea
                     name="contenido"
                     placeholder="Ingrese el contenido del caso *"
@@ -343,27 +322,25 @@ export const CrearComunidad = {
                     onChange={handleChange}
                     disabled={submitting}
                     rows="10"
-                    className="bg-transparent text-gray-500 placeholder-gray-500 outline-none text-sm w-full resize-none"
+                    className="w-full resize-none bg-transparent text-sm text-gray-500 outline-none placeholder:text-gray-500"
                   />
                 </div>
                 {errors.contenido && (
-                  <p className="text-red-400 text-xs mt-1 text-left w-full px-4">
+                  <p className="mt-1 w-full px-4 text-left text-xs text-red-400">
                     {errors.contenido}
                   </p>
                 )}
               </div>
 
               <div className="mt-4">
-                <label className="flex items-left text-sm mb-1 ml-2">
-                  Categoría
-                </label>
-                <div className="flex items-center w-full bg-white border border-gray-300/80 h-12 rounded-full overflow-hidden pl-6 gap-2">
+                <label className="mb-1 ml-2 flex items-left text-sm">Categoría</label>
+                <div className="flex h-12 w-full items-center gap-2 overflow-hidden rounded-full border border-gray-300/80 bg-white pl-6">
                   <select
                     name="categoria"
                     value={form.categoria}
                     onChange={handleChange}
                     disabled={submitting}
-                    className="bg-transparent text-gray-500 outline-none text-sm w-full h-full"
+                    className="h-full w-full bg-transparent text-sm text-gray-500 outline-none"
                   >
                     <option value="">Seleccione la categoría del caso *</option>
                     <option value="ALERTA">Alerta</option>
@@ -371,27 +348,30 @@ export const CrearComunidad = {
                   </select>
                 </div>
                 {errors.categoria && (
-                  <p className="text-red-400 text-xs mt-1 text-left w-full px-4">
+                  <p className="mt-1 w-full px-4 text-left text-xs text-red-400">
                     {errors.categoria}
                   </p>
                 )}
               </div>
             </div>
-            <div className="col-span-2 flex justify-end mt-4">
+
+            <div className="col-span-2 mt-4 flex justify-end">
               <button
                 type="submit"
                 disabled={submitting}
-                className="px-6 py-2 rounded-full text-white bg-white/40 border border-white/70 hover:bg-[#FF7857] transition-colors delay-100 duration-300 disabled:opacity-50 cursor-pointer"
+                className="cursor-pointer rounded-full border border-white/70 bg-white/40 px-6 py-2 text-white transition-colors delay-100 duration-300 hover:bg-[#FF7857] disabled:opacity-50"
               >
                 {submitting
                   ? isEditing
+                    ? "Actualizando..."
+                    : "Creando..."
                   : isEditing
-                  ? "Actualizar caso"
-                  : "Crear caso"}
+                    ? "Actualizar caso"
+                    : "Crear caso"}
               </button>
             </div>
 
-            {result && <p className="mt-2 text-white/80 text-sm">{result}</p>}
+            {result && <p className="mt-2 text-sm text-white/80">{result}</p>}
           </form>
         </motion.div>
       </ModalShell>

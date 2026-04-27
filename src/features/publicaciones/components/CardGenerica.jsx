@@ -4,6 +4,7 @@ import { formatFecha } from "../../../utils/dateHelpers.js";
 import { getTipoColorMeta } from "../../../utils/publicacionColors.js";
 import { getPublicacionDetailPath } from "../utils/publicacionPaths";
 import { getPublicacionTamano } from "../utils/publicacionFields";
+import { useRequireAuth } from "../../../hooks/useRequireAuth";
 
 const cardMeta = {
   ADOPCION: {
@@ -32,6 +33,7 @@ const formatBooleanish = (value) => {
 };
 
 const CardGenerica = ({ publicacion, cardId, isSuccessful = false }) => {
+  const withAuth = useRequireAuth();
   const {
     nombreanimal,
     especie,
@@ -78,6 +80,14 @@ const CardGenerica = ({ publicacion, cardId, isSuccessful = false }) => {
   ]
     .filter((field) => field.value)
     .slice(0, 4);
+
+  const handleWhatsappClick = () => {
+    if (!whatsappLink) return;
+
+    withAuth(() => {
+      window.open(whatsappLink, "_blank", "noopener,noreferrer");
+    });
+  };
 
   return (
     <article
@@ -202,15 +212,14 @@ const CardGenerica = ({ publicacion, cardId, isSuccessful = false }) => {
             </Link>
 
             {!isSuccessful && whatsappLink && (
-              <a
-                href={whatsappLink}
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                type="button"
+                onClick={handleWhatsappClick}
                 className="rounded-[0.6rem] px-3 py-2.5 text-center text-[0.7rem] font-semibold uppercase tracking-[0.08em] text-white transition-opacity hover:opacity-92"
                 style={{ backgroundColor: meta.accent }}
               >
                 WhatsApp
-              </a>
+              </button>
             )}
           </div>
         </div>

@@ -1,15 +1,54 @@
 import React from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import { CrearPublicacion } from "../../features/publicaciones/CrearPublicacion/CrearPublicacion";
-import { EditarPerfil } from "../../features/usuarios/EditarPerfil";
-import { VerPublicaciones } from "../../features/publicaciones/VerPublicaciones";
-import { AdminPublicaciones } from "../../features/publicaciones/AdminPublicaciones";
-import { AdminUsuarios } from "../../features/usuarios/AdminUsuarios";
-import { CrearComunidad } from "../../features/comunidad/CrearComunidad";
-import { VerComunidad } from "../../features/comunidad/VerComunidad";
 import { useRequireAuth } from "../../hooks/useRequireAuth";
 import { useAuth } from "../../context/AuthContext";
 import { ConfirmModal } from "../ui/ConfirmModal";
+
+const loadCrearPublicacionModule = () =>
+  import("../../features/publicaciones/CrearPublicacion/CrearPublicacion");
+const loadEditarPerfilModule = () => import("../../features/usuarios/EditarPerfil");
+const loadVerPublicacionesModule = () => import("../../features/publicaciones/VerPublicaciones");
+const loadAdminPublicacionesModule = () =>
+  import("../../features/publicaciones/AdminPublicaciones");
+const loadAdminUsuariosModule = () => import("../../features/usuarios/AdminUsuarios");
+const loadCrearComunidadModule = () => import("../../features/comunidad/CrearComunidad");
+const loadVerComunidadModule = () => import("../../features/comunidad/VerComunidad");
+
+const CrearPublicacionModal = React.lazy(() =>
+  loadCrearPublicacionModule().then((module) => ({
+    default: module.CrearPublicacion.Component,
+  })),
+);
+const EditarPerfilModal = React.lazy(() =>
+  loadEditarPerfilModule().then((module) => ({
+    default: module.EditarPerfil.Component,
+  })),
+);
+const VerPublicacionesModal = React.lazy(() =>
+  loadVerPublicacionesModule().then((module) => ({
+    default: module.VerPublicaciones.Component,
+  })),
+);
+const AdminPublicacionesModal = React.lazy(() =>
+  loadAdminPublicacionesModule().then((module) => ({
+    default: module.AdminPublicaciones.Component,
+  })),
+);
+const AdminUsuariosModal = React.lazy(() =>
+  loadAdminUsuariosModule().then((module) => ({
+    default: module.AdminUsuarios.Component,
+  })),
+);
+const CrearComunidadModal = React.lazy(() =>
+  loadCrearComunidadModule().then((module) => ({
+    default: module.CrearComunidad.Component,
+  })),
+);
+const VerComunidadModal = React.lazy(() =>
+  loadVerComunidadModule().then((module) => ({
+    default: module.VerComunidad.Component,
+  })),
+);
 
 const NAV_LINKS = [
   { name: "Inicio", path: "/" },
@@ -147,6 +186,24 @@ const getGreetingByHour = (date = new Date()) => {
   return "¡Buenas noches!";
 };
 
+const openModalWhenReady = async (loadModule, exportName, setMountedModals) => {
+  const module = await loadModule();
+
+  setMountedModals((prev) =>
+    prev[exportName] ? prev : { ...prev, [exportName]: true },
+  );
+
+  for (let attempt = 0; attempt < 20; attempt += 1) {
+    const modalApi = module?.[exportName];
+    if (modalApi?.openModal) {
+      modalApi.openModal();
+      return;
+    }
+
+    await new Promise((resolve) => window.setTimeout(resolve, 25));
+  }
+};
+
 const NavbarContent = () => {
   const { login, user, cerrarSesion } = useAuth();
   const withAuth = useRequireAuth();
@@ -163,6 +220,15 @@ const NavbarContent = () => {
     item: null,
   });
   const [greeting, setGreeting] = React.useState(() => getGreetingByHour());
+  const [mountedModals, setMountedModals] = React.useState({
+    CrearPublicacion: false,
+    EditarPerfil: false,
+    VerPublicaciones: false,
+    AdminPublicaciones: false,
+    AdminUsuarios: false,
+    CrearComunidad: false,
+    VerComunidad: false,
+  });
 
   const isAdmin = !!(user && user.rol === "ADMIN_ROLE");
 
@@ -215,20 +281,30 @@ const NavbarContent = () => {
     setIsMobileProfileMenuOpen(false);
   };
 
+  const openLazyModal = React.useCallback(
+    (loadModule, exportName) =>
+      openModalWhenReady(loadModule, exportName, setMountedModals),
+    [],
+  );
+
   const handleCreatePost = () => {
-    withAuth(() => CrearPublicacion.openModal());
+    withAuth(() => openLazyModal(loadCrearPublicacionModule, "CrearPublicacion"));
     setActiveDesktopDropdown(null);
     setIsDesktopProfileMenuOpen(false);
     setIsMobileProfileMenuOpen(false);
   };
 
   const handleProfileAction = (action) => {
-    if (action === "profile") EditarPerfil.openModal();
-    if (action === "posts") VerPublicaciones.openModal();
-    if (action === "admin-posts") AdminPublicaciones.openModal();
-    if (action === "admin-users") AdminUsuarios.openModal();
-    if (action === "admin-comunidad-create") CrearComunidad.openModal();
-    if (action === "admin-comunidad-list") VerComunidad.openModal();
+    if (action === "profile") openLazyModal(loadEditarPerfilModule, "EditarPerfil");
+    if (action === "posts") openLazyModal(loadVerPublicacionesModule, "VerPublicaciones");
+    if (action === "admin-posts") {
+      openLazyModal(loadAdminPublicacionesModule, "AdminPublicaciones");
+    }
+    if (action === "admin-users") openLazyModal(loadAdminUsuariosModule, "AdminUsuarios");
+    if (action === "admin-comunidad-create") {
+      openLazyModal(loadCrearComunidadModule, "CrearComunidad");
+    }
+    if (action === "admin-comunidad-list") openLazyModal(loadVerComunidadModule, "VerComunidad");
     if (action === "logout") setConfirmModal({ isOpen: true, item: { tipo: "sesion" } });
     setIsDesktopProfileMenuOpen(false);
     setIsMobileProfileMenuOpen(false);
@@ -556,11 +632,15 @@ const NavbarContent = () => {
         </div>
       </div>
 
-      <CrearPublicacion.Component />
-      <EditarPerfil.Component />
-      <VerPublicaciones.Component />
-      <CrearComunidad.Component />
-      <VerComunidad.Component />
+      <React.Suspense fallback={null}>
+        {mountedModals.CrearPublicacion && <CrearPublicacionModal />}
+        {mountedModals.EditarPerfil && <EditarPerfilModal />}
+        {mountedModals.VerPublicaciones && <VerPublicacionesModal />}
+        {mountedModals.AdminPublicaciones && <AdminPublicacionesModal />}
+        {mountedModals.AdminUsuarios && <AdminUsuariosModal />}
+        {mountedModals.CrearComunidad && <CrearComunidadModal />}
+        {mountedModals.VerComunidad && <VerComunidadModal />}
+      </React.Suspense>
 
       <ConfirmModal
         confirmModal={confirmModal}

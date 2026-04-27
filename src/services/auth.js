@@ -1,11 +1,5 @@
 import axiosInstance, { clearAccessToken, setAccessToken } from "./api";
-
-const mapAxiosError = (error, fallbackMsg) => ({
-  success: false,
-  msg: error.response?.data?.msg || fallbackMsg,
-  errors: error.response?.data?.errors || {},
-  ...error.response?.data,
-});
+import { mapServiceError } from "./serviceUtils";
 
 export const authLogin = async (datos) => {
   try {
@@ -17,7 +11,7 @@ export const authLogin = async (datos) => {
 
     return data;
   } catch (error) {
-    return mapAxiosError(error, "Error al iniciar sesión");
+    return mapServiceError(error, "Error al iniciar sesión");
   }
 };
 
@@ -26,7 +20,7 @@ export const crearUsuario = async (datos) => {
     const { data } = await axiosInstance.post("/usuarios", datos);
     return data;
   } catch (error) {
-    return mapAxiosError(error, "Error al registrar usuario");
+    return mapServiceError(error, "Error al registrar usuario");
   }
 };
 
@@ -42,10 +36,11 @@ export const refreshAccessToken = async () => {
     return {
       success: false,
       msg: data?.msg || "No se pudo refrescar la sesión",
+      errors: {},
     };
   } catch (error) {
     clearAccessToken();
-    return mapAxiosError(error, "No se pudo refrescar la sesión");
+    return mapServiceError(error, "No se pudo refrescar la sesión");
   }
 };
 
@@ -53,7 +48,11 @@ export const logout = async () => {
   try {
     await axiosInstance.post("/auth/logout", {});
   } catch (error) {
-    console.error("Error during logout:", error);
+    const status = error.response?.status;
+
+    if (![400, 401, 429].includes(status)) {
+      console.error("Error during logout:", error);
+    }
   } finally {
     clearAccessToken();
   }
@@ -64,7 +63,7 @@ export const logoutAll = async () => {
     const { data } = await axiosInstance.post("/auth/logout-all", {});
     return data;
   } catch (error) {
-    return mapAxiosError(error, "No se pudo cerrar la sesión en todos los dispositivos");
+    return mapServiceError(error, "No se pudo cerrar la sesión en todos los dispositivos");
   } finally {
     clearAccessToken();
   }
@@ -75,7 +74,7 @@ export const forgotPassword = async (correo) => {
     const { data } = await axiosInstance.post("/auth/forgot-password", { correo });
     return data;
   } catch (error) {
-    return mapAxiosError(error, "No se pudo procesar la solicitud");
+    return mapServiceError(error, "No se pudo procesar la solicitud");
   }
 };
 
@@ -84,6 +83,6 @@ export const resetPassword = async (token, body) => {
     const { data } = await axiosInstance.post(`/auth/reset-password/${token}`, body);
     return data;
   } catch (error) {
-    return mapAxiosError(error, "No se pudo actualizar la contraseña");
+    return mapServiceError(error, "No se pudo actualizar la contraseña");
   }
 };

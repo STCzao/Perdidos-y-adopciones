@@ -23,9 +23,17 @@ export const validateEmail = (value) => {
   return null;
 };
 
-export const validatePassword = (value) => {
+export const validateRequiredPassword = (value, label = "La contraseña") => {
   const v = value.trim();
-  if (!v) return "La contraseña es obligatoria";
+  if (!v) return `${label} es obligatoria`;
+  return null;
+};
+
+export const validatePassword = (value) => {
+  const requiredError = validateRequiredPassword(value);
+  if (requiredError) return requiredError;
+
+  const v = value.trim();
   if (v.length < RULES.PASSWORD_MIN) {
     return `La contraseña debe tener al menos ${RULES.PASSWORD_MIN} caracteres`;
   }
@@ -70,8 +78,10 @@ export const validateLoginForm = ({ correo, password }) => {
   const errors = {};
   const correoErr = validateEmail(correo);
   if (correoErr) errors.correo = correoErr;
+
   const passErr = validatePassword(password);
   if (passErr) errors.password = passErr;
+
   return errors;
 };
 
@@ -124,7 +134,7 @@ export const validateChangePasswordForm = ({
   confirmPassword,
 }) => {
   const errors = {};
-  const currentErr = validatePassword(currentPassword);
+  const currentErr = validateRequiredPassword(currentPassword, "La contraseña actual");
   if (currentErr) errors.currentPassword = currentErr;
   const nextErr = validatePassword(newPassword);
   if (nextErr) errors.newPassword = nextErr;
@@ -153,9 +163,9 @@ export const validateContactForm = ({ nombre, telefono, email, mensaje }) => {
   if (emailErr) errors.email = emailErr;
   if (!mensaje.trim()) {
     errors.mensaje = "El mensaje es obligatorio.";
-  } else if (mensaje.trim().length <= 10) {
+  } else if (mensaje.trim().length < 10) {
     errors.mensaje = "El mensaje debe tener al menos 10 caracteres";
-  } else if (mensaje.trim().length >= 200) {
+  } else if (mensaje.trim().length > 200) {
     errors.mensaje = "El mensaje tiene un límite de 200 caracteres";
   }
   return errors;

@@ -1,8 +1,15 @@
 import { useRef } from "react";
-import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
+import { createRoot } from "react-dom/client";
 import { formatFecha } from "../../../utils/dateHelpers";
 import { getTipoColorMeta } from "../../../utils/publicacionColors";
+
+const loadPdfDependencies = () =>
+  Promise.all([import("jspdf"), import("html2canvas")]).then(
+    ([jspdfModule, html2canvasModule]) => ({
+      jsPDF: jspdfModule.default,
+      html2canvas: html2canvasModule.default,
+    }),
+  );
 
 const waitForAssets = async (element) => {
   if (!element) return;
@@ -93,6 +100,7 @@ const CardPdf = ({ publicacion, fileName }) => {
     if (!cardRef.current) return;
 
     try {
+      const { jsPDF, html2canvas } = await loadPdfDependencies();
       await waitForAssets(cardRef.current);
       const canvas = await html2canvas(cardRef.current, {
         scale: 3,
@@ -626,13 +634,13 @@ const CardPdf = ({ publicacion, fileName }) => {
  * Función utilitaria para generar PDF sin mostrar el componente
  */
 export const generarPDFPublicacion = async (publicacion, fileName) => {
+  const { jsPDF, html2canvas } = await loadPdfDependencies();
   const tempContainer = document.createElement("div");
   tempContainer.style.position = "absolute";
   tempContainer.style.left = "-9999px";
   tempContainer.style.top = "0";
   document.body.appendChild(tempContainer);
 
-  const { createRoot } = await import("react-dom/client");
   const root = createRoot(tempContainer);
 
   return new Promise((resolve, reject) => {

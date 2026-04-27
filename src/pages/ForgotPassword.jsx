@@ -24,9 +24,19 @@ export default function ForgotPasswordScreen() {
     setResult("Enviando correo...");
 
     try {
-      await forgotPassword(correo.trim().toLowerCase());
-      setResult(genericMessage);
-      setErrors({});
+      const response = await forgotPassword(correo.trim().toLowerCase());
+
+      if (response?.success) {
+        setResult(genericMessage);
+        setErrors({});
+      } else {
+        setErrors(response?.errors || {});
+        setResult(
+          response?.status === 429
+            ? response.msg || "Demasiadas solicitudes. Intentá nuevamente más tarde."
+            : genericMessage,
+        );
+      }
     } catch (error) {
       console.error(error);
       setResult(genericMessage);
@@ -42,10 +52,10 @@ export default function ForgotPasswordScreen() {
           Recuperar acceso
         </span>
         <h1 className="font-editorial mt-3 text-[2.3rem] leading-[0.96] text-white sm:text-[2.45rem]">
-          Restablece tu contraseña.
+          Restablecé tu contraseña.
         </h1>
         <p className="mt-2 max-w-md text-[0.95rem] leading-relaxed text-white/74">
-          Escribe tu correo y te enviaremos un enlace para continuar.
+          Escribí tu correo y te enviaremos un enlace para continuar.
         </p>
       </div>
 
@@ -55,7 +65,7 @@ export default function ForgotPasswordScreen() {
           <input
             type="email"
             placeholder="tuemail@email.com"
-            className="h-full w-full bg-transparent text-sm text-[#3d332d] placeholder:text-[#7e7066] outline-none"
+            className="h-full w-full bg-transparent text-sm text-[#3d332d] outline-none placeholder:text-[#7e7066]"
             value={correo}
             onChange={(event) => setCorreo(event.target.value)}
             autoComplete="email"

@@ -39,6 +39,8 @@ const isPublicAuthRequest = (config) =>
   config?.url?.includes("/auth/login") ||
   config?.url?.includes("/auth/forgot-password") ||
   config?.url?.includes("/auth/reset-password");
+const isLogoutRequest = (config) =>
+  config?.url?.includes("/auth/logout") || config?.url?.includes("/auth/logout-all");
 
 axiosInstance.interceptors.request.use(
   (config) => {
@@ -60,7 +62,7 @@ axiosInstance.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    if (isPublicAuthRequest(originalRequest)) {
+    if (isPublicAuthRequest(originalRequest) || isLogoutRequest(originalRequest)) {
       return Promise.reject(error);
     }
 

@@ -134,7 +134,7 @@ export const EditarPerfil = {
       try {
         const response = await usuariosService.getMiPerfil();
 
-        if (!response.ok || !response.usuario) {
+        if (!response.success || !response.usuario) {
           setProfileResult(response.msg || "No se pudo cargar el perfil");
           return;
         }
@@ -146,7 +146,7 @@ export const EditarPerfil = {
         setPasswordErrors({});
       } catch (error) {
         console.error(error);
-        setProfileResult("Error de conexiÃƒÂ³n al cargar el perfil");
+        setProfileResult("Error de conexión al cargar el perfil");
       } finally {
         setLoading(false);
       }
@@ -238,7 +238,7 @@ export const EditarPerfil = {
           img: profileForm.img,
         });
 
-        if (!response.ok || !response.usuario) {
+        if (!response.success || !response.usuario) {
           setProfileErrors(response.errors || {});
           setProfileResult(response.msg || "No se pudo actualizar el perfil");
           return;
@@ -250,7 +250,7 @@ export const EditarPerfil = {
         dispatchUserProfileUpdated(response.usuario);
       } catch (error) {
         console.error(error);
-        setProfileResult("Error de conexiÃƒÂ³n al guardar el perfil");
+        setProfileResult("Error de conexión al guardar el perfil");
       } finally {
         setSavingProfile(false);
       }
@@ -262,7 +262,7 @@ export const EditarPerfil = {
       if (Object.keys(nextErrors).length) return;
 
       setChangingPassword(true);
-      setPasswordResult("Actualizando contraseÃƒÂ±a...");
+      setPasswordResult("Actualizando contraseña...");
 
       try {
         const response = await usuariosService.cambiarPassword({
@@ -271,20 +271,20 @@ export const EditarPerfil = {
           confirmPassword: passwordForm.confirmPassword.trim(),
         });
 
-        if (!response.ok) {
+        if (!response.success) {
           setPasswordErrors(response.errors || {});
-          setPasswordResult(response.msg || "No se pudo cambiar la contraseÃƒÂ±a");
+          setPasswordResult(response.msg || "No se pudo cambiar la contraseña");
           return;
         }
 
         setPasswordForm(EMPTY_PASSWORD_FORM);
         setPasswordErrors({});
         setPasswordResult(
-          "ContraseÃƒÂ±a actualizada. Si tu sesiÃƒÂ³n se cierra, vuelve a ingresar.",
+          "Contraseña actualizada. Si tu sesión se cierra, vuelve a ingresar.",
         );
       } catch (error) {
         console.error(error);
-        setPasswordResult("Error de conexiÃƒÂ³n al cambiar la contraseÃƒÂ±a");
+        setPasswordResult("Error de conexión al cambiar la contraseña");
       } finally {
         setChangingPassword(false);
       }
@@ -304,7 +304,7 @@ export const EditarPerfil = {
       try {
         const response = await usuariosService.borrarUsuario(userId);
 
-        if (!response.ok) {
+        if (!response.success) {
           setProfileResult(response.msg || "No se pudo eliminar la cuenta");
           return;
         }
@@ -318,7 +318,7 @@ export const EditarPerfil = {
         }, 1000);
       } catch (error) {
         console.error(error);
-        setProfileResult("Error de conexiÃƒÂ³n al eliminar la cuenta");
+        setProfileResult("Error de conexión al eliminar la cuenta");
       } finally {
         setSavingProfile(false);
         setConfirmModal({ isOpen: false, action: "" });

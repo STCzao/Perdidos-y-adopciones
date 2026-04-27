@@ -131,7 +131,6 @@ const CardFiltro = ({ filtros, setFiltros, tipo, razasPorEspecie = {} }) => {
               <option value="">Sin especificar</option>
               <option value="MINI">Mini</option>
               <option value="PEQUEÑO">Pequeño</option>
-              <option value="PEQUEÃ‘O">Pequeño</option>
               <option value="MEDIANO">Mediano</option>
               <option value="GRANDE">Grande</option>
             </select>

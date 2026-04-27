@@ -1,23 +1,24 @@
-import axiosInstance from './api';
+import axiosInstance from "./api";
+import { buildServiceSuccess, mapServiceError } from "./serviceUtils";
 
 export const publicacionesService = {
   getRazas: async () => {
     try {
-      const { data } = await axiosInstance.get('/publicaciones/razas');
-      return data; // { razas: [...], razasPorEspecie: { PERRO: [...], ... } }
+      const { data } = await axiosInstance.get("/publicaciones/razas");
+      return data;
     } catch (error) {
-      console.error('Error en getRazas:', error);
-      return { success: false, razas: [], razasPorEspecie: {} };
+      console.error("Error en getRazas:", error);
+      return {
+        success: false,
+        razas: [],
+        razasPorEspecie: {},
+        msg: "No se pudieron obtener las razas",
+        errors: {},
+      };
     }
   },
 
-  getPublicaciones: async ({
-    page = 1,
-    limit = 12,
-    tipo,
-    estado,
-    search,
-  } = {}) => {
+  getPublicaciones: async ({ page = 1, limit = 12, tipo, estado, search } = {}) => {
     try {
       const params = new URLSearchParams();
 
@@ -31,7 +32,7 @@ export const publicacionesService = {
       const { data } = await axiosInstance.get(`/publicaciones?${params.toString()}`);
       return data;
     } catch (error) {
-      return { success: false, msg: error.response?.data?.msg || "No se pudieron obtener publicaciones" };
+      return mapServiceError(error, "No se pudieron obtener publicaciones");
     }
   },
 
@@ -41,11 +42,7 @@ export const publicacionesService = {
       return data;
     } catch (error) {
       console.error("Error en getPublicacionesUsuario:", error);
-      return {
-        success: false,
-        msg: error.response?.data?.msg || "No se pudieron obtener publicaciones del usuario",
-        status: error.response?.status,
-      };
+      return mapServiceError(error, "No se pudieron obtener publicaciones del usuario");
     }
   },
 
@@ -54,20 +51,27 @@ export const publicacionesService = {
       const { data } = await axiosInstance.get(`/publicaciones/${id}`);
       return data;
     } catch (error) {
-      return { success: false, msg: error.response?.data?.msg || "No se pudo obtener publicación" };
+      return mapServiceError(error, "No se pudo obtener la publicación");
+    }
+  },
+
+  getContactoPublicacion: async (id) => {
+    try {
+      const { data } = await axiosInstance.get(`/publicaciones/contacto/${id}`);
+      return buildServiceSuccess({
+        whatsapp: data.whatsapp || "",
+      });
+    } catch (error) {
+      return mapServiceError(error, "No se pudo obtener el contacto de la publicación");
     }
   },
 
   crearPublicacion: async (datos) => {
     try {
-      const { data } = await axiosInstance.post('/publicaciones', datos);
+      const { data } = await axiosInstance.post("/publicaciones", datos);
       return data;
     } catch (error) {
-      return { 
-        success: false, 
-        msg: error.response?.data?.msg || "Error de conexión al servidor",
-        ...error.response?.data 
-      };
+      return mapServiceError(error, "Error de conexión al servidor");
     }
   },
 
@@ -76,25 +80,17 @@ export const publicacionesService = {
       const { data } = await axiosInstance.put(`/publicaciones/${id}`, datos);
       return data;
     } catch (error) {
-      return {
-        success: false,
-        msg: error.response?.data?.msg || "Error de conexión al servidor",
-        status: error.response?.status,
-        ...error.response?.data,
-      };
+      return mapServiceError(error, "Error de conexión al servidor");
     }
   },
 
   actualizarEstado: async (id, estado) => {
     try {
       const { data } = await axiosInstance.put(`/publicaciones/${id}/estado`, { estado });
-      return { success: true, publicacion: data.publicacion };
+      return buildServiceSuccess({ publicacion: data.publicacion });
     } catch (error) {
       console.error("Error actualizando estado:", error);
-      return { 
-        success: false, 
-        msg: error.response?.data?.msg || "Error de conexion al servidor" 
-      };
+      return mapServiceError(error, "Error de conexión al servidor");
     }
   },
 
@@ -103,10 +99,7 @@ export const publicacionesService = {
       const { data } = await axiosInstance.delete(`/publicaciones/${id}`);
       return data;
     } catch (error) {
-      return { 
-        success: false, 
-        msg: error.response?.data?.msg || "Error de conexión al servidor" 
-      };
+      return mapServiceError(error, "Error de conexión al servidor");
     }
   },
 };

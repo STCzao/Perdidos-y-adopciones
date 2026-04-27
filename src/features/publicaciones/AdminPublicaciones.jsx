@@ -6,6 +6,7 @@ import { publicacionesService } from "../../services/publicaciones";
 import { ConfirmModal } from "../../components/ui/ConfirmModal";
 import { getEstadosPermitidos } from "../../utils/estadosPublicacion";
 import { getTipoColorMeta } from "../../utils/publicacionColors";
+import { getPublicacionTitulo } from "./utils/publicacionFields";
 
 let modalControl;
 
@@ -56,8 +57,11 @@ export const AdminPublicaciones = {
         setError("");
         const result = await adminService.getTodasPublicaciones();
 
-        if (result.success) setPublicaciones(result.publicaciones || []);
-        else setError(result.msg || "Error al cargar publicaciones");
+        if (result.success) {
+          setPublicaciones(result.publicaciones || []);
+        } else {
+          setError(result.msg || "Error al cargar publicaciones");
+        }
       } catch {
         setError("Error de conexión al servidor");
       } finally {
@@ -67,18 +71,14 @@ export const AdminPublicaciones = {
 
     const handleEliminar = useCallback(async (publicacion) => {
       try {
-        const result = await publicacionesService.borrarPublicacion(
-          publicacion._id
-        );
+        const result = await publicacionesService.borrarPublicacion(publicacion._id);
         if (result.success) {
-          setPublicaciones((prev) =>
-            prev.filter((p) => p._id !== publicacion._id)
-          );
+          setPublicaciones((prev) => prev.filter((p) => p._id !== publicacion._id));
           return true;
-        } else {
-          setError(result.msg || "Error al eliminar publicación");
-          return false;
         }
+
+        setError(result.msg || "Error al eliminar publicación");
+        return false;
       } catch {
         setError("Error de conexión al eliminar");
         return false;
@@ -87,19 +87,16 @@ export const AdminPublicaciones = {
 
     const handleEditarEstado = useCallback(async (id, nuevoEstado) => {
       try {
-        const result = await publicacionesService.actualizarEstado(
-          id,
-          nuevoEstado
-        );
+        const result = await publicacionesService.actualizarEstado(id, nuevoEstado);
         if (result.success) {
           setPublicaciones((prev) =>
-            prev.map((p) => (p._id === id ? { ...p, estado: nuevoEstado } : p))
+            prev.map((p) => (p._id === id ? { ...p, estado: nuevoEstado } : p)),
           );
           return true;
-        } else {
-          setError(result.msg || "Error al actualizar estado");
-          return false;
         }
+
+        setError(result.msg || "Error al actualizar estado");
+        return false;
       } catch {
         setError("Error de conexión al actualizar estado");
         return false;
@@ -134,7 +131,7 @@ export const AdminPublicaciones = {
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="flex w-full max-w-6xl max-h-[90vh] flex-col items-center overflow-y-auto"
+          className="flex max-h-[90vh] w-full max-w-6xl flex-col items-center overflow-y-auto"
         >
           <div className="relative w-full max-w-6xl rounded-[1.5rem] border border-[color:var(--shell-line)] bg-[linear-gradient(180deg,rgba(255,250,244,0.98),rgba(248,240,229,0.96))] px-6 py-6 text-center shadow-[0_28px_70px_rgba(36,25,20,0.12)] sm:px-8">
             <button
@@ -149,7 +146,7 @@ export const AdminPublicaciones = {
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                className="w-5 h-5"
+                className="h-5 w-5"
               >
                 <line x1="18" y1="6" x2="6" y2="18" />
                 <line x1="6" y1="6" x2="18" y2="18" />
@@ -158,7 +155,7 @@ export const AdminPublicaciones = {
 
             <div className="flex flex-col items-center justify-center">
               <h1 className="mt-2 text-3xl font-medium text-[color:var(--shell-ink)]">
-                Administrar Publicaciones
+                Administrar publicaciones
               </h1>
               <p className="mt-1 text-sm text-[color:var(--shell-muted)]">
                 Gestiona todas las publicaciones del sitio
@@ -179,7 +176,7 @@ export const AdminPublicaciones = {
 
             {loading ? (
               <div className="flex items-center justify-center p-8">
-                <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-[color:var(--shell-accent-strong)]"></div>
+                <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-[color:var(--shell-accent-strong)]" />
               </div>
             ) : (
               <div className="mt-6 max-h-[60vh] space-y-4 overflow-y-auto">
@@ -214,84 +211,64 @@ export const AdminPublicaciones = {
   }),
 };
 
-const PublicacionItem = React.memo(
-  ({ publicacion, onEliminar, onEditarEstado, loading }) => {
-    const estados = getEstadosPermitidos(publicacion.tipo);
+const PublicacionItem = React.memo(({ publicacion, onEliminar, onEditarEstado, loading }) => {
+  const estados = getEstadosPermitidos(publicacion.tipo);
 
-    const handleEstadoChange = (e) => {
-      const nuevoEstado = e.target.value;
-      onEditarEstado(publicacion._id, nuevoEstado);
-    };
+  const handleEstadoChange = (e) => {
+    const nuevoEstado = e.target.value;
+    onEditarEstado(publicacion._id, nuevoEstado);
+  };
 
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex items-start justify-between rounded-[1.1rem] border border-[color:var(--shell-line)] bg-white/72 p-4"
-      >
-        <div className="flex-1 text-left">
-          <h3 className="text-lg font-semibold text-[color:var(--shell-ink)]">
-            {publicacion.titulo}
-          </h3>
-          <div className="mt-2 flex flex-wrap gap-2 text-sm text-[color:var(--shell-muted)]">
-            <span
-              className="px-2 py-1 rounded"
-              style={getTipoBadgeStyle(publicacion.tipo)}
-            >
-              {publicacion.tipo}
-            </span>
-            <select
-              value={publicacion.estado}
-              onChange={handleEstadoChange}
-              disabled={loading}
-              className="cursor-pointer rounded-[0.6rem] border border-[color:var(--shell-line)] bg-[color:var(--shell-surface)] px-2 py-1 text-[color:var(--shell-muted)]"
-            >
-              {estados.map((estado) => (
-                <option className="text-black" key={estado} value={estado}>
-                  {estado}
-                </option>
-              ))}
-            </select>
-            <span className="text-[color:var(--shell-muted)]">Raza: {publicacion.raza}</span>
-            <span className="text-[color:var(--shell-muted)]">Color: {publicacion.color}</span>
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="flex items-start justify-between rounded-[1.1rem] border border-[color:var(--shell-line)] bg-white/72 p-4"
+    >
+      <div className="flex-1 text-left">
+        <h3 className="text-lg font-semibold text-[color:var(--shell-ink)]">
+          {getPublicacionTitulo(publicacion)}
+        </h3>
 
-            {publicacion.tipo === "PERDIDO" && (
-              <span className="text-[color:var(--shell-muted)]">
-                Título: Se busca a {publicacion.nombreanimal}
-              </span>
-            )}
-            {publicacion.tipo === "ENCONTRADO" && (
-              <span className="text-[color:var(--shell-muted)]">
-                Título: {publicacion.especie} encontrado en{" "}
-                {publicacion.localidad || publicacion.lugar || "ubicación desconocida"}
-              </span>
-            )}
-            {publicacion.tipo === "ADOPCION" && (
-              <span className="text-[color:var(--shell-muted)]">
-                Título: {publicacion.nombreanimal} se encuentra en busca de un
-                hogar
-              </span>
-            )}
-          </div>
+        <div className="mt-2 flex flex-wrap gap-2 text-sm text-[color:var(--shell-muted)]">
+          <span className="rounded px-2 py-1" style={getTipoBadgeStyle(publicacion.tipo)}>
+            {publicacion.tipo}
+          </span>
 
-          <p className="mt-2 text-sm text-[#7b685c]">
-            Por: {publicacion.usuario?.nombre} •{" "}
-            {publicacion.fechaCreacion
-              ? new Date(publicacion.fechaCreacion).toLocaleDateString()
-              : "Sin fecha"}
-          </p>
-        </div>
-
-        <div className="ml-4 flex gap-2">
-          <button
-            onClick={() => onEliminar(publicacion, "delete")}
-            className="cursor-pointer rounded-full bg-[color:var(--shell-danger)] px-4 py-2 text-sm text-white transition-colors hover:bg-[#b91f1f]"
+          <select
+            value={publicacion.estado}
+            onChange={handleEstadoChange}
             disabled={loading}
+            className="cursor-pointer rounded-[0.6rem] border border-[color:var(--shell-line)] bg-[color:var(--shell-surface)] px-2 py-1 text-[color:var(--shell-muted)]"
           >
-            Eliminar
-          </button>
+            {estados.map((estado) => (
+              <option className="text-black" key={estado} value={estado}>
+                {estado}
+              </option>
+            ))}
+          </select>
+
+          <span className="text-[color:var(--shell-muted)]">Raza: {publicacion.raza}</span>
+          <span className="text-[color:var(--shell-muted)]">Color: {publicacion.color}</span>
         </div>
-      </motion.div>
-    );
-  }
-);
+
+        <p className="mt-2 text-sm text-[#7b685c]">
+          Por: {publicacion.usuario?.nombre} •{" "}
+          {publicacion.fechaCreacion
+            ? new Date(publicacion.fechaCreacion).toLocaleDateString()
+            : "Sin fecha"}
+        </p>
+      </div>
+
+      <div className="ml-4 flex gap-2">
+        <button
+          onClick={() => onEliminar(publicacion, "delete")}
+          className="cursor-pointer rounded-full bg-[color:var(--shell-danger)] px-4 py-2 text-sm text-white transition-colors hover:bg-[#b91f1f]"
+          disabled={loading}
+        >
+          Eliminar
+        </button>
+      </div>
+    </motion.div>
+  );
+});

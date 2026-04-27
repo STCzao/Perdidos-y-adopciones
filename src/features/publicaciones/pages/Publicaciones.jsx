@@ -222,7 +222,7 @@ const PublicacionesPage = () => {
         navigate(`/casos-exito#${publicacionId}`);
       }
     } catch (error) {
-      console.error("Error buscando publicaciÃ³n exitosa:", error);
+      console.error("Error buscando publicación exitosa:", error);
     } finally {
       setHashProcessed(true);
     }

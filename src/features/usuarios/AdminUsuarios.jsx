@@ -38,7 +38,7 @@ export const AdminUsuarios = {
         setLoading(true);
         const result = await adminService.getTodosUsuarios();
 
-        if (result.usuarios && Array.isArray(result.usuarios)) {
+        if (result.success && Array.isArray(result.usuarios)) {
           setUsuarios(result.usuarios);
         } else {
           setError(result.msg || "Error al cargar usuarios");
@@ -62,7 +62,7 @@ export const AdminUsuarios = {
 
         const result = await adminService.cambiarEstadoUsuario(id, nuevoEstado);
 
-        if (result.ok) {
+        if (result.success) {
           setUsuarios((prev) =>
             prev.map((u) =>
               (u._id || u.id || u.uid) === id

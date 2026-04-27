@@ -21,13 +21,7 @@ function App() {
     }
   }, []);
 
-  const cerrarSesion = useCallback(async () => {
-    try {
-      await logout();
-    } catch (error) {
-      console.error("Error al cerrar sesión:", error);
-    }
-
+  const clearSessionState = useCallback(() => {
     setLogin(false);
     setUser(null);
     syncUser(null);
@@ -36,6 +30,16 @@ function App() {
       window.adminService.clearCache();
     }
   }, [syncUser]);
+
+  const cerrarSesion = useCallback(async () => {
+    try {
+      await logout();
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
+    }
+
+    clearSessionState();
+  }, [clearSessionState]);
 
   const guardarUsuario = useCallback(
     (datos) => {
@@ -56,18 +60,14 @@ function App() {
         const refreshed = await refreshAccessToken();
 
         if (!refreshed.success) {
-          setLogin(false);
-          setUser(null);
-          syncUser(null);
+          clearSessionState();
           return;
         }
 
         const userData = await usuariosService.getMiPerfil();
 
-        if (!userData.ok || !userData.usuario) {
-          setLogin(false);
-          setUser(null);
-          syncUser(null);
+        if (!userData.success || !userData.usuario) {
+          clearSessionState();
           return;
         }
 
@@ -76,25 +76,23 @@ function App() {
         syncUser(userData.usuario);
       } catch (error) {
         console.error("Error al iniciar sesión persistida:", error);
-        setLogin(false);
-        setUser(null);
-        syncUser(null);
+        clearSessionState();
       } finally {
         setLoading(false);
       }
     };
 
     bootstrapSession();
-  }, [syncUser]);
+  }, [clearSessionState, syncUser]);
 
   useEffect(() => {
     const handleForceLogout = () => {
-      cerrarSesion();
+      clearSessionState();
     };
 
     window.addEventListener("forceLogout", handleForceLogout);
     return () => window.removeEventListener("forceLogout", handleForceLogout);
-  }, [cerrarSesion]);
+  }, [clearSessionState]);
 
   useEffect(() => {
     const handleUserProfileUpdate = (event) => {

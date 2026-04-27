@@ -1,15 +1,13 @@
-import axiosInstance from './api';
+import axiosInstance from "./api";
+import { mapServiceError } from "./serviceUtils";
 
 export const comunidadService = {
   obtenerComunidad: async () => {
     try {
-      const { data } = await axiosInstance.get('/comunidad');
+      const { data } = await axiosInstance.get("/comunidad");
       return data;
     } catch (error) {
-      return { 
-        success: false, 
-        msg: error.response?.data?.msg || "No se pudo obtener comunidad" 
-      };
+      return mapServiceError(error, "No se pudo obtener comunidad");
     }
   },
 
@@ -18,22 +16,16 @@ export const comunidadService = {
       const { data } = await axiosInstance.get(`/comunidad/${id}`);
       return data;
     } catch (error) {
-      return { 
-        success: false, 
-        msg: error.response?.data?.msg || "No se encontró la publicación" 
-      };
+      return mapServiceError(error, "No se encontró la publicación");
     }
   },
 
   crearComunidad: async (datos) => {
     try {
-      const { data } = await axiosInstance.post('/comunidad', datos);
+      const { data } = await axiosInstance.post("/comunidad", datos);
       return data;
     } catch (error) {
-      return { 
-        success: false, 
-        msg: error.response?.data?.msg || "Error de conexión al servidor" 
-      };
+      return mapServiceError(error, "Error de conexión al servidor");
     }
   },
 
@@ -42,10 +34,7 @@ export const comunidadService = {
       const { data } = await axiosInstance.put(`/comunidad/${id}`, datos);
       return data;
     } catch (error) {
-      return { 
-        success: false, 
-        msg: error.response?.data?.msg || "Error de conexión al servidor" 
-      };
+      return mapServiceError(error, "Error de conexión al servidor");
     }
   },
 
@@ -54,10 +43,7 @@ export const comunidadService = {
       const { data } = await axiosInstance.delete(`/comunidad/${id}`);
       return data;
     } catch (error) {
-      return { 
-        success: false, 
-        msg: error.response?.data?.msg || "Error de conexión al servidor" 
-      };
+      return mapServiceError(error, "Error de conexión al servidor");
     }
   },
 };

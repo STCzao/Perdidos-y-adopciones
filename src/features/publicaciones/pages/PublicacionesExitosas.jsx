@@ -126,7 +126,7 @@ const PublicacionesExitosasPage = () => {
                   Sin resultados
                 </p>
                 <p className="mt-3 text-[1.1rem] font-semibold text-[#241914]">
-                  No hay casos resueltos todavÃ­a.
+                  No hay casos resueltos todavía.
                 </p>
               </div>
             )}

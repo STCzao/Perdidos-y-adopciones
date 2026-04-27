@@ -9,27 +9,28 @@ import { getTipoColorMeta } from "../../../utils/publicacionColors";
 import { generarPDFPublicacion } from "../components/CardPdf";
 import { getPublicacionSlug } from "../utils/publicacionPaths";
 import { getPublicacionTamano } from "../utils/publicacionFields";
+import { useRequireAuth } from "../../../hooks/useRequireAuth";
 
 const tipoMeta = {
   PERDIDO: {
     accent: getTipoColorMeta("PERDIDO").accent,
     badge: "PERDIDO",
-    locationLabel: "Se extraviÃ³ en",
+    locationLabel: "Se extravió en",
     section: "Sector: perdido",
-    family: "BÃºsqueda activa",
+    family: "Búsqueda activa",
   },
   ENCONTRADO: {
     accent: getTipoColorMeta("ENCONTRADO").accent,
     badge: "ENCONTRADO",
-    locationLabel: "Se encontrÃ³ en",
+    locationLabel: "Se encontró en",
     section: "Sector: encontrado",
     family: "Resguardo activo",
   },
   ADOPCION: {
     accent: getTipoColorMeta("ADOPCION").accent,
-    badge: "ADOPCIÃ“N",
+    badge: "ADOPCIÓN",
     locationLabel: "Zona de referencia",
-    section: "Sector: adopciÃ³n",
+    section: "Sector: adopción",
     family: "Nuevo hogar",
   },
 };
@@ -41,10 +42,10 @@ const itemClass =
 
 const formatBooleanish = (value) => {
   if (value === undefined || value === null || value === "") return "";
-  if (typeof value === "boolean") return value ? "SÃ­" : "No";
+  if (typeof value === "boolean") return value ? "Sí" : "No";
 
   const normalized = String(value).trim().toLowerCase();
-  if (["si", "sÃ­", "yes", "true", "apto", "compatible"].includes(normalized)) return "SÃ­";
+  if (["si", "sí", "yes", "true", "apto", "compatible"].includes(normalized)) return "Sí";
   if (["no", "false", "no apto", "no compatible"].includes(normalized)) return "No";
 
   return String(value).trim();
@@ -68,20 +69,25 @@ const Field = ({ label, value }) => {
 export default function PublicacionDetalle() {
   const { tipo, id } = useParams();
   const location = useLocation();
+  const withAuth = useRequireAuth();
   const [publicacion, setPublicacion] = useState(null);
+  const [contactoWhatsapp, setContactoWhatsapp] = useState("");
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
   const [generatingPDF, setGeneratingPDF] = useState(false);
+  const [contactLoading, setContactLoading] = useState(false);
+  const [contactError, setContactError] = useState("");
 
   useEffect(() => {
     const fetchPublicacion = async () => {
       setLoading(true);
+      setContactoWhatsapp("");
 
       try {
         const response = await publicacionesService.getPublicacionById(id);
         setPublicacion(response?.publicacion || null);
       } catch (error) {
-        console.error("Error cargando publicaciÃ³n:", error);
+        console.error("Error cargando publicación:", error);
         setPublicacion(null);
       } finally {
         setLoading(false);
@@ -122,47 +128,69 @@ export default function PublicacionDetalle() {
     }
   };
 
+  const handleContact = () => {
+    withAuth(async () => {
+      if (contactLoading || !publicacion?._id) return;
+
+      setContactError("");
+
+      if (contactoWhatsapp) {
+        const whatsappDigits = String(contactoWhatsapp).replace(/\D/g, "");
+        if (whatsappDigits) {
+          window.open(`https://wa.me/549${whatsappDigits}`, "_blank", "noopener,noreferrer");
+        }
+        return;
+      }
+
+      try {
+        setContactLoading(true);
+        const response = await publicacionesService.getContactoPublicacion(publicacion._id);
+
+        if (!response.success || !response.whatsapp) {
+          setContactError(response.msg || "No se pudo obtener el contacto");
+          return;
+        }
+
+        setContactoWhatsapp(response.whatsapp);
+        const whatsappDigits = String(response.whatsapp).replace(/\D/g, "");
+        if (whatsappDigits) {
+          window.open(`https://wa.me/549${whatsappDigits}`, "_blank", "noopener,noreferrer");
+        }
+      } finally {
+        setContactLoading(false);
+      }
+    });
+  };
+
   const meta = tipoMeta[publicacion?.tipo] || tipoMeta.PERDIDO;
-  const backPath = publicacion
-    ? `/publicaciones/${getPublicacionSlug(publicacion.tipo)}`
-    : "/";
+  const backPath = publicacion ? `/publicaciones/${getPublicacionSlug(publicacion.tipo)}` : "/";
   const tamano = getPublicacionTamano(publicacion);
-  const fallbackPublicacion = location.state?.publicacion;
-  const whatsappRaw =
-    publicacion?.whatsapp ||
-    publicacion?.telefono ||
-    publicacion?.contacto ||
-    publicacion?.numero ||
-    fallbackPublicacion?.whatsapp ||
-    fallbackPublicacion?.telefono ||
-    fallbackPublicacion?.contacto ||
-    fallbackPublicacion?.numero ||
-    "";
-  const whatsappDigits = String(whatsappRaw).replace(/\D/g, "");
-  const whatsappLink = whatsappDigits ? `https://wa.me/549${whatsappDigits}` : null;
+  const whatsappRaw = contactoWhatsapp || "";
   const primaryLocation = publicacion?.localidad || publicacion?.lugar;
   const secondaryLocation =
     publicacion?.localidad && publicacion?.lugar ? publicacion.lugar : null;
+
   const identityFields = [
     { label: "Raza", value: publicacion?.raza },
     { label: "Color", value: publicacion?.color },
     { label: "Sexo", value: publicacion?.sexo },
     { label: "Edad", value: publicacion?.edad },
-    { label: "TamaÃ±o", value: tamano },
+    { label: "Tamaño", value: tamano },
     { label: "Castrado", value: formatBooleanish(publicacion?.castrado) },
   ].filter((field) => field.value);
+
   const adoptionFields =
     publicacion?.tipo === "ADOPCION"
       ? [
           {
-            label: "Convive con niÃ±os",
+            label: "Convive con niños",
             value: formatBooleanish(publicacion?.afinidad),
           },
           {
             label: "Convive con otros animales",
             value: formatBooleanish(publicacion?.afinidadanimales),
           },
-          { label: "Nivel de energÃ­a", value: publicacion?.energia },
+          { label: "Nivel de energía", value: publicacion?.energia },
         ].filter((field) => field.value)
       : [];
 
@@ -191,7 +219,7 @@ export default function PublicacionDetalle() {
           ) : !publicacion ? (
             <div className="mx-auto max-w-3xl rounded-[0.95rem] border border-[#2f241d]/10 bg-white/80 p-8 text-center shadow-sm">
               <h1 className="text-2xl font-semibold text-[#241914]">
-                No encontramos esta publicaciÃ³n
+                No encontramos esta publicación
               </h1>
               <Link
                 to="/"
@@ -207,7 +235,7 @@ export default function PublicacionDetalle() {
                   to={backPath}
                   className="inline-flex items-center gap-2 rounded-[0.6rem] border border-[#2f241d]/10 bg-white/85 px-4 py-2 text-sm font-semibold text-[#241914] shadow-sm transition-colors hover:bg-white"
                 >
-                  <span aria-hidden="true">â†</span>
+                  <span aria-hidden="true">←</span>
                   Volver al listado
                 </Link>
               </div>
@@ -260,23 +288,21 @@ export default function PublicacionDetalle() {
                                 : "border-[#D62828]/35 bg-white text-[#241914] hover:bg-[#D62828]/10"
                             }`}
                           >
-                            {copied ? "Enlace copiado" : "Compartir publicaciÃ³n"}
+                            {copied ? "Enlace copiado" : "Compartir publicación"}
                           </button>
 
-                          {whatsappLink && (
-                            <a
-                              href={whatsappLink}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="rounded-[0.6rem] border px-4 py-2.5 text-center text-[0.76rem] font-semibold text-white transition-opacity hover:opacity-92"
-                              style={{
-                                backgroundColor: meta.accent,
-                                borderColor: meta.accent,
-                              }}
-                            >
-                              Contactar por WhatsApp
-                            </a>
-                          )}
+                          <button
+                            type="button"
+                            onClick={handleContact}
+                            disabled={contactLoading}
+                            className="rounded-[0.6rem] border px-4 py-2.5 text-center text-[0.76rem] font-semibold text-white transition-opacity hover:opacity-92 disabled:cursor-wait disabled:opacity-60"
+                            style={{
+                              backgroundColor: meta.accent,
+                              borderColor: meta.accent,
+                            }}
+                          >
+                            {contactLoading ? "Obteniendo contacto..." : "Contactar por WhatsApp"}
+                          </button>
 
                           <button
                             type="button"
@@ -288,6 +314,10 @@ export default function PublicacionDetalle() {
                           </button>
                         </div>
                       </div>
+
+                      {contactError && (
+                        <p className="text-[0.78rem] font-medium text-[#a44939]">{contactError}</p>
+                      )}
                     </div>
                   </aside>
 
@@ -323,7 +353,7 @@ export default function PublicacionDetalle() {
                             {meta.locationLabel}
                           </p>
                           <p className="mt-1 text-[0.9rem] font-semibold leading-snug text-[#241914]">
-                            {primaryLocation || "Sin ubicaciÃ³n informada"}
+                            {primaryLocation || "Sin ubicación informada"}
                           </p>
                           {secondaryLocation && (
                             <p className="mt-1 text-[0.78rem] leading-snug text-[#5e463d]">
@@ -360,7 +390,7 @@ export default function PublicacionDetalle() {
                       {adoptionFields.length > 0 && (
                         <div className={panelClass}>
                           <h2 className="text-[0.64rem] font-bold uppercase tracking-[0.18em] text-[#7b6557]">
-                            Perfil de adopciÃ³n
+                            Perfil de adopción
                           </h2>
                           <div className="mt-2.5 grid gap-2 sm:grid-cols-2">
                             {adoptionFields.map((field) => (

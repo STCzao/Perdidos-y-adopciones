@@ -4,6 +4,7 @@ import {
   TextAreaField,
   ImageUploadField,
 } from "./FormFields";
+import { PUBLICACION_SIZE_FIELD } from "../utils/publicacionFields";
 
 /**
  * Campos comunes a todos los tipos de publicaciones
@@ -19,7 +20,6 @@ export const CommonFields = ({
 }) => {
   return (
     <>
-      {/* Tipo */}
       <SelectField
         label="Seleccione el tipo de publicación"
         name="tipo"
@@ -35,7 +35,6 @@ export const CommonFields = ({
         ]}
       />
 
-      {/* Nombre del animal - solo para PERDIDO y ADOPCION */}
       {(form.tipo === "ADOPCION" || form.tipo === "PERDIDO") && (
         <InputField
           label="Nombre de su animal"
@@ -49,7 +48,6 @@ export const CommonFields = ({
         />
       )}
 
-      {/* Imagen */}
       <ImageUploadField
         uploading={uploading}
         handleImageUpload={handleImageUpload}
@@ -58,7 +56,6 @@ export const CommonFields = ({
         disabled={submitting}
       />
 
-      {/* Especie */}
       <SelectField
         label="Especie"
         name="especie"
@@ -76,7 +73,6 @@ export const CommonFields = ({
         ]}
       />
 
-      {/* Edad - solo para PERDIDO y ADOPCION */}
       {(form.tipo === "PERDIDO" || form.tipo === "ADOPCION") && (
         <SelectField
           label="Edad aproximada de su animal"
@@ -91,12 +87,11 @@ export const CommonFields = ({
             { value: "CACHORRO", label: "Cachorro (0 a 12 meses)" },
             { value: "JOVEN", label: "Joven (1 a 4 años)" },
             { value: "ADULTO", label: "Adulto (5 a 10 años)" },
-            { value: "MAYOR", label: "Mayor (Más de 10 años)" },
+            { value: "MAYOR", label: "Mayor (más de 10 años)" },
           ]}
         />
       )}
 
-      {/* Raza */}
       <SelectField
         label="Raza"
         name="raza"
@@ -109,13 +104,12 @@ export const CommonFields = ({
             ? "Seleccione primero la especie"
             : "Seleccione la raza de su animal *"
         }
-        options={(razasPorEspecie[form.especie] || []).map((r) => ({
-          value: r,
-          label: r,
+        options={(razasPorEspecie[form.especie] || []).map((raza) => ({
+          value: raza,
+          label: raza,
         }))}
       />
 
-      {/* Color */}
       <InputField
         label="Color"
         name="color"
@@ -127,7 +121,6 @@ export const CommonFields = ({
         placeholder="Ingrese el color principal del animal (especifique manchas y otros colores) *"
       />
 
-      {/* Sexo */}
       <SelectField
         label="Sexo"
         name="sexo"
@@ -143,14 +136,13 @@ export const CommonFields = ({
         ]}
       />
 
-      {/* Tamaño */}
       <SelectField
         label="Tamaño"
-        name="tamaño"
-        value={form.tamaño}
+        name={PUBLICACION_SIZE_FIELD}
+        value={form[PUBLICACION_SIZE_FIELD]}
         onChange={handleChange}
         disabled={submitting}
-        error={errors.tamaño}
+        error={errors[PUBLICACION_SIZE_FIELD]}
         placeholder="Seleccione el tamaño de su animal *"
         options={[
           { value: "SIN ESPECIFICAR", label: "Sin especificar" },
@@ -161,7 +153,6 @@ export const CommonFields = ({
         ]}
       />
 
-      {/* WhatsApp */}
       <InputField
         label="Número de contacto"
         name="whatsapp"
@@ -174,7 +165,6 @@ export const CommonFields = ({
         maxLength={15}
       />
 
-      {/* Detalles Adicionales */}
       <TextAreaField
         label="Señas particulares y estado del animal"
         name="detalles"
@@ -182,7 +172,7 @@ export const CommonFields = ({
         onChange={handleChange}
         disabled={submitting}
         error={errors.detalles}
-        placeholder="Agregar aquí cualquier detalle que ayude a identificarlo o a tratar con él: manchas, cicatrices, heridas, si está medicado, si llevaba collar, temperamento o cualquier otra información importante."
+        placeholder="Agregá aquí cualquier detalle que ayude a identificarlo o a tratar con él: manchas, cicatrices, heridas, si está medicado, si llevaba collar, temperamento o cualquier otra información importante."
         rows={4}
       />
     </>

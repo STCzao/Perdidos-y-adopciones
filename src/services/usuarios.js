@@ -1,24 +1,18 @@
 import axiosInstance from "./api";
-
-const mapAxiosError = (error, fallbackMsg) => ({
-  ok: false,
-  msg: error.response?.data?.msg || fallbackMsg,
-  errors: error.response?.data?.errors || {},
-  status: error.response?.status,
-});
+import { buildServiceSuccess, mapServiceError } from "./serviceUtils";
 
 export const usuariosService = {
   getMiPerfil: async () => {
     try {
       const { data } = await axiosInstance.get("/usuarios/mi-perfil");
 
-      return {
+      return buildServiceSuccess({
         ok: true,
         usuario: data.usuario,
         seguridad: data.seguridad || null,
-      };
+      });
     } catch (error) {
-      return mapAxiosError(error, "Error al obtener perfil");
+      return mapServiceError(error, "Error al obtener perfil", { ok: false });
     }
   },
 
@@ -32,44 +26,46 @@ export const usuariosService = {
 
       if (!Object.keys(datosPermitidos).length) {
         return {
+          success: false,
           ok: false,
           msg: "No hay campos válidos para actualizar",
+          errors: {},
         };
       }
 
       const { data } = await axiosInstance.put("/usuarios/mi-perfil", datosPermitidos);
 
-      return {
+      return buildServiceSuccess({
         ok: true,
         usuario: data.usuario || data,
         seguridad: data.seguridad || null,
-      };
+      });
     } catch (error) {
-      return mapAxiosError(error, "Error al actualizar perfil");
+      return mapServiceError(error, "Error al actualizar perfil", { ok: false });
     }
   },
 
   cambiarPassword: async (body) => {
     try {
       const { data } = await axiosInstance.patch("/usuarios/mi-perfil/password", body);
-      return {
+      return buildServiceSuccess({
         ok: true,
         ...data,
-      };
+      });
     } catch (error) {
-      return mapAxiosError(error, "Error al cambiar la contraseña");
+      return mapServiceError(error, "Error al cambiar la contraseña", { ok: false });
     }
   },
 
   borrarUsuario: async (id) => {
     try {
       const { data } = await axiosInstance.delete(`/usuarios/${id}`);
-      return {
+      return buildServiceSuccess({
         ok: true,
         ...data,
-      };
+      });
     } catch (error) {
-      return mapAxiosError(error, "Error al eliminar usuario");
+      return mapServiceError(error, "Error al eliminar usuario", { ok: false });
     }
   },
 };
