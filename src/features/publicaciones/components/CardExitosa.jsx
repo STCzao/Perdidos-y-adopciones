@@ -1,6 +1,7 @@
 import { LazyLoadImage } from "react-lazy-load-image-component";
 import { formatFecha } from "../../../utils/dateHelpers.js";
 import { getTipoColorMeta } from "../../../utils/publicacionColors.js";
+import { getCloudinaryUrl } from "../../../utils/cloudinaryUtils";
 
 const cardMeta = {
   ADOPCION: {
@@ -50,13 +51,14 @@ const CardExitosa = ({ publicacion, cardId }) => {
               }}
             />
             <LazyLoadImage
-              src={img}
-              alt="background"
+              src={getCloudinaryUrl(img, { width: 40, quality: 10 })}
+              alt=""
+              aria-hidden="true"
               className="absolute inset-0 h-full w-full scale-105 object-cover blur-lg opacity-35"
               loading="lazy"
             />
             <LazyLoadImage
-              src={img}
+              src={getCloudinaryUrl(img, { width: 420 })}
               alt={nombreanimal || especie || "Imagen de publicacion"}
               className="relative z-10 block h-full w-full scale-[1.08] object-contain px-1.5 py-1.5"
               loading="lazy"
