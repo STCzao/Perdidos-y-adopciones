@@ -1,22 +1,51 @@
-import { useCloudinaryWidget } from "../../../hooks/useCloudinaryWidget";
+const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+const UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 
-export const useImageUpload = (setFormImage, setErrors, carpeta = "publicaciones") => {
-  const { openWidget, uploading } = useCloudinaryWidget();
+export const useImageUpload = (setFormImage, setErrors) => {
+  const handleImageUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
 
-  const handleImageUpload = () => {
-    openWidget(carpeta, {
-      onSuccess: (url) => {
-        setErrors((prev) => ({ ...prev, img: "" }));
-        setFormImage(url);
-      },
-      onError: () => {
-        setErrors((prev) => ({
-          ...prev,
-          img: "Error al subir la imagen. Intentá nuevamente.",
-        }));
-      },
-    });
+    setErrors((prev) => ({ ...prev, img: "" }));
+
+    if (!file.type.startsWith("image/")) {
+      setErrors((prev) => ({ ...prev, img: "Solo se permiten imágenes" }));
+      return { uploading: false };
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setErrors((prev) => ({
+        ...prev,
+        img: "La imagen no puede superar 5MB",
+      }));
+      return { uploading: false };
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", UPLOAD_PRESET);
+
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
+        { method: "POST", body: formData },
+      );
+
+      const data = await response.json();
+
+      if (data.secure_url) {
+        setFormImage(data.secure_url);
+        return { uploading: false, success: true };
+      }
+
+      setErrors((prev) => ({ ...prev, img: "Error al subir imagen" }));
+      return { uploading: false, success: false };
+    } catch (error) {
+      console.error("Error subiendo imagen:", error);
+      setErrors((prev) => ({ ...prev, img: "Error de conexión" }));
+      return { uploading: false, success: false };
+    }
   };
 
-  return { handleImageUpload, uploading };
+  return { handleImageUpload };
 };
