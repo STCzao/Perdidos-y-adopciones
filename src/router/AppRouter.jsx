@@ -16,6 +16,8 @@ const PublicacionesExitosas = lazy(() =>
 );
 const Comunidad = lazy(() => import("../pages/Comunidad"));
 const Contact = lazy(() => import("../pages/Contact"));
+const TerminosCondiciones = lazy(() => import("../pages/TerminosCondiciones"));
+const QuienesSomos = lazy(() => import("../pages/QuienesSomos"));
 const Perdi = lazy(() => import("../pages/consejos/Perdi"));
 const Encontre = lazy(() => import("../pages/consejos/Encontre"));
 const Adoptar = lazy(() => import("../pages/consejos/Adoptar"));
@@ -43,6 +45,8 @@ const AppRouter = () => {
         <Route path="/consejos-adopcion" element={<Adoptar user={user} />} />
         <Route path="/casos-ayuda" element={<Comunidad user={user} />} />
         <Route path="/contacto" element={<Contact user={user} />} />
+        <Route path="/terminos-y-condiciones" element={<TerminosCondiciones />} />
+        <Route path="/quienes-somos" element={<QuienesSomos />} />
 
         <Route
           path="/login"

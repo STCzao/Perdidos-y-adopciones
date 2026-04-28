@@ -306,11 +306,16 @@ export default function PublicacionDetalle() {
                         </div>
 
                         {publicacion.img ? (
-                          <div className="grid aspect-[4/3] min-h-[17rem] place-items-center overflow-hidden bg-[#e6dac6] sm:min-h-[20rem] xl:min-h-[23rem]">
+                          <div className="relative aspect-[4/3] min-h-[17rem] overflow-hidden bg-[#e6dac6] sm:min-h-[20rem] xl:min-h-[23rem]">
                             <LazyLoadImage
                               src={getCloudinaryUrl(publicacion.img, { width: 900 })}
-                              alt={publicacion.nombreanimal || publicacion.especie}
-                              className="block h-full w-full object-contain p-3 sm:p-4"
+                              alt={
+                                publicacion.nombreanimal
+                                  ? `Foto de ${publicacion.nombreanimal}`
+                                  : `Foto de ${publicacion.especie?.toLowerCase() || "animal"}`
+                              }
+                              wrapperClassName="absolute inset-0"
+                              className="h-full w-full object-cover"
                               loading="eager"
                             />
                           </div>

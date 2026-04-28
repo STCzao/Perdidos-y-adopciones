@@ -1,4 +1,3 @@
-"use client";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import ModalShell from "../../../components/ui/ModalShell";
@@ -37,7 +36,6 @@ export const CrearPublicacion = {
   Component: () => {
     const [open, setOpen] = useState(false);
     const [result, setResult] = useState("");
-    const [uploading, setUploading] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [editData, setEditData] = useState(null);
 
@@ -51,7 +49,10 @@ export const CrearPublicacion = {
       razasPorEspecie,
     } = usePublicacionForm(editData);
 
-    const { handleImageUpload: uploadImage } = useImageUpload(setFormImage, setErrors);
+    const { handleImageUpload: uploadImage, uploading } = useImageUpload(
+      setFormImage,
+      setErrors,
+    );
 
     modalControl = { setOpen, setEditData };
 
@@ -90,12 +91,6 @@ export const CrearPublicacion = {
       setSubmitting(false);
       setEditData(null);
       setOpen(false);
-    };
-
-    const handleImageUploadWrapper = async (event) => {
-      setUploading(true);
-      await uploadImage(event);
-      setUploading(false);
     };
 
     const handleSubmit = async (event) => {
@@ -248,7 +243,7 @@ export const CrearPublicacion = {
                       handleChange={handleChange}
                       errors={errors}
                       submitting={submitting}
-                      handleImageUpload={handleImageUploadWrapper}
+                      handleImageUpload={uploadImage}
                       uploading={uploading}
                       razasPorEspecie={razasPorEspecie}
                     />

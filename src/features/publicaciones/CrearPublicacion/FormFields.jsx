@@ -120,7 +120,11 @@ export const ImageUploadField = ({
 }) => (
   <div>
     <label className={fieldLabel}>Imagen</label>
-    <label
+    <button
+      type="button"
+      onClick={handleImageUpload}
+      aria-label="Subir imagen"
+      disabled={uploading || disabled}
       className={`mt-1.5 flex w-full cursor-pointer items-center gap-3 rounded-[0.9rem] border border-dashed border-[#2f241d]/20 bg-white px-4 py-3 transition hover:border-[#d46f49]/45 hover:bg-[#fffaf4] ${
         uploading || disabled ? "pointer-events-none opacity-50" : ""
       }`}
@@ -138,16 +142,9 @@ export const ImageUploadField = ({
         <line x1="12" y1="3" x2="12" y2="15" />
       </svg>
       <span className="text-sm text-[#816959]">
-        {uploading ? "Subiendo imagen..." : imageUrl ? "Cambiar imagen" : "Seleccionar imagen"}
+        {uploading ? "Subiendo..." : imageUrl ? "Cambiar imagen" : "Seleccionar imagen"}
       </span>
-      <input
-        type="file"
-        accept="image/*"
-        onChange={handleImageUpload}
-        disabled={uploading || disabled}
-        className="sr-only"
-      />
-    </label>
+    </button>
     {error && <p className={fieldError}>{error}</p>}
     {imageUrl && (
       <div className="mt-3">

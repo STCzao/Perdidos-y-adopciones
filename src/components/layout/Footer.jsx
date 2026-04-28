@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const FOOTER_LINKS = [
   { label: "Inicio", path: "/" },
@@ -7,6 +7,8 @@ const FOOTER_LINKS = [
   { label: "Adopciones", path: "/publicaciones/adopciones" },
   { label: "Casos resueltos", path: "/casos-resueltos" },
   { label: "Comunidad", path: "/casos-ayuda" },
+  { label: "Términos y Condiciones", path: "/terminos-y-condiciones" },
+  { label: "Quiénes somos", path: "/quienes-somos" },
 ];
 
 export default function Footer() {
@@ -42,13 +44,14 @@ export default function Footer() {
             </h2>
             <div className="mt-5 grid gap-3 text-sm">
               {FOOTER_LINKS.map((link) => (
-                <button
+                <Link
                   key={link.label}
-                  onClick={() => navigateTo(link.path)}
+                  to={link.path}
+                  onClick={() => window.scrollTo(0, 0)}
                   className="w-fit cursor-pointer rounded-full px-1 text-left text-[color:var(--shell-muted)] transition-colors duration-300 hover:text-[color:var(--shell-ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--shell-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
                 >
                   {link.label}
-                </button>
+                </Link>
               ))}
             </div>
           </div>

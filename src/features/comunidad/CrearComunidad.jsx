@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import ModalShell from "../../components/ui/ModalShell";
+import { useCloudinaryWidget } from "../../hooks/useCloudinaryWidget";
 import { comunidadService } from "../../services/comunidad";
 import { withRequestIdMessage } from "../../services/serviceUtils";
 
@@ -42,10 +43,10 @@ export const CrearComunidad = {
     });
     const [errors, setErrors] = useState({});
     const [result, setResult] = useState("");
-    const [uploading, setUploading] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [, setLoading] = useState(false);
     const [editData, setEditData] = useState(null);
+    const { openWidget, uploading } = useCloudinaryWidget();
 
     modalControl = { setOpen, setEditData };
 
@@ -128,53 +129,18 @@ export const CrearComunidad = {
       clearFieldError(name);
     };
 
-    const handleImageUpload = async (event) => {
-      const file = event.target.files[0];
-      if (!file) return;
-
-      clearFieldError("img");
-
-      if (!file.type.startsWith("image/")) {
-        setErrors((prev) => ({ ...prev, img: "Solo se permiten imagenes" }));
-        event.target.value = "";
-        return;
-      }
-
-      if (file.size > 5 * 1024 * 1024) {
-        setErrors((prev) => ({
-          ...prev,
-          img: "La imagen no puede superar 5 MB",
-        }));
-        event.target.value = "";
-        return;
-      }
-
-      setUploading(true);
-
-      try {
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("upload_preset", import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET);
-
-        const response = await fetch(
-          `https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload`,
-          { method: "POST", body: formData },
-        );
-
-        const data = await response.json();
-
-        if (data.secure_url) {
-          setForm((prev) => ({ ...prev, img: data.secure_url }));
-        } else {
-          setErrors((prev) => ({ ...prev, img: "Error al subir la imagen" }));
-        }
-      } catch {
-        setErrors((prev) => ({ ...prev, img: "Error de conexion" }));
-      } finally {
-        setUploading(false);
-        event.target.value = "";
-      }
-    };
+    const handleImageUpload = () =>
+      openWidget("comunidad", {
+        onSuccess: (url) => {
+          setForm((prev) => ({ ...prev, img: url }));
+          clearFieldError("img");
+        },
+        onError: () =>
+          setErrors((prev) => ({
+            ...prev,
+            img: "Error al subir la imagen. Intentá nuevamente.",
+          })),
+      });
 
     const handleSubmit = async (event) => {
       event.preventDefault();
@@ -382,42 +348,39 @@ export const CrearComunidad = {
                     </h2>
                   </div>
 
-                  <label
-                    className={`mt-5 flex cursor-pointer items-center gap-3 rounded-[1.1rem] border border-dashed border-[#2f241d]/18 bg-white/72 px-4 py-4 transition-colors duration-200 hover:border-[#c97b57]/35 hover:bg-white ${
-                      uploading || submitting ? "pointer-events-none opacity-60" : ""
-                    }`}
-                  >
-                    <svg
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.75"
-                      className="h-5 w-5 shrink-0 text-[#816959]"
-                      aria-hidden="true"
-                    >
-                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                      <polyline points="17 8 12 3 7 8" />
-                      <line x1="12" y1="3" x2="12" y2="15" />
-                    </svg>
-                    <div>
-                      <p className="text-sm font-semibold text-[#4f4037]">
-                        {uploading
-                          ? "Subiendo imagen..."
-                          : form.img
-                            ? "Cambiar imagen del caso"
-                            : "Seleccionar imagen"}
-                      </p>
-                      <p className="mt-1 text-xs text-[#7b6a5e]">
-                        JPG, PNG o WEBP. Maximo 5 MB.
-                      </p>
-                    </div>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageUpload}
+                  <label className={labelClassName}>
+                    Imagen
+                    <button
+                      type="button"
+                      onClick={handleImageUpload}
                       disabled={uploading || submitting}
-                      className="sr-only"
-                    />
+                      className={`${inputClassName} flex cursor-pointer items-center gap-3 border-dashed text-left hover:border-[color:var(--shell-accent-strong)]/35 hover:bg-white`}
+                    >
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.75"
+                        className="h-5 w-5 shrink-0 text-[#816959]"
+                        aria-hidden="true"
+                      >
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="17 8 12 3 7 8" />
+                        <line x1="12" y1="3" x2="12" y2="15" />
+                      </svg>
+                      <div>
+                        <p className="text-sm font-semibold text-[#4f4037]">
+                          {uploading
+                            ? "Subiendo..."
+                            : form.img
+                              ? "Cambiar imagen del caso"
+                              : "Seleccionar imagen"}
+                        </p>
+                        <p className="mt-1 text-xs text-[#7b6a5e]">
+                          JPG, PNG o WEBP. Maximo 5 MB.
+                        </p>
+                      </div>
+                    </button>
                   </label>
 
                   {errors.img && <p className={errorClassName}>{errors.img}</p>}

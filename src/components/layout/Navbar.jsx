@@ -198,15 +198,14 @@ const openModalWhenReady = async (loadModule, exportName, setMountedModals) => {
     return { ...prev, [exportName]: true };
   });
 
-  // Retry a few times after mounting so the modal singleton can register its
-  // internal controller before we call openModal for the first time.
-  const attempts = needsMount ? 10 : 1;
-  for (let index = 0; index < attempts; index += 1) {
+  if (!needsMount) {
     modalApi.openModal();
+    return;
+  }
 
-    if (index < attempts - 1) {
-      await new Promise((resolve) => window.setTimeout(resolve, 32));
-    }
+  for (let index = 0; index < 10; index += 1) {
+    await new Promise((resolve) => window.setTimeout(resolve, 32));
+    modalApi.openModal();
   }
 };
 

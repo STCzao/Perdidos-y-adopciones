@@ -206,12 +206,12 @@ const HomeScreen = () => {
                 </span>
 
                 <h1 className="font-editorial mt-4 max-w-4xl text-[1.8rem] leading-[0.92] sm:mt-5 sm:text-[3rem] lg:text-[3.7rem]">
-                  Animales perdidos,
-                  <span className="block text-[#f4c89e]">
+                  Amar y ser amable
+                  <span className="block text-[#f4c89e]">con los animales</span>{false && <>
                     encontrados y en adopción
-                  </span>
+                  </>}
                   <span className="block text-[#dbe7b5]">
-                    en una sola red gratuita.
+                    nos acerca a nuestra verdadera naturaleza humana.
                   </span>
                 </h1>
 

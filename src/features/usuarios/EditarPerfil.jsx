@@ -71,7 +71,6 @@ export const EditarPerfil = {
     const [loading, setLoading] = useState(false);
     const [savingProfile, setSavingProfile] = useState(false);
     const [changingPassword, setChangingPassword] = useState(false);
-    const [uploadingImage, setUploadingImage] = useState(false);
     const [profileResult, setProfileResult] = useState("");
     const [passwordResult, setPasswordResult] = useState("");
     const [profileErrors, setProfileErrors] = useState({});
@@ -88,9 +87,13 @@ export const EditarPerfil = {
 
     modalControl = { setOpen };
 
-    const { handleImageUpload } = useImageUpload(
-      (url) => setProfileForm((current) => ({ ...current, img: url })),
+    const { handleImageUpload, uploading: uploadingImage } = useImageUpload(
+      (url) => {
+        setProfileForm((current) => ({ ...current, img: url }));
+        setProfileResult("Imagen lista para guardar.");
+      },
       setProfileErrors,
+      "usuarios",
     );
 
     const avatarContent = useMemo(() => {
@@ -186,21 +189,6 @@ export const EditarPerfil = {
 
       if (passwordErrors[name]) {
         setPasswordErrors((current) => ({ ...current, [name]: "" }));
-      }
-    };
-
-    const handleUploadProfileImage = async (event) => {
-      setUploadingImage(true);
-      setProfileResult("");
-
-      try {
-        const result = await handleImageUpload(event);
-        if (result?.success) {
-          setProfileResult("Imagen lista para guardar.");
-        }
-      } finally {
-        setUploadingImage(false);
-        event.target.value = "";
       }
     };
 
@@ -397,16 +385,14 @@ export const EditarPerfil = {
                             {avatarContent}
                           </div>
 
-                          <label className="mt-4 w-full cursor-pointer rounded-full border border-[#c97b57]/25 bg-[#fff7ee] px-4 py-2 text-center text-sm font-semibold text-[#5d4437] transition-colors duration-200 hover:bg-[#fff2e4]">
+                          <button
+                            type="button"
+                            onClick={handleImageUpload}
+                            disabled={uploadingImage || savingProfile}
+                            className="mt-4 w-full cursor-pointer rounded-full border border-[#c97b57]/25 bg-[#fff7ee] px-4 py-2 text-center text-sm font-semibold text-[#5d4437] transition-colors duration-200 hover:bg-[#fff2e4] disabled:cursor-not-allowed disabled:opacity-60"
+                          >
                             {uploadingImage ? "Subiendo..." : "Cambiar foto"}
-                            <input
-                              type="file"
-                              accept="image/*"
-                              className="hidden"
-                              onChange={handleUploadProfileImage}
-                              disabled={uploadingImage || savingProfile}
-                            />
-                          </label>
+                          </button>
 
                           <p className="mt-3 text-center text-xs leading-relaxed text-[#7a695d] md:text-left">
                             Si no cargas foto, mostraremos tus iniciales.
