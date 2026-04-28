@@ -12,14 +12,14 @@ import { getCloudinaryUrl } from "../../../utils/cloudinaryUtils";
 const cardMeta = {
   ADOPCION: {
     label: "Cuidado",
-    locationLabel: "Zona de referencia",
+    locationLabel: "Zona referencia",
   },
   PERDIDO: {
     label: "Búsqueda activa",
     locationLabel: "Se extravió en",
   },
   ENCONTRADO: {
-    label: "Resguardo activo",
+    label: "En resguardo",
     locationLabel: "Se encontró en",
   },
 };
