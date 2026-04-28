@@ -239,8 +239,16 @@ const NavbarContent = () => {
     location.pathname.startsWith("/contacto");
 
   React.useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 14);
-    window.addEventListener("scroll", handleScroll);
+    let ticking = false;
+    const handleScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(() => {
+        setIsScrolled(window.scrollY > 14);
+        ticking = false;
+      });
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
