@@ -1,130 +1,147 @@
 import axios from "axios";
+import { getErrorRequestId } from "./serviceUtils";
 
 const API_URL = import.meta.env.VITE_API_URL;
+const AUTH_SYNC_KEY = "auth:event";
 
-// Crear instancia de axios
-const axiosInstance = axios.create({
-  baseURL: API_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
-
-// Variable para evitar múltiples refreshes simultáneos
+let accessToken = "";
 let isRefreshing = false;
 let failedQueue = [];
 
-const processQueue = (error, token = null) => {
-  failedQueue.forEach((prom) => {
+export const getAccessToken = () => accessToken;
+export const setAccessToken = (token) => {
+  accessToken = token || "";
+};
+export const clearAccessToken = () => {
+  accessToken = "";
+};
+
+export const broadcastAuthEvent = (type) => {
+  try {
+    localStorage.setItem(
+      AUTH_SYNC_KEY,
+      JSON.stringify({ type, at: Date.now() }),
+    );
+  } catch (error) {
+    console.warn("No se pudo sincronizar el evento de autenticación:", error);
+  }
+};
+
+export const getAuthSyncKey = () => AUTH_SYNC_KEY;
+
+const processQueue = (error, token = "") => {
+  failedQueue.forEach((promise) => {
     if (error) {
-      prom.reject(error);
+      promise.reject(error);
     } else {
-      prom.resolve(token);
+      promise.resolve(token);
     }
   });
 
   failedQueue = [];
 };
 
-// Interceptor de request - agregar token
+const axiosInstance = axios.create({
+  baseURL: API_URL,
+  withCredentials: true,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+const isRefreshRequest = (config) => config?.url?.includes("/auth/refresh");
+const isPublicAuthRequest = (config) =>
+  config?.url?.includes("/auth/login") ||
+  config?.url?.includes("/auth/forgot-password") ||
+  config?.url?.includes("/auth/reset-password");
+const isLogoutRequest = (config) =>
+  config?.url?.includes("/auth/logout") || config?.url?.includes("/auth/logout-all");
+
 axiosInstance.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      config.headers["x-token"] = token;
+    if (accessToken) {
+      config.headers["x-token"] = accessToken;
     }
+    config.withCredentials = true;
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  },
+  (error) => Promise.reject(error),
 );
 
-// Interceptor de response - manejar refresh token
 axiosInstance.interceptors.response.use(
-  (response) => {
-    return response;
-  },
+  (response) => response,
   async (error) => {
     const originalRequest = error.config;
 
-    // Si el error NO es 401, rechazar inmediatamente
-    if (error.response?.status !== 401) {
+    if (error.response?.status !== 401 || !originalRequest || isRefreshRequest(originalRequest)) {
       return Promise.reject(error);
     }
 
-    // Si el error es 401 y no hemos intentado refrescar aún
-    if (!originalRequest._retry) {
-      if (isRefreshing) {
-        // Si ya se está refrescando, poner en cola
-        return new Promise((resolve, reject) => {
-          failedQueue.push({ resolve, reject });
-        })
-          .then((token) => {
-            originalRequest.headers["x-token"] = token;
-            return axiosInstance(originalRequest);
-          })
-          .catch((err) => {
-            return Promise.reject(err);
-          });
-      }
-
-      originalRequest._retry = true;
-      isRefreshing = true;
-
-      const refreshToken = localStorage.getItem("refreshToken");
-
-      if (!refreshToken) {
-        // No hay refresh token, notificar al contexto React para cerrar sesión
-        localStorage.removeItem("token");
-        localStorage.removeItem("refreshToken");
-        localStorage.removeItem("user");
-        window.dispatchEvent(new CustomEvent("forceLogout"));
-        return Promise.reject(error);
-      }
-
-      try {
-        const response = await axios.post(`${API_URL}/auth/refresh`, {
-          refreshToken,
-        });
-
-        const { accessToken, refreshToken: newRefreshToken } = response.data;
-
-        if (!accessToken) {
-          throw new Error(
-            "No se recibió accessToken en la respuesta del refresh",
-          );
-        }
-
-        // Guardar nuevos tokens
-        localStorage.setItem("token", accessToken);
-        if (newRefreshToken) {
-          localStorage.setItem("refreshToken", newRefreshToken);
-        }
-
-        // Actualizar header y reintentar request original
-        axiosInstance.defaults.headers.common["x-token"] = accessToken;
-        originalRequest.headers["x-token"] = accessToken;
-
-        processQueue(null, accessToken);
-
-        return axiosInstance(originalRequest);
-      } catch (refreshError) {
-        processQueue(refreshError, null);
-
-        // Refresh falló, notificar al contexto React para cerrar sesión
-        localStorage.removeItem("token");
-        localStorage.removeItem("refreshToken");
-        localStorage.removeItem("user");
-        window.dispatchEvent(new CustomEvent("forceLogout"));
-
-        return Promise.reject(refreshError);
-      } finally {
-        isRefreshing = false;
-      }
+    if (isPublicAuthRequest(originalRequest) || isLogoutRequest(originalRequest)) {
+      return Promise.reject(error);
     }
 
-    return Promise.reject(error);
+    if (originalRequest._retry) {
+      return Promise.reject(error);
+    }
+
+    if (isRefreshing) {
+      return new Promise((resolve, reject) => {
+        failedQueue.push({ resolve, reject });
+      })
+        .then((token) => {
+          if (token) {
+            originalRequest.headers["x-token"] = token;
+          }
+          return axiosInstance(originalRequest);
+        })
+        .catch((queueError) => Promise.reject(queueError));
+    }
+
+    originalRequest._retry = true;
+    isRefreshing = true;
+
+    try {
+      const response = await axios.post(
+        `${API_URL}/auth/refresh`,
+        {},
+        {
+          withCredentials: true,
+          headers: { "Content-Type": "application/json" },
+        },
+      );
+
+      const nextAccessToken = response.data?.accessToken || "";
+
+      if (!nextAccessToken) {
+        throw new Error("No se recibió accessToken al refrescar la sesión");
+      }
+
+      setAccessToken(nextAccessToken);
+      originalRequest.headers["x-token"] = nextAccessToken;
+      processQueue(null, nextAccessToken);
+
+      return axiosInstance(originalRequest);
+    } catch (refreshError) {
+      const refreshStatus = refreshError?.response?.status;
+      if (!getAccessToken()) {
+        clearAccessToken();
+      }
+      processQueue(refreshError);
+      const requestId = getErrorRequestId(refreshError);
+      if (requestId) {
+        console.warn(`Falló el refresh de sesión. requestId=${requestId}`);
+      }
+      // Solo forzar logout si el servidor confirmó que la sesión es inválida (401/403).
+      // En caso de error de red, rate limit (429) o error del servidor (5xx),
+      // no cerrar sesión automáticamente — puede ser un problema temporal.
+      if (!getAccessToken() && (!refreshStatus || refreshStatus === 401 || refreshStatus === 403)) {
+        window.dispatchEvent(new CustomEvent("forceLogout"));
+      }
+      return Promise.reject(refreshError);
+    } finally {
+      isRefreshing = false;
+    }
   },
 );
 

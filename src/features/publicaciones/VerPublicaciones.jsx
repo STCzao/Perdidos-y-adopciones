@@ -7,8 +7,19 @@ import { ConfirmModal } from "../../components/ui/ConfirmModal";
 import { CrearPublicacion } from "./CrearPublicacion/CrearPublicacion";
 import { getEstadosPermitidos } from "../../utils/estadosPublicacion";
 import { AuthContext } from "../../context/AuthContext";
+import { getTipoColorMeta } from "../../utils/publicacionColors";
+import { getPublicacionTitulo } from "./utils/publicacionFields";
 
 let modalControl;
+
+const getTipoBadgeStyle = (tipo) => {
+  const meta = getTipoColorMeta(tipo);
+
+  return {
+    backgroundColor: `${meta.accent}33`,
+    color: meta.accent,
+  };
+};
 
 export const VerPublicaciones = {
   openModal: () => modalControl?.setOpen(true),
@@ -24,7 +35,6 @@ export const VerPublicaciones = {
       item: null,
       action: "",
     });
-    const [editarData, setEditarData] = useState(null);
 
     modalControl = { setOpen };
 
@@ -37,6 +47,7 @@ export const VerPublicaciones = {
         document.body.style.overflow = "unset";
         document.documentElement.style.overflow = "unset";
       }
+
       return () => {
         document.body.style.overflow = "unset";
         document.documentElement.style.overflow = "unset";
@@ -48,11 +59,18 @@ export const VerPublicaciones = {
         setLoading(true);
         setError("");
         const userId = user?._id || user?.id || user?.uid;
-        if (!userId) return setError("Usuario no autenticado");
 
-        const resp = await publicacionesService.getPublicacionesUsuario(userId);
-        if (resp?.success) setPublicaciones(resp.publicaciones || []);
-        else setError(resp?.msg || "Error al obtener publicaciones");
+        if (!userId) {
+          setError("Usuario no autenticado");
+          return;
+        }
+
+        const response = await publicacionesService.getPublicacionesUsuario(userId);
+        if (response?.success) {
+          setPublicaciones(response.publicaciones || []);
+        } else {
+          setError(response?.msg || "Error al obtener publicaciones");
+        }
       } catch {
         setError("Error de conexión al servidor");
       } finally {
@@ -62,18 +80,14 @@ export const VerPublicaciones = {
 
     const handleEliminar = useCallback(async (publicacion) => {
       try {
-        const result = await publicacionesService.borrarPublicacion(
-          publicacion._id,
-        );
+        const result = await publicacionesService.borrarPublicacion(publicacion._id);
         if (result.success) {
-          setPublicaciones((prev) =>
-            prev.filter((p) => p._id !== publicacion._id),
-          );
+          setPublicaciones((prev) => prev.filter((p) => p._id !== publicacion._id));
           return true;
-        } else {
-          setError(result.msg || "Error al eliminar publicación");
-          return false;
         }
+
+        setError(result.msg || "Error al eliminar publicación");
+        return false;
       } catch {
         setError("Error de conexión al eliminar");
         return false;
@@ -82,46 +96,39 @@ export const VerPublicaciones = {
 
     const handleEditarEstado = useCallback(async (id, nuevoEstado) => {
       try {
-        const result = await publicacionesService.actualizarEstado(
-          id,
-          nuevoEstado,
-        );
+        const result = await publicacionesService.actualizarEstado(id, nuevoEstado);
         if (result.success) {
           setPublicaciones((prev) =>
             prev.map((p) => (p._id === id ? { ...p, estado: nuevoEstado } : p)),
           );
           return true;
-        } else {
-          setError(result.msg || "Error al actualizar estado");
-          return false;
         }
+
+        setError(result.msg || "Error al actualizar estado");
+        return false;
       } catch {
-        setError("Error de conexion al actualizar estado");
+        setError("Error de conexión al actualizar estado");
         return false;
       }
     }, []);
 
     const handleEditar = useCallback((publicacion) => {
-      setEditarData(publicacion);
-      CrearPublicacion.openModal(publicacion); // Reutiliza el modal existente
+      CrearPublicacion.openModal(publicacion);
       setOpen(false);
     }, []);
 
     const actualizarPublicacionEnLista = useCallback((updated) => {
-      setPublicaciones((prev) =>
-        prev.map((p) => (p._id === updated._id ? updated : p)),
-      );
+      setPublicaciones((prev) => prev.map((p) => (p._id === updated._id ? updated : p)));
     }, []);
 
-    // Escucha eventos globales de creación y actualización
     useEffect(() => {
       const handleCreated = (e) => {
         const nueva = e.detail;
-        setPublicaciones((prev) => [nueva, ...prev]); // agrega la nueva arriba
+        setPublicaciones((prev) => [nueva, ...prev]);
       };
 
       const handleUpdated = (e) => {
-        actualizarPublicacionEnLista(e.detail); // reemplaza la existente
+        actualizarPublicacionEnLista(e.detail);
       };
 
       window.addEventListener("publicacionCreada", handleCreated);
@@ -161,12 +168,12 @@ export const VerPublicaciones = {
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="flex flex-col items-center w-full max-w-6xl max-h-[90vh] overflow-y-auto"
+          className="flex max-h-[90vh] w-full max-w-6xl flex-col items-center overflow-y-auto"
         >
-          <div className="max-w-6xl w-full text-center border border-white/70 rounded-2xl px-8 py-6 shadow-lg bg-white/10 backdrop-blur-sm relative">
+          <div className="relative w-full max-w-6xl rounded-[1.5rem] border border-[color:var(--shell-line)] bg-[linear-gradient(180deg,rgba(255,250,244,0.98),rgba(248,240,229,0.96))] px-6 py-6 text-center shadow-[0_28px_70px_rgba(36,25,20,0.12)] sm:px-8">
             <button
               onClick={handleClose}
-              className="absolute top-4 right-4 text-white hover:text-[#FF7857] transition-colors cursor-pointer"
+              className="absolute right-4 top-4 cursor-pointer text-[color:var(--shell-muted)] transition-colors hover:text-[color:var(--shell-accent-strong)]"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -176,7 +183,7 @@ export const VerPublicaciones = {
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                className="w-5 h-5"
+                className="h-5 w-5"
               >
                 <line x1="18" y1="6" x2="6" y2="18" />
                 <line x1="6" y1="6" x2="18" y2="18" />
@@ -184,20 +191,20 @@ export const VerPublicaciones = {
             </button>
 
             <div className="flex flex-col items-center justify-center">
-              <h1 className="text-white text-3xl mt-2 font-medium">
+              <h1 className="mt-2 text-3xl font-medium text-[color:var(--shell-ink)]">
                 Mis publicaciones
               </h1>
-              <p className="text-white/80 text-sm mt-1">
+              <p className="mt-1 text-sm text-[color:var(--shell-muted)]">
                 Gestiona tus publicaciones creadas
               </p>
             </div>
 
             {error && (
-              <div className="mt-4 p-3 bg-red-500/20 border border-red-500 rounded-lg">
-                <p className="text-red-300">{error}</p>
+              <div className="mt-4 rounded-[1rem] border border-[#d62828]/18 bg-[color:var(--shell-danger-soft)] p-3">
+                <p className="text-[#a44939]">{error}</p>
                 <button
                   onClick={cargarPublicaciones}
-                  className="mt-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 cursor-pointer"
+                  className="mt-2 cursor-pointer rounded-full bg-[color:var(--shell-danger)] px-4 py-2 text-white transition-colors hover:bg-[#b91f1f]"
                 >
                   Reintentar
                 </button>
@@ -205,11 +212,11 @@ export const VerPublicaciones = {
             )}
 
             {loading ? (
-              <div className="flex justify-center items-center p-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF7857]"></div>
+              <div className="flex items-center justify-center p-8">
+                <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-[color:var(--shell-accent-strong)]" />
               </div>
             ) : (
-              <div className="mt-6 space-y-4 max-h-[60vh] overflow-y-auto">
+              <div className="mt-6 max-h-[60vh] space-y-4 overflow-y-auto">
                 {publicaciones.map((publicacion) => (
                   <PublicacionItem
                     key={publicacion._id}
@@ -220,8 +227,9 @@ export const VerPublicaciones = {
                     loading={loading}
                   />
                 ))}
+
                 {publicaciones.length === 0 && !loading && (
-                  <div className="text-center py-8 text-white/60">
+                  <div className="py-8 text-center text-[color:var(--shell-muted)]/80">
                     No tienes publicaciones para mostrar
                   </div>
                 )}
@@ -254,24 +262,23 @@ const PublicacionItem = React.memo(
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white/10 border border-white/20 rounded-lg p-4 flex justify-between items-start backdrop-blur-sm"
+        className="flex items-start justify-between rounded-[1.1rem] border border-[color:var(--shell-line)] bg-white/72 p-4"
       >
         <div className="flex-1 text-left">
-          <h3 className="font-semibold text-white text-lg">
-            {publicacion.titulo}
+          <h3 className="text-lg font-semibold text-[color:var(--shell-ink)]">
+            {getPublicacionTitulo(publicacion)}
           </h3>
 
-          <div className="flex flex-wrap gap-2 mt-2 text-sm text-white/80">
-            <span className="bg-blue-500/20 text-blue-300 px-2 py-1 rounded">
+          <div className="mt-2 flex flex-wrap gap-2 text-sm text-[color:var(--shell-muted)]">
+            <span className="rounded px-2 py-1" style={getTipoBadgeStyle(publicacion.tipo)}>
               {publicacion.tipo}
             </span>
 
-            {/* SELECT AGREGADO */}
             <select
               value={publicacion.estado}
               onChange={handleEstadoChange}
               disabled={loading}
-              className="bg-white/10 border border-white/20 text-white/80 px-2 py-1 rounded cursor-pointer"
+              className="cursor-pointer rounded-[0.6rem] border border-[color:var(--shell-line)] bg-[color:var(--shell-surface)] px-2 py-1 text-[color:var(--shell-muted)]"
             >
               {estados.map((estado) => (
                 <option className="text-black" key={estado} value={estado}>
@@ -280,28 +287,11 @@ const PublicacionItem = React.memo(
               ))}
             </select>
 
-            <span className="text-white/70">Raza: {publicacion.raza}</span>
-            <span className="text-white/70">Color: {publicacion.color}</span>
-            {publicacion.tipo === "PERDIDO" && (
-              <span className="text-white/70">
-                Título: Se busca a {publicacion.nombreanimal}
-              </span>
-            )}
-            {publicacion.tipo === "ENCONTRADO" && (
-              <span className="text-white/70">
-                Título: {publicacion.especie} encontrado en{" "}
-                {publicacion.localidad || publicacion.lugar || "ubicación desconocida"}
-              </span>
-            )}
-            {publicacion.tipo === "ADOPCION" && (
-              <span className="text-white/70">
-                Título: {publicacion.nombreanimal} se encuentra en busca de un
-                hogar
-              </span>
-            )}
+            <span className="text-[color:var(--shell-muted)]">Raza: {publicacion.raza}</span>
+            <span className="text-[color:var(--shell-muted)]">Color: {publicacion.color}</span>
           </div>
 
-          <p className="text-white/60 text-sm mt-2">
+          <p className="mt-2 text-sm text-[#7b685c]">
             Por: {publicacion.usuario?.nombre} •{" "}
             {publicacion.fechaCreacion
               ? new Date(publicacion.fechaCreacion).toLocaleDateString()
@@ -309,17 +299,17 @@ const PublicacionItem = React.memo(
           </p>
         </div>
 
-        <div className="flex gap-2 ml-4">
+        <div className="ml-4 flex gap-2">
           <button
             onClick={() => onEditar(publicacion)}
-            className="px-4 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors text-sm cursor-pointer"
+            className="cursor-pointer rounded-full bg-[color:var(--shell-bark)] px-4 py-2 text-sm text-white transition-colors hover:bg-[#45362d]"
             disabled={loading}
           >
             Editar
           </button>
           <button
             onClick={() => onEliminar(publicacion, "delete")}
-            className="px-4 py-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors text-sm cursor-pointer"
+            className="cursor-pointer rounded-full bg-[color:var(--shell-danger)] px-4 py-2 text-sm text-white transition-colors hover:bg-[#b91f1f]"
             disabled={loading}
           >
             Eliminar
@@ -327,5 +317,5 @@ const PublicacionItem = React.memo(
         </div>
       </motion.div>
     );
-  }
+  },
 );

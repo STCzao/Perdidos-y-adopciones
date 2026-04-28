@@ -1,25 +1,29 @@
 import { useState, useEffect } from "react";
 import { publicacionesService } from "../../../services/publicaciones";
+import {
+  PUBLICACION_SIZE_FIELD,
+  getPublicacionTamano,
+} from "../utils/publicacionFields";
 
 const initialFormState = {
-    nombreanimal: "",
-    especie: "",
-    tipo: "",
-    raza: "",
-    localidad: "",
-    lugar: "",
-    fecha: "",
-    sexo: "",
-    tamaño: "",
-    color: "",
-    edad: "",
-    detalles: "",
-    afinidad: "",
-    afinidadanimales: "",
-    energia: "",
-    castrado: false,
-    whatsapp: "",
-    img: "",
+  nombreanimal: "",
+  especie: "",
+  tipo: "",
+  raza: "",
+  localidad: "",
+  lugar: "",
+  fecha: "",
+  sexo: "",
+  [PUBLICACION_SIZE_FIELD]: "",
+  color: "",
+  edad: "",
+  detalles: "",
+  afinidad: "",
+  afinidadanimales: "",
+  energia: "",
+  castrado: false,
+  whatsapp: "",
+  img: "",
 };
 
 /**
@@ -27,6 +31,8 @@ const initialFormState = {
  */
 export const usePublicacionForm = (editData) => {
   const [razasPorEspecie, setRazasPorEspecie] = useState({});
+  const [form, setForm] = useState(initialFormState);
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     publicacionesService.getRazas().then((res) => {
@@ -34,10 +40,6 @@ export const usePublicacionForm = (editData) => {
     });
   }, []);
 
-  const [form, setForm] = useState(initialFormState);
-  const [errors, setErrors] = useState({});
-
-  // Cargar datos de edición
   useEffect(() => {
     if (!editData) {
       setForm(initialFormState);
@@ -70,7 +72,7 @@ export const usePublicacionForm = (editData) => {
           ? editData.fecha || ""
           : "",
       sexo: editData.sexo || "",
-      tamaño: editData.tamaño || "",
+      [PUBLICACION_SIZE_FIELD]: getPublicacionTamano(editData),
       color: editData.color || "",
       detalles: editData.detalles || "",
       afinidad: editData.tipo === "ADOPCION" ? editData.afinidad || "" : "",
@@ -83,18 +85,27 @@ export const usePublicacionForm = (editData) => {
     });
   }, [editData]);
 
+  const clearFieldError = (name) => {
+    if (!errors[name]) return;
+
+    setErrors((prev) => {
+      const nextErrors = { ...prev };
+      delete nextErrors[name];
+      return nextErrors;
+    });
+  };
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
 
     if (name === "especie") {
       setForm((prev) => ({ ...prev, especie: value, raza: "" }));
-      setErrors((prev) => {
-        const newErrors = { ...prev };
-        delete newErrors.especie;
-        delete newErrors.raza;
-        return newErrors;
-      });
-    } else if (name === "tipo") {
+      clearFieldError("especie");
+      clearFieldError("raza");
+      return;
+    }
+
+    if (name === "tipo") {
       setForm((prev) => ({
         ...prev,
         tipo: value,
@@ -109,42 +120,30 @@ export const usePublicacionForm = (editData) => {
         castrado: false,
       }));
 
-      setErrors((prev) => {
-        const newErrors = { ...prev };
-        delete newErrors.localidad;
-        delete newErrors.lugar;
-        delete newErrors.fecha;
-        delete newErrors.afinidad;
-        delete newErrors.afinidadanimales;
-        delete newErrors.energia;
-        delete newErrors.castrado;
-        return newErrors;
-      });
-    } else if (name === "whatsapp") {
-      const numericValue = value.replace(/\D/g, "");
-      setForm((prev) => ({ ...prev, [name]: numericValue }));
-
-      if (errors[name]) {
-        setErrors((prev) => {
-          const newErrors = { ...prev };
-          delete newErrors[name];
-          return newErrors;
-        });
-      }
-    } else {
-      setForm((prev) => ({
-        ...prev,
-        [name]: type === "checkbox" ? checked : value,
-      }));
-
-      if (errors[name]) {
-        setErrors((prev) => {
-          const newErrors = { ...prev };
-          delete newErrors[name];
-          return newErrors;
-        });
-      }
+      [
+        "localidad",
+        "lugar",
+        "fecha",
+        "afinidad",
+        "afinidadanimales",
+        "energia",
+        "castrado",
+      ].forEach(clearFieldError);
+      return;
     }
+
+    if (name === "whatsapp") {
+      const numericValue = value.replace(/\D/g, "");
+      setForm((prev) => ({ ...prev, whatsapp: numericValue }));
+      clearFieldError(name);
+      return;
+    }
+
+    setForm((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+    clearFieldError(name);
   };
 
   const resetForm = () => {

@@ -1,76 +1,103 @@
 import { motion } from "framer-motion";
 import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
+import Seo from "../components/seo/Seo";
 import { useComunidad } from "../hooks/useComunidad";
 import { useFiltro } from "../hooks/useFiltro";
 import CardsAyuda from "../components/cards/CardsAyuda";
 import CasoAyudaFiltro from "../components/forms/CasoAyudaFiltro";
+import { buildBreadcrumbSchema } from "../components/seo/seoUtils";
 
 const ComunidadScreen = () => {
   const { casos, loading, error } = useComunidad();
   const { filtrados, query, setQuery } = useFiltro(casos);
 
   return (
-    <div className="overflow-x-hidden">
+    <div className="bg-[#f6efe4] text-[#241914]">
+      <Seo
+        title="Comunidad"
+        description="Lee historias, consejos y casos de ayuda de la comunidad para acompañar mejor búsquedas, rescates y adopciones."
+        path="/casos-ayuda"
+        structuredData={[
+          buildBreadcrumbSchema([
+            { name: "Inicio", path: "/" },
+            { name: "Comunidad", path: "/casos-ayuda" },
+          ]),
+        ]}
+      />
       <Navbar />
-      <div
-        className="w-full font-medium min-h-screen text-white flex flex-col items-center justify-start px-4 md:px-10 py-20"
+
+      <section
+        className="relative isolate flex min-h-dvh items-center overflow-hidden px-4 pb-8 pt-24 sm:px-6 sm:pb-10 sm:pt-30 lg:px-8 lg:pt-30"
         style={{
-          backgroundImage: `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url(${import.meta.env.VITE_CASOS_IMG_URL})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
+          background:
+            "linear-gradient(180deg, #2c211d 0%, #43302a 58%, #5a3f35 100%)",
         }}
       >
-        <div className="flex flex-col w-full max-w-5xl text-center text-white/90 mt-20">
-          <motion.p className="text-3xl mb-6">Historias & consejos</motion.p>
+        <div
+          className="absolute inset-0 opacity-52"
+          style={{
+            backgroundImage: `linear-gradient(125deg, rgba(25,20,17,0.74), rgba(25,20,17,0.28)), url(${import.meta.env.VITE_CASOS_IMG_URL})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}
+        />
+        <div className="pointer-events-none absolute left-[-8rem] top-36 h-72 w-72 rounded-full bg-[#c86d4b]/18 blur-3xl" />
+        <div className="pointer-events-none absolute right-[-8rem] top-24 h-80 w-80 rounded-full bg-[#95a667]/12 blur-3xl" />
 
-          <motion.p className="text-lg mb-12">
-            Casos reales, tips para usar la base y claves para un cuidado responsable
-          </motion.p>
-
-          {/* Filtro completamente desacoplado */}
-          <div className="mb-10">
-            <CasoAyudaFiltro value={query} onChange={setQuery} />
-          </div>
-        </div>
-
-        {/* Resultado */}
-        <motion.div
-          className="
-            w-full 
-            max-w-5xl 
-            grid 
-            gap-8 
-            grid-cols-1 
-            sm:grid-cols-2 
-            lg:grid-cols-3 
-            place-items-center
-          "
-        >
-          {loading && (
-            <div className="flex justify-center items-center col-span-full p-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF7857]"></div>
+        <div className="relative mx-auto w-full max-w-6xl">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.55 }}
+            className="rounded-[1.35rem] border border-white/10 bg-[rgba(22,17,15,0.5)] p-5 text-white shadow-[0_24px_70px_rgba(0,0,0,0.22)] backdrop-blur-sm sm:rounded-[2rem] sm:p-6 lg:p-8"
+          >
+            <div className="max-w-3xl">
+              <span className="inline-flex rounded-full border border-white/14 bg-white/8 px-4 py-2 text-[0.62rem] font-bold uppercase tracking-[0.22em] text-[#f4c89e]">
+                Comunidad
+              </span>
+              <h1 className="font-editorial mt-4 text-[1.95rem] leading-[0.95] text-white sm:text-[2.8rem]">
+                Historias y consejos.
+              </h1>
+              <p className="mt-3 max-w-2xl text-[0.9rem] leading-relaxed text-white/78 sm:text-[0.98rem]">
+                Casos reales y guías breves para usar mejor la base y compartir experiencias útiles.
+              </p>
             </div>
-          )}
 
-          {error && (
-            <p className="text-red-400 text-center col-span-full">
-              Ocurrio un error al cargar los casos.
-            </p>
-          )}
+            <div className="mt-6 max-w-3xl sm:mt-8">
+              <CasoAyudaFiltro value={query} onChange={setQuery} />
+            </div>
+          </motion.div>
 
-          {!loading && !error && filtrados.length === 0 && (
-            <p className="text-white text-center text-2xl col-span-full mt-10">
-              No hay casos disponibles
-            </p>
-          )}
+          <motion.div className="mt-8 grid grid-cols-1 place-items-center gap-5 sm:mt-10 sm:gap-8 sm:grid-cols-2 lg:grid-cols-3">
+            {loading && (
+              <div className="col-span-full flex items-center justify-center p-8">
+                <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-[#f4c89e]" />
+              </div>
+            )}
 
-          {!loading &&
-            !error &&
-            filtrados.length > 0 &&
-            filtrados.map((pub) => <CardsAyuda key={pub._id} pub={pub} />)}
-        </motion.div>
-      </div>
+            {error && (
+              <p className="col-span-full text-center text-red-300">
+                Ocurrió un error al cargar los casos.
+              </p>
+            )}
+
+            {!loading && !error && filtrados.length === 0 && (
+              <div className="col-span-full rounded-[1rem] border border-white/10 bg-white/8 px-8 py-12 text-center text-white shadow-sm">
+                <p className="text-[0.68rem] font-bold uppercase tracking-[0.18em] text-[#f4c89e]">
+                  Sin resultados
+                </p>
+                <p className="mt-3 text-lg font-semibold">No hay casos disponibles.</p>
+              </div>
+            )}
+
+            {!loading &&
+              !error &&
+              filtrados.length > 0 &&
+              filtrados.map((pub) => <CardsAyuda key={pub._id} pub={pub} />)}
+          </motion.div>
+        </div>
+      </section>
 
       <Footer />
     </div>

@@ -13,6 +13,11 @@ dist-ssr
 *.local
 .env
 .env.example
+.tmp-turnero-ref/
+.tmp-fleeswap-frontend-ref/
+.tmp-backend-ref/
+docs/
+
 
 # Editor directories and files
 .vscode/*

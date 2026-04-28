@@ -1,59 +1,51 @@
+import { validarFechaNoFutura } from "../../../utils/dateHelpers";
+import { PUBLICACION_SIZE_FIELD } from "../utils/publicacionFields";
+
 /**
  * Validaciones para el formulario de publicaciones
  */
-import { validarFechaNoFutura } from "../../../utils/dateHelpers";
-
 export const validateForm = (form) => {
   let valid = true;
-  let newErrors = {};
+  const newErrors = {};
 
-  // Validación detalles
-  if (form.detalles.trim().length > 251) {
-    newErrors.detalles =
-      "Los detalles no pueden contener más de 250 caracteres";
+  if (form.detalles.trim().length > 250) {
+    newErrors.detalles = "Los detalles no pueden contener más de 250 caracteres";
     valid = false;
   }
 
-  // Validación tipo
   if (!form.tipo) {
     newErrors.tipo = "El tipo de publicación es obligatorio";
     valid = false;
   }
 
-  // Validación raza (ahora es un select controlado por el backend)
   if (!form.raza) {
     newErrors.raza = "La raza es obligatoria";
     valid = false;
   }
 
-  // Validación sexo
   if (!form.sexo) {
     newErrors.sexo = "El sexo es obligatorio";
     valid = false;
   }
 
-  // Validación tamaño
-  if (!form.tamaño) {
-    newErrors.tamaño = "El tamaño es obligatorio";
+  if (!form[PUBLICACION_SIZE_FIELD]) {
+    newErrors[PUBLICACION_SIZE_FIELD] = "El tamaño es obligatorio";
     valid = false;
   }
 
-  // Validación color
   if (!form.color.trim()) {
     newErrors.color = "El color es obligatorio";
     valid = false;
-  } else if (form.color.trim().length > 51) {
+  } else if (form.color.trim().length > 50) {
     newErrors.color = "El color no puede contener más de 50 caracteres";
     valid = false;
   }
 
-  // Validación especie
   if (!form.especie) {
     newErrors.especie = "La especie es obligatoria";
     valid = false;
   }
 
-  // Validación WhatsApp
   if (!form.whatsapp.trim()) {
     newErrors.whatsapp = "El WhatsApp es obligatorio";
     valid = false;
@@ -68,20 +60,14 @@ export const validateForm = (form) => {
     valid = false;
   }
 
-  // Validación Imagen
   if (!form.img.trim()) {
     newErrors.img = "La imagen es obligatoria";
     valid = false;
-  } else if (
-    !/^https:\/\/res\.cloudinary\.com\/.+\/.+\.(jpg|jpeg|png|webp)$/.test(
-      form.img,
-    )
-  ) {
+  } else if (!/^https:\/\/res\.cloudinary\.com\/.+$/.test(form.img)) {
     newErrors.img = "La URL de imagen no es válida";
     valid = false;
   }
 
-  // VALIDACIONES SEGÚN TIPO
   if (form.tipo === "PERDIDO" || form.tipo === "ENCONTRADO") {
     if (!form.localidad) {
       newErrors.localidad = "La localidad es obligatoria";
@@ -91,7 +77,7 @@ export const validateForm = (form) => {
     if (!form.lugar.trim()) {
       newErrors.lugar = "El lugar es obligatorio";
       valid = false;
-    } else if (form.lugar.trim().length > 81) {
+    } else if (form.lugar.trim().length > 80) {
       newErrors.lugar = "El lugar no puede contener más de 80 caracteres";
       valid = false;
     }
@@ -105,7 +91,6 @@ export const validateForm = (form) => {
     }
   }
 
-  // Validación edad
   if (form.tipo === "PERDIDO" || form.tipo === "ADOPCION") {
     if (!form.edad) {
       newErrors.edad = "La edad es obligatoria";
@@ -113,14 +98,12 @@ export const validateForm = (form) => {
     }
   }
 
-  // Validación nombre animal
   if (form.tipo === "ADOPCION" || form.tipo === "PERDIDO") {
     if (!form.nombreanimal.trim()) {
       newErrors.nombreanimal = "El nombre del animal es obligatorio";
       valid = false;
-    } else if (form.nombreanimal.trim().length > 61) {
-      newErrors.nombreanimal =
-        "El nombre no puede contener más de 60 caracteres";
+    } else if (form.nombreanimal.trim().length > 60) {
+      newErrors.nombreanimal = "El nombre no puede contener más de 60 caracteres";
       valid = false;
     } else if (form.nombreanimal.trim().length < 3) {
       newErrors.nombreanimal = "El nombre debe tener al menos 3 caracteres";
@@ -128,15 +111,13 @@ export const validateForm = (form) => {
     }
   }
 
-  // Validaciones ADOPCION
   if (form.tipo === "ADOPCION") {
     if (!form.afinidad) {
       newErrors.afinidad = "La afinidad con niños es obligatoria";
       valid = false;
     }
     if (!form.afinidadanimales) {
-      newErrors.afinidadanimales =
-        "La afinidad con otros animales es obligatoria";
+      newErrors.afinidadanimales = "La afinidad con otros animales es obligatoria";
       valid = false;
     }
     if (!form.energia) {

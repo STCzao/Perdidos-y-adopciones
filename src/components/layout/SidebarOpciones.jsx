@@ -5,93 +5,64 @@ import { EditarPerfil } from "../../features/usuarios/EditarPerfil";
 import { VerPublicaciones } from "../../features/publicaciones/VerPublicaciones";
 import { AdminPublicaciones } from "../../features/publicaciones/AdminPublicaciones";
 import { AdminUsuarios } from "../../features/usuarios/AdminUsuarios";
-import { usuariosService } from "../../services/usuarios";
 import { CrearComunidad } from "../../features/comunidad/CrearComunidad";
 import { VerComunidad } from "../../features/comunidad/VerComunidad";
 import { useState } from "react";
 import { ConfirmModal } from "../ui/ConfirmModal";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
-// Context y Hook
 const SidebarProviderContext = React.createContext();
+
+const panelShellClassName =
+  "fixed left-0 top-0 z-[100] flex min-h-screen w-[320px] flex-col border-r border-[color:var(--shell-line)] bg-[linear-gradient(180deg,rgba(255,250,244,0.98),rgba(248,240,229,0.96))] p-6 font-medium text-[color:var(--shell-ink)] shadow-[0_24px_70px_rgba(31,20,14,0.18)]";
+
+const sectionCardClassName =
+  "rounded-[1.1rem] border border-[color:var(--shell-line)] bg-white/72 p-3";
+
+const primaryButtonClassName =
+  "h-11 w-full cursor-pointer rounded-full bg-[color:var(--shell-bark)] font-medium text-white transition-colors duration-300 hover:bg-[#45362d]";
+
+const secondaryButtonClassName =
+  "h-11 w-full cursor-pointer rounded-full border border-[color:var(--shell-line)] bg-white font-medium text-[color:var(--shell-ink)] transition-colors duration-300 hover:bg-[color:var(--shell-surface-alt)]";
 
 export const useSidebar = () => {
   const context = React.useContext(SidebarProviderContext);
-  if (!context)
+  if (!context) {
     throw new Error("useSidebar debe ser utilizado con SidebarProvider");
+  }
   return context;
 };
 
 export const SidebarProvider = ({ children, cerrarSesion }) => {
   const [open, setOpen] = React.useState(false);
-  const [user, setUser] = React.useState(null);
-  const [isAdmin, setIsAdmin] = React.useState(false);
   const location = useLocation();
+  const { user } = useAuth();
+  const isAdmin = !!(user && user.rol === "ADMIN_ROLE");
 
-  // Inicializar estado del usuario desde localStorage al montar
   React.useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      try {
-        const parsedUser = JSON.parse(storedUser);
-        setUser(parsedUser);
-        setIsAdmin(parsedUser.rol === "ADMIN_ROLE");
-      } catch (error) {
-        console.error("Error al parsear usuario de localStorage:", error);
-      }
-    }
-  }, []);
-
-  // Escuchar eventos de actualización del perfil
-  React.useEffect(() => {
-    const handleUserProfileUpdate = (event) => {
-      const updatedUser = event.detail?.user ?? null;
-      setUser(updatedUser);
-      setIsAdmin(!!(updatedUser && updatedUser.rol === "ADMIN_ROLE"));
-      
-      // Sincronizar con localStorage
-      if (updatedUser) {
-        localStorage.setItem("user", JSON.stringify(updatedUser));
-      } else {
-        localStorage.removeItem("user");
-      }
-    };
-
-    window.addEventListener("userProfileUpdated", handleUserProfileUpdate);
-
-    return () => {
-      window.removeEventListener("userProfileUpdated", handleUserProfileUpdate);
-    };
-  }, []);
-
-  // Cerrar automáticamente el sidebar al entrar a pantallas de auth
-  React.useEffect(() => {
-    const authPaths = ["/login", "/register", "/forgot-password"]; 
+    const authPaths = ["/login", "/register", "/forgot-password"];
     if (open && (authPaths.includes(location.pathname) || location.pathname.startsWith("/reset-password"))) {
       setOpen(false);
     }
   }, [location.pathname, open]);
 
-  // Prevenir scroll al abrir/cerrar el sidebar
   React.useEffect(() => {
     if (open) {
-      // Guardar la posición actual del scroll
       const scrollY = window.scrollY;
       const scrollX = window.scrollX;
-      
-      // Guardar en variable para usar en cleanup
+
       const restoreScroll = () => {
         window.scrollTo(scrollX, scrollY);
       };
-      
-      // Restaurar inmediatamente por si acaso
+
       restoreScroll();
-      
-      // Cleanup cuando se cierre
+
       return () => {
         window.scrollTo(scrollX, scrollY);
       };
     }
+    return undefined;
   }, [open]);
 
   return (
@@ -112,6 +83,7 @@ export const SidebarProvider = ({ children, cerrarSesion }) => {
 export const SidebarOpciones = () => {
   const { open, setOpen, user, isAdmin, cerrarSesion } = useSidebar();
   const navigate = useNavigate();
+  const location = useLocation();
   const [confirmModal, setConfirmModal] = useState({
     isOpen: false,
     item: null,
@@ -125,7 +97,6 @@ export const SidebarOpciones = () => {
   };
 
   const confirmarCerrarSesion = () => {
-    // Cerrar sesión y cerrar el sidebar
     cerrarSesion();
     setOpen(false);
     setConfirmModal({ isOpen: false, item: null });
@@ -137,7 +108,6 @@ export const SidebarOpciones = () => {
 
   if (!open) return null;
 
-  // Si NO está autenticado, mostrar opciones de login/registro
   if (!user) {
     return (
       <>
@@ -146,46 +116,41 @@ export const SidebarOpciones = () => {
           animate={{ x: 0, opacity: 1 }}
           exit={{ x: "-100%", opacity: 0 }}
           transition={{ duration: 0.3, ease: "easeInOut" }}
-          className="items-center font-medium fixed min-h-screen top-0 left-0 w-[300px] bg-black p-6 z-[100] flex flex-col gap-4 shadow-lg justify-center"
+          className={`${panelShellClassName} justify-center gap-4`}
         >
-          <h2 className="text-2xl text-white text-center mb-6 font-bold">
-            ¡Bienvenido!
+          <h2 className="mb-2 text-center text-2xl font-bold text-[color:var(--shell-bark)]">
+            Bienvenido
           </h2>
-          <p className="text-white text-center text-sm mb-4">
-            Inicia sesión o crea una cuenta para acceder a todas las funcionalidades
+          <p className="mb-4 text-center text-sm text-[color:var(--shell-muted)]">
+            Inicia sesion o crea una cuenta para acceder a todas las funcionalidades.
           </p>
-          
+
           <button
             onClick={() => {
-              // Guardar la ubicación actual antes de navegar a login
               const currentPath = location.pathname + location.search + location.hash;
               localStorage.setItem("returnUrl", currentPath);
               navigate("/login");
               setOpen(false);
             }}
-            className="border border-[#FF7857] font-medium w-full h-11 rounded-full text-white bg-[#FF7857] hover:bg-[#FF7857]/60 transition-colors delay-100 duration-300 cursor-pointer"
+            className={primaryButtonClassName}
           >
-            Iniciar Sesión
+            Iniciar sesion
           </button>
-          
+
           <button
             onClick={() => {
-              // Guardar la ubicación actual antes de navegar a register
               const currentPath = location.pathname + location.search + location.hash;
               localStorage.setItem("returnUrl", currentPath);
               navigate("/register");
               setOpen(false);
             }}
-            className="border border-white/20 font-medium w-full h-11 rounded-full text-white bg-white/20 hover:bg-white/60 transition-colors delay-100 duration-300 cursor-pointer"
+            className={secondaryButtonClassName}
           >
             Registrarse
           </button>
 
-          <div className="mt-10 flex flex-col gap-2 w-full">
-            <button
-              onClick={() => setOpen(false)}
-              className="border border-white/20 font-medium w-full h-11 rounded-full text-white bg-white/20 hover:bg-white/60 transition-colors delay-100 duration-300 cursor-pointer"
-            >
+          <div className="mt-6 flex w-full flex-col gap-2">
+            <button onClick={() => setOpen(false)} className={secondaryButtonClassName}>
               Cerrar
             </button>
           </div>
@@ -194,7 +159,6 @@ export const SidebarOpciones = () => {
     );
   }
 
-  // Si está autenticado, mostrar sidebar normal
   return (
     <>
       <motion.div
@@ -202,77 +166,71 @@ export const SidebarOpciones = () => {
         animate={{ x: 0, opacity: 1 }}
         exit={{ x: "-100%", opacity: 0 }}
         transition={{ duration: 0.3, ease: "easeInOut" }}
-        className="items-center font-medium fixed min-h-screen top-0 left-0 w-[300px] bg-black p-6 z-[100] flex flex-col gap-2 shadow-lg"
+        className={`${panelShellClassName} gap-4`}
       >
-        <h2 className="text-xl text-white text-center mb-4">
-          {user ? `Hola, ${user.nombre}` : "Opciones de Usuario"}
-        </h2>
-        <button
-          onClick={() => EditarPerfil.openModal()}
-          className="border border-white/20 font-medium w-full h-11 rounded-full text-white bg-white/20 hover:bg-[#FF7857] transition-colors delay-100 duration-300 cursor-pointer"
-        >
-          Editar perfil
-        </button>
-        <button
-          onClick={() => VerPublicaciones.openModal()}
-          className="border border-white/20 font-medium w-full h-11 rounded-full text-white bg-white/20 hover:bg-[#FF7857] transition-colors delay-100 duration-300 cursor-pointer"
-        >
-          Mis publicaciones
-        </button>
+        <div>
+          <h2 className="mb-1 text-center text-xl text-[color:var(--shell-bark)]">
+            {`Hola, ${user.nombre}`}
+          </h2>
+          <p className="text-center text-sm text-[color:var(--shell-muted)]">
+            Gestiona tu cuenta y tus accesos desde un solo lugar.
+          </p>
+        </div>
 
-        {/* Sección administrador */}
+        <div className={sectionCardClassName}>
+          <p className="text-[0.68rem] font-bold uppercase tracking-[0.18em] text-[#8d7a6d]">
+            Cuenta
+          </p>
+          <div className="mt-3 flex flex-col gap-2">
+            <button onClick={() => EditarPerfil.openModal()} className={secondaryButtonClassName}>
+              Editar perfil
+            </button>
+            <button
+              onClick={() => VerPublicaciones.openModal()}
+              className={secondaryButtonClassName}
+            >
+              Mis publicaciones
+            </button>
+          </div>
+        </div>
+
         {isAdmin && (
-          <div className="border-t border-white/20 w-full flex flex-col pt-2 gap-2">
-            <span className="font-medium text-[#FF7857] text-sm block text-center">
+          <div className={sectionCardClassName}>
+            <span className="block text-center text-sm font-medium text-[color:var(--shell-bark)]">
               Panel de Administrador
             </span>
 
-            <button
-              onClick={() => CrearComunidad.openModal()}
-              className="border border-[#FF7857]/50 font-medium w-full h-11 rounded-full text-white bg-[#FF7857]/20 hover:bg-[#FF7857] transition-colors delay-100 duration-300 cursor-pointer"
-            >
-              Crear caso para ayuda
-            </button>
-            <button
-              onClick={() => AdminPublicaciones.openModal()}
-              className="border border-[#FF7857]/50 font-medium w-full h-11 rounded-full text-white bg-[#FF7857]/20 hover:bg-[#FF7857] transition-colors delay-100 duration-300 cursor-pointer"
-            >
-              Todas las publicaciones
-            </button>
-
-            <button
-              onClick={() => AdminUsuarios.openModal()}
-              className="border border-[#FF7857]/50 font-medium w-full h-11 rounded-full text-white bg-[#FF7857]/20 hover:bg-[#FF7857] transition-colors delay-100 duration-300 cursor-pointer"
-            >
-              Todos los usuarios
-            </button>
-            <button
-              onClick={() => VerComunidad.openModal()}
-              className="border border-[#FF7857]/50 font-medium w-full h-11 rounded-full text-white bg-[#FF7857]/20 hover:bg-[#FF7857] transition-colors delay-100 duration-300 cursor-pointer"
-            >
-              Todos los casos para ayuda
-            </button>
+            <div className="mt-3 flex flex-col gap-2">
+              <button onClick={() => CrearComunidad.openModal()} className={secondaryButtonClassName}>
+                Crear caso para ayuda
+              </button>
+              <button
+                onClick={() => AdminPublicaciones.openModal()}
+                className={secondaryButtonClassName}
+              >
+                Todas las publicaciones
+              </button>
+              <button onClick={() => AdminUsuarios.openModal()} className={secondaryButtonClassName}>
+                Todos los usuarios
+              </button>
+              <button onClick={() => VerComunidad.openModal()} className={secondaryButtonClassName}>
+                Todos los casos para ayuda
+              </button>
+            </div>
           </div>
         )}
 
-        <div className="mt-10 flex flex-col gap-2 w-full">
-          <button
-            onClick={() => setOpen(false)}
-            className="border border-white/20 font-medium w-full h-11 rounded-full text-white bg-white/20 hover:bg-white/60 transition-colors delay-100 duration-300 cursor-pointer"
-          >
-            Cerrar menú
+        <div className="mt-auto flex w-full flex-col gap-2 pt-4">
+          <button onClick={() => setOpen(false)} className={secondaryButtonClassName}>
+            Cerrar menu
           </button>
 
-          <button
-            onClick={handleCerrarSesionClick}
-            className="font-medium w-full h-11 rounded-full text-white bg-red-500 hover:bg-red-600 transition-colors delay-100 duration-300 cursor-pointer"
-          >
-            Cerrar sesión
+          <button onClick={handleCerrarSesionClick} className={primaryButtonClassName}>
+            Cerrar sesion
           </button>
         </div>
       </motion.div>
 
-      {/* Modales */}
       <AdminPublicaciones.Component />
       <AdminUsuarios.Component />
       <CrearComunidad.Component />

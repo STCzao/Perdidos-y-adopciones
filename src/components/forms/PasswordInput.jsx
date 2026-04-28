@@ -13,25 +13,30 @@ export default function PasswordInput({
 }) {
   return (
     <div
-      className={`flex items-center w-full bg-white border border-gray-300/80 h-12 rounded-full overflow-hidden pl-6 gap-2 ${className}`}
+      className={`flex h-13 w-full items-center gap-2 rounded-[1.4rem] border border-white/12 bg-white/92 pl-5 pr-2 shadow-sm transition-colors duration-300 focus-within:border-[#f4c89e] focus-within:ring-2 focus-within:ring-[#f4c89e]/45 ${className}`}
     >
       <input
         type={show ? "text" : "password"}
         name={name}
         placeholder={placeholder}
-        className="bg-transparent text-gray-500 placeholder-gray-500 outline-none text-sm w-full h-full"
+        className="h-full w-full bg-transparent text-sm text-[#3d332d] placeholder:text-[#7e7066] outline-none"
         value={value}
         onChange={onChange}
+        autoComplete={name === "password" ? "current-password" : "new-password"}
       />
-      <button type="button" onClick={onToggle} className="pr-4 cursor-pointer">
+      <button
+        type="button"
+        onClick={onToggle}
+        className="cursor-pointer rounded-full p-2 text-[#6d5f56] transition-colors duration-300 hover:bg-[#f5ede3] hover:text-[#241914] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2f241d]/20"
+        aria-label={show ? "Ocultar contraseña" : "Mostrar contraseña"}
+      >
         {show ? (
-          // Ojo tachado
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
-            className="w-5 h-5 text-gray-500"
+            className="h-5 w-5"
           >
             <path
               strokeLinecap="round"
@@ -47,13 +52,12 @@ export default function PasswordInput({
             />
           </svg>
         ) : (
-          // Ojo abierto
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
-            className="w-5 h-5 text-gray-500"
+            className="h-5 w-5"
           >
             <path
               strokeLinecap="round"

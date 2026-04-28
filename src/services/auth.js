@@ -1,84 +1,134 @@
-import axiosInstance from './api';
+import axiosInstance, {
+  broadcastAuthEvent,
+  clearAccessToken,
+  getAccessToken,
+  setAccessToken,
+} from "./api";
+import { getResponseRequestId, mapServiceError } from "./serviceUtils";
 
-// Login
 export const authLogin = async (datos) => {
   try {
-    const { data } = await axiosInstance.post('/auth/login', datos);
+    const response = await axiosInstance.post("/auth/login", datos);
+    const { data } = response;
 
-    // Backend devuelve { success, usuario, accessToken, refreshToken }
-    if (data.accessToken) {
-      localStorage.setItem("token", data.accessToken);
-      
-      if (data.refreshToken) {
-        localStorage.setItem("refreshToken", data.refreshToken);
-      }
+    if (data?.accessToken) {
+      setAccessToken(data.accessToken);
     }
 
-    return data;
+    broadcastAuthEvent("login");
+
+    return {
+      ...data,
+      requestId: data?.requestId || getResponseRequestId(response),
+    };
   } catch (error) {
-    console.error(error);
-    return { msg: error.response?.data?.msg || "Error al iniciar sesion", ...error.response?.data };
+    return mapServiceError(error, "Error al iniciar sesión");
   }
 };
 
-// Registro
 export const crearUsuario = async (datos) => {
   try {
-    const { data } = await axiosInstance.post('/usuarios', datos);
-
-    // Backend solo devuelve { usuario }, NO genera tokens en registro
-    // El usuario debe hacer login después de registrarse
-    return data;
+    const response = await axiosInstance.post("/usuarios", datos);
+    return {
+      ...response.data,
+      requestId: response.data?.requestId || getResponseRequestId(response),
+    };
   } catch (error) {
-    console.error(error);
-    return { msg: error.response?.data?.msg || "Error al registrar usuario", ...error.response?.data };
+    return mapServiceError(error, "Error al registrar usuario");
   }
 };
 
-// Refresh Token - Ya no se usa manualmente, axiosInstance lo maneja
+let refreshPromise = null;
+
 export const refreshAccessToken = async () => {
-  try {
-    const refreshToken = localStorage.getItem("refreshToken");
-    
-    if (!refreshToken) {
-      throw new Error("No refresh token available");
-    }
+  // Deduplicar llamadas concurrentes (React StrictMode doble-mount, cross-tab, etc.).
+  // Si ya hay un refresh en vuelo, todas las llamadas simultáneas comparten la misma
+  // Promise → un solo request HTTP → el backend nunca ve el mismo token dos veces.
+  if (refreshPromise) return refreshPromise;
 
-    const { data } = await axiosInstance.post('/auth/refresh', { refreshToken });
+  refreshPromise = (async () => {
+    try {
+      const response = await axiosInstance.post("/auth/refresh", {});
+      const { data } = response;
 
-    // Backend devuelve { success, accessToken, refreshToken }
-    if (data.success && data.accessToken) {
-      localStorage.setItem("token", data.accessToken);
-      
-      if (data.refreshToken) {
-        localStorage.setItem("refreshToken", data.refreshToken);
+      if (data?.accessToken) {
+        setAccessToken(data.accessToken);
+        return {
+          success: true,
+          accessToken: data.accessToken,
+          requestId: data?.requestId || getResponseRequestId(response),
+        };
       }
-      
-      return { success: true, token: data.accessToken };
-    }
 
-    return { success: false, msg: data.msg || "Error al refrescar token" };
-  } catch (error) {
-    console.error("Error refreshing token:", error);
-    return { success: false, msg: "Error al refrescar token" };
-  }
+      return {
+        success: false,
+        msg: data?.msg || "No se pudo refrescar la sesión",
+        errors: {},
+        requestId: data?.requestId || getResponseRequestId(response),
+      };
+    } catch (error) {
+      if (!getAccessToken()) {
+        clearAccessToken();
+      }
+      return mapServiceError(error, "No se pudo refrescar la sesión");
+    } finally {
+      refreshPromise = null;
+    }
+  })();
+
+  return refreshPromise;
 };
 
-// Logout
 export const logout = async () => {
   try {
-    const token = localStorage.getItem("token");
-    const refreshToken = localStorage.getItem("refreshToken");
-    
-    if (token && refreshToken) {
-      await axiosInstance.post('/auth/logout', { refreshToken });
-    }
+    await axiosInstance.post("/auth/logout", {});
   } catch (error) {
-    console.error("Error during logout:", error);
+    const status = error.response?.status;
+
+    if (![400, 401, 429].includes(status)) {
+      console.error("Error during logout:", error);
+    }
   } finally {
-    // Limpiar localStorage siempre
-    localStorage.removeItem("token");
-    localStorage.removeItem("refreshToken");
-    localStorage.removeItem("user");
+    clearAccessToken();
+    broadcastAuthEvent("logout");
+  }
+};
+
+export const logoutAll = async () => {
+  try {
+    const response = await axiosInstance.post("/auth/logout-all", {});
+    return {
+      ...response.data,
+      requestId: response.data?.requestId || getResponseRequestId(response),
+    };
+  } catch (error) {
+    return mapServiceError(error, "No se pudo cerrar la sesión en todos los dispositivos");
+  } finally {
+    clearAccessToken();
+    broadcastAuthEvent("logout-all");
+  }
+};
+
+export const forgotPassword = async (correo) => {
+  try {
+    const response = await axiosInstance.post("/auth/forgot-password", { correo });
+    return {
+      ...response.data,
+      requestId: response.data?.requestId || getResponseRequestId(response),
+    };
+  } catch (error) {
+    return mapServiceError(error, "No se pudo procesar la solicitud");
+  }
+};
+
+export const resetPassword = async (token, body) => {
+  try {
+    const response = await axiosInstance.post(`/auth/reset-password/${token}`, body);
+    return {
+      ...response.data,
+      requestId: response.data?.requestId || getResponseRequestId(response),
+    };
+  } catch (error) {
+    return mapServiceError(error, "No se pudo actualizar la contraseña");
   }
 };

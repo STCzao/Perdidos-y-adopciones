@@ -4,53 +4,39 @@ const CardsAyuda = ({ pub }) => {
   const { titulo, contenido, categoria, usuario, img } = pub;
 
   return (
-    <div
-      className="
-        text-sm border border-white/20 flex flex-col gap-3
-        p-4 sm:p-5 w-full max-w-[350px]
-        h-[480px]                  
-        rounded-lg bg-white/20 text-center
-        overflow-hidden
-      "
-    >
-      <div className="flex flex-col h-full">
-        {/* TITULO */}
-        <h3 className="font-semibold text-white text-l line-clamp-1">
+    <div className="flex min-h-[25rem] w-full max-w-[350px] flex-col gap-3 overflow-hidden rounded-[1rem] border border-white/20 bg-white/20 p-4 text-center sm:min-h-[30rem] sm:p-5">
+      <div className="flex h-full flex-col">
+        <h3 className="line-clamp-2 text-[0.96rem] font-semibold leading-snug text-white sm:text-[1.02rem]">
           {titulo || "Sin titulo"}
         </h3>
 
-        {/* CATEGORIA */}
         {categoria && (
-          <span className="bg-red-500/20 text-red-300 px-2 py-1 rounded text-sm mt-2">
-            Categoría: {categoria}
+          <span className="mt-2 rounded-full bg-red-500/20 px-3 py-1 text-[0.74rem] font-semibold uppercase tracking-[0.12em] text-red-200">
+            {categoria}
           </span>
         )}
 
-        {/* IMAGEN */}
         {img && (
-          <div className="w-full mt-3">
+          <div className="mt-3 w-full">
             <LazyLoadImage
               src={img}
               alt={titulo || "imagen de caso"}
               effect="blur"
-              className="w-full h-50 object-cover rounded-lg"
+              className="h-44 w-full rounded-[0.9rem] object-cover sm:h-50"
               loading="lazy"
             />
           </div>
         )}
 
-        {/* CONTENIDO SCROLLEABLE */}
-        <div className="flex-1 overflow-y-auto mt-3 mb-2 pr-1">
-          <p className="text-xs text-white/90 whitespace-pre-wrap">
+        <div className="mb-2 mt-3 flex-1 overflow-y-auto pr-1">
+          <p className="whitespace-pre-wrap text-[0.82rem] leading-relaxed text-white/88 sm:text-[0.86rem]">
             {contenido}
           </p>
         </div>
 
-        {/* USUARIO */}
         {usuario && (
-          <p className="text-white/70 text-xs mt-auto">
-            Creado por:{" "}
-            {typeof usuario === "object" ? usuario.nombre : usuario}
+          <p className="mt-auto text-[0.76rem] text-white/66">
+            Por {typeof usuario === "object" ? usuario.nombre : usuario}
           </p>
         )}
       </div>

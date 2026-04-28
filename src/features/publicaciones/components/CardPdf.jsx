@@ -1,7 +1,16 @@
 import { useRef } from "react";
-import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
-import { formatFecha } from "../../utils/dateHelpers";
+import { createRoot } from "react-dom/client";
+import { formatFecha } from "../../../utils/dateHelpers";
+import { getTipoColorMeta } from "../../../utils/publicacionColors";
+import { getPublicacionTamano } from "../utils/publicacionFields";
+
+const loadPdfDependencies = () =>
+  Promise.all([import("jspdf"), import("html2canvas")]).then(
+    ([jspdfModule, html2canvasModule]) => ({
+      jsPDF: jspdfModule.default,
+      html2canvas: html2canvasModule.default,
+    }),
+  );
 
 const waitForAssets = async (element) => {
   if (!element) return;
@@ -27,6 +36,31 @@ const waitForAssets = async (element) => {
   await Promise.all([fontReady, imageReady]);
 };
 
+const waitForNextPaint = (frames = 2) =>
+  new Promise((resolve) => {
+    const schedule = (remaining) => {
+      if (remaining <= 0) {
+        resolve();
+        return;
+      }
+
+      window.requestAnimationFrame(() => schedule(remaining - 1));
+    };
+
+    schedule(frames);
+  });
+
+const getWhatsappValue = (publicacion) => {
+  const rawValue =
+    publicacion?.whatsapp ||
+    publicacion?.telefono ||
+    publicacion?.contacto ||
+    publicacion?.numero ||
+    "";
+
+  return String(rawValue).trim();
+};
+
 /**
  * Componente para generar carteles en PDF estilo flyer para publicaciones
  * Diseño optimizado para imprimir en A4 y pegar en la calle
@@ -43,7 +77,6 @@ const CardPdf = ({ publicacion, fileName }) => {
     lugar,
     fecha,
     sexo,
-    tamaño,
     color,
     edad,
     detalles,
@@ -51,23 +84,24 @@ const CardPdf = ({ publicacion, fileName }) => {
     afinidadanimales,
     energia,
     castrado,
-    whatsapp,
     img,
     estado,
   } = publicacion;
+  const whatsapp = getWhatsappValue(publicacion);
+  const tamano = getPublicacionTamano(publicacion);
 
   // Configuración de colores y textos según tipo
   const tipoConfig = {
     PERDIDO: {
-      color: "#FF0000",
+      color: getTipoColorMeta("PERDIDO").accent,
       ubicacionLabel: "Extraviado en:",
     },
     ENCONTRADO: {
-      color: "#2165FF",
+      color: getTipoColorMeta("ENCONTRADO").accent,
       ubicacionLabel: "Encontrado en:",
     },
     ADOPCION: {
-      color: "#4dac00",
+      color: getTipoColorMeta("ADOPCION").accent,
       ubicacionLabel: null,
     },
   };
@@ -81,6 +115,7 @@ const CardPdf = ({ publicacion, fileName }) => {
     if (!cardRef.current) return;
 
     try {
+      const { jsPDF, html2canvas } = await loadPdfDependencies();
       await waitForAssets(cardRef.current);
       const canvas = await html2canvas(cardRef.current, {
         scale: 3,
@@ -253,7 +288,7 @@ const CardPdf = ({ publicacion, fileName }) => {
                   ? `${especie} | ${sexo}`
                   : especie || sexo || ""}
               </p>
-              {tamaño && (
+              {tamano && (
                 <p
                   style={{
                     color: "#000000",
@@ -262,7 +297,7 @@ const CardPdf = ({ publicacion, fileName }) => {
                     textTransform: "uppercase",
                   }}
                 >
-                  {tamaño}
+                  {tamano}
                 </p>
               )}
             </div>
@@ -614,13 +649,13 @@ const CardPdf = ({ publicacion, fileName }) => {
  * Función utilitaria para generar PDF sin mostrar el componente
  */
 export const generarPDFPublicacion = async (publicacion, fileName) => {
+  const { jsPDF, html2canvas } = await loadPdfDependencies();
   const tempContainer = document.createElement("div");
   tempContainer.style.position = "absolute";
   tempContainer.style.left = "-9999px";
   tempContainer.style.top = "0";
   document.body.appendChild(tempContainer);
 
-  const { createRoot } = await import("react-dom/client");
   const root = createRoot(tempContainer);
 
   return new Promise((resolve, reject) => {
@@ -632,7 +667,7 @@ export const generarPDFPublicacion = async (publicacion, fileName) => {
       />,
     );
 
-    setTimeout(async () => {
+    waitForNextPaint().then(async () => {
       try {
         const cardElement = tempContainer.querySelector("div > div");
         if (!cardElement) {
@@ -675,7 +710,7 @@ export const generarPDFPublicacion = async (publicacion, fileName) => {
         document.body.removeChild(tempContainer);
         reject(error);
       }
-    }, 1000);
+    });
   });
 };
 

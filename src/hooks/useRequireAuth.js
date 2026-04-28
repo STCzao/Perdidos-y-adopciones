@@ -14,7 +14,7 @@ export const useRequireAuth = () => {
     // Si no hay contexto o no está autenticado, redirigir a login
     if (!context || !context.login) {
       // Guardar la URL actual (pathname + hash) para redirigir después del login
-      const returnUrl = location.pathname + location.hash;
+      const returnUrl = location.pathname + location.search + location.hash;
       localStorage.setItem("returnUrl", returnUrl);
       navigate("/login");
       return;
