@@ -219,6 +219,7 @@ const NavbarContent = () => {
     item: null,
   });
   const [greeting, setGreeting] = React.useState(() => getGreetingByHour());
+  const [isCreatingPost, setIsCreatingPost] = React.useState(false);
   const [mountedModals, setMountedModals] = React.useState({
     CrearPublicacion: false,
     EditarPerfil: false,
@@ -269,7 +270,14 @@ const NavbarContent = () => {
     setActiveDesktopDropdown(null);
     setIsDesktopProfileMenuOpen(false);
     setIsMobileProfileMenuOpen(false);
+    setIsCreatingPost(false);
   }, [location.pathname]);
+
+  React.useEffect(() => {
+    const handleClosed = () => setIsCreatingPost(false);
+    window.addEventListener("crearPublicacionClosed", handleClosed);
+    return () => window.removeEventListener("crearPublicacionClosed", handleClosed);
+  }, []);
 
   React.useEffect(() => {
     const updateGreeting = () => setGreeting(getGreetingByHour());
@@ -312,6 +320,7 @@ const NavbarContent = () => {
 
   const handleCreatePost = () => {
     withAuth(async () => {
+      setIsCreatingPost(true);
       await openLazyModal(loadCrearPublicacionModule, "CrearPublicacion");
       closeMenus();
     });
@@ -410,9 +419,9 @@ const NavbarContent = () => {
 
   const isMobileBottomLinkActive = (item) => {
     if (item.key === "inicio") return location.pathname === "/";
-    if (item.key === "perdidos") return location.pathname === "/publicaciones/perdidos";
-    if (item.key === "encontrados") return location.pathname === "/publicaciones/encontrados";
-    if (item.key === "adopciones") return location.pathname === "/publicaciones/adopciones";
+    if (item.key === "perdidos") return location.pathname.startsWith("/publicaciones/perdidos");
+    if (item.key === "encontrados") return location.pathname.startsWith("/publicaciones/encontrados");
+    if (item.key === "adopciones") return location.pathname.startsWith("/publicaciones/adopciones");
     return false;
   };
 
@@ -661,7 +670,7 @@ const NavbarContent = () => {
           {MOBILE_PRIMARY_LINKS.map((item) => {
             const isActive = isMobileBottomLinkActive(item);
             const isCreate = item.action === "create";
-            const isHighlighted = isActive;
+            const isHighlighted = isCreate ? isCreatingPost : isActive;
 
             return (
               <button

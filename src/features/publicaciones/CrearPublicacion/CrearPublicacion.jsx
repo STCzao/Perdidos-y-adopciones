@@ -68,6 +68,8 @@ export const CrearPublicacion = {
         document.body.style.top = `-${scrollY}px`;
         document.body.style.left = "0";
         document.body.style.right = "0";
+      } else {
+        window.dispatchEvent(new CustomEvent("crearPublicacionClosed"));
       }
 
       return () => {
