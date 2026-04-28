@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { motion } from "framer-motion";
 import ModalShell from "../../../components/ui/ModalShell";
 import { publicacionesService } from "../../../services/publicaciones";
@@ -13,7 +13,7 @@ import { PUBLICACION_SIZE_FIELD } from "../utils/publicacionFields";
 let modalControl;
 
 const shellClassName =
-  "relative max-h-[92vh] overflow-y-auto rounded-[1.7rem] border border-[color:var(--shell-line)] bg-[linear-gradient(180deg,rgba(255,250,244,0.98),rgba(248,240,229,0.96))] p-4 shadow-[0_30px_90px_rgba(31,20,14,0.24)] sm:p-6";
+  "relative max-h-[92vh] overflow-y-auto rounded-[1.7rem] border border-[color:var(--shell-line)] bg-[linear-gradient(180deg,rgba(255,250,244,0.98),rgba(248,240,229,0.96))] p-4 pb-[calc(5.5rem+env(safe-area-inset-bottom))] shadow-[0_30px_90px_rgba(31,20,14,0.24)] sm:p-6 sm:pb-6";
 
 const sectionClassName =
   "rounded-[1.35rem] border border-[color:var(--shell-line)] bg-[linear-gradient(180deg,rgba(255,250,244,0.98),rgba(248,240,229,0.96))] p-5 shadow-[0_16px_45px_rgba(57,42,31,0.08)]";
@@ -54,7 +54,12 @@ export const CrearPublicacion = {
 
     const { handleImageUpload: uploadImage } = useImageUpload(setFormImage, setErrors);
 
-    modalControl = { setOpen, setEditData };
+    useLayoutEffect(() => {
+      modalControl = { setOpen, setEditData };
+      return () => {
+        modalControl = null;
+      };
+    }, []);
 
     useEffect(() => {
       if (open) {

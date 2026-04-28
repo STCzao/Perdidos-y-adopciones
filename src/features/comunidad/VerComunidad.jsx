@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useLayoutEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import ModalShell from "../../components/ui/ModalShell";
 import { comunidadService } from "../../services/comunidad";
@@ -30,7 +30,10 @@ export const VerComunidad = {
 
     const { user } = useAuth();
 
-    modalControl = { setOpen };
+    useLayoutEffect(() => {
+      modalControl = { setOpen };
+      return () => { modalControl = null; };
+    }, []);
 
     useEffect(() => {
       if (open && user?.rol !== "ADMIN_ROLE") {

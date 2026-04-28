@@ -165,11 +165,11 @@ const CardGenerica = ({ publicacion, cardId, isSuccessful = false }) => {
           )}
         </div>
 
-        <div className="mt-1.5 flex flex-wrap gap-x-2 gap-y-0.5 text-[0.74rem] font-medium text-[#5f4c41]">
-          {raza && <span>{raza}</span>}
-          {edad && <span>{raza ? "/ " : ""}{edad}</span>}
-          {tamano && <span>{raza || edad ? "/ " : ""}{tamano}</span>}
-          {!raza && !edad && !tamano && especie && <span>{especie}</span>}
+        <div className="mt-2 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[0.74rem] font-medium text-[#5f4c41]">
+          {raza && <span className="max-w-[9rem] truncate">{raza}</span>}
+          {sexo && <><span className="text-[#a08878]">/</span><span>{sexo}</span></>}
+          {tamano && <><span className="text-[#a08878]">/</span><span>{tamano}</span></>}
+          {!raza && !sexo && !tamano && especie && <span>{especie}</span>}
         </div>
 
         {isAdoption ? (

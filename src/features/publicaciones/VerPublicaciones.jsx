@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useContext } from "react";
+import React, { useState, useEffect, useLayoutEffect, useCallback, useContext } from "react";
 import { motion } from "framer-motion";
 import ModalShell from "../../components/ui/ModalShell";
 import { publicacionesService } from "../../services/publicaciones";
@@ -39,7 +39,10 @@ export const VerPublicaciones = {
       action: "",
     });
 
-    modalControl = { setOpen };
+    useLayoutEffect(() => {
+      modalControl = { setOpen };
+      return () => { modalControl = null; };
+    }, []);
 
     useEffect(() => {
       if (open) {

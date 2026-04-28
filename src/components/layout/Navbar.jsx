@@ -193,23 +193,13 @@ const openModalWhenReady = async (loadModule, exportName, setMountedModals, ...a
   const modalApi = module?.[exportName];
   if (!modalApi?.openModal) return;
 
-  let needsMount = false;
-  setMountedModals((prev) => {
-    if (prev[exportName]) return prev;
-    needsMount = true;
-    return { ...prev, [exportName]: true };
-  });
+  if (modalApi.openModal(...args) !== false) return;
 
-  if (!needsMount) {
-    modalApi.openModal(...args);
-    return;
-  }
+  setMountedModals((prev) => ({ ...prev, [exportName]: true }));
 
   for (let index = 0; index < 10; index += 1) {
     await new Promise((resolve) => window.setTimeout(resolve, 32));
-    if (modalApi.openModal(...args) !== false) {
-      return;
-    }
+    if (modalApi.openModal(...args) !== false) return;
   }
 };
 

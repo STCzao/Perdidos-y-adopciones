@@ -25,7 +25,7 @@ const CardExitosa = ({ publicacion, cardId }) => {
   return (
     <article
       id={cardId}
-      className="group flex w-full max-w-[21rem] flex-col overflow-hidden rounded-[0.95rem] border border-[#2f241d]/10 bg-[linear-gradient(180deg,rgba(255,250,244,0.98),rgba(248,240,229,0.92))] shadow-[0_22px_48px_rgba(36,25,20,0.08)] transition-transform duration-300 hover:-translate-y-1 sm:w-[21rem] sm:rounded-[1rem]"
+      className="group flex w-full max-w-[21rem] flex-col overflow-hidden rounded-[0.95rem] border border-[#2f241d]/10 bg-[linear-gradient(180deg,rgba(255,250,244,0.98),rgba(248,240,229,0.92))] shadow-[0_22px_48px_rgba(36,25,20,0.08)] transition-transform duration-300 hover:-translate-y-1 sm:rounded-[1rem]"
     >
       <div className="relative p-2.5">
         {img ? (

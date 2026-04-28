@@ -188,12 +188,12 @@ const HomeScreen = () => {
         <div className="pointer-events-none absolute left-[-10rem] top-36 h-72 w-72 rounded-full bg-[#D62828]/20 blur-3xl" />
         <div className="pointer-events-none absolute right-[-8rem] top-24 h-80 w-80 rounded-full bg-[#2165FF]/12 blur-3xl" />
 
-        <div className="relative w-full px-3 pb-7 pt-22 sm:px-5 sm:pb-10 sm:pt-28 lg:px-8 lg:pb-10 lg:pt-28">
+        <div className="relative w-full px-3 pb-3 pt-[4rem] sm:px-5 sm:pb-4 sm:pt-[6.5rem] lg:px-8 lg:pb-5 lg:pt-[7rem]">
           <motion.div
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.65, delay: 0.15 }}
-            className="relative overflow-hidden rounded-[2rem] border border-white/10 shadow-[0_28px_90px_rgba(0,0,0,0.24)] sm:rounded-[2.4rem]"
+            className="relative min-h-[calc(100dvh-11rem-env(safe-area-inset-bottom))] overflow-hidden rounded-[2rem] border border-white/10 shadow-[0_28px_90px_rgba(0,0,0,0.24)] sm:min-h-[calc(100dvh-7.5rem)] sm:rounded-[2.4rem]"
             style={{
               backgroundImage: `linear-gradient(125deg, rgba(26,20,18,0.72), rgba(26,20,18,0.3)), url(${import.meta.env.VITE_MEDIA_IMG_URL})`,
               backgroundSize: "cover",
@@ -202,61 +202,49 @@ const HomeScreen = () => {
           >
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(244,200,158,0.18),transparent_26%),radial-gradient(circle_at_right,rgba(219,231,181,0.14),transparent_24%),linear-gradient(180deg,rgba(24,18,16,0.08),rgba(24,18,16,0.46))]" />
 
-            <div className="relative grid min-h-[min(40rem,calc(100dvh-7.5rem))] gap-3 p-3 text-white sm:p-5 lg:grid-cols-[1.12fr_0.88fr] lg:items-center lg:gap-4 lg:p-5">
-              <div className="flex flex-col justify-center rounded-[1.25rem] border border-white/10 bg-[rgba(22,17,15,0.44)] p-4 backdrop-blur-sm sm:rounded-[1.8rem] sm:p-5 lg:min-h-[22rem] lg:max-w-[47rem] lg:p-6">
+            <div className="relative grid min-h-[inherit] content-center gap-10 p-5 text-white sm:p-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-center lg:gap-12 lg:p-10">
+              <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
                 <span className="inline-flex w-fit rounded-full border border-white/14 bg-white/8 px-3.5 py-1.5 text-[0.6rem] font-bold uppercase tracking-[0.22em] text-[#f5e7d9] backdrop-blur-sm sm:px-4 sm:py-2 sm:text-[0.68rem] sm:tracking-[0.28em]">
                   Base de datos comunitaria de Tucumán
                 </span>
 
-                <h1 className="font-editorial mt-4 max-w-4xl text-[1.8rem] leading-[0.92] sm:mt-5 sm:text-[3rem] lg:text-[3.7rem]">
-                  Amar y ser amable
-                  <span className="block text-[#f4c89e]">con los animales</span>
-                  <span className="block text-[#dbe7b5]">
-                    nos acerca a nuestra verdadera naturaleza humana.
-                  </span>
+                <h1 className="font-editorial mt-3 text-[2rem] leading-[0.92] sm:mt-4 sm:text-[3rem] lg:mt-5 lg:text-[3.7rem]">
+                  Animales
+                  <span className="block text-[#f4c89e]">Perdidos y en Adopción</span>
+                  <span className="block text-[#dbe7b5]">en un solo lugar.</span>
                 </h1>
 
-                <p className="mt-3 max-w-xl text-[0.88rem] leading-relaxed text-[#f2e8e0]/84 sm:mt-4 sm:text-[0.94rem]">
-                  Una herramienta comunitaria para registrar y mantener visibles
-                  los casos.
+                <p className="mt-2 max-w-xl text-[0.88rem] leading-relaxed text-[#f2e8e0]/84 sm:mt-3 sm:text-[0.94rem]">
+                  Una herramienta gratuita para registrar y mantener visibles los casos.
                 </p>
 
-                <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+                <div className="mt-5 hidden lg:flex">
                   <button
                     onClick={openCreatePublication}
-                    className="cursor-pointer rounded-full bg-[#f4c89e] px-5 py-3 text-sm font-bold text-[#2a1f19] shadow-[0_16px_40px_rgba(244,200,158,0.24)] transition-transform duration-300 hover:-translate-y-0.5 sm:px-6"
+                    className="cursor-pointer rounded-full bg-[#f4c89e] px-6 py-3 text-sm font-bold text-[#2a1f19] shadow-[0_16px_40px_rgba(244,200,158,0.24)] transition-transform duration-300 hover:-translate-y-0.5"
                   >
                     Publicar un caso
                   </button>
                 </div>
               </div>
 
-              <div className="self-center justify-self-end rounded-[1.35rem] border border-white/10 bg-[rgba(18,14,12,0.42)] p-3 backdrop-blur-sm sm:rounded-[2rem] lg:w-full lg:max-w-[28rem]">
-                <div className="grid gap-3">
-                  {ACTION_PATHS.map((action) => (
-                    <RedirectCard
-                      key={action.key}
-                      surface="dark"
-                      accent={action.accent}
-                      accentSoft={action.accentSoft}
-                      badge={action.eyebrow}
-                      title={action.title}
-                      description={action.description}
-                      actions={[
-                        {
-                          label: "Explorar",
-                          onClick: () => navigateTo(action.browsePath),
-                          variant: "primary",
-                        },
-                        
-                        {
-                          label: "Abrir guía",
-                          onClick: () => navigateTo(action.advicePath),
-                        },
-                      ]}
-                      className="min-h-0"
-                    />
-                  ))}
+              <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
+                <blockquote>
+                  <p className="font-editorial text-[1.1rem] leading-[1.22] text-white/88 sm:text-[1.4rem] lg:text-[1.55rem]">
+                    "Amar y ser amable con los animales nos acerca a nuestra verdadera naturaleza humana".
+                  </p>
+                  <footer className="mt-3 text-[0.7rem] font-bold uppercase tracking-[0.22em] text-[#f4c89e]">
+                    — Dalai Lama
+                  </footer>
+                </blockquote>
+
+                <div className="mt-5 flex lg:hidden">
+                  <button
+                    onClick={openCreatePublication}
+                    className="cursor-pointer rounded-full bg-[#f4c89e] px-6 py-3 text-sm font-bold text-[#2a1f19] shadow-[0_16px_40px_rgba(244,200,158,0.24)] transition-transform duration-300 hover:-translate-y-0.5"
+                  >
+                    Publicar un caso
+                  </button>
                 </div>
               </div>
             </div>

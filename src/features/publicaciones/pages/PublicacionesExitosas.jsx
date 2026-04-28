@@ -231,6 +231,7 @@ const PublicacionesExitosasPage = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3 }}
+                  className="w-full max-w-[21rem]"
                 >
                   <CardExitosa publicacion={publicacion} cardId={publicacion._id} />
                 </motion.div>
