@@ -1,103 +1,160 @@
-/**
- * Componentes de campos de formulario reutilizables
- */
+const fieldLabel = "block text-sm font-semibold text-[#5f4c41]";
+const fieldInput =
+  "mt-1.5 w-full rounded-[0.9rem] border border-[#2f241d]/12 bg-white px-4 py-2.5 text-sm text-[#3d332d] outline-none transition placeholder:text-[#9e8e84] focus:border-[#d46f49]/45 focus:ring-2 focus:ring-[#d46f49]/15 disabled:opacity-50";
+const fieldError = "mt-1.5 text-xs text-[#a84632]";
 
-export const SelectField = ({ label, name, value, onChange, disabled, options, error, placeholder }) => (
-  <div className="mt-4">
-    <label className="flex items-left text-sm mb-1 ml-2">{label}</label>
-    <div className="flex items-center w-full bg-white border border-gray-300/80 h-12 rounded-full overflow-hidden pl-6 gap-2">
-      <select
-        name={name}
-        value={value}
-        onChange={onChange}
-        disabled={disabled}
-        className="bg-transparent text-gray-500 outline-none text-sm w-full h-full"
-      >
-        <option value="">{placeholder}</option>
-        {options.map((opt) => (
-          <option key={opt.value} value={opt.value}>
-            {opt.label}
-          </option>
-        ))}
-      </select>
-    </div>
-    {error && <p className="text-red-400 text-xs mt-1 text-left w-full px-4">{error}</p>}
+export const SelectField = ({
+  label,
+  name,
+  value,
+  onChange,
+  disabled,
+  options,
+  error,
+  placeholder,
+}) => (
+  <div>
+    <label htmlFor={name} className={fieldLabel}>
+      {label}
+    </label>
+    <select
+      id={name}
+      name={name}
+      value={value}
+      onChange={onChange}
+      disabled={disabled}
+      className={fieldInput}
+    >
+      <option value="">{placeholder}</option>
+      {options.map((opt) => (
+        <option key={opt.value} value={opt.value}>
+          {opt.label}
+        </option>
+      ))}
+    </select>
+    {error && <p className={fieldError}>{error}</p>}
   </div>
 );
 
-export const InputField = ({ label, name, type = "text", value, onChange, disabled, error, placeholder, maxLength }) => (
-  <div className="mt-4">
-    <label className="flex items-left text-sm mb-1 ml-2">{label}</label>
-    <div className="flex items-center w-full bg-white border border-gray-300/80 h-12 rounded-full overflow-hidden pl-6 gap-2">
-      <input
-        type={type}
-        name={name}
-        placeholder={placeholder}
-        value={value}
-        onChange={onChange}
-        disabled={disabled}
-        maxLength={maxLength}
-        className="bg-transparent text-gray-500 placeholder-gray-500 outline-none text-sm w-full h-full"
-      />
-    </div>
-    {error && <p className="text-red-400 text-xs mt-1 text-left w-full px-4">{error}</p>}
+export const InputField = ({
+  label,
+  name,
+  type = "text",
+  value,
+  onChange,
+  disabled,
+  error,
+  placeholder,
+  maxLength,
+}) => (
+  <div>
+    <label htmlFor={name} className={fieldLabel}>
+      {label}
+    </label>
+    <input
+      id={name}
+      type={type}
+      name={name}
+      placeholder={placeholder}
+      value={value}
+      onChange={onChange}
+      disabled={disabled}
+      maxLength={maxLength}
+      className={fieldInput}
+    />
+    {error && <p className={fieldError}>{error}</p>}
   </div>
 );
 
-export const TextAreaField = ({ label, name, value, onChange, disabled, error, placeholder, rows = 4 }) => (
-  <div className="mt-4">
-    <label className="flex text-left items-left text-sm mb-1 ml-2">{label}</label>
-    <div className="flex items-center w-full bg-white border border-gray-300/80 min-h-12 rounded-2xl overflow-hidden p-4 gap-2">
-      <textarea
-        name={name}
-        placeholder={placeholder}
-        value={value}
-        onChange={onChange}
-        disabled={disabled}
-        rows={rows}
-        className="bg-transparent text-gray-500 placeholder-gray-500 outline-none text-sm w-full resize-none"
-      />
-    </div>
-    {error && <p className="text-red-400 text-xs mt-1 text-left w-full px-4">{error}</p>}
+export const TextAreaField = ({
+  label,
+  name,
+  value,
+  onChange,
+  disabled,
+  error,
+  placeholder,
+  rows = 4,
+}) => (
+  <div>
+    <label htmlFor={name} className={fieldLabel}>
+      {label}
+    </label>
+    <textarea
+      id={name}
+      name={name}
+      placeholder={placeholder}
+      value={value}
+      onChange={onChange}
+      disabled={disabled}
+      rows={rows}
+      className={`${fieldInput} resize-none`}
+    />
+    {error && <p className={fieldError}>{error}</p>}
   </div>
 );
 
 export const CheckboxField = ({ label, name, checked, onChange, disabled, error }) => (
-  <div className="flex flex-col items-start w-full mt-4">
-    <label className="flex items-center gap-2">
+  <div>
+    <label className="flex cursor-pointer items-center gap-3">
       <input
         type="checkbox"
         name={name}
         checked={checked}
         onChange={onChange}
         disabled={disabled}
-        className="cursor-pointer"
+        className="h-4 w-4 cursor-pointer rounded border-[#2f241d]/20 accent-[#5a3f35]"
       />
-      {label}
+      <span className="text-sm font-semibold text-[#5f4c41]">{label}</span>
     </label>
-    {error && <p className="text-red-400 text-xs mt-1 text-left w-full px-4">{error}</p>}
+    {error && <p className={fieldError}>{error}</p>}
   </div>
 );
 
-export const ImageUploadField = ({ uploading, handleImageUpload, imageUrl, error, disabled }) => (
-  <div className="mt-4">
-    <label className="flex items-left text-sm mb-1 ml-2">Imagen</label>
-    <div className="flex items-center justify-center w-full bg-white border border-gray-300/80 h-12 rounded-full overflow-hidden gap-2">
+export const ImageUploadField = ({
+  uploading,
+  handleImageUpload,
+  imageUrl,
+  error,
+  disabled,
+}) => (
+  <div>
+    <label className={fieldLabel}>Imagen</label>
+    <label
+      className={`mt-1.5 flex w-full cursor-pointer items-center gap-3 rounded-[0.9rem] border border-dashed border-[#2f241d]/20 bg-white px-4 py-3 transition hover:border-[#d46f49]/45 hover:bg-[#fffaf4] ${
+        uploading || disabled ? "pointer-events-none opacity-50" : ""
+      }`}
+    >
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        className="h-5 w-5 shrink-0 text-[#816959]"
+        aria-hidden="true"
+      >
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+        <polyline points="17 8 12 3 7 8" />
+        <line x1="12" y1="3" x2="12" y2="15" />
+      </svg>
+      <span className="text-sm text-[#816959]">
+        {uploading ? "Subiendo imagen..." : imageUrl ? "Cambiar imagen" : "Seleccionar imagen"}
+      </span>
       <input
         type="file"
         accept="image/*"
         onChange={handleImageUpload}
         disabled={uploading || disabled}
-        className="bg-transparent text-gray-500 outline-none text-sm w-full file:h-10 file:ml-2 file:p-3 file:px-2 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#FF7857] file:text-white hover:file:bg-[#E5674F] file:cursor-pointer cursor-pointer text-center"
+        className="sr-only"
       />
-    </div>
-    {error && <p className="text-red-400 text-xs mt-1 text-left w-full px-4">{error}</p>}
+    </label>
+    {error && <p className={fieldError}>{error}</p>}
     {imageUrl && (
-      <div className="mt-2 flex justify-center">
+      <div className="mt-3">
         <img
           src={imageUrl}
           alt="Vista previa"
-          className="w-32 h-32 object-cover rounded-2xl border border-white/50"
+          className="h-28 w-28 rounded-[0.9rem] border border-[#2f241d]/10 object-cover shadow-sm"
         />
       </div>
     )}

@@ -119,7 +119,7 @@ export const ConfirmModal = React.memo(
               </button>
 
               <button
-                onClick={onConfirm}
+                onClick={() => { onConfirm(); onClose(); }}
                 className="cursor-pointer rounded-full px-5 py-2.5 text-sm font-semibold text-white transition-opacity duration-300 hover:opacity-92"
                 style={{ backgroundColor: config.accent }}
               >

@@ -68,9 +68,10 @@ const steps = [
 const EncontreScreen = () => (
   <AdviceLayout
     eyebrow="Resguardo activo"
-    title="Que hacer si encontraste un animal"
-    description="Una guia pensada para ordenar los primeros pasos, bajar riesgos y aumentar las posibilidades de que vuelva con su familia."
+    title="Qué hacer si encontraste un animal"
+    description="Una guía pensada para ordenar los primeros pasos, bajar riesgos y aumentar las posibilidades de que vuelva con su familia."
     accent="#2165FF"
+    path="/consejos-encontre"
     steps={steps}
     closing="No hace falta hacerlo todo solo ni hacerlo perfecto. Publicar, difundir, resguardar un rato o pedir ayuda ya suma y puede cambiar por completo el resultado del caso."
   />

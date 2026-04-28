@@ -1,10 +1,23 @@
 import { motion } from "framer-motion";
 import Navbar from "../../components/layout/Navbar";
 import Footer from "../../components/layout/Footer";
+import Seo from "../../components/seo/Seo";
+import { buildBreadcrumbSchema } from "../../components/seo/seoUtils";
 
-const AdviceLayout = ({ eyebrow, title, description, accent, steps, closing }) => {
+const AdviceLayout = ({ eyebrow, title, description, accent, steps, closing, path }) => {
   return (
     <div className="bg-[#f6efe4] text-[#241914]">
+      <Seo
+        title={title}
+        description={description}
+        path={path}
+        structuredData={[
+          buildBreadcrumbSchema([
+            { name: "Inicio", path: "/" },
+            { name: title, path },
+          ]),
+        ]}
+      />
       <Navbar />
 
       <div className="relative min-h-screen overflow-hidden px-4 pb-16 pt-30 sm:px-6 lg:px-8 lg:pt-32">
@@ -40,10 +53,10 @@ const AdviceLayout = ({ eyebrow, title, description, accent, steps, closing }) =
 
               <div className="self-start rounded-[0.9rem] border border-[#2f241d]/10 bg-white/72 p-4 shadow-sm">
                 <p className="text-[0.62rem] font-bold uppercase tracking-[0.18em] text-[#816959]">
-                  Guia rapida
+                  Guía rápida
                 </p>
                 <p className="mt-3 text-[0.95rem] font-medium leading-relaxed text-[#5f4c41]">
-                  Segui estos pasos como orientacion inicial y adapta cada decision al
+                  Seguí estos pasos como orientación inicial y adapta cada decisión al
                   estado real del animal y a la ayuda que tengas disponible.
                 </p>
               </div>

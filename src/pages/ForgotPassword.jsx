@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { forgotPassword } from "../services/auth";
 import { validateForgotPasswordForm } from "../utils/validators";
 import AuthLayout from "../components/layout/AuthLayout";
+import Seo from "../components/seo/Seo";
 
 export default function ForgotPasswordScreen() {
   const [correo, setCorreo] = useState("");
@@ -46,7 +47,14 @@ export default function ForgotPasswordScreen() {
   };
 
   return (
-    <AuthLayout onSubmit={handleSubmit}>
+    <>
+      <Seo
+        title="Recuperar contraseña"
+        description="Ingresá tu correo para recibir instrucciones y restablecer tu contraseña en Perdidos y Adopciones."
+        path="/forgot-password"
+        index={false}
+      />
+      <AuthLayout onSubmit={handleSubmit}>
       <div className="flex flex-col items-start">
         <span className="text-[0.62rem] font-bold uppercase tracking-[0.22em] text-[#dbe7b5]">
           Recuperar acceso
@@ -91,6 +99,7 @@ export default function ForgotPasswordScreen() {
           </Link>
         </p>
       </div>
-    </AuthLayout>
+      </AuthLayout>
+    </>
   );
 }

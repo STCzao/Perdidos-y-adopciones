@@ -1,10 +1,13 @@
+import { memo, useState } from "react";
 import { Link } from "react-router-dom";
 import { LazyLoadImage } from "react-lazy-load-image-component";
 import { formatFecha } from "../../../utils/dateHelpers.js";
 import { getTipoColorMeta } from "../../../utils/publicacionColors.js";
 import { getPublicacionDetailPath } from "../utils/publicacionPaths";
-import { getPublicacionTamano } from "../utils/publicacionFields";
+import { formatBooleanish, getPublicacionTamano } from "../utils/publicacionFields";
 import { useRequireAuth } from "../../../hooks/useRequireAuth";
+import { publicacionesService } from "../../../services/publicaciones";
+import { getCloudinaryUrl } from "../../../utils/cloudinaryUtils";
 
 const cardMeta = {
   ADOPCION: {
@@ -12,28 +15,19 @@ const cardMeta = {
     locationLabel: "Zona de referencia",
   },
   PERDIDO: {
-    label: "Busqueda activa",
-    locationLabel: "Se extravio en",
+    label: "Búsqueda activa",
+    locationLabel: "Se extravió en",
   },
   ENCONTRADO: {
     label: "Resguardo activo",
-    locationLabel: "Se encontro en",
+    locationLabel: "Se encontró en",
   },
-};
-
-const formatBooleanish = (value) => {
-  if (value === undefined || value === null || value === "") return "";
-  if (typeof value === "boolean") return value ? "Si" : "No";
-
-  const normalized = String(value).trim().toLowerCase();
-  if (["si", "sí", "yes", "true", "apto", "compatible"].includes(normalized)) return "Si";
-  if (["no", "false", "no apto", "no compatible"].includes(normalized)) return "No";
-
-  return String(value).trim();
 };
 
 const CardGenerica = ({ publicacion, cardId, isSuccessful = false }) => {
   const withAuth = useRequireAuth();
+  const [contactLoading, setContactLoading] = useState(false);
+  const [contactError, setContactError] = useState("");
   const {
     nombreanimal,
     especie,
@@ -49,7 +43,6 @@ const CardGenerica = ({ publicacion, cardId, isSuccessful = false }) => {
     afinidadanimales,
     energia,
     castrado,
-    whatsapp,
     img,
     estado,
   } = publicacion;
@@ -60,9 +53,6 @@ const CardGenerica = ({ publicacion, cardId, isSuccessful = false }) => {
     ...(cardMeta[tipo] || cardMeta.PERDIDO),
   };
   const detailPath = getPublicacionDetailPath(publicacion);
-  const whatsappLink = whatsapp
-    ? `https://wa.me/549${String(whatsapp).replace(/\D/g, "")}`
-    : null;
   const primaryLocation = localidad || lugar;
   const locationSummary =
     localidad && lugar ? `${localidad} / ${lugar}` : primaryLocation;
@@ -70,22 +60,39 @@ const CardGenerica = ({ publicacion, cardId, isSuccessful = false }) => {
   const adoptionFields = [
     { label: "Sexo", value: sexo },
     { label: "Color", value: color },
-    { label: "Convivencia con ninos", value: formatBooleanish(afinidad) },
+    { label: "Convivencia con niños", value: formatBooleanish(afinidad) },
     {
       label: "Convivencia con animales",
       value: formatBooleanish(afinidadanimales),
     },
-    { label: "Nivel de energia", value: energia },
+    { label: "Nivel de energía", value: energia },
     { label: "Castrado", value: formatBooleanish(castrado) },
   ]
     .filter((field) => field.value)
     .slice(0, 4);
 
   const handleWhatsappClick = () => {
-    if (!whatsappLink) return;
+    withAuth(async () => {
+      if (contactLoading || !publicacion?._id) return;
 
-    withAuth(() => {
-      window.open(whatsappLink, "_blank", "noopener,noreferrer");
+      setContactError("");
+      setContactLoading(true);
+
+      try {
+        const response = await publicacionesService.getContactoPublicacion(publicacion._id);
+
+        if (!response.success || !response.whatsapp) {
+          setContactError(response.msg || "No hay contacto disponible");
+          return;
+        }
+
+        const digits = String(response.whatsapp).replace(/\D/g, "");
+        if (digits) {
+          window.open(`https://wa.me/549${digits}`, "_blank", "noopener,noreferrer");
+        }
+      } finally {
+        setContactLoading(false);
+      }
     });
   };
 
@@ -117,14 +124,15 @@ const CardGenerica = ({ publicacion, cardId, isSuccessful = false }) => {
               }}
             />
             <LazyLoadImage
-              src={img}
-              alt="background"
+              src={getCloudinaryUrl(img, { width: 40, quality: 10 })}
+              alt=""
+              aria-hidden="true"
               className="absolute inset-0 h-full w-full scale-105 object-cover blur-lg opacity-35"
               loading="lazy"
             />
             <LazyLoadImage
-              src={img}
-              alt={nombreanimal || especie || "Imagen de publicacion"}
+              src={getCloudinaryUrl(img, { width: 420 })}
+              alt={nombreanimal || especie || "Imagen de publicación"}
               className="relative z-10 block h-full w-full scale-[1.08] object-contain px-1.5 py-1.5"
               loading="lazy"
             />
@@ -167,7 +175,7 @@ const CardGenerica = ({ publicacion, cardId, isSuccessful = false }) => {
         {isAdoption ? (
           <div className="mt-2 rounded-[0.7rem] border border-[#2f241d]/8 bg-white/70 px-3 py-2.5">
             <p className="text-[0.56rem] font-bold uppercase tracking-[0.2em] text-[#7b6557]">
-              Perfil de adopcion
+              Perfil de adopción
             </p>
             <div className="mt-1.5 grid grid-cols-2 gap-x-3 gap-y-1 text-[0.76rem] leading-snug text-[#241914]">
               {adoptionFields.map((field) => (
@@ -192,7 +200,7 @@ const CardGenerica = ({ publicacion, cardId, isSuccessful = false }) => {
               {meta.locationLabel}
             </p>
             <p className="mt-1 line-clamp-3 min-h-[3.4rem] text-[0.88rem] font-semibold leading-snug text-[#241914]">
-              {locationSummary || "Sin ubicacion informada"}
+              {locationSummary || "Sin ubicación informada"}
             </p>
           </div>
         )}
@@ -200,7 +208,7 @@ const CardGenerica = ({ publicacion, cardId, isSuccessful = false }) => {
         <div className="mt-auto pt-2">
           <div
             className={`grid gap-2 ${
-              whatsappLink && !isSuccessful ? "grid-cols-[1.1fr_0.9fr]" : "grid-cols-1"
+              !isSuccessful ? "grid-cols-[1.1fr_0.9fr]" : "grid-cols-1"
             }`}
           >
             <Link
@@ -211,21 +219,28 @@ const CardGenerica = ({ publicacion, cardId, isSuccessful = false }) => {
               Ver detalle
             </Link>
 
-            {!isSuccessful && whatsappLink && (
+            {!isSuccessful && (
               <button
                 type="button"
                 onClick={handleWhatsappClick}
-                className="rounded-[0.6rem] px-3 py-2.5 text-center text-[0.7rem] font-semibold uppercase tracking-[0.08em] text-white transition-opacity hover:opacity-92"
+                disabled={contactLoading}
+                className="rounded-[0.6rem] px-3 py-2.5 text-center text-[0.7rem] font-semibold uppercase tracking-[0.08em] text-white transition-opacity hover:opacity-92 disabled:cursor-wait disabled:opacity-60"
                 style={{ backgroundColor: meta.accent }}
               >
-                WhatsApp
+                {contactLoading ? "..." : "WhatsApp"}
               </button>
             )}
           </div>
+
+          {contactError && (
+            <p className="mt-1.5 text-center text-[0.65rem] font-medium text-[#a44939]">
+              {contactError}
+            </p>
+          )}
         </div>
       </div>
     </article>
   );
 };
 
-export default CardGenerica;
+export default memo(CardGenerica);

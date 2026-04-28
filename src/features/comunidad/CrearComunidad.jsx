@@ -1,8 +1,8 @@
-"use client";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import ModalShell from "../../components/ui/ModalShell";
 import { comunidadService } from "../../services/comunidad";
+import { withRequestIdMessage } from "../../services/serviceUtils";
 
 let modalControl;
 
@@ -174,7 +174,7 @@ export const CrearComunidad = {
       if (!form.img.trim()) {
         newErrors.img = "La imagen es obligatoria";
         valid = false;
-      } else if (!/^https:\/\/res\.cloudinary\.com\/.+\/.+\.(jpg|jpeg|png|webp)$/.test(form.img)) {
+      } else if (!/^https:\/\/res\.cloudinary\.com\/[^/]+\/.+/.test(form.img)) {
         newErrors.img = "La URL de imagen no es válida";
         valid = false;
       }
@@ -188,10 +188,10 @@ export const CrearComunidad = {
         setResult(editData ? "Actualizando..." : "Creando...");
 
         const datosParaEnviar = {
-          titulo: form.titulo,
-          contenido: form.contenido,
+          titulo: form.titulo.trim(),
+          contenido: form.contenido.trim(),
           categoria: form.categoria,
-          img: form.img,
+          img: form.img.trim(),
         };
 
         const response =
@@ -205,13 +205,13 @@ export const CrearComunidad = {
           setTimeout(() => setOpen(false), 1200);
 
           const eventName = editData ? "comunidadActualizada" : "comunidadCreada";
-          const payload = response.comunidad || response.post || datosParaEnviar;
+          const payload = response.comunidad || datosParaEnviar;
           window.dispatchEvent(new CustomEvent(eventName, { detail: payload }));
         } else if (response.errors) {
           setErrors(response.errors);
-          setResult(response.msg || "Error en validación");
+          setResult(withRequestIdMessage(response.msg || "Error en validación", response.requestId));
         } else {
-          setResult(response.msg || "Error al procesar");
+          setResult(withRequestIdMessage(response.msg || "Error al procesar", response.requestId));
         }
       } catch {
         setResult("Error de conexión al servidor");

@@ -16,7 +16,6 @@ const PublicacionesExitosas = lazy(() =>
 );
 const Comunidad = lazy(() => import("../pages/Comunidad"));
 const Contact = lazy(() => import("../pages/Contact"));
-const MediaInfo = lazy(() => import("../pages/MediaInfo"));
 const Perdi = lazy(() => import("../pages/consejos/Perdi"));
 const Encontre = lazy(() => import("../pages/consejos/Encontre"));
 const Adoptar = lazy(() => import("../pages/consejos/Adoptar"));
@@ -42,9 +41,6 @@ const AppRouter = () => {
         <Route path="/consejos-perdi" element={<Perdi user={user} />} />
         <Route path="/consejos-encontre" element={<Encontre user={user} />} />
         <Route path="/consejos-adopcion" element={<Adoptar user={user} />} />
-        <Route path="/perdidos-informacion" element={<MediaInfo type="perdidos" />} />
-        <Route path="/encontrados-informacion" element={<MediaInfo type="encontrados" />} />
-        <Route path="/adopciones-informacion" element={<MediaInfo type="adopciones" />} />
         <Route path="/casos-ayuda" element={<Comunidad user={user} />} />
         <Route path="/contacto" element={<Contact user={user} />} />
 

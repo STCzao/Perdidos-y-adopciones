@@ -4,6 +4,7 @@ import { resetPassword } from "../services/auth";
 import { validateResetPasswordForm } from "../utils/validators";
 import AuthLayout from "../components/layout/AuthLayout";
 import PasswordInput from "../components/forms/PasswordInput";
+import Seo from "../components/seo/Seo";
 
 export default function ResetPasswordScreen() {
   const [password, setPassword] = useState("");
@@ -50,7 +51,14 @@ export default function ResetPasswordScreen() {
   };
 
   return (
-    <AuthLayout onSubmit={handleSubmit}>
+    <>
+      <Seo
+        title="Nueva contraseña"
+        description="Creá una nueva contraseña para recuperar el acceso a tu cuenta en Perdidos y Adopciones."
+        path="/reset-password"
+        index={false}
+      />
+      <AuthLayout onSubmit={handleSubmit}>
       <div className="flex flex-col items-start">
         <span className="text-[0.62rem] font-bold uppercase tracking-[0.22em] text-[#dbe7b5]">
           Nueva contraseña
@@ -118,6 +126,7 @@ export default function ResetPasswordScreen() {
           </Link>
         </p>
       </div>
-    </AuthLayout>
+      </AuthLayout>
+    </>
   );
 }

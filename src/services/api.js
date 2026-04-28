@@ -1,6 +1,8 @@
 import axios from "axios";
+import { getErrorRequestId } from "./serviceUtils";
 
 const API_URL = import.meta.env.VITE_API_URL;
+const AUTH_SYNC_KEY = "auth:event";
 
 let accessToken = "";
 let isRefreshing = false;
@@ -13,6 +15,19 @@ export const setAccessToken = (token) => {
 export const clearAccessToken = () => {
   accessToken = "";
 };
+
+export const broadcastAuthEvent = (type) => {
+  try {
+    localStorage.setItem(
+      AUTH_SYNC_KEY,
+      JSON.stringify({ type, at: Date.now() }),
+    );
+  } catch (error) {
+    console.warn("No se pudo sincronizar el evento de autenticación:", error);
+  }
+};
+
+export const getAuthSyncKey = () => AUTH_SYNC_KEY;
 
 const processQueue = (error, token = "") => {
   failedQueue.forEach((promise) => {
@@ -108,9 +123,21 @@ axiosInstance.interceptors.response.use(
 
       return axiosInstance(originalRequest);
     } catch (refreshError) {
-      clearAccessToken();
+      const refreshStatus = refreshError?.response?.status;
+      if (!getAccessToken()) {
+        clearAccessToken();
+      }
       processQueue(refreshError);
-      window.dispatchEvent(new CustomEvent("forceLogout"));
+      const requestId = getErrorRequestId(refreshError);
+      if (requestId) {
+        console.warn(`Falló el refresh de sesión. requestId=${requestId}`);
+      }
+      // Solo forzar logout si el servidor confirmó que la sesión es inválida (401/403).
+      // En caso de error de red, rate limit (429) o error del servidor (5xx),
+      // no cerrar sesión automáticamente — puede ser un problema temporal.
+      if (!getAccessToken() && (!refreshStatus || refreshStatus === 401 || refreshStatus === 403)) {
+        window.dispatchEvent(new CustomEvent("forceLogout"));
+      }
       return Promise.reject(refreshError);
     } finally {
       isRefreshing = false;

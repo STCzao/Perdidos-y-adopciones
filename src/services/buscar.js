@@ -1,4 +1,5 @@
-import axiosInstance from './api';
+import axiosInstance from "./api";
+import { mapServiceError } from "./serviceUtils";
 
 export const buscarPublicaciones = async (termino, tipo = "") => {
   try {
@@ -9,8 +10,6 @@ export const buscarPublicaciones = async (termino, tipo = "") => {
     return data;
   } catch (error) {
     console.error(error);
-    return { 
-      msg: error.response?.data?.msg || "Error en búsqueda de publicaciones" 
-    };
+    return mapServiceError(error, "Error en búsqueda de publicaciones");
   }
 };

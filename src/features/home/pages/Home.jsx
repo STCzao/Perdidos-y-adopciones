@@ -1,4 +1,3 @@
-"use client";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -6,10 +5,15 @@ import CardGenerica from "../../publicaciones/components/CardGenerica";
 import RedirectCard from "../../../components/cards/RedirectCard";
 import Footer from "../../../components/layout/Footer";
 import Navbar from "../../../components/layout/Navbar";
-import { CrearPublicacion } from "../../publicaciones/CrearPublicacion/CrearPublicacion";
+import Seo from "../../../components/seo/Seo";
 import { useRequireAuth } from "../../../hooks/useRequireAuth";
 import { publicacionesService } from "../../../services/publicaciones";
 import { getTipoColorMeta } from "../../../utils/publicacionColors";
+import {
+  buildBreadcrumbSchema,
+  buildOrganizationSchema,
+  buildWebsiteSchema,
+} from "../../../components/seo/seoUtils";
 
 const ESTADOS_EXITOSOS = ["YA APARECIO", "APARECIO SU FAMILIA", "ADOPTADO"];
 
@@ -86,7 +90,7 @@ const HomeScreen = () => {
     ESTADOS_EXITOSOS.includes(publicacion.estado);
 
   const openCreatePublication = () => {
-    withAuth(() => CrearPublicacion.openModal());
+    withAuth(() => window.dispatchEvent(new CustomEvent("openCrearPublicacion")));
   };
 
   const navigateTo = (path) => {
@@ -94,31 +98,10 @@ const HomeScreen = () => {
     window.scrollTo(0, 0);
   };
 
-  const obtenerTotalPorTipo = async (tipo) => {
-    try {
-      const response = await publicacionesService.getPublicaciones({
-        page: 1,
-        limit: 1,
-        tipo,
-      });
-
-      return response?.total || response?.publicaciones?.length || 0;
-    } catch (error) {
-      console.error(`Error obteniendo total de ${tipo}:`, error);
-      return 0;
-    }
-  };
-
   useEffect(() => {
     const fetchHomeData = async () => {
       try {
-        const [
-          perdidosResp,
-          encontradosResp,
-          totalPerdidos,
-          totalEncontrados,
-          totalAdopciones,
-        ] = await Promise.all([
+        const [perdidosResp, encontradosResp, adopcionesResp] = await Promise.all([
           publicacionesService.getPublicaciones({
             tipo: "PERDIDO",
             limit: 4,
@@ -129,26 +112,38 @@ const HomeScreen = () => {
             limit: 4,
             page: 1,
           }),
-          obtenerTotalPorTipo("PERDIDO"),
-          obtenerTotalPorTipo("ENCONTRADO"),
-          obtenerTotalPorTipo("ADOPCION"),
+          publicacionesService.getPublicaciones({
+            tipo: "ADOPCION",
+            limit: 1,
+            page: 1,
+          }),
         ]);
 
         if (perdidosResp?.publicaciones) {
           setPerdidos(perdidosResp.publicaciones);
+          setPerdidosCount(
+            typeof perdidosResp.total === "number"
+              ? perdidosResp.total
+              : perdidosResp.publicaciones.length,
+          );
         }
 
         if (encontradosResp?.publicaciones) {
           setEncontrados(encontradosResp.publicaciones);
+          setEncontradosCount(
+            typeof encontradosResp.total === "number"
+              ? encontradosResp.total
+              : encontradosResp.publicaciones.length,
+          );
         }
 
-        setPerdidosCount(typeof totalPerdidos === "number" ? totalPerdidos : 0);
-        setEncontradosCount(
-          typeof totalEncontrados === "number" ? totalEncontrados : 0,
-        );
-        setAdopcionesCount(
-          typeof totalAdopciones === "number" ? totalAdopciones : 0,
-        );
+        if (adopcionesResp) {
+          setAdopcionesCount(
+            typeof adopcionesResp.total === "number"
+              ? adopcionesResp.total
+              : adopcionesResp.publicaciones?.length || 0,
+          );
+        }
       } catch (error) {
         console.error("Error cargando datos de la Home", error);
       }
@@ -159,6 +154,16 @@ const HomeScreen = () => {
 
   return (
     <div className="bg-[#f6efe4] pb-24 text-[#241914] md:pb-0">
+      <Seo
+        title="Inicio"
+        description="Publica y encuentra animales perdidos, encontrados y en adopción en Tucumán. Una red comunitaria para difundir casos y conectar ayuda real."
+        path="/"
+        structuredData={[
+          buildOrganizationSchema(),
+          buildWebsiteSchema(),
+          buildBreadcrumbSchema([{ name: "Inicio", path: "/" }]),
+        ]}
+      />
       <Navbar />
 
       <section
@@ -229,7 +234,7 @@ const HomeScreen = () => {
                 <div className="flex items-start justify-between gap-5 px-1.5 pb-2 pt-1 sm:px-2">
                   <div>
                     <span className="text-[0.58rem] font-bold uppercase tracking-[0.18em] text-[#f5e7d9] sm:text-[0.68rem] sm:tracking-[0.24em]">
-                      Elegi tu punto de partida
+                      Elegí tu punto de partida
                     </span>
                     <h2 className="font-editorial mt-2 max-w-2xl text-[1.5rem] leading-none text-[#fff8ef] sm:text-[2.15rem]">
                       Tres caminos directos.
@@ -258,7 +263,7 @@ const HomeScreen = () => {
                           onClick: openCreatePublication,
                         },
                         {
-                          label: "Abrir guia",
+                          label: "Abrir guía",
                           onClick: () => navigateTo(action.advicePath),
                         },
                       ]}

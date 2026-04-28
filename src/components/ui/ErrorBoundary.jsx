@@ -11,7 +11,17 @@ export class ErrorBoundary extends Component {
   }
 
   componentDidCatch(error, info) {
-    console.error("ErrorBoundary caught:", error, info.componentStack);
+    const requestId =
+      error?.requestId ||
+      error?.response?.data?.requestId ||
+      error?.response?.headers?.["x-request-id"] ||
+      "";
+
+    console.error("ErrorBoundary caught:", {
+      error,
+      componentStack: info.componentStack,
+      requestId,
+    });
   }
 
   handleReset = () => {
@@ -22,17 +32,14 @@ export class ErrorBoundary extends Component {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-black text-white px-4 text-center">
-          <h1 className="text-4xl font-bold text-[#FF7857] mb-4">
-            Algo salió mal
-          </h1>
-          <p className="text-white/70 mb-6 max-w-md">
-            Ocurrió un error inesperado. Podés volver al inicio e intentarlo de
-            nuevo.
+        <div className="min-h-screen flex flex-col items-center justify-center bg-black px-4 text-center text-white">
+          <h1 className="mb-4 text-4xl font-bold text-[#FF7857]">Algo salió mal</h1>
+          <p className="mb-6 max-w-md text-white/70">
+            Ocurrió un error inesperado. Podés volver al inicio e intentarlo de nuevo.
           </p>
           <button
             onClick={this.handleReset}
-            className="px-6 py-2 rounded-full bg-[#FF7857] hover:bg-[#e5674f] text-white font-medium transition-colors cursor-pointer"
+            className="cursor-pointer rounded-full bg-[#FF7857] px-6 py-2 font-medium text-white transition-colors hover:bg-[#e5674f]"
           >
             Volver al inicio
           </button>

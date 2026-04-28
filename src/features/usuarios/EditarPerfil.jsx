@@ -291,7 +291,7 @@ export const EditarPerfil = {
     };
 
     const handleEliminarCuenta = async () => {
-      const userId = userData?.uid;
+      const userId = userData?._id || userData?.id || userData?.uid;
 
       if (!userId) {
         setProfileResult("No se pudo identificar la cuenta a eliminar");

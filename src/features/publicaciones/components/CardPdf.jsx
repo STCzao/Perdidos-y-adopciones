@@ -2,6 +2,7 @@ import { useRef } from "react";
 import { createRoot } from "react-dom/client";
 import { formatFecha } from "../../../utils/dateHelpers";
 import { getTipoColorMeta } from "../../../utils/publicacionColors";
+import { getPublicacionTamano } from "../utils/publicacionFields";
 
 const loadPdfDependencies = () =>
   Promise.all([import("jspdf"), import("html2canvas")]).then(
@@ -35,6 +36,20 @@ const waitForAssets = async (element) => {
   await Promise.all([fontReady, imageReady]);
 };
 
+const waitForNextPaint = (frames = 2) =>
+  new Promise((resolve) => {
+    const schedule = (remaining) => {
+      if (remaining <= 0) {
+        resolve();
+        return;
+      }
+
+      window.requestAnimationFrame(() => schedule(remaining - 1));
+    };
+
+    schedule(frames);
+  });
+
 const getWhatsappValue = (publicacion) => {
   const rawValue =
     publicacion?.whatsapp ||
@@ -62,7 +77,6 @@ const CardPdf = ({ publicacion, fileName }) => {
     lugar,
     fecha,
     sexo,
-    tamaño,
     color,
     edad,
     detalles,
@@ -74,6 +88,7 @@ const CardPdf = ({ publicacion, fileName }) => {
     estado,
   } = publicacion;
   const whatsapp = getWhatsappValue(publicacion);
+  const tamano = getPublicacionTamano(publicacion);
 
   // Configuración de colores y textos según tipo
   const tipoConfig = {
@@ -273,7 +288,7 @@ const CardPdf = ({ publicacion, fileName }) => {
                   ? `${especie} | ${sexo}`
                   : especie || sexo || ""}
               </p>
-              {tamaño && (
+              {tamano && (
                 <p
                   style={{
                     color: "#000000",
@@ -282,7 +297,7 @@ const CardPdf = ({ publicacion, fileName }) => {
                     textTransform: "uppercase",
                   }}
                 >
-                  {tamaño}
+                  {tamano}
                 </p>
               )}
             </div>
@@ -652,7 +667,7 @@ export const generarPDFPublicacion = async (publicacion, fileName) => {
       />,
     );
 
-    setTimeout(async () => {
+    waitForNextPaint().then(async () => {
       try {
         const cardElement = tempContainer.querySelector("div > div");
         if (!cardElement) {
@@ -695,7 +710,7 @@ export const generarPDFPublicacion = async (publicacion, fileName) => {
         document.body.removeChild(tempContainer);
         reject(error);
       }
-    }, 1000);
+    });
   });
 };
 

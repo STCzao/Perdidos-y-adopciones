@@ -4,6 +4,7 @@ import { crearUsuario } from "../services/auth";
 import { validateRegisterForm } from "../utils/validators";
 import AuthLayout from "../components/layout/AuthLayout";
 import PasswordInput from "../components/forms/PasswordInput";
+import Seo from "../components/seo/Seo";
 
 export default function RegisterScreen() {
   const [form, setForm] = useState({
@@ -74,7 +75,14 @@ export default function RegisterScreen() {
   };
 
   return (
-    <AuthLayout onSubmit={handleSubmit}>
+    <>
+      <Seo
+        title="Crear cuenta"
+        description="Registrate en Perdidos y Adopciones para publicar y gestionar casos de animales perdidos, encontrados y en adopción."
+        path="/register"
+        index={false}
+      />
+      <AuthLayout onSubmit={handleSubmit}>
       <div className="flex flex-col items-start">
         <span className="text-[0.62rem] font-bold uppercase tracking-[0.22em] text-[#f4c89e]">
           Crear cuenta
@@ -186,6 +194,7 @@ export default function RegisterScreen() {
           </Link>
         </p>
       </div>
-    </AuthLayout>
+      </AuthLayout>
+    </>
   );
 }

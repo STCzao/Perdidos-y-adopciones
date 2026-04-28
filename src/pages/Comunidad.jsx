@@ -1,10 +1,12 @@
 import { motion } from "framer-motion";
 import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
+import Seo from "../components/seo/Seo";
 import { useComunidad } from "../hooks/useComunidad";
 import { useFiltro } from "../hooks/useFiltro";
 import CardsAyuda from "../components/cards/CardsAyuda";
 import CasoAyudaFiltro from "../components/forms/CasoAyudaFiltro";
+import { buildBreadcrumbSchema } from "../components/seo/seoUtils";
 
 const ComunidadScreen = () => {
   const { casos, loading, error } = useComunidad();
@@ -12,6 +14,17 @@ const ComunidadScreen = () => {
 
   return (
     <div className="bg-[#f6efe4] text-[#241914]">
+      <Seo
+        title="Comunidad"
+        description="Lee historias, consejos y casos de ayuda de la comunidad para acompañar mejor búsquedas, rescates y adopciones."
+        path="/casos-ayuda"
+        structuredData={[
+          buildBreadcrumbSchema([
+            { name: "Inicio", path: "/" },
+            { name: "Comunidad", path: "/casos-ayuda" },
+          ]),
+        ]}
+      />
       <Navbar />
 
       <section

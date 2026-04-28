@@ -132,7 +132,7 @@ const ProfileAvatar = ({ user, className = "" }) => {
 };
 
 const BottomNavIcon = ({ type, active = false }) => {
-  const stroke = active ? "#2a1f19" : "currentColor";
+  const stroke = active ? "#ffffff" : "currentColor";
 
   return (
     <svg
@@ -181,27 +181,30 @@ const BottomNavIcon = ({ type, active = false }) => {
 const getGreetingByHour = (date = new Date()) => {
   const hour = date.getHours();
 
-  if (hour < 12) return "¡Buenos dias!";
+  if (hour < 12) return "¡Buenos días!";
   if (hour < 20) return "¡Buenas tardes!";
   return "¡Buenas noches!";
 };
 
 const openModalWhenReady = async (loadModule, exportName, setMountedModals) => {
   const module = await loadModule();
+  const modalApi = module?.[exportName];
+  if (!modalApi?.openModal) return;
 
-  setMountedModals((prev) =>
-    prev[exportName] ? prev : { ...prev, [exportName]: true },
-  );
+  let needsMount = false;
+  setMountedModals((prev) => {
+    if (prev[exportName]) return prev;
+    needsMount = true;
+    return { ...prev, [exportName]: true };
+  });
 
-  for (let attempt = 0; attempt < 20; attempt += 1) {
-    const modalApi = module?.[exportName];
-    if (modalApi?.openModal) {
-      modalApi.openModal();
-      return;
-    }
-
-    await new Promise((resolve) => window.setTimeout(resolve, 25));
+  // If the component just mounted, wait one frame for React to render it and
+  // set modalControl before calling openModal.
+  if (needsMount) {
+    await new Promise((resolve) => window.setTimeout(resolve, 50));
   }
+
+  modalApi.openModal();
 };
 
 const NavbarContent = () => {
@@ -286,6 +289,16 @@ const NavbarContent = () => {
       openModalWhenReady(loadModule, exportName, setMountedModals),
     [],
   );
+
+  // Escuchar el evento global openCrearPublicacion para que cualquier parte de la app
+  // pueda abrir el modal sin importar el módulo directamente (evita bundling innecesario).
+  React.useEffect(() => {
+    const handleOpenCrear = () =>
+      openLazyModal(loadCrearPublicacionModule, "CrearPublicacion");
+
+    window.addEventListener("openCrearPublicacion", handleOpenCrear);
+    return () => window.removeEventListener("openCrearPublicacion", handleOpenCrear);
+  }, [openLazyModal]);
 
   const handleCreatePost = () => {
     withAuth(() => openLazyModal(loadCrearPublicacionModule, "CrearPublicacion"));
@@ -616,11 +629,9 @@ const NavbarContent = () => {
                 type="button"
                 onClick={() => (isCreate ? handleCreatePost() : navigateTo(item.path))}
                 className={`flex min-h-[3.35rem] cursor-pointer flex-col items-center justify-center gap-1 rounded-[0.95rem] px-1.5 text-center transition-all duration-200 ${
-                  isCreate
+                  isCreate || isActive
                     ? "bg-[color:var(--shell-bark)] text-white shadow-[0_12px_30px_rgba(47,36,29,0.16)]"
-                    : isActive
-                      ? "bg-[color:var(--shell-surface-alt)] text-[color:var(--shell-bark)]"
-                      : "text-[#6f5f53] hover:bg-[color:var(--shell-surface-soft)]"
+                    : "text-[#241914] hover:bg-[color:var(--shell-surface-soft)]"
                 }`}
                 aria-label={item.label}
               >

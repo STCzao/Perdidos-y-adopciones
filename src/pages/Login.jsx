@@ -4,6 +4,7 @@ import { authLogin } from "../services/auth";
 import { validateLoginForm } from "../utils/validators";
 import AuthLayout from "../components/layout/AuthLayout";
 import PasswordInput from "../components/forms/PasswordInput";
+import Seo from "../components/seo/Seo";
 
 const LoginScreen = ({ iniciarSesion, guardarUsuario }) => {
   const [correo, setCorreo] = useState(
@@ -35,7 +36,15 @@ const LoginScreen = ({ iniciarSesion, guardarUsuario }) => {
 
       if (!data?.success || !data?.accessToken || !data?.usuario) {
         setErrors(data?.errors || {});
-        setResult(data?.msg || "No se pudo iniciar sesión");
+
+        if (data?.status === 429) {
+          setResult("Demasiados intentos. Esperá unos minutos antes de volver a intentar.");
+        } else if (data?.status === 401) {
+          setResult("Correo o contraseña incorrectos.");
+        } else {
+          setResult(data?.msg || "No se pudo iniciar sesión");
+        }
+
         return;
       }
 
@@ -56,7 +65,14 @@ const LoginScreen = ({ iniciarSesion, guardarUsuario }) => {
   };
 
   return (
-    <AuthLayout onSubmit={handleSubmit}>
+    <>
+      <Seo
+        title="Iniciar sesión"
+        description="Accedé a tu cuenta en Perdidos y Adopciones para gestionar tus publicaciones."
+        path="/login"
+        index={false}
+      />
+      <AuthLayout onSubmit={handleSubmit}>
       <div className="flex flex-col items-start">
         <span className="text-[0.62rem] font-bold uppercase tracking-[0.22em] text-[#f4c89e]">
           Iniciar sesión
@@ -126,7 +142,8 @@ const LoginScreen = ({ iniciarSesion, guardarUsuario }) => {
           </Link>
         </p>
       </div>
-    </AuthLayout>
+      </AuthLayout>
+    </>
   );
 };
 

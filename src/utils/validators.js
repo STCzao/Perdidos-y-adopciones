@@ -1,6 +1,7 @@
 export const RULES = {
   PASSWORD_MIN: 8,
   PASSWORD_MAX: 64,
+  LOGIN_PASSWORD_MAX: 128,
   NOMBRE_MIN: 3,
   NOMBRE_MAX: 40,
   TELEFONO_MIN: 7,
@@ -26,6 +27,18 @@ export const validateEmail = (value) => {
 export const validateRequiredPassword = (value, label = "La contraseña") => {
   const v = value.trim();
   if (!v) return `${label} es obligatoria`;
+  return null;
+};
+
+export const validateLoginPassword = (value) => {
+  const requiredError = validateRequiredPassword(value);
+  if (requiredError) return requiredError;
+
+  const v = value.trim();
+  if (v.length > RULES.LOGIN_PASSWORD_MAX) {
+    return `La contraseña no puede tener más de ${RULES.LOGIN_PASSWORD_MAX} caracteres`;
+  }
+
   return null;
 };
 
@@ -79,7 +92,7 @@ export const validateLoginForm = ({ correo, password }) => {
   const correoErr = validateEmail(correo);
   if (correoErr) errors.correo = correoErr;
 
-  const passErr = validatePassword(password);
+  const passErr = validateLoginPassword(password);
   if (passErr) errors.password = passErr;
 
   return errors;
@@ -134,7 +147,7 @@ export const validateChangePasswordForm = ({
   confirmPassword,
 }) => {
   const errors = {};
-  const currentErr = validateRequiredPassword(currentPassword, "La contraseña actual");
+  const currentErr = validateLoginPassword(currentPassword);
   if (currentErr) errors.currentPassword = currentErr;
   const nextErr = validatePassword(newPassword);
   if (nextErr) errors.newPassword = nextErr;

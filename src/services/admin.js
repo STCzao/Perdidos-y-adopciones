@@ -1,5 +1,5 @@
 import axiosInstance from "./api";
-import { buildServiceSuccess, mapServiceError } from "./serviceUtils";
+import { buildServiceSuccess, getResponseRequestId, mapServiceError } from "./serviceUtils";
 
 const cache = { usuarios: null, usuariosTimestamp: null };
 const CACHE_DURATION = 30000;
@@ -7,18 +7,21 @@ const CACHE_DURATION = 30000;
 export const adminService = {
   getTodasPublicaciones: async () => {
     try {
-      const { data: firstData } = await axiosInstance.get("/publicaciones/admin/todas?page=1&limit=12");
-
+      const firstResponse = await axiosInstance.get("/publicaciones/admin/todas?page=1&limit=12");
+      const firstData = firstResponse.data;
       const publicacionesFirstPage = firstData.publicaciones || [];
       const totalPages = firstData.totalPages || 1;
 
       if (totalPages <= 1) {
-        return buildServiceSuccess({ publicaciones: publicacionesFirstPage });
+        return buildServiceSuccess({
+          publicaciones: publicacionesFirstPage,
+          requestId: getResponseRequestId(firstResponse),
+        });
       }
 
       const requests = [];
-      for (let p = 2; p <= totalPages; p += 1) {
-        requests.push(axiosInstance.get(`/publicaciones/admin/todas?page=${p}&limit=12`));
+      for (let page = 2; page <= totalPages; page += 1) {
+        requests.push(axiosInstance.get(`/publicaciones/admin/todas?page=${page}&limit=12`));
       }
 
       const results = await Promise.all(requests);
@@ -26,6 +29,7 @@ export const adminService = {
 
       return buildServiceSuccess({
         publicaciones: [...publicacionesFirstPage, ...restPublicaciones],
+        requestId: getResponseRequestId(firstResponse),
       });
     } catch (error) {
       console.error("Error en getTodasPublicaciones:", error);
@@ -43,7 +47,8 @@ export const adminService = {
         return cache.usuarios;
       }
 
-      const { data: firstData } = await axiosInstance.get("/usuarios?page=1&limit=20");
+      const firstResponse = await axiosInstance.get("/usuarios?page=1&limit=20");
+      const firstData = firstResponse.data;
       const usuariosPrimeraPagina =
         firstData.usuarios || firstData.data || (Array.isArray(firstData) ? firstData : []);
       const totalPages = firstData.totalPages || 1;
@@ -52,9 +57,10 @@ export const adminService = {
 
       if (totalPages > 1) {
         const requests = [];
-        for (let p = 2; p <= totalPages; p += 1) {
-          requests.push(axiosInstance.get(`/usuarios?page=${p}&limit=20`));
+        for (let page = 2; page <= totalPages; page += 1) {
+          requests.push(axiosInstance.get(`/usuarios?page=${page}&limit=20`));
         }
+
         const results = await Promise.all(requests);
         const restUsuarios = results.flatMap(
           (res) => res.data.usuarios || res.data.data || (Array.isArray(res.data) ? res.data : []),
@@ -62,7 +68,11 @@ export const adminService = {
         todosUsuarios = [...todosUsuarios, ...restUsuarios];
       }
 
-      const result = buildServiceSuccess({ usuarios: todosUsuarios });
+      const result = buildServiceSuccess({
+        usuarios: todosUsuarios,
+        requestId: getResponseRequestId(firstResponse),
+      });
+
       cache.usuarios = result;
       cache.usuariosTimestamp = Date.now();
 
@@ -74,14 +84,15 @@ export const adminService = {
 
   cambiarEstadoUsuario: async (id, estado) => {
     try {
-      const { data } = await axiosInstance.put(`/usuarios/${id}/estado`, { estado });
+      const response = await axiosInstance.put(`/usuarios/${id}/estado`, { estado });
+      const { data } = response;
 
       return buildServiceSuccess({
-        ok: true,
         usuario: data.usuario,
+        requestId: getResponseRequestId(response),
       });
     } catch (error) {
-      return mapServiceError(error, "Error de conexión al servidor", { ok: false });
+      return mapServiceError(error, "Error de conexión al servidor");
     }
   },
 

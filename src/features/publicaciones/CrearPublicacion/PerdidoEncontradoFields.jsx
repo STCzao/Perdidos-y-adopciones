@@ -1,72 +1,63 @@
 import { InputField } from "./FormFields";
 import { LOCALIDADES_TUCUMAN } from "../../../utils/localidades";
 
-/**
- * Campos específicos para publicaciones de tipo PERDIDO o ENCONTRADO
- */
+const fieldLabel = "block text-sm font-semibold text-[#5f4c41]";
+const fieldInput =
+  "mt-1.5 w-full rounded-[0.9rem] border border-[#2f241d]/12 bg-white px-4 py-2.5 text-sm text-[#3d332d] outline-none transition placeholder:text-[#9e8e84] focus:border-[#d46f49]/45 focus:ring-2 focus:ring-[#d46f49]/15 disabled:opacity-50";
+const fieldError = "mt-1.5 text-xs text-[#a84632]";
+
 export const PerdidoEncontradoFields = ({ form, handleChange, errors, submitting }) => {
   if (form.tipo !== "PERDIDO" && form.tipo !== "ENCONTRADO") return null;
 
   return (
     <>
-      {/* Campo Localidad */}
-      <div className="mt-4">
-        <label className="flex items-left text-left text-sm mb-1 ml-2">
-          Localidad *
+      <div>
+        <label htmlFor="localidad" className={fieldLabel}>
+          Localidad
         </label>
-        <div className="flex items-center w-full bg-white border border-gray-300/80 h-12 rounded-full overflow-hidden pl-6 pr-4">
-          <select
-            name="localidad"
-            value={form.localidad}
-            onChange={handleChange}
-            disabled={submitting}
-            className="bg-transparent text-gray-500 outline-none text-sm w-full h-full"
-          >
-            <option value="">Seleccione una localidad</option>
-            {LOCALIDADES_TUCUMAN.map((localidad) => (
-              <option key={localidad} value={localidad}>
-                {localidad}
-              </option>
-            ))}
-          </select>
-        </div>
-        {errors.localidad && (
-          <p className="text-red-400 text-xs mt-1 text-left w-full px-4">
-            {errors.localidad}
-          </p>
-        )}
+        <select
+          id="localidad"
+          name="localidad"
+          value={form.localidad}
+          onChange={handleChange}
+          disabled={submitting}
+          className={fieldInput}
+        >
+          <option value="">Seleccione una localidad</option>
+          {LOCALIDADES_TUCUMAN.map((localidad) => (
+            <option key={localidad} value={localidad}>
+              {localidad}
+            </option>
+          ))}
+        </select>
+        {errors.localidad && <p className={fieldError}>{errors.localidad}</p>}
       </div>
 
       <InputField
-        label="Dirección, calle o zona específica:"
+        label="Dirección, calle o zona específica"
         name="lugar"
         type="text"
         value={form.lugar}
         onChange={handleChange}
         disabled={submitting}
         error={errors.lugar}
-        placeholder="Ej: Barrio Norte, calle San Martín 500 *"
+        placeholder="Ej: Barrio Norte, calle San Martín 500"
       />
 
-      <div className="mt-4">
-        <label className="flex items-left text-left text-sm mb-1 ml-2">
-          Fecha en que perdió/encontró a su animal
+      <div>
+        <label htmlFor="fecha" className={fieldLabel}>
+          Fecha en que perdió / encontró al animal
         </label>
-        <div className="flex items-center w-full bg-white border border-gray-300/80 h-12 rounded-full overflow-hidden pl-6 gap-2">
-          <input
-            type="date"
-            name="fecha"
-            value={form.fecha}
-            onChange={handleChange}
-            disabled={submitting}
-            className="bg-transparent pr-8 text-gray-500 outline-none text-sm w-full h-full"
-          />
-        </div>
-        {errors.fecha && (
-          <p className="text-red-400 text-xs mt-1 text-left w-full px-4">
-            {errors.fecha}
-          </p>
-        )}
+        <input
+          id="fecha"
+          type="date"
+          name="fecha"
+          value={form.fecha}
+          onChange={handleChange}
+          disabled={submitting}
+          className={fieldInput}
+        />
+        {errors.fecha && <p className={fieldError}>{errors.fecha}</p>}
       </div>
     </>
   );

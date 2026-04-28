@@ -1,5 +1,16 @@
 export const PUBLICACION_SIZE_FIELD = "tamaño";
 
+export const formatBooleanish = (value) => {
+  if (value === undefined || value === null || value === "") return "";
+  if (typeof value === "boolean") return value ? "Sí" : "No";
+
+  const normalized = String(value).trim().toLowerCase();
+  if (["si", "sí", "yes", "true", "apto", "compatible"].includes(normalized)) return "Sí";
+  if (["no", "false", "no apto", "no compatible"].includes(normalized)) return "No";
+
+  return String(value).trim();
+};
+
 const normalizeLooseKey = (value) =>
   String(value || "")
     .normalize("NFD")

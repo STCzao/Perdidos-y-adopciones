@@ -1,4 +1,3 @@
-"use client";
 import React, { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import ModalShell from "../../components/ui/ModalShell";
@@ -6,6 +5,7 @@ import { comunidadService } from "../../services/comunidad";
 import { ConfirmModal } from "../../components/ui/ConfirmModal";
 import { CrearComunidad } from "./CrearComunidad";
 import { useAuth } from "../../context/AuthContext";
+import { withRequestIdMessage } from "../../services/serviceUtils";
 
 let modalControl;
 
@@ -53,10 +53,14 @@ export const VerComunidad = {
         setLoading(true);
         setError("");
         const resp = await comunidadService.obtenerComunidad();
-        if (resp?.success) setItems(resp.comunidades || []);
-        else setError(resp?.msg || "Error al obtener comunidad");
+
+        if (resp?.success) {
+          setItems(resp.comunidades || []);
+        } else {
+          setError(withRequestIdMessage(resp?.msg || "Error al obtener comunidad", resp?.requestId));
+        }
       } catch {
-        setError("Error de conexion al servidor");
+        setError("Error de conexión al servidor");
       } finally {
         setLoading(false);
       }
@@ -65,15 +69,16 @@ export const VerComunidad = {
     const handleEliminar = useCallback(async (item) => {
       try {
         const result = await comunidadService.borrarComunidad(item._id);
+
         if (result.success) {
-          setItems((prev) => prev.filter((p) => p._id !== item._id));
+          setItems((prev) => prev.filter((post) => post._id !== item._id));
           return true;
-        } else {
-          setError(result.msg || "Error al eliminar item");
-          return false;
         }
+
+        setError(withRequestIdMessage(result.msg || "Error al eliminar item", result.requestId));
+        return false;
       } catch {
-        setError("Error de conexion al eliminar");
+        setError("Error de conexión al eliminar");
         return false;
       }
     }, []);
@@ -111,7 +116,7 @@ export const VerComunidad = {
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="flex w-full max-w-6xl max-h-[90vh] flex-col items-center overflow-y-auto"
+          className="flex max-h-[90vh] w-full max-w-6xl flex-col items-center overflow-y-auto"
         >
           <div className="relative w-full max-w-6xl rounded-[1.5rem] border border-[color:var(--shell-line)] bg-[linear-gradient(180deg,rgba(255,250,244,0.98),rgba(248,240,229,0.96))] px-6 py-6 text-center shadow-[0_28px_70px_rgba(36,25,20,0.12)] sm:px-8">
             <button
@@ -126,7 +131,7 @@ export const VerComunidad = {
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                className="w-5 h-5"
+                className="h-5 w-5"
               >
                 <line x1="18" y1="6" x2="6" y2="18" />
                 <line x1="6" y1="6" x2="18" y2="18" />
@@ -135,7 +140,7 @@ export const VerComunidad = {
 
             <div className="flex flex-col items-center justify-center">
               <h1 className="mt-2 text-3xl font-medium text-[color:var(--shell-ink)]">
-                Administrar Comunidad
+                Administrar comunidad
               </h1>
               <p className="mt-1 text-sm text-[color:var(--shell-muted)]">
                 Gestiona todos los casos de la comunidad
@@ -201,12 +206,10 @@ const ComunidadItem = React.memo(({ item, onEliminar, onEditar, loading }) => {
         <h3 className="text-lg font-semibold text-[color:var(--shell-ink)]">{item.titulo}</h3>
 
         <div className="mt-2 flex flex-wrap gap-2 text-sm text-[color:var(--shell-muted)]">
-          <span className="rounded px-2 py-1 bg-[color:var(--shell-danger-soft)] text-[#a44939]">
+          <span className="rounded bg-[color:var(--shell-danger-soft)] px-2 py-1 text-[#a44939]">
             {item.categoria}
           </span>
-          <span className="text-[color:var(--shell-muted)]">
-            {item.contenido?.slice(0, 80)}...
-          </span>
+          <span className="text-[color:var(--shell-muted)]">{item.contenido?.slice(0, 80)}...</span>
         </div>
 
         <p className="mt-2 text-sm text-[#7b685c]">

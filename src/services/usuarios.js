@@ -7,12 +7,12 @@ export const usuariosService = {
       const { data } = await axiosInstance.get("/usuarios/mi-perfil");
 
       return buildServiceSuccess({
-        ok: true,
         usuario: data.usuario,
         seguridad: data.seguridad || null,
+        requestId: data.requestId || "",
       });
     } catch (error) {
-      return mapServiceError(error, "Error al obtener perfil", { ok: false });
+      return mapServiceError(error, "Error al obtener perfil");
     }
   },
 
@@ -27,21 +27,21 @@ export const usuariosService = {
       if (!Object.keys(datosPermitidos).length) {
         return {
           success: false,
-          ok: false,
           msg: "No hay campos válidos para actualizar",
           errors: {},
+          requestId: "",
         };
       }
 
       const { data } = await axiosInstance.put("/usuarios/mi-perfil", datosPermitidos);
 
       return buildServiceSuccess({
-        ok: true,
         usuario: data.usuario || data,
         seguridad: data.seguridad || null,
+        requestId: data.requestId || "",
       });
     } catch (error) {
-      return mapServiceError(error, "Error al actualizar perfil", { ok: false });
+      return mapServiceError(error, "Error al actualizar perfil");
     }
   },
 
@@ -49,11 +49,11 @@ export const usuariosService = {
     try {
       const { data } = await axiosInstance.patch("/usuarios/mi-perfil/password", body);
       return buildServiceSuccess({
-        ok: true,
         ...data,
+        requestId: data.requestId || "",
       });
     } catch (error) {
-      return mapServiceError(error, "Error al cambiar la contraseña", { ok: false });
+      return mapServiceError(error, "Error al cambiar la contraseña");
     }
   },
 
@@ -61,11 +61,11 @@ export const usuariosService = {
     try {
       const { data } = await axiosInstance.delete(`/usuarios/${id}`);
       return buildServiceSuccess({
-        ok: true,
         ...data,
+        requestId: data.requestId || "",
       });
     } catch (error) {
-      return mapServiceError(error, "Error al eliminar usuario", { ok: false });
+      return mapServiceError(error, "Error al eliminar usuario");
     }
   },
 };

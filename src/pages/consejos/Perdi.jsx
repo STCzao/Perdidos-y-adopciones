@@ -2,7 +2,7 @@ import AdviceLayout from "./AdviceLayout";
 
 const steps = [
   {
-    title: "Buscalo en la zona inmediata",
+    title: "Búscalo en la zona inmediata",
     text: "Recorre el lugar donde se perdió, llamándolo por su nombre y revisando los puntos donde podría haberse refugiado.",
     bullets: [
       "Pregunta a vecinos, comerciantes y personas que estén en la calle.",
@@ -18,7 +18,7 @@ const steps = [
     text: "Crea una publicación como perdido con fotos claras y la zona exacta donde se extravió. Las primeras horas son clave.",
   },
   {
-    title: "Difundi de forma ordenada",
+    title: "Difunde de forma ordenada",
     text: "Comparte siempre el mismo aviso para evitar información cruzada y facilitar que te contacten.",
     bullets: [
       "Publica en grupos barriales y redes sociales.",
@@ -41,12 +41,13 @@ const steps = [
 
 const PerdiScreen = () => (
   <AdviceLayout
-    eyebrow="Busqueda activa"
-    title="Que hacer si perdiste un animal"
-    description="Una guia breve para moverte rapido, ordenar la difusion y aumentar las chances de reencuentro."
+    eyebrow="Búsqueda activa"
+    title="Qué hacer si perdiste un animal"
+    description="Una guía breve para moverte rápido, ordenar la difusión y aumentar las chances de reencuentro."
     accent="#D62828"
+    path="/consejos-perdi"
     steps={steps}
-    closing="No hace falta hacerlo perfecto para empezar a ayudar. Moverte rapido, publicar bien y sostener la busqueda con informacion clara ya hace una diferencia enorme."
+    closing="No hace falta hacerlo perfecto para empezar a ayudar. Moverte rápido, publicar bien y sostener la búsqueda con información clara ya hace una diferencia enorme."
   />
 );
 

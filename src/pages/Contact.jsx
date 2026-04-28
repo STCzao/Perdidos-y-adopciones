@@ -1,8 +1,10 @@
 import { motion } from "framer-motion";
 import Footer from "../components/layout/Footer";
 import Navbar from "../components/layout/Navbar";
+import Seo from "../components/seo/Seo";
 import { useState } from "react";
 import { validateContactForm } from "../utils/validators";
+import { buildBreadcrumbSchema } from "../components/seo/seoUtils";
 
 const ContactScreen = () => {
   const [result, setResult] = useState("");
@@ -63,6 +65,17 @@ const ContactScreen = () => {
 
   return (
     <div className="bg-[#f6efe4] text-[#241914]">
+      <Seo
+        title="Contacto y colaboración"
+        description="Contáctanos para colaborar con Perdidos y Adopciones, ofrecer ayuda, insumos, tránsito o difusión para los casos de la comunidad."
+        path="/contacto"
+        structuredData={[
+          buildBreadcrumbSchema([
+            { name: "Inicio", path: "/" },
+            { name: "Contacto", path: "/contacto" },
+          ]),
+        ]}
+      />
       <Navbar />
 
       <section

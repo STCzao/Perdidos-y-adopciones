@@ -1,18 +1,24 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import ReactPaginate from "react-paginate";
 import Navbar from "../../../components/layout/Navbar";
 import Footer from "../../../components/layout/Footer";
 import CardFiltro from "../../../components/forms/CardFiltro";
-import { publicacionesService } from "../../../services/publicaciones";
-import { useRequireAuth } from "../../../hooks/useRequireAuth";
+import Seo from "../../../components/seo/Seo";
+import {
+  publicacionesService,
+  publicacionesTodasCache,
+  publicacionesTodasPending,
+} from "../../../services/publicaciones";
 import { compareFechas } from "../../../utils/dateHelpers";
 import { getTipoColorMeta } from "../../../utils/publicacionColors";
 import CardGenerica from "../components/CardGenerica";
 import { getPublicacionTamano } from "../utils/publicacionFields";
+import { buildBreadcrumbSchema } from "../../../components/seo/seoUtils";
 
 const ITEMS_PER_PAGE = 12;
+const PAGE_FETCH_SIZE = 50;
 
 const mapTipos = {
   perdidos: "PERDIDO",
@@ -50,11 +56,11 @@ const PublicacionesPage = () => {
   const { tipo } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
-  const withAuth = useRequireAuth();
   const meta = pageMeta[tipo] || pageMeta.perdidos;
 
   const [todasLasPublicaciones, setTodasLasPublicaciones] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [page, setPage] = useState(1);
   const [hashProcessed, setHashProcessed] = useState(false);
   const [razasPorEspecie, setRazasPorEspecie] = useState({});
@@ -79,27 +85,48 @@ const PublicacionesPage = () => {
     lugar: "",
   });
 
-  useEffect(() => {
-    const fetchAllPublicaciones = async () => {
-      setLoading(true);
+  const isFiltering = useMemo(
+    () =>
+      Object.values(filtros).some(
+        (value) => value !== undefined && value !== null && String(value).trim() !== "",
+      ),
+    [filtros],
+  );
 
-      try {
-        const firstResponse = await publicacionesService.getPublicaciones({
-          page: 1,
-          limit: 50,
-          tipo: mapTipos[tipo],
-        });
+  const filtrarActivas = useCallback(
+    (publicaciones = []) =>
+      publicaciones.filter(
+        (publicacion) => !estadosExcluidos.includes(publicacion.estado),
+      ),
+    [],
+  );
 
-        const primeras = firstResponse?.publicaciones || [];
-        const totalPagesAll = firstResponse?.totalPages || 1;
+  const cargarTodasLasPublicaciones = useCallback(
+    async ({ firstResponse } = {}) => {
+      if (publicacionesTodasCache[tipo]) {
+        return publicacionesTodasCache[tipo];
+      }
+
+      if (publicacionesTodasPending[tipo]) {
+        return publicacionesTodasPending[tipo];
+      }
+
+      publicacionesTodasPending[tipo] = (async () => {
+        const primeraRespuesta =
+          firstResponse ||
+          (await publicacionesService.getPublicaciones({
+            page: 1,
+            limit: PAGE_FETCH_SIZE,
+            tipo: mapTipos[tipo],
+          }));
+
+        const primeras = primeraRespuesta?.publicaciones || [];
+        const totalPagesAll = primeraRespuesta?.totalPages || 1;
 
         if (totalPagesAll <= 1) {
-          const filtradas = primeras.filter(
-            (publicacion) => !estadosExcluidos.includes(publicacion.estado),
-          );
-          setTodasLasPublicaciones(filtradas);
-          setLoading(false);
-          return;
+          const activas = filtrarActivas(primeras);
+          publicacionesTodasCache[tipo] = activas;
+          return activas;
         }
 
         const requests = [];
@@ -107,7 +134,7 @@ const PublicacionesPage = () => {
           requests.push(
             publicacionesService.getPublicaciones({
               page: currentPage,
-              limit: 50,
+              limit: PAGE_FETCH_SIZE,
               tipo: mapTipos[tipo],
             }),
           );
@@ -115,21 +142,78 @@ const PublicacionesPage = () => {
 
         const results = await Promise.all(requests);
         const resto = results.flatMap((response) => response?.publicaciones || []);
-        const filtradas = [...primeras, ...resto].filter(
-          (publicacion) => !estadosExcluidos.includes(publicacion.estado),
-        );
+        const activas = filtrarActivas([...primeras, ...resto]);
+        publicacionesTodasCache[tipo] = activas;
+        return activas;
+      })();
 
-        setTodasLasPublicaciones(filtradas);
+      try {
+        return await publicacionesTodasPending[tipo];
+      } finally {
+        delete publicacionesTodasPending[tipo];
+      }
+    },
+    [filtrarActivas, tipo],
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const bootstrapPublicaciones = async () => {
+      if (publicacionesTodasCache[tipo]) {
+        setTodasLasPublicaciones(publicacionesTodasCache[tipo]);
+        setLoading(false);
+        setLoadingMore(false);
+        return;
+      }
+
+      setLoading(true);
+      setLoadingMore(false);
+
+      try {
+        const firstResponse = await publicacionesService.getPublicaciones({
+          page: 1,
+          limit: PAGE_FETCH_SIZE,
+          tipo: mapTipos[tipo],
+        });
+
+        if (cancelled) return;
+
+        const activasIniciales = filtrarActivas(firstResponse?.publicaciones || []);
+        setTodasLasPublicaciones(activasIniciales);
+        setLoading(false);
+
+        const totalPagesAll = firstResponse?.totalPages || 1;
+        if (totalPagesAll <= 1) {
+          publicacionesTodasCache[tipo] = activasIniciales;
+          return;
+        }
+
+        setLoadingMore(true);
+        const todas = await cargarTodasLasPublicaciones({ firstResponse });
+
+        if (!cancelled) {
+          setTodasLasPublicaciones(todas);
+        }
       } catch (error) {
         console.error("Error cargando publicaciones:", error);
-        setTodasLasPublicaciones([]);
+        if (!cancelled) {
+          setTodasLasPublicaciones([]);
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+          setLoadingMore(false);
+        }
       }
     };
 
-    fetchAllPublicaciones();
-  }, [tipo]);
+    bootstrapPublicaciones();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [cargarTodasLasPublicaciones, filtrarActivas, tipo]);
 
   useEffect(() => {
     setPage(1);
@@ -158,13 +242,38 @@ const PublicacionesPage = () => {
       );
     });
 
+  useEffect(() => {
+    if (!isFiltering || publicacionesTodasCache[tipo]) return;
+
+    let cancelled = false;
+
+    const ensureFullDataset = async () => {
+      try {
+        setLoadingMore(true);
+        const todas = await cargarTodasLasPublicaciones();
+
+        if (!cancelled) {
+          setTodasLasPublicaciones(todas);
+        }
+      } catch (error) {
+        console.error("Error completando publicaciones para filtros:", error);
+      } finally {
+        if (!cancelled) {
+          setLoadingMore(false);
+        }
+      }
+    };
+
+    ensureFullDataset();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [cargarTodasLasPublicaciones, isFiltering, tipo]);
+
   const publicacionesFiltradas = filtrarPublicaciones(todasLasPublicaciones);
   const publicacionesOrdenadas = [...publicacionesFiltradas].sort((a, b) =>
     compareFechas(a.fecha || "", b.fecha || ""),
-  );
-
-  const isFiltering = Object.values(filtros).some(
-    (value) => value !== undefined && value !== null && String(value).trim() !== "",
   );
 
   const totalPages = Math.ceil(publicacionesOrdenadas.length / ITEMS_PER_PAGE);
@@ -184,6 +293,10 @@ const PublicacionesPage = () => {
 
   useEffect(() => {
     const id = location.hash.slice(1);
+
+    if (id && loadingMore && !publicacionesTodasCache[tipo]) {
+      return;
+    }
 
     if (id && !loading && !hashProcessed && publicacionesOrdenadas.length > 0) {
       const cardIndex = publicacionesOrdenadas.findIndex(
@@ -209,7 +322,7 @@ const PublicacionesPage = () => {
         checkIfInSuccessfulPublications(id);
       }
     }
-  }, [location.hash, loading, hashProcessed, publicacionesOrdenadas, page]);
+  }, [location.hash, loading, loadingMore, hashProcessed, publicacionesOrdenadas, page, tipo]);
 
   const checkIfInSuccessfulPublications = async (publicacionId) => {
     try {
@@ -253,6 +366,17 @@ const PublicacionesPage = () => {
 
   return (
     <div className="bg-[#f6efe4] pb-24 text-[#241914] md:pb-0">
+      <Seo
+        title={meta.title}
+        description={meta.description}
+        path={`/publicaciones/${tipo}`}
+        structuredData={[
+          buildBreadcrumbSchema([
+            { name: "Inicio", path: "/" },
+            { name: meta.title, path: `/publicaciones/${tipo}` },
+          ]),
+        ]}
+      />
       <Navbar />
 
       <div className="relative min-h-screen overflow-hidden px-4 pb-16 pt-26 sm:px-6 sm:pt-30 lg:px-8 lg:pt-32">
@@ -291,9 +415,14 @@ const PublicacionesPage = () => {
                   <p className="mt-1.5 text-[0.86rem] font-medium leading-relaxed text-[#5f4c41]">
                     {loading
                       ? "Cargando publicaciones activas..."
-                      : isFiltering
-                        ? `Mostrando ${publicacionesOrdenadas.length} coincidencias según tus filtros.`
-                        : `Explora ${publicacionesOrdenadas.length} publicaciones activas.`}
+                      : loadingMore
+                        ? `Mostrando ${Math.min(
+                            publicacionesOrdenadas.length,
+                            ITEMS_PER_PAGE,
+                          )} resultados mientras terminamos de cargar el archivo.`
+                        : isFiltering
+                          ? `Mostrando ${publicacionesOrdenadas.length} coincidencias según tus filtros.`
+                          : `Explora ${publicacionesOrdenadas.length} publicaciones activas.`}
                   </p>
                 </div>
               </div>
@@ -336,7 +465,7 @@ const PublicacionesPage = () => {
                 )}
               </div>
 
-              {!isFiltering && totalPages > 1 && (
+              {!isFiltering && !loadingMore && totalPages > 1 && (
                 <ReactPaginate
                   previousLabel="Anterior"
                   nextLabel="Siguiente"
@@ -358,6 +487,12 @@ const PublicacionesPage = () => {
                   breakLinkClassName="block rounded-full px-2 py-2 text-sm text-[#816959]"
                   renderOnZeroPageCount={null}
                 />
+              )}
+
+              {!loading && loadingMore && !isFiltering && (
+                <div className="rounded-[0.85rem] border border-[#2f241d]/10 bg-white/72 px-4 py-3 text-center text-sm text-[#5f4c41] shadow-sm">
+                  Cargando más publicaciones para habilitar la paginación completa y los filtros avanzados.
+                </div>
               )}
             </div>
           </section>

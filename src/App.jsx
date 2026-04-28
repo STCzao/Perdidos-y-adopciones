@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { BrowserRouter } from "react-router-dom";
 import { AuthContext } from "./context/AuthContext";
+import { getAuthSyncKey } from "./services/api.js";
 import { logout, refreshAccessToken } from "./services/auth.js";
 import { usuariosService } from "./services/usuarios";
 import AppRouter from "./router/AppRouter.jsx";
@@ -31,6 +32,27 @@ function App() {
     }
   }, [syncUser]);
 
+  const hydrateSessionFromBackend = useCallback(async () => {
+    const refreshed = await refreshAccessToken();
+
+    if (!refreshed.success) {
+      clearSessionState();
+      return false;
+    }
+
+    const userData = await usuariosService.getMiPerfil();
+
+    if (!userData.success || !userData.usuario) {
+      clearSessionState();
+      return false;
+    }
+
+    setUser(userData.usuario);
+    setLogin(true);
+    syncUser(userData.usuario);
+    return true;
+  }, [clearSessionState, syncUser]);
+
   const cerrarSesion = useCallback(async () => {
     try {
       await logout();
@@ -57,25 +79,8 @@ function App() {
       setLoading(true);
 
       try {
-        const refreshed = await refreshAccessToken();
-
-        if (!refreshed.success) {
-          clearSessionState();
-          return;
-        }
-
-        const userData = await usuariosService.getMiPerfil();
-
-        if (!userData.success || !userData.usuario) {
-          clearSessionState();
-          return;
-        }
-
-        setUser(userData.usuario);
-        setLogin(true);
-        syncUser(userData.usuario);
-      } catch (error) {
-        console.error("Error al iniciar sesión persistida:", error);
+        await hydrateSessionFromBackend();
+      } catch {
         clearSessionState();
       } finally {
         setLoading(false);
@@ -83,7 +88,7 @@ function App() {
     };
 
     bootstrapSession();
-  }, [clearSessionState, syncUser]);
+  }, [clearSessionState, hydrateSessionFromBackend]);
 
   useEffect(() => {
     const handleForceLogout = () => {
@@ -104,6 +109,32 @@ function App() {
     window.addEventListener("userProfileUpdated", handleUserProfileUpdate);
     return () => window.removeEventListener("userProfileUpdated", handleUserProfileUpdate);
   }, []);
+
+  useEffect(() => {
+    const syncKey = getAuthSyncKey();
+
+    const handleStorage = async (event) => {
+      if (event.key !== syncKey || !event.newValue) return;
+
+      try {
+        const payload = JSON.parse(event.newValue);
+
+        if (payload?.type === "logout" || payload?.type === "logout-all") {
+          clearSessionState();
+          return;
+        }
+
+        if (payload?.type === "login") {
+          await hydrateSessionFromBackend();
+        }
+      } catch (error) {
+        console.warn("No se pudo sincronizar la sesión entre pestañas:", error);
+      }
+    };
+
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  }, [clearSessionState, hydrateSessionFromBackend]);
 
   if (loading) {
     return (

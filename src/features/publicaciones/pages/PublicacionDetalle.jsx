@@ -3,13 +3,15 @@ import { Link, Navigate, useLocation, useParams } from "react-router-dom";
 import { LazyLoadImage } from "react-lazy-load-image-component";
 import Navbar from "../../../components/layout/Navbar";
 import Footer from "../../../components/layout/Footer";
+import Seo from "../../../components/seo/Seo";
 import { publicacionesService } from "../../../services/publicaciones";
 import { formatFecha } from "../../../utils/dateHelpers";
 import { getTipoColorMeta } from "../../../utils/publicacionColors";
-import { generarPDFPublicacion } from "../components/CardPdf";
 import { getPublicacionSlug } from "../utils/publicacionPaths";
-import { getPublicacionTamano } from "../utils/publicacionFields";
+import { formatBooleanish, getPublicacionTamano } from "../utils/publicacionFields";
 import { useRequireAuth } from "../../../hooks/useRequireAuth";
+import { buildAnimalPostingSchema, buildBreadcrumbSchema } from "../../../components/seo/seoUtils";
+import { getCloudinaryUrl } from "../../../utils/cloudinaryUtils";
 
 const tipoMeta = {
   PERDIDO: {
@@ -40,17 +42,6 @@ const panelClass =
 const itemClass =
   "rounded-[0.68rem] border border-[#2f241d]/10 bg-white/88 px-3.5 py-3 shadow-sm";
 
-const formatBooleanish = (value) => {
-  if (value === undefined || value === null || value === "") return "";
-  if (typeof value === "boolean") return value ? "Sí" : "No";
-
-  const normalized = String(value).trim().toLowerCase();
-  if (["si", "sí", "yes", "true", "apto", "compatible"].includes(normalized)) return "Sí";
-  if (["no", "false", "no apto", "no compatible"].includes(normalized)) return "No";
-
-  return String(value).trim();
-};
-
 const Field = ({ label, value }) => {
   if (!value) return null;
 
@@ -66,36 +57,67 @@ const Field = ({ label, value }) => {
   );
 };
 
+const getLocationStatePublicacion = (location, id) => {
+  const statePublicacion = location.state?.publicacion;
+
+  if (!statePublicacion) return null;
+
+  const stateId = statePublicacion._id || statePublicacion.id;
+  return stateId === id ? statePublicacion : null;
+};
+
 export default function PublicacionDetalle() {
   const { tipo, id } = useParams();
   const location = useLocation();
   const withAuth = useRequireAuth();
-  const [publicacion, setPublicacion] = useState(null);
+  const statePublicacion = getLocationStatePublicacion(location, id);
+  const [publicacion, setPublicacion] = useState(statePublicacion);
   const [contactoWhatsapp, setContactoWhatsapp] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!statePublicacion);
   const [copied, setCopied] = useState(false);
   const [generatingPDF, setGeneratingPDF] = useState(false);
   const [contactLoading, setContactLoading] = useState(false);
   const [contactError, setContactError] = useState("");
 
   useEffect(() => {
+    let cancelled = false;
+
     const fetchPublicacion = async () => {
-      setLoading(true);
+      if (!statePublicacion) {
+        setLoading(true);
+      }
+
       setContactoWhatsapp("");
 
       try {
         const response = await publicacionesService.getPublicacionById(id);
-        setPublicacion(response?.publicacion || null);
+
+        if (!cancelled) {
+          setPublicacion(response?.publicacion || null);
+        }
       } catch (error) {
         console.error("Error cargando publicación:", error);
-        setPublicacion(null);
+        if (!cancelled) {
+          setPublicacion(null);
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     };
 
+    if (statePublicacion) {
+      setPublicacion(statePublicacion);
+      setLoading(false);
+    }
+
     fetchPublicacion();
-  }, [id]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [id, statePublicacion]);
 
   const handleShare = async () => {
     try {
@@ -113,6 +135,8 @@ export default function PublicacionDetalle() {
     try {
       setGeneratingPDF(true);
       const fileName = `${publicacion.tipo}_${publicacion.nombreanimal || publicacion.especie}_${Date.now()}.pdf`;
+      const { generarPDFPublicacion } = await import("../components/CardPdf");
+
       await generarPDFPublicacion(
         {
           ...publicacion,
@@ -205,6 +229,29 @@ export default function PublicacionDetalle() {
 
   return (
     <div className="bg-[#f6efe4] pb-24 text-[#241914] md:pb-0">
+      {publicacion && (
+        <Seo
+          title={publicacion.nombreanimal || publicacion.especie || "Detalle de publicación"}
+          description={
+            publicacion.detalles ||
+            `Consulta el detalle de este caso de ${publicacion.tipo?.toLowerCase() || "publicación"} en Perdidos y Adopciones.`
+          }
+          path={`/publicaciones/${tipo}/${id}`}
+          type="article"
+          image={publicacion.img}
+          structuredData={[
+            buildBreadcrumbSchema([
+              { name: "Inicio", path: "/" },
+              { name: "Listado", path: backPath },
+              {
+                name: publicacion.nombreanimal || publicacion.especie || "Detalle",
+                path: `/publicaciones/${tipo}/${id}`,
+              },
+            ]),
+            buildAnimalPostingSchema(publicacion),
+          ]}
+        />
+      )}
       <Navbar />
 
       <div className="relative min-h-screen overflow-hidden px-4 pb-16 pt-26 sm:px-6 sm:pt-30 lg:px-8 lg:pt-32">
@@ -261,7 +308,7 @@ export default function PublicacionDetalle() {
                         {publicacion.img ? (
                           <div className="grid aspect-[4/3] min-h-[17rem] place-items-center overflow-hidden bg-[#e6dac6] sm:min-h-[20rem] xl:min-h-[23rem]">
                             <LazyLoadImage
-                              src={publicacion.img}
+                              src={getCloudinaryUrl(publicacion.img, { width: 900 })}
                               alt={publicacion.nombreanimal || publicacion.especie}
                               className="block h-full w-full object-contain p-3 sm:p-4"
                               loading="eager"
