@@ -81,6 +81,10 @@ export default function PublicacionDetalle() {
   const [contactError, setContactError] = useState("");
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
     let cancelled = false;
 
     const fetchPublicacion = async () => {

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { usuariosService } from "../../services/usuarios";
 import { ConfirmModal } from "../../components/ui/ConfirmModal";
@@ -91,7 +91,10 @@ export const EditarPerfil = {
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-    modalControl = { setOpen };
+    useLayoutEffect(() => {
+      modalControl = { setOpen };
+      return () => { modalControl = null; };
+    }, []);
 
     const { handleImageUpload } = useImageUpload(
       (url) => {

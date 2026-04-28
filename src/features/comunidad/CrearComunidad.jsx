@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { motion } from "framer-motion";
 import ModalShell from "../../components/ui/ModalShell";
 import { comunidadService } from "../../services/comunidad";
@@ -49,7 +49,10 @@ export const CrearComunidad = {
     const [, setLoading] = useState(false);
     const [editData, setEditData] = useState(null);
 
-    modalControl = { setOpen, setEditData };
+    useLayoutEffect(() => {
+      modalControl = { setOpen, setEditData };
+      return () => { modalControl = null; };
+    }, []);
 
     useEffect(() => {
       if (open) {
