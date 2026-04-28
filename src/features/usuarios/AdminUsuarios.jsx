@@ -3,11 +3,16 @@ import { motion } from "framer-motion";
 import ModalShell from "../../components/ui/ModalShell";
 import { adminService } from "../../services/admin";
 import { ConfirmModal } from "../../components/ui/ConfirmModal";
+import LoadingState from "../../components/ui/LoadingState";
 
 let modalControl;
 
 export const AdminUsuarios = {
-  openModal: () => modalControl?.setOpen(true),
+  openModal: () => {
+    if (!modalControl) return false;
+    modalControl.setOpen(true);
+    return true;
+  },
 
   Component: React.memo(() => {
     const [open, setOpen] = useState(false);
@@ -159,9 +164,7 @@ export const AdminUsuarios = {
             )}
 
             {loading ? (
-              <div className="flex items-center justify-center p-8">
-                <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-[color:var(--shell-accent-strong)]"></div>
-              </div>
+              <LoadingState compact label="Cargando usuarios..." />
             ) : (
               <div className="mt-6 max-h-[60vh] space-y-4 overflow-y-auto">
                 {usuarios.map((usuario, index) => (

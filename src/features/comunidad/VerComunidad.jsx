@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import ModalShell from "../../components/ui/ModalShell";
 import { comunidadService } from "../../services/comunidad";
 import { ConfirmModal } from "../../components/ui/ConfirmModal";
+import LoadingState from "../../components/ui/LoadingState";
 import { CrearComunidad } from "./CrearComunidad";
 import { useAuth } from "../../context/AuthContext";
 import { withRequestIdMessage } from "../../services/serviceUtils";
@@ -10,7 +11,11 @@ import { withRequestIdMessage } from "../../services/serviceUtils";
 let modalControl;
 
 export const VerComunidad = {
-  openModal: () => modalControl?.setOpen(true),
+  openModal: () => {
+    if (!modalControl) return false;
+    modalControl.setOpen(true);
+    return true;
+  },
 
   Component: React.memo(() => {
     const [open, setOpen] = useState(false);
@@ -160,9 +165,7 @@ export const VerComunidad = {
             )}
 
             {loading ? (
-              <div className="flex items-center justify-center p-8">
-                <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-[color:var(--shell-accent-strong)]"></div>
-              </div>
+              <LoadingState compact label="Cargando publicaciones de la comunidad..." />
             ) : (
               <div className="mt-6 max-h-[60vh] space-y-4 overflow-y-auto">
                 {items.map((item) => (

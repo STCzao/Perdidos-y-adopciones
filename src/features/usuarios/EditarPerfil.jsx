@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { usuariosService } from "../../services/usuarios";
 import { ConfirmModal } from "../../components/ui/ConfirmModal";
 import ModalShell from "../../components/ui/ModalShell";
+import LoadingState from "../../components/ui/LoadingState";
 import PasswordInput from "../../components/forms/PasswordInput";
 import { useImageUpload } from "../publicaciones/CrearPublicacion/useImageUpload";
 import {
@@ -63,7 +64,11 @@ const StatusMessage = ({ message }) => {
 };
 
 export const EditarPerfil = {
-  openModal: () => modalControl?.setOpen(true),
+  openModal: () => {
+    if (!modalControl) return false;
+    modalControl.setOpen(true);
+    return true;
+  },
 
   Component: React.memo(() => {
     const [open, setOpen] = useState(false);
@@ -375,9 +380,7 @@ export const EditarPerfil = {
               </div>
 
               {loading ? (
-                <div className="flex min-h-[320px] items-center justify-center">
-                  <div className="h-10 w-10 animate-spin rounded-full border-b-2 border-[#c97b57]" />
-                </div>
+                <LoadingState label="Cargando tu perfil..." />
               ) : !userData ? (
                 <div className="mt-6 rounded-[1.35rem] border border-[#d7c6b4] bg-[#fffaf4] p-6 text-center">
                   <p className="text-sm text-[#5b4d43]">No se pudo cargar la información.</p>

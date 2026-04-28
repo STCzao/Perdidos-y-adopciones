@@ -3,6 +3,8 @@ import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useRequireAuth } from "../../hooks/useRequireAuth";
 import { useAuth } from "../../context/AuthContext";
 import { ConfirmModal } from "../ui/ConfirmModal";
+import ModalShell from "../ui/ModalShell";
+import LoadingState from "../ui/LoadingState";
 
 const loadCrearPublicacionModule = () =>
   import("../../features/publicaciones/CrearPublicacion/CrearPublicacion");
@@ -186,7 +188,7 @@ const getGreetingByHour = (date = new Date()) => {
   return "¡Buenas noches!";
 };
 
-const openModalWhenReady = async (loadModule, exportName, setMountedModals) => {
+const openModalWhenReady = async (loadModule, exportName, setMountedModals, ...args) => {
   const module = await loadModule();
   const modalApi = module?.[exportName];
   if (!modalApi?.openModal) return;
@@ -199,13 +201,15 @@ const openModalWhenReady = async (loadModule, exportName, setMountedModals) => {
   });
 
   if (!needsMount) {
-    modalApi.openModal();
+    modalApi.openModal(...args);
     return;
   }
 
   for (let index = 0; index < 10; index += 1) {
     await new Promise((resolve) => window.setTimeout(resolve, 32));
-    modalApi.openModal();
+    if (modalApi.openModal(...args) !== false) {
+      return;
+    }
   }
 };
 
@@ -287,42 +291,75 @@ const NavbarContent = () => {
   };
 
   const openLazyModal = React.useCallback(
-    (loadModule, exportName) =>
-      openModalWhenReady(loadModule, exportName, setMountedModals),
+    (loadModule, exportName, ...args) =>
+      openModalWhenReady(loadModule, exportName, setMountedModals, ...args),
     [],
   );
 
   // Escuchar el evento global openCrearPublicacion para que cualquier parte de la app
   // pueda abrir el modal sin importar el módulo directamente (evita bundling innecesario).
   React.useEffect(() => {
-    const handleOpenCrear = () =>
-      openLazyModal(loadCrearPublicacionModule, "CrearPublicacion");
+    const handleOpenCrear = (event) =>
+      openLazyModal(loadCrearPublicacionModule, "CrearPublicacion", event.detail ?? null);
 
     window.addEventListener("openCrearPublicacion", handleOpenCrear);
     return () => window.removeEventListener("openCrearPublicacion", handleOpenCrear);
   }, [openLazyModal]);
 
-  const handleCreatePost = () => {
-    withAuth(() => openLazyModal(loadCrearPublicacionModule, "CrearPublicacion"));
+  const closeMenus = React.useCallback(() => {
     setActiveDesktopDropdown(null);
     setIsDesktopProfileMenuOpen(false);
     setIsMobileProfileMenuOpen(false);
+  }, []);
+
+  const handleCreatePost = () => {
+    withAuth(async () => {
+      await openLazyModal(loadCrearPublicacionModule, "CrearPublicacion");
+      closeMenus();
+    });
   };
 
-  const handleProfileAction = (action) => {
-    if (action === "profile") openLazyModal(loadEditarPerfilModule, "EditarPerfil");
-    if (action === "posts") openLazyModal(loadVerPublicacionesModule, "VerPublicaciones");
+  const handleProfileAction = async (action) => {
+    if (action === "logout") {
+      setConfirmModal({ isOpen: true, item: { tipo: "sesion" } });
+      closeMenus();
+      return;
+    }
+
+    if (action === "profile") {
+      await openLazyModal(loadEditarPerfilModule, "EditarPerfil");
+      closeMenus();
+      return;
+    }
+
+    if (action === "posts") {
+      await openLazyModal(loadVerPublicacionesModule, "VerPublicaciones");
+      closeMenus();
+      return;
+    }
+
     if (action === "admin-posts") {
-      openLazyModal(loadAdminPublicacionesModule, "AdminPublicaciones");
+      await openLazyModal(loadAdminPublicacionesModule, "AdminPublicaciones");
+      closeMenus();
+      return;
     }
-    if (action === "admin-users") openLazyModal(loadAdminUsuariosModule, "AdminUsuarios");
+
+    if (action === "admin-users") {
+      await openLazyModal(loadAdminUsuariosModule, "AdminUsuarios");
+      closeMenus();
+      return;
+    }
+
     if (action === "admin-comunidad-create") {
-      openLazyModal(loadCrearComunidadModule, "CrearComunidad");
+      await openLazyModal(loadCrearComunidadModule, "CrearComunidad");
+      closeMenus();
+      return;
     }
-    if (action === "admin-comunidad-list") openLazyModal(loadVerComunidadModule, "VerComunidad");
-    if (action === "logout") setConfirmModal({ isOpen: true, item: { tipo: "sesion" } });
-    setIsDesktopProfileMenuOpen(false);
-    setIsMobileProfileMenuOpen(false);
+
+    if (action === "admin-comunidad-list") {
+      await openLazyModal(loadVerComunidadModule, "VerComunidad");
+      closeMenus();
+    }
   };
 
   const openDesktopDropdown = (name) => setActiveDesktopDropdown(name);
@@ -598,28 +635,30 @@ const NavbarContent = () => {
         </div>
 
         <div
-          className={`mx-auto mt-2 w-full max-w-[1680px] md:hidden transition-all duration-200 ${
+          className={`absolute left-0 right-0 top-full mt-2 px-2.5 transition-all duration-200 sm:px-5 lg:px-8 md:hidden ${
             isMobileProfileMenuOpen
-              ? "visible translate-y-0 opacity-100"
-              : "invisible -translate-y-2 opacity-0"
+              ? "visible translate-y-0 opacity-100 pointer-events-auto"
+              : "invisible -translate-y-2 opacity-0 pointer-events-none"
           }`}
         >
-          <div className="ml-auto max-w-[320px] rounded-[1.15rem] border border-[#2f241d]/10 bg-[rgba(255,250,244,0.96)] p-3 shadow-[0_20px_55px_rgba(20,15,13,0.14)] backdrop-blur-xl">
-            <div className="rounded-[1rem] border border-[#2f241d]/8 bg-white/64 px-3 py-3">
-              <p className="text-sm font-semibold text-[#241914]">
-                {login ? greeting : "Mi cuenta"}
-              </p>
-              <p className="mt-1 text-xs text-[#6f5f53]">
-                {login ? user?.correo || "Perfil" : "Acceso a tu cuenta"}
-              </p>
-            </div>
+          <div className="mx-auto max-w-[1680px]">
+            <div className="ml-auto max-w-[320px] rounded-[1.15rem] border border-[#2f241d]/10 bg-[rgba(255,250,244,0.96)] p-3 shadow-[0_20px_55px_rgba(20,15,13,0.14)] backdrop-blur-xl">
+              <div className="rounded-[1rem] border border-[#2f241d]/8 bg-white/64 px-3 py-3">
+                <p className="text-sm font-semibold text-[#241914]">
+                  {login ? greeting : "Mi cuenta"}
+                </p>
+                <p className="mt-1 text-xs text-[#6f5f53]">
+                  {login ? user?.correo || "Perfil" : "Acceso a tu cuenta"}
+                </p>
+              </div>
 
-            <div className="mt-3 flex flex-col gap-2">{renderProfileMenuButtons(true)}</div>
+              <div className="mt-3 flex flex-col gap-2">{renderProfileMenuButtons(true)}</div>
+            </div>
           </div>
         </div>
       </nav>
 
-      <div className="fixed inset-x-0 bottom-0 z-50 border-t border-[color:var(--shell-line)]/70 bg-[rgba(255,250,244,0.96)] px-2 pb-[max(0.65rem,env(safe-area-inset-bottom))] pt-1.5 shadow-[0_-16px_45px_rgba(31,20,14,0.12)] backdrop-blur-xl md:hidden">
+      <div className="fixed bottom-0 left-0 right-0 z-[1000] min-h-[4.85rem] border-t border-[color:var(--shell-line)] bg-[#fffaf4] px-2 pb-[max(0.65rem,env(safe-area-inset-bottom))] pt-1.5 shadow-[0_-16px_45px_rgba(31,20,14,0.14)] md:hidden">
         <div className="mx-auto grid max-w-[560px] grid-cols-5 gap-1.5">
           {MOBILE_PRIMARY_LINKS.map((item) => {
             const isActive = isMobileBottomLinkActive(item);
@@ -646,7 +685,13 @@ const NavbarContent = () => {
         </div>
       </div>
 
-      <React.Suspense fallback={null}>
+      <React.Suspense
+        fallback={
+          <ModalShell className="p-4">
+            <LoadingState label="Preparando ventana..." compact className="min-h-0" />
+          </ModalShell>
+        }
+      >
         {mountedModals.CrearPublicacion && <CrearPublicacionModal />}
         {mountedModals.EditarPerfil && <EditarPerfilModal />}
         {mountedModals.VerPublicaciones && <VerPublicacionesModal />}

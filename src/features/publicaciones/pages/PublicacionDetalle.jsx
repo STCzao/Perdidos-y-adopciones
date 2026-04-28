@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, Navigate, useLocation, useParams } from "react-router-dom";
-import { LazyLoadImage } from "react-lazy-load-image-component";
+import { Link, Navigate, useLocation, useNavigate, useParams } from "react-router-dom";
 import Navbar from "../../../components/layout/Navbar";
 import Footer from "../../../components/layout/Footer";
 import Seo from "../../../components/seo/Seo";
@@ -12,6 +11,7 @@ import { formatBooleanish, getPublicacionTamano } from "../utils/publicacionFiel
 import { useRequireAuth } from "../../../hooks/useRequireAuth";
 import { buildAnimalPostingSchema, buildBreadcrumbSchema } from "../../../components/seo/seoUtils";
 import { getCloudinaryUrl } from "../../../utils/cloudinaryUtils";
+import LoadingState from "../../../components/ui/LoadingState";
 
 const tipoMeta = {
   PERDIDO: {
@@ -38,19 +38,19 @@ const tipoMeta = {
 };
 
 const panelClass =
-  "rounded-[0.8rem] border border-[#2f241d]/10 bg-[#fffaf4]/94 p-3.5 shadow-[0_12px_28px_rgba(36,25,20,0.05)]";
+  "rounded-[0.9rem] border border-[color:var(--shell-line)] bg-[color:var(--shell-surface)] p-3.5 shadow-sm";
 const itemClass =
-  "rounded-[0.68rem] border border-[#2f241d]/10 bg-white/88 px-3.5 py-3 shadow-sm";
+  "min-w-0 rounded-[0.72rem] border border-[color:var(--shell-line)] bg-[color:var(--shell-surface)] px-3.5 py-3 shadow-sm";
 
 const Field = ({ label, value }) => {
   if (!value) return null;
 
   return (
     <div className={itemClass}>
-      <p className="text-[0.64rem] font-bold uppercase tracking-[0.14em] text-[#7b6557]">
+      <p className="text-[0.64rem] font-bold uppercase tracking-[0.14em] text-[color:var(--shell-muted)]">
         {label}
       </p>
-      <p className="mt-1 text-[0.85rem] font-semibold leading-snug text-[#241914]">
+      <p className="mt-1 break-words text-[0.85rem] font-semibold leading-snug text-[color:var(--shell-ink)]">
         {value}
       </p>
     </div>
@@ -69,6 +69,7 @@ const getLocationStatePublicacion = (location, id) => {
 export default function PublicacionDetalle() {
   const { tipo, id } = useParams();
   const location = useLocation();
+  const navigate = useNavigate();
   const withAuth = useRequireAuth();
   const statePublicacion = getLocationStatePublicacion(location, id);
   const [publicacion, setPublicacion] = useState(statePublicacion);
@@ -188,11 +189,32 @@ export default function PublicacionDetalle() {
 
   const meta = tipoMeta[publicacion?.tipo] || tipoMeta.PERDIDO;
   const backPath = publicacion ? `/publicaciones/${getPublicacionSlug(publicacion.tipo)}` : "/";
+
+  const handleBackToList = () => {
+    navigate(backPath);
+    window.requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    });
+  };
+
   const tamano = getPublicacionTamano(publicacion);
   const whatsappRaw = contactoWhatsapp || "";
   const primaryLocation = publicacion?.localidad || publicacion?.lugar;
   const secondaryLocation =
     publicacion?.localidad && publicacion?.lugar ? publicacion.lugar : null;
+  const imageAlt = publicacion?.nombreanimal
+    ? `Foto de ${publicacion.nombreanimal}`
+    : `Foto de ${publicacion?.especie?.toLowerCase() || "animal"}`;
+  const imageSrc = publicacion?.img
+    ? getCloudinaryUrl(publicacion.img, { width: 720, quality: "auto:eco" })
+    : "";
+  const imageSrcSet = publicacion?.img
+    ? [
+        `${getCloudinaryUrl(publicacion.img, { width: 420, quality: "auto:eco" })} 420w`,
+        `${getCloudinaryUrl(publicacion.img, { width: 720, quality: "auto:eco" })} 720w`,
+        `${getCloudinaryUrl(publicacion.img, { width: 960, quality: "auto:good" })} 960w`,
+      ].join(", ")
+    : "";
 
   const identityFields = [
     { label: "Raza", value: publicacion?.raza },
@@ -228,7 +250,7 @@ export default function PublicacionDetalle() {
   }
 
   return (
-    <div className="bg-[#f6efe4] pb-24 text-[#241914] md:pb-0">
+    <div className="bg-[color:var(--nature-sand)] pb-[calc(6.5rem+env(safe-area-inset-bottom))] text-[color:var(--shell-ink)] md:pb-0">
       {publicacion && (
         <Seo
           title={publicacion.nombreanimal || publicacion.especie || "Detalle de publicación"}
@@ -254,90 +276,88 @@ export default function PublicacionDetalle() {
       )}
       <Navbar />
 
-      <div className="relative min-h-screen overflow-hidden px-4 pb-16 pt-26 sm:px-6 sm:pt-30 lg:px-8 lg:pt-32">
-        <div className="pointer-events-none absolute left-[-7rem] top-40 h-72 w-72 rounded-full bg-[#D62828]/10 blur-3xl" />
-        <div className="pointer-events-none absolute right-[-7rem] top-64 h-72 w-72 rounded-full bg-[#2165FF]/10 blur-3xl" />
+      <div className="relative min-h-screen overflow-x-hidden px-0 pb-[calc(9.5rem+env(safe-area-inset-bottom))] pt-26 sm:px-6 sm:pb-16 sm:pt-30 lg:px-8 lg:pt-32">
+        <div className="pointer-events-none absolute left-[-7rem] top-40 h-72 w-72 rounded-full bg-[color:var(--shell-danger-soft)] blur-3xl" />
+        <div className="pointer-events-none absolute right-[-7rem] top-64 h-72 w-72 rounded-full bg-[color:var(--shell-accent)] opacity-30 blur-3xl" />
 
         <div className="relative mx-auto w-full max-w-[88rem]">
           {loading ? (
-            <div className="flex min-h-[40vh] items-center justify-center">
-              <div className="h-10 w-10 animate-spin rounded-full border-b-2 border-[#D62828]" />
-            </div>
+            <LoadingState label="Cargando la publicación..." />
           ) : !publicacion ? (
-            <div className="mx-auto max-w-3xl rounded-[0.95rem] border border-[#2f241d]/10 bg-white/80 p-8 text-center shadow-sm">
-              <h1 className="text-2xl font-semibold text-[#241914]">
+            <div className="mx-auto max-w-3xl rounded-[0.95rem] border border-[color:var(--shell-line)] bg-[color:var(--shell-surface)] p-8 text-center shadow-sm">
+              <h1 className="text-2xl font-semibold text-[color:var(--shell-ink)]">
                 No encontramos esta publicación
               </h1>
               <Link
                 to="/"
-                className="mt-5 inline-flex rounded-[0.6rem] border border-[#D62828]/35 bg-white px-5 py-2 text-sm font-semibold text-[#241914] transition-colors hover:bg-[#D62828]/10"
+                className="mt-5 inline-flex rounded-[0.6rem] border border-[color:var(--shell-line)] bg-[color:var(--shell-surface)] px-5 py-2 text-sm font-semibold text-[color:var(--shell-ink)] transition-colors hover:bg-[color:var(--shell-danger-soft)]"
               >
                 Volver al inicio
               </Link>
             </div>
           ) : (
-            <div className="mx-auto max-w-[76rem] space-y-3.5">
-              <div className="flex flex-wrap items-center gap-2.5">
-                <Link
-                  to={backPath}
-                  className="inline-flex items-center gap-2 rounded-[0.6rem] border border-[#2f241d]/10 bg-white/85 px-4 py-2 text-sm font-semibold text-[#241914] shadow-sm transition-colors hover:bg-white"
+            <div className="mx-auto w-full max-w-6xl px-4 sm:px-0">
+              <div className="mb-4 flex min-w-0">
+                <button
+                  type="button"
+                  onClick={handleBackToList}
+                  className="inline-flex min-h-11 items-center gap-2 rounded-[0.72rem] border border-[color:var(--shell-line)] bg-[color:var(--shell-surface)] px-4 py-2 text-sm font-semibold text-[color:var(--shell-ink)] shadow-sm transition-colors hover:bg-[color:var(--shell-surface-alt)]"
                 >
-                  <span aria-hidden="true">←</span>
+                  <span aria-hidden="true">&larr;</span>
                   Volver al listado
-                </Link>
+                </button>
               </div>
 
-              <section className="overflow-hidden rounded-[0.9rem] border border-[#2f241d]/10 bg-[linear-gradient(180deg,rgba(255,250,244,0.94),rgba(255,255,255,0.9))] shadow-[0_22px_50px_rgba(36,25,20,0.08)] sm:rounded-[1rem]">
-                <div className="grid gap-0 xl:grid-cols-[minmax(19rem,24rem)_minmax(0,1fr)]">
-                  <aside className="border-b border-[#2f241d]/10 bg-[linear-gradient(180deg,rgba(239,226,208,0.48),rgba(239,226,208,0.16))] p-4 sm:p-5 lg:p-6 xl:border-b-0 xl:border-r">
-                    <div className="flex h-full flex-col gap-3">
-                      <div className="relative overflow-hidden rounded-[0.82rem] border border-[#2f241d]/10 bg-[#ddd1bc] shadow-[0_18px_36px_rgba(36,25,20,0.08)]">
-                        <div className="absolute left-3 right-3 top-3 z-20 flex items-start justify-between gap-2">
+              <article className="w-full min-w-0 overflow-hidden rounded-[1rem] border border-[color:var(--shell-line)] bg-[linear-gradient(180deg,var(--shell-surface),var(--nature-paper))] shadow-xl">
+                <div className="grid min-w-0 grid-cols-1 lg:grid-cols-[minmax(0,0.94fr)_minmax(0,1.06fr)]">
+                  <section className="min-w-0 border-b border-[color:var(--shell-line)] bg-[color:var(--shell-surface-soft)] p-3.5 sm:p-5 lg:border-b-0 lg:border-r">
+                    <div className="min-w-0 space-y-3">
+                      <figure className="relative min-w-0 overflow-hidden rounded-[0.9rem] border border-[color:var(--shell-line)] bg-[color:var(--shell-surface-alt)] shadow-sm">
+                        <div className="absolute left-2.5 right-2.5 top-2.5 z-10 flex min-w-0 flex-wrap items-start gap-2">
                           <span
-                            className="rounded-[0.42rem] px-3 py-1.5 text-[0.62rem] font-bold uppercase tracking-[0.18em] text-white shadow-sm"
+                            className="max-w-full rounded-[0.48rem] px-3 py-1.5 text-[0.62rem] font-bold uppercase tracking-[0.16em] text-[color:var(--shell-surface)] shadow-sm"
                             style={{ backgroundColor: meta.accent }}
                           >
                             {publicacion.estado || meta.badge}
                           </span>
 
-                          <span className="rounded-[0.42rem] border border-white/45 bg-white/82 px-3 py-1.5 text-[0.6rem] font-bold uppercase tracking-[0.18em] text-[#6f5546] shadow-sm backdrop-blur-sm">
+                          <span className="ml-auto max-w-full rounded-[0.48rem] border border-[color:var(--shell-line)] bg-[color:var(--shell-surface)] px-3 py-1.5 text-[0.6rem] font-bold uppercase tracking-[0.16em] text-[color:var(--shell-muted)] shadow-sm">
                             {meta.family}
                           </span>
                         </div>
 
                         {publicacion.img ? (
-                          <div className="relative aspect-[4/3] min-h-[17rem] overflow-hidden bg-[#e6dac6] sm:min-h-[20rem] xl:min-h-[23rem]">
-                            <LazyLoadImage
-                              src={getCloudinaryUrl(publicacion.img, { width: 900 })}
-                              alt={
-                                publicacion.nombreanimal
-                                  ? `Foto de ${publicacion.nombreanimal}`
-                                  : `Foto de ${publicacion.especie?.toLowerCase() || "animal"}`
-                              }
-                              wrapperClassName="absolute inset-0"
-                              className="h-full w-full object-cover"
-                              loading="eager"
-                            />
-                          </div>
+                          <img
+                            src={imageSrc}
+                            srcSet={imageSrcSet}
+                            sizes="(max-width: 640px) calc(100vw - 3.5rem), (max-width: 1024px) 42rem, 34rem"
+                            alt={imageAlt}
+                            className="block aspect-[4/3] h-auto w-full object-cover"
+                            loading="eager"
+                            fetchPriority="high"
+                            decoding="async"
+                            width="720"
+                            height="540"
+                          />
                         ) : (
-                          <div className="flex aspect-[4/3] min-h-[17rem] items-center justify-center text-sm font-medium text-[#6f5546] sm:min-h-[20rem] xl:min-h-[23rem]">
+                          <div className="flex aspect-[4/3] w-full items-center justify-center text-sm font-semibold text-[color:var(--shell-muted)]">
                             Sin imagen
                           </div>
                         )}
-                      </div>
+                      </figure>
 
                       <div className={panelClass}>
-                        <h2 className="text-[0.64rem] font-bold uppercase tracking-[0.18em] text-[#7b6557]">
+                        <h2 className="text-[0.64rem] font-bold uppercase tracking-[0.18em] text-[color:var(--shell-muted)]">
                           Acciones
                         </h2>
-                        <div className="mt-2.5 grid gap-2 sm:grid-cols-2 xl:grid-cols-1">
+                        <div className="mt-2.5 grid min-w-0 gap-2">
                           <button
                             type="button"
                             onClick={handleShare}
-                            className={`rounded-[0.6rem] border px-4 py-2.5 text-[0.76rem] font-semibold transition-colors ${
+                            className={`min-h-11 rounded-[0.72rem] border px-4 py-2.5 text-sm font-semibold transition-colors ${
                               copied
-                                ? "border-[#D62828] bg-[#D62828] text-white"
-                                : "border-[#D62828]/35 bg-white text-[#241914] hover:bg-[#D62828]/10"
+                                ? "border-[color:var(--shell-danger)] bg-[color:var(--shell-danger)] text-[color:var(--shell-surface)]"
+                                : "border-[color:var(--shell-line)] bg-[color:var(--shell-surface)] text-[color:var(--shell-ink)] hover:bg-[color:var(--shell-danger-soft)]"
                             }`}
                           >
                             {copied ? "Enlace copiado" : "Compartir publicación"}
@@ -347,7 +367,7 @@ export default function PublicacionDetalle() {
                             type="button"
                             onClick={handleContact}
                             disabled={contactLoading}
-                            className="rounded-[0.6rem] border px-4 py-2.5 text-center text-[0.76rem] font-semibold text-white transition-opacity hover:opacity-92 disabled:cursor-wait disabled:opacity-60"
+                            className="min-h-11 rounded-[0.72rem] border px-4 py-2.5 text-center text-sm font-semibold text-[color:var(--shell-surface)] transition-opacity hover:opacity-92 disabled:cursor-wait disabled:opacity-60"
                             style={{
                               backgroundColor: meta.accent,
                               borderColor: meta.accent,
@@ -360,7 +380,7 @@ export default function PublicacionDetalle() {
                             type="button"
                             onClick={handleExportPDF}
                             disabled={generatingPDF}
-                            className="rounded-[0.6rem] border border-[#D62828]/35 bg-white px-4 py-2.5 text-[0.76rem] font-semibold text-[#241914] transition-colors hover:bg-[#efe2d0] disabled:cursor-wait disabled:opacity-60"
+                            className="min-h-11 rounded-[0.72rem] border border-[color:var(--shell-line)] bg-[color:var(--shell-surface)] px-4 py-2.5 text-sm font-semibold text-[color:var(--shell-ink)] transition-colors hover:bg-[color:var(--shell-surface-alt)] disabled:cursor-wait disabled:opacity-60"
                           >
                             {generatingPDF ? "Generando PDF..." : "Descargar cartel en PDF"}
                           </button>
@@ -368,21 +388,23 @@ export default function PublicacionDetalle() {
                       </div>
 
                       {contactError && (
-                        <p className="text-[0.78rem] font-medium text-[#a44939]">{contactError}</p>
+                        <p className="text-[0.78rem] font-medium text-[color:var(--shell-danger)]">
+                          {contactError}
+                        </p>
                       )}
                     </div>
-                  </aside>
+                  </section>
 
-                  <div className="p-4 sm:p-5 lg:p-6">
-                    <div className="flex h-full flex-col gap-3">
-                      <div>
-                        <span className="inline-flex rounded-[0.42rem] border border-[#2f241d]/10 bg-white/76 px-3 py-1.5 text-[0.58rem] font-bold uppercase tracking-[0.2em] text-[#6f5546]">
+                  <section className="min-w-0 p-4 sm:p-5 lg:p-6">
+                    <div className="flex min-w-0 flex-col gap-3">
+                      <div className="min-w-0">
+                        <span className="inline-flex max-w-full rounded-[0.48rem] border border-[color:var(--shell-line)] bg-[color:var(--shell-surface)] px-3 py-1.5 text-[0.58rem] font-bold uppercase tracking-[0.18em] text-[color:var(--shell-muted)]">
                           {meta.section}
                         </span>
-                        <h1 className="font-extrabold mt-3 text-[1.8rem] leading-[0.95] text-[#241914] sm:text-[2.15rem]">
+                        <h1 className="mt-3 break-words text-[clamp(2rem,10vw,3.25rem)] font-extrabold leading-[0.95] text-[color:var(--shell-ink)]">
                           {publicacion.nombreanimal || publicacion.especie}
                         </h1>
-                        <div className="mt-2 flex flex-wrap gap-x-2 gap-y-1 text-[0.8rem] font-medium text-[#5e463d]">
+                        <div className="mt-2 flex min-w-0 flex-wrap gap-x-2 gap-y-1 text-[0.86rem] font-semibold uppercase tracking-[0.03em] text-[color:var(--shell-muted)]">
                           {publicacion.especie && <span>{publicacion.especie}</span>}
                           {publicacion.raza && (
                             <span>
@@ -399,16 +421,16 @@ export default function PublicacionDetalle() {
                         </div>
                       </div>
 
-                      <div className={`${panelClass} grid gap-2.5 sm:grid-cols-2`}>
+                      <div className={`${panelClass} grid min-w-0 gap-2.5 sm:grid-cols-2`}>
                         <div className={itemClass}>
-                          <p className="text-[0.64rem] font-bold uppercase tracking-[0.14em] text-[#7b6557]">
+                          <p className="text-[0.64rem] font-bold uppercase tracking-[0.14em] text-[color:var(--shell-muted)]">
                             {meta.locationLabel}
                           </p>
-                          <p className="mt-1 text-[0.9rem] font-semibold leading-snug text-[#241914]">
+                          <p className="mt-1 break-words text-[0.95rem] font-semibold leading-snug text-[color:var(--shell-ink)]">
                             {primaryLocation || "Sin ubicación informada"}
                           </p>
                           {secondaryLocation && (
-                            <p className="mt-1 text-[0.78rem] leading-snug text-[#5e463d]">
+                            <p className="mt-1 break-words text-[0.8rem] leading-snug text-[color:var(--shell-muted)]">
                               {secondaryLocation}
                             </p>
                           )}
@@ -416,10 +438,10 @@ export default function PublicacionDetalle() {
 
                         {publicacion.fecha && (
                           <div className={itemClass}>
-                            <p className="text-[0.64rem] font-bold uppercase tracking-[0.14em] text-[#7b6557]">
+                            <p className="text-[0.64rem] font-bold uppercase tracking-[0.14em] text-[color:var(--shell-muted)]">
                               Fecha
                             </p>
-                            <p className="mt-1 text-[0.9rem] font-semibold leading-snug text-[#241914]">
+                            <p className="mt-1 break-words text-[0.95rem] font-semibold leading-snug text-[color:var(--shell-ink)]">
                               {formatFecha(publicacion.fecha)}
                             </p>
                           </div>
@@ -428,10 +450,10 @@ export default function PublicacionDetalle() {
 
                       {identityFields.length > 0 && (
                         <div className={panelClass}>
-                          <h2 className="text-[0.64rem] font-bold uppercase tracking-[0.18em] text-[#7b6557]">
+                          <h2 className="text-[0.64rem] font-bold uppercase tracking-[0.18em] text-[color:var(--shell-muted)]">
                             Ficha del animal
                           </h2>
-                          <div className="mt-2.5 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+                          <div className="mt-2.5 grid min-w-0 gap-2 sm:grid-cols-2 xl:grid-cols-3">
                             {identityFields.map((field) => (
                               <Field key={field.label} label={field.label} value={field.value} />
                             ))}
@@ -441,10 +463,10 @@ export default function PublicacionDetalle() {
 
                       {adoptionFields.length > 0 && (
                         <div className={panelClass}>
-                          <h2 className="text-[0.64rem] font-bold uppercase tracking-[0.18em] text-[#7b6557]">
+                          <h2 className="text-[0.64rem] font-bold uppercase tracking-[0.18em] text-[color:var(--shell-muted)]">
                             Perfil de adopción
                           </h2>
-                          <div className="mt-2.5 grid gap-2 sm:grid-cols-2">
+                          <div className="mt-2.5 grid min-w-0 gap-2 sm:grid-cols-2">
                             {adoptionFields.map((field) => (
                               <Field key={field.label} label={field.label} value={field.value} />
                             ))}
@@ -454,18 +476,18 @@ export default function PublicacionDetalle() {
 
                       {publicacion.detalles && (
                         <div className={panelClass}>
-                          <h2 className="text-[0.64rem] font-bold uppercase tracking-[0.18em] text-[#7b6557]">
+                          <h2 className="text-[0.64rem] font-bold uppercase tracking-[0.18em] text-[color:var(--shell-muted)]">
                             Detalles
                           </h2>
-                          <p className="mt-2 text-[0.9rem] leading-relaxed text-[#241914]">
+                          <p className="mt-2 break-words text-[0.95rem] leading-relaxed text-[color:var(--shell-ink)]">
                             {publicacion.detalles}
                           </p>
                         </div>
                       )}
                     </div>
-                  </div>
+                  </section>
                 </div>
-              </section>
+              </article>
             </div>
           )}
         </div>

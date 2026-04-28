@@ -6,6 +6,7 @@ import { logout, refreshAccessToken } from "./services/auth.js";
 import { usuariosService } from "./services/usuarios";
 import AppRouter from "./router/AppRouter.jsx";
 import { ErrorBoundary } from "./components/ui/ErrorBoundary.jsx";
+import LoadingState from "./components/ui/LoadingState.jsx";
 
 function App() {
   const [login, setLogin] = useState(false);
@@ -137,11 +138,7 @@ function App() {
   }, [clearSessionState, hydrateSessionFromBackend]);
 
   if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-[#FF7857]" />
-      </div>
-    );
+    return <LoadingState fullScreen label="Preparando tu sesión..." />;
   }
 
   return (

@@ -7,6 +7,7 @@ import Seo from "../../../components/seo/Seo";
 import { publicacionesService } from "../../../services/publicaciones";
 import CardExitosa from "../components/CardExitosa";
 import { buildBreadcrumbSchema } from "../../../components/seo/seoUtils";
+import LoadingState from "../../../components/ui/LoadingState";
 
 const ESTADOS_EXITOSOS = ["YA APARECIO", "APARECIO SU FAMILIA", "ADOPTADO"];
 const ITEMS_PER_PAGE = 12;
@@ -175,7 +176,7 @@ const PublicacionesExitosasPage = () => {
       />
       <Navbar />
 
-      <div className="relative min-h-screen overflow-hidden px-4 pb-16 pt-32 sm:px-6 lg:px-8">
+      <div className="relative min-h-screen overflow-x-hidden px-4 pb-[calc(6.5rem+env(safe-area-inset-bottom))] pt-32 sm:px-6 lg:px-8">
         <div className="pointer-events-none absolute left-[-10rem] top-36 h-80 w-80 rounded-full bg-[#d46f49]/12 blur-3xl" />
         <div className="pointer-events-none absolute right-[-8rem] top-24 h-80 w-80 rounded-full bg-[#95a667]/12 blur-3xl" />
         <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-[linear-gradient(180deg,rgba(90,63,53,0.12),transparent)]" />
@@ -220,8 +221,8 @@ const PublicacionesExitosasPage = () => {
 
           <div className="mt-8 grid grid-cols-1 justify-items-center gap-6 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
             {loading ? (
-              <div className="col-span-full flex min-h-[16rem] items-center justify-center">
-                <div className="h-9 w-9 animate-spin rounded-full border-b-2 border-[#d46f49]" />
+              <div className="col-span-full">
+                <LoadingState label="Cargando casos resueltos..." />
               </div>
             ) : displayPublicaciones.length > 0 ? (
               displayPublicaciones.map((publicacion) => (

@@ -4,6 +4,7 @@ import ModalShell from "../../components/ui/ModalShell";
 import { adminService } from "../../services/admin";
 import { publicacionesService } from "../../services/publicaciones";
 import { ConfirmModal } from "../../components/ui/ConfirmModal";
+import LoadingState from "../../components/ui/LoadingState";
 import { getEstadosPermitidos } from "../../utils/estadosPublicacion";
 import { getTipoColorMeta } from "../../utils/publicacionColors";
 import { getPublicacionTitulo } from "./utils/publicacionFields";
@@ -20,7 +21,11 @@ const getTipoBadgeStyle = (tipo) => {
 };
 
 export const AdminPublicaciones = {
-  openModal: () => modalControl?.setOpen(true),
+  openModal: () => {
+    if (!modalControl) return false;
+    modalControl.setOpen(true);
+    return true;
+  },
 
   Component: React.memo(() => {
     const [open, setOpen] = useState(false);
@@ -175,9 +180,7 @@ export const AdminPublicaciones = {
             )}
 
             {loading ? (
-              <div className="flex items-center justify-center p-8">
-                <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-[color:var(--shell-accent-strong)]" />
-              </div>
+              <LoadingState compact label="Cargando publicaciones..." />
             ) : (
               <div className="mt-6 max-h-[60vh] space-y-4 overflow-y-auto">
                 {publicaciones.map((publicacion) => (
