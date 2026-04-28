@@ -16,6 +16,7 @@ import { getTipoColorMeta } from "../../../utils/publicacionColors";
 import CardGenerica from "../components/CardGenerica";
 import { getPublicacionTamano } from "../utils/publicacionFields";
 import { buildBreadcrumbSchema } from "../../../components/seo/seoUtils";
+import LoadingState from "../../../components/ui/LoadingState";
 
 const ITEMS_PER_PAGE = 12;
 const PAGE_FETCH_SIZE = 50;
@@ -365,7 +366,7 @@ const PublicacionesPage = () => {
   };
 
   return (
-    <div className="bg-[#f6efe4] pb-24 text-[#241914] md:pb-0">
+    <div className="bg-[#f6efe4] pb-[calc(6.5rem+env(safe-area-inset-bottom))] text-[#241914] md:pb-0">
       <Seo
         title={meta.title}
         description={meta.description}
@@ -379,7 +380,7 @@ const PublicacionesPage = () => {
       />
       <Navbar />
 
-      <div className="relative min-h-screen overflow-hidden px-4 pb-16 pt-26 sm:px-6 sm:pt-30 lg:px-8 lg:pt-32">
+      <div className="relative min-h-screen overflow-x-hidden px-4 pb-20 pt-26 sm:px-6 sm:pt-30 lg:px-8 lg:pt-32">
         <div className="pointer-events-none absolute left-[-10rem] top-40 h-80 w-80 rounded-full bg-[#D62828]/12 blur-3xl" />
         <div className="pointer-events-none absolute right-[-8rem] top-24 h-80 w-80 rounded-full bg-[#2165FF]/12 blur-3xl" />
         <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-[linear-gradient(180deg,rgba(90,63,53,0.12),transparent)]" />
@@ -442,8 +443,8 @@ const PublicacionesPage = () => {
             <div className="space-y-6">
               <div className="grid grid-cols-1 justify-items-center gap-5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
                 {loading ? (
-                  <div className="col-span-full flex min-h-[16rem] items-center justify-center">
-                    <div className="h-9 w-9 animate-spin rounded-full border-b-2 border-[#D62828]" />
+                  <div className="col-span-full">
+                    <LoadingState label="Cargando publicaciones activas..." />
                   </div>
                 ) : displayPublicaciones.length > 0 ? (
                   displayPublicaciones.map((publicacion) => (

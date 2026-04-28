@@ -1,6 +1,7 @@
 import { Suspense, lazy } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import LoadingState from "../components/ui/LoadingState";
 
 const Home = lazy(() => import("../features/home/pages/Home"));
 const PublicacionDetalle = lazy(() =>
@@ -21,14 +22,8 @@ const QuienesSomos = lazy(() => import("../pages/QuienesSomos"));
 const Perdi = lazy(() => import("../pages/consejos/Perdi"));
 const Encontre = lazy(() => import("../pages/consejos/Encontre"));
 const Adoptar = lazy(() => import("../pages/consejos/Adoptar"));
-const RouteFallback = () => (
-  <div className="flex min-h-screen items-center justify-center bg-[#f6efe4] px-4 text-[#241914]">
-    <div className="flex flex-col items-center gap-4">
-      <div className="h-10 w-10 animate-spin rounded-full border-b-2 border-[#D62828]" />
-      <p className="text-sm font-medium text-[#6f5546]">Cargando contenido…</p>
-    </div>
-  </div>
-);
+
+const RouteFallback = () => <LoadingState fullScreen label="Cargando contenido..." />;
 
 const AppRouter = () => {
   const { login, user, iniciarSesion, guardarUsuario } = useAuth();

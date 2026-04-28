@@ -1,10 +1,9 @@
-"use client";
 import React, { useState, useEffect, useCallback, useContext } from "react";
 import { motion } from "framer-motion";
 import ModalShell from "../../components/ui/ModalShell";
 import { publicacionesService } from "../../services/publicaciones";
 import { ConfirmModal } from "../../components/ui/ConfirmModal";
-import { CrearPublicacion } from "./CrearPublicacion/CrearPublicacion";
+import LoadingState from "../../components/ui/LoadingState";
 import { getEstadosPermitidos } from "../../utils/estadosPublicacion";
 import { AuthContext } from "../../context/AuthContext";
 import { getTipoColorMeta } from "../../utils/publicacionColors";
@@ -22,7 +21,11 @@ const getTipoBadgeStyle = (tipo) => {
 };
 
 export const VerPublicaciones = {
-  openModal: () => modalControl?.setOpen(true),
+  openModal: () => {
+    if (!modalControl) return false;
+    modalControl.setOpen(true);
+    return true;
+  },
 
   Component: React.memo(() => {
     const { user } = useContext(AuthContext);
@@ -113,8 +116,10 @@ export const VerPublicaciones = {
     }, []);
 
     const handleEditar = useCallback((publicacion) => {
-      CrearPublicacion.openModal(publicacion);
       setOpen(false);
+      window.setTimeout(() => {
+        window.dispatchEvent(new CustomEvent("openCrearPublicacion", { detail: publicacion }));
+      }, 48);
     }, []);
 
     const actualizarPublicacionEnLista = useCallback((updated) => {
@@ -212,9 +217,7 @@ export const VerPublicaciones = {
             )}
 
             {loading ? (
-              <div className="flex items-center justify-center p-8">
-                <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-[color:var(--shell-accent-strong)]" />
-              </div>
+              <LoadingState compact label="Cargando tus publicaciones..." />
             ) : (
               <div className="mt-6 max-h-[60vh] space-y-4 overflow-y-auto">
                 {publicaciones.map((publicacion) => (

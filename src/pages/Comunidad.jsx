@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
 import Seo from "../components/seo/Seo";
+import LoadingState from "../components/ui/LoadingState";
 import { useComunidad } from "../hooks/useComunidad";
 import { useFiltro } from "../hooks/useFiltro";
 import CardsAyuda from "../components/cards/CardsAyuda";
@@ -13,7 +14,7 @@ const ComunidadScreen = () => {
   const { filtrados, query, setQuery } = useFiltro(casos);
 
   return (
-    <div className="bg-[#f6efe4] text-[#241914]">
+    <div className="bg-[#f6efe4] pb-[calc(6.5rem+env(safe-area-inset-bottom))] text-[#241914] md:pb-0">
       <Seo
         title="Comunidad"
         description="Lee historias, consejos y casos de ayuda de la comunidad para acompañar mejor búsquedas, rescates y adopciones."
@@ -28,7 +29,7 @@ const ComunidadScreen = () => {
       <Navbar />
 
       <section
-        className="relative isolate flex min-h-dvh items-center overflow-hidden px-4 pb-8 pt-24 sm:px-6 sm:pb-10 sm:pt-30 lg:px-8 lg:pt-30"
+        className="relative isolate flex min-h-dvh items-center overflow-x-hidden px-4 pb-12 pt-24 sm:px-6 sm:pb-14 sm:pt-30 lg:px-8 lg:pt-30"
         style={{
           background:
             "linear-gradient(180deg, #2c211d 0%, #43302a 58%, #5a3f35 100%)",
@@ -71,9 +72,11 @@ const ComunidadScreen = () => {
 
           <motion.div className="mt-8 grid grid-cols-1 place-items-center gap-5 sm:mt-10 sm:gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {loading && (
-              <div className="col-span-full flex items-center justify-center p-8">
-                <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-[#f4c89e]" />
-              </div>
+              <LoadingState
+                compact
+                label="Cargando historias de la comunidad..."
+                className="col-span-full"
+              />
             )}
 
             {error && (

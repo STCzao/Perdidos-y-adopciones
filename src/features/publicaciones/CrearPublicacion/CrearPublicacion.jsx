@@ -30,8 +30,10 @@ const StatusMessage = ({ message, isError }) => {
 
 export const CrearPublicacion = {
   openModal: (publicacion = null) => {
-    modalControl?.setEditData(publicacion);
-    modalControl?.setOpen(true);
+    if (!modalControl) return false;
+    modalControl.setEditData(publicacion);
+    modalControl.setOpen(true);
+    return true;
   },
   Component: () => {
     const [open, setOpen] = useState(false);
@@ -72,16 +74,6 @@ export const CrearPublicacion = {
         window.scrollTo(0, parseInt(scrollY || "0", 10) * -1);
       };
     }, [open]);
-
-    useEffect(() => {
-      const handleOpen = () => {
-        setEditData(null);
-        setOpen(true);
-      };
-
-      window.addEventListener("openCrearPublicacion", handleOpen);
-      return () => window.removeEventListener("openCrearPublicacion", handleOpen);
-    }, []);
 
     const handleClose = () => {
       resetForm();

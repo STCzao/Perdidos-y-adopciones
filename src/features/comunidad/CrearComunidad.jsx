@@ -29,8 +29,10 @@ const StatusMessage = ({ message, isError }) => {
 
 export const CrearComunidad = {
   openModal: (post = null) => {
-    modalControl?.setEditData(post);
-    modalControl?.setOpen(true);
+    if (!modalControl) return false;
+    modalControl.setEditData(post);
+    modalControl.setOpen(true);
+    return true;
   },
   Component: () => {
     const [open, setOpen] = useState(false);
