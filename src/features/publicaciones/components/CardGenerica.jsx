@@ -151,7 +151,7 @@ const CardGenerica = ({ publicacion, cardId, isSuccessful = false }) => {
               {tipo}
             </p>
             <h3
-              className="font-editorial mt-1 line-clamp-2 text-[1.38rem] leading-[0.94]"
+              className="font-extrabold mt-1 line-clamp-2 text-[1.38rem] leading-[.94]"
               style={{ color: meta.accent }}
             >
               {nombreanimal || especie}

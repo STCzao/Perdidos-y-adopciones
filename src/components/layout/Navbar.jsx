@@ -198,13 +198,16 @@ const openModalWhenReady = async (loadModule, exportName, setMountedModals) => {
     return { ...prev, [exportName]: true };
   });
 
-  // If the component just mounted, wait one frame for React to render it and
-  // set modalControl before calling openModal.
-  if (needsMount) {
-    await new Promise((resolve) => window.setTimeout(resolve, 50));
-  }
+  // Retry a few times after mounting so the modal singleton can register its
+  // internal controller before we call openModal for the first time.
+  const attempts = needsMount ? 10 : 1;
+  for (let index = 0; index < attempts; index += 1) {
+    modalApi.openModal();
 
-  modalApi.openModal();
+    if (index < attempts - 1) {
+      await new Promise((resolve) => window.setTimeout(resolve, 32));
+    }
+  }
 };
 
 const NavbarContent = () => {
@@ -622,6 +625,7 @@ const NavbarContent = () => {
           {MOBILE_PRIMARY_LINKS.map((item) => {
             const isActive = isMobileBottomLinkActive(item);
             const isCreate = item.action === "create";
+            const isHighlighted = isActive;
 
             return (
               <button
@@ -629,13 +633,13 @@ const NavbarContent = () => {
                 type="button"
                 onClick={() => (isCreate ? handleCreatePost() : navigateTo(item.path))}
                 className={`flex min-h-[3.35rem] cursor-pointer flex-col items-center justify-center gap-1 rounded-[0.95rem] px-1.5 text-center transition-all duration-200 ${
-                  isCreate || isActive
+                  isHighlighted
                     ? "bg-[color:var(--shell-bark)] text-white shadow-[0_12px_30px_rgba(47,36,29,0.16)]"
-                    : "text-[#241914] hover:bg-[color:var(--shell-surface-soft)]"
+                    : "border border-transparent text-[#241914] hover:border-[#2f241d]/8 hover:bg-[color:var(--shell-surface-soft)]"
                 }`}
                 aria-label={item.label}
               >
-                <BottomNavIcon type={item.icon} active={isActive || isCreate} />
+                <BottomNavIcon type={item.icon} active={isHighlighted} />
                 <span className="text-[0.62rem] font-semibold leading-none">{item.label}</span>
               </button>
             );

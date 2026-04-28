@@ -37,9 +37,30 @@ const toneByType = {
 
 export const ConfirmModal = React.memo(
   ({ confirmModal, onClose, onConfirm, type = "publicacion" }) => {
+    const [isProcessing, setIsProcessing] = React.useState(false);
+
+    React.useEffect(() => {
+      if (!confirmModal.isOpen) {
+        setIsProcessing(false);
+      }
+    }, [confirmModal.isOpen]);
+
     if (!confirmModal.isOpen) return null;
 
     const config = toneByType[type] || toneByType.publicacion;
+
+    const handleConfirm = async () => {
+      if (isProcessing) return;
+
+      setIsProcessing(true);
+
+      try {
+        await onConfirm?.();
+      } finally {
+        onClose?.();
+        setIsProcessing(false);
+      }
+    };
 
     const getTitle = () => {
       switch (type) {
@@ -113,17 +134,19 @@ export const ConfirmModal = React.memo(
             <div className="mt-6 flex flex-col gap-2.5 sm:flex-row sm:justify-end">
               <button
                 onClick={onClose}
+                disabled={isProcessing}
                 className="cursor-pointer rounded-full border border-[#2f241d]/12 bg-white px-5 py-2.5 text-sm font-semibold text-[#241914] transition-colors duration-300 hover:bg-[#efe2d0]"
               >
                 Cancelar
               </button>
 
               <button
-                onClick={() => { onConfirm(); onClose(); }}
+                onClick={handleConfirm}
+                disabled={isProcessing}
                 className="cursor-pointer rounded-full px-5 py-2.5 text-sm font-semibold text-white transition-opacity duration-300 hover:opacity-92"
                 style={{ backgroundColor: config.accent }}
               >
-                {config.confirmLabel}
+                {isProcessing ? "Procesando..." : config.confirmLabel}
               </button>
             </div>
           </div>

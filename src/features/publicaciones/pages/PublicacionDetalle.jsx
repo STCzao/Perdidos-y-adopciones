@@ -374,7 +374,7 @@ export default function PublicacionDetalle() {
                         <span className="inline-flex rounded-[0.42rem] border border-[#2f241d]/10 bg-white/76 px-3 py-1.5 text-[0.58rem] font-bold uppercase tracking-[0.2em] text-[#6f5546]">
                           {meta.section}
                         </span>
-                        <h1 className="font-editorial mt-3 text-[1.8rem] leading-[0.95] text-[#241914] sm:text-[2.15rem]">
+                        <h1 className="font-extrabold mt-3 text-[1.8rem] leading-[0.95] text-[#241914] sm:text-[2.15rem]">
                           {publicacion.nombreanimal || publicacion.especie}
                         </h1>
                         <div className="mt-2 flex flex-wrap gap-x-2 gap-y-1 text-[0.8rem] font-medium text-[#5e463d]">

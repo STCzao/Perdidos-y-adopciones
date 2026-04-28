@@ -6,6 +6,27 @@ import { withRequestIdMessage } from "../../services/serviceUtils";
 
 let modalControl;
 
+const shellClassName =
+  "relative max-h-[92vh] overflow-y-auto rounded-[1.7rem] border border-[color:var(--shell-line)] bg-[linear-gradient(180deg,rgba(255,250,244,0.98),rgba(248,240,229,0.96))] p-4 shadow-[0_30px_90px_rgba(31,20,14,0.24)] sm:p-6";
+
+const sectionClassName =
+  "rounded-[1.35rem] border border-[color:var(--shell-line)] bg-[linear-gradient(180deg,rgba(255,250,244,0.98),rgba(248,240,229,0.96))] p-5 shadow-[0_16px_45px_rgba(57,42,31,0.08)]";
+
+const labelClassName = "text-sm font-semibold text-[#352820]";
+const inputClassName =
+  "mt-2 w-full rounded-[1.1rem] border border-[color:var(--shell-line)] bg-[color:var(--shell-surface)] px-4 py-3 text-sm text-[#3d332d] outline-none shadow-[0_12px_30px_rgba(59,43,34,0.06)] transition-colors duration-300 placeholder:text-[#8f7f74] focus:border-[color:var(--shell-accent-strong)]/45 focus:ring-2 focus:ring-[color:var(--shell-accent-strong)]/15 disabled:cursor-not-allowed disabled:opacity-60";
+const errorClassName = "mt-2 text-xs text-[#a84632]";
+
+const StatusMessage = ({ message, isError }) => {
+  if (!message) return null;
+
+  return (
+    <p className={`mt-4 text-sm ${isError ? "text-[#9c4d3a]" : "text-[#4d6a2e]"}`}>
+      {message}
+    </p>
+  );
+};
+
 export const CrearComunidad = {
   openModal: (post = null) => {
     modalControl?.setEditData(post);
@@ -48,23 +69,14 @@ export const CrearComunidad = {
     }, [open]);
 
     useEffect(() => {
-      const handleOpen = () => setOpen(true);
+      const handleOpen = () => {
+        setEditData(null);
+        setOpen(true);
+      };
+
       window.addEventListener("openCrearComunidad", handleOpen);
       return () => window.removeEventListener("openCrearComunidad", handleOpen);
     }, []);
-
-    useEffect(() => {
-      if (editData) {
-        setForm({
-          titulo: editData.titulo || "",
-          contenido: editData.contenido || "",
-          categoria: editData.categoria || "HISTORIA",
-          img: editData.img || "",
-        });
-      } else {
-        resetForm();
-      }
-    }, [editData]);
 
     const resetForm = () => {
       setForm({
@@ -78,32 +90,53 @@ export const CrearComunidad = {
       setSubmitting(false);
     };
 
+    useEffect(() => {
+      if (editData) {
+        setForm({
+          titulo: editData.titulo || "",
+          contenido: editData.contenido || "",
+          categoria: editData.categoria || "HISTORIA",
+          img: editData.img || "",
+        });
+        setErrors({});
+        setResult("");
+        return;
+      }
+
+      resetForm();
+    }, [editData]);
+
     const handleClose = () => {
       resetForm();
+      setEditData(null);
       setOpen(false);
     };
 
-    const handleChange = (e) => {
-      const { name, value } = e.target;
-      setForm((prev) => ({ ...prev, [name]: value }));
+    const clearFieldError = (fieldName) => {
+      setErrors((current) => {
+        if (!current[fieldName]) return current;
 
-      if (errors[name]) {
-        setErrors((prev) => {
-          const next = { ...prev };
-          delete next[name];
-          return next;
-        });
-      }
+        const next = { ...current };
+        delete next[fieldName];
+        return next;
+      });
     };
 
-    const handleImageUpload = async (e) => {
-      const file = e.target.files[0];
+    const handleChange = (event) => {
+      const { name, value } = event.target;
+      setForm((prev) => ({ ...prev, [name]: value }));
+      clearFieldError(name);
+    };
+
+    const handleImageUpload = async (event) => {
+      const file = event.target.files[0];
       if (!file) return;
 
-      setErrors((prev) => ({ ...prev, img: "" }));
+      clearFieldError("img");
 
       if (!file.type.startsWith("image/")) {
-        setErrors((prev) => ({ ...prev, img: "Solo se permiten imágenes" }));
+        setErrors((prev) => ({ ...prev, img: "Solo se permiten imagenes" }));
+        event.target.value = "";
         return;
       }
 
@@ -112,10 +145,12 @@ export const CrearComunidad = {
           ...prev,
           img: "La imagen no puede superar 5 MB",
         }));
+        event.target.value = "";
         return;
       }
 
       setUploading(true);
+
       try {
         const formData = new FormData();
         formData.append("file", file);
@@ -134,24 +169,25 @@ export const CrearComunidad = {
           setErrors((prev) => ({ ...prev, img: "Error al subir la imagen" }));
         }
       } catch {
-        setErrors((prev) => ({ ...prev, img: "Error de conexión" }));
+        setErrors((prev) => ({ ...prev, img: "Error de conexion" }));
       } finally {
         setUploading(false);
+        event.target.value = "";
       }
     };
 
-    const handleSubmit = async (e) => {
-      e.preventDefault();
+    const handleSubmit = async (event) => {
+      event.preventDefault();
       if (submitting) return;
 
       let valid = true;
       const newErrors = {};
 
       if (!form.titulo.trim()) {
-        newErrors.titulo = "El título es obligatorio";
+        newErrors.titulo = "El titulo es obligatorio";
         valid = false;
       } else if (form.titulo.trim().length > 80) {
-        newErrors.titulo = "El título no puede contener más de 80 caracteres";
+        newErrors.titulo = "El titulo no puede contener mas de 80 caracteres";
         valid = false;
       }
 
@@ -159,15 +195,15 @@ export const CrearComunidad = {
         newErrors.contenido = "El contenido es obligatorio";
         valid = false;
       } else if (form.contenido.trim().length > 3000) {
-        newErrors.contenido = "El contenido no puede contener más de 3000 caracteres";
+        newErrors.contenido = "El contenido no puede contener mas de 3000 caracteres";
         valid = false;
       }
 
       if (!form.categoria) {
-        newErrors.categoria = "La categoría es obligatoria";
+        newErrors.categoria = "La categoria es obligatoria";
         valid = false;
       } else if (!["HISTORIA", "ALERTA"].includes(form.categoria)) {
-        newErrors.categoria = "La categoría debe ser HISTORIA o ALERTA";
+        newErrors.categoria = "La categoria debe ser HISTORIA o ALERTA";
         valid = false;
       }
 
@@ -175,7 +211,7 @@ export const CrearComunidad = {
         newErrors.img = "La imagen es obligatoria";
         valid = false;
       } else if (!/^https:\/\/res\.cloudinary\.com\/[^/]+\/.+/.test(form.img)) {
-        newErrors.img = "La URL de imagen no es válida";
+        newErrors.img = "La URL de imagen no es valida";
         valid = false;
       }
 
@@ -185,7 +221,7 @@ export const CrearComunidad = {
       try {
         setSubmitting(true);
         setLoading(true);
-        setResult(editData ? "Actualizando..." : "Creando...");
+        setResult(editData ? "Actualizando caso..." : "Creando caso...");
 
         const datosParaEnviar = {
           titulo: form.titulo.trim(),
@@ -200,21 +236,24 @@ export const CrearComunidad = {
             : await comunidadService.crearComunidad(datosParaEnviar);
 
         if (response.success) {
-          setResult(editData ? "Actualizado correctamente" : "Creado correctamente");
+          setResult(editData ? "Caso actualizado correctamente." : "Caso creado correctamente.");
           resetForm();
-          setTimeout(() => setOpen(false), 1200);
+          setTimeout(() => {
+            setEditData(null);
+            setOpen(false);
+          }, 1400);
 
           const eventName = editData ? "comunidadActualizada" : "comunidadCreada";
           const payload = response.comunidad || datosParaEnviar;
           window.dispatchEvent(new CustomEvent(eventName, { detail: payload }));
         } else if (response.errors) {
           setErrors(response.errors);
-          setResult(withRequestIdMessage(response.msg || "Error en validación", response.requestId));
+          setResult(withRequestIdMessage(response.msg || "Error en validacion", response.requestId));
         } else {
           setResult(withRequestIdMessage(response.msg || "Error al procesar", response.requestId));
         }
       } catch {
-        setResult("Error de conexión al servidor");
+        setResult("Error de conexion al servidor");
       } finally {
         setSubmitting(false);
         setLoading(false);
@@ -222,24 +261,27 @@ export const CrearComunidad = {
     };
 
     const isEditing = !!editData;
+    const isResultError =
+      result.includes("Error") || result.includes("error") || result.includes("validacion");
+
     if (!open) return null;
 
     return (
-      <ModalShell>
+      <ModalShell className="p-3 sm:p-5">
         <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="flex max-h-[80vh] w-full max-w-2xl flex-col items-center text-white/90"
+          initial={{ opacity: 0, y: 18, scale: 0.98 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: 18, scale: 0.98 }}
+          transition={{ duration: 0.22, ease: "easeOut" }}
+          className="w-full max-w-5xl"
         >
-          <form
-            onSubmit={handleSubmit}
-            className="flex max-h-[80vh] w-full max-w-6xl flex-col rounded-2xl border border-white/70 bg-white/10 px-8 py-6 text-center shadow-lg backdrop-blur-sm"
-          >
+          <form onSubmit={handleSubmit} className={shellClassName}>
             <button
               onClick={handleClose}
               type="button"
-              className="absolute right-4 top-4 cursor-pointer text-white transition-colors delay-100 duration-300 hover:text-[#FF7857]"
+              className="absolute right-4 top-4 cursor-pointer rounded-full border border-[#d1c2b5] bg-white/70 p-2 text-[#5c4b42] transition-colors duration-200 hover:bg-white"
               disabled={submitting}
+              aria-label="Cerrar formulario comunitario"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -256,122 +298,201 @@ export const CrearComunidad = {
               </svg>
             </button>
 
-            <div className="flex flex-col items-center justify-center">
-              <h1 className="mt-2 text-3xl font-medium text-white">
+            <div className="pr-12">
+              <span className="text-[0.68rem] font-bold uppercase tracking-[0.24em] text-[#8d6e5c]">
+                Comunidad
+              </span>
+              <h1 className="font-editorial mt-3 text-[2rem] leading-[0.96] text-[#231a15] sm:text-[2.35rem]">
                 {isEditing ? "Editar caso de ayuda" : "Crear caso de ayuda"}
               </h1>
-              <p className="mt-1 text-sm text-white/80">
-                {isEditing ? "Modificá el contenido" : "Completá los datos"}
+              <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[#5b4d43]">
+                {isEditing
+                  ? "Ajusta el contenido para que el mensaje siga siendo claro, actual y accionable."
+                  : "Comparte una alerta o una historia con el contexto necesario para movilizar a la comunidad."}
               </p>
             </div>
 
-            <div className="mt-4 flex-1 space-y-4 overflow-y-auto">
-              <div className="mt-4">
-                <label className="mb-1 ml-2 flex items-left text-sm">Título</label>
-                <div className="flex h-12 w-full items-center gap-2 overflow-hidden rounded-full border border-gray-300/80 bg-white pl-6">
-                  <input
-                    type="text"
-                    name="titulo"
-                    placeholder="Ingrese un título para el caso *"
-                    value={form.titulo}
-                    onChange={handleChange}
-                    disabled={submitting}
-                    className="h-full w-full bg-transparent text-sm text-gray-500 outline-none placeholder:text-gray-500"
-                  />
-                </div>
-                {errors.titulo && (
-                  <p className="mt-1 w-full px-4 text-left text-xs text-red-400">
-                    {errors.titulo}
-                  </p>
-                )}
-              </div>
-
-              <div className="mt-4">
-                <label className="mb-1 ml-2 flex items-left text-sm">Imagen</label>
-                <div className="flex h-12 w-full items-center justify-center gap-2 overflow-hidden rounded-full border border-gray-300/80 bg-white">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    disabled={uploading || submitting}
-                    className="cursor-pointer bg-transparent text-center text-sm text-gray-500 outline-none file:ml-2 file:h-10 file:cursor-pointer file:rounded-full file:border-0 file:bg-[#FF7857] file:p-3 file:px-2 file:text-sm file:font-semibold file:text-white hover:file:bg-[#E5674F]"
-                  />
-                </div>
-                {errors.img && (
-                  <p className="mt-1 w-full px-4 text-left text-xs text-red-400">{errors.img}</p>
-                )}
-
-                {form.img && (
-                  <div className="mt-2 flex justify-center">
-                    <img
-                      src={form.img}
-                      alt="Vista previa"
-                      className="h-40 w-40 rounded-2xl border border-white/50 object-cover"
-                    />
+            <div className="mt-6 grid gap-5 xl:grid-cols-[1.15fr_0.85fr]">
+              <div className="space-y-5">
+                <section className={sectionClassName}>
+                  <div className="flex flex-col gap-1">
+                    <p className="text-[0.68rem] font-bold uppercase tracking-[0.18em] text-[#8d7a6d]">
+                      Contenido principal
+                    </p>
+                    <h2 className="text-lg font-semibold text-[#271d17]">
+                      Informacion del caso
+                    </h2>
                   </div>
-                )}
-              </div>
 
-              <div className="mt-4">
-                <label className="mb-1 ml-2 flex items-left text-sm">Contenido</label>
-                <div className="flex w-full items-center gap-2 overflow-hidden rounded-2xl border border-gray-300/80 bg-white p-4">
-                  <textarea
-                    name="contenido"
-                    placeholder="Ingrese el contenido del caso *"
-                    value={form.contenido}
-                    onChange={handleChange}
-                    disabled={submitting}
-                    rows="10"
-                    className="w-full resize-none bg-transparent text-sm text-gray-500 outline-none placeholder:text-gray-500"
-                  />
-                </div>
-                {errors.contenido && (
-                  <p className="mt-1 w-full px-4 text-left text-xs text-red-400">
-                    {errors.contenido}
-                  </p>
-                )}
-              </div>
+                  <div className="mt-5 grid gap-4">
+                    <label className={labelClassName}>
+                      Titulo
+                      <input
+                        type="text"
+                        name="titulo"
+                        placeholder="Resume el caso en una frase clara"
+                        value={form.titulo}
+                        onChange={handleChange}
+                        disabled={submitting}
+                        maxLength={80}
+                        className={inputClassName}
+                      />
+                      {errors.titulo && <p className={errorClassName}>{errors.titulo}</p>}
+                    </label>
 
-              <div className="mt-4">
-                <label className="mb-1 ml-2 flex items-left text-sm">Categoría</label>
-                <div className="flex h-12 w-full items-center gap-2 overflow-hidden rounded-full border border-gray-300/80 bg-white pl-6">
-                  <select
-                    name="categoria"
-                    value={form.categoria}
-                    onChange={handleChange}
-                    disabled={submitting}
-                    className="h-full w-full bg-transparent text-sm text-gray-500 outline-none"
+                    <label className={labelClassName}>
+                      Categoria
+                      <select
+                        name="categoria"
+                        value={form.categoria}
+                        onChange={handleChange}
+                        disabled={submitting}
+                        className={inputClassName}
+                      >
+                        <option value="">Selecciona la categoria del caso</option>
+                        <option value="ALERTA">Alerta</option>
+                        <option value="HISTORIA">Historia</option>
+                      </select>
+                      {errors.categoria && <p className={errorClassName}>{errors.categoria}</p>}
+                    </label>
+
+                    <label className={labelClassName}>
+                      Contenido
+                      <textarea
+                        name="contenido"
+                        placeholder="Explica que paso, por que es importante y como puede ayudar la comunidad."
+                        value={form.contenido}
+                        onChange={handleChange}
+                        disabled={submitting}
+                        rows="10"
+                        className={`${inputClassName} resize-y`}
+                      />
+                      {errors.contenido && <p className={errorClassName}>{errors.contenido}</p>}
+                    </label>
+                  </div>
+                </section>
+
+                <section className={sectionClassName}>
+                  <div className="flex flex-col gap-1">
+                    <p className="text-[0.68rem] font-bold uppercase tracking-[0.18em] text-[#8d7a6d]">
+                      Imagen
+                    </p>
+                    <h2 className="text-lg font-semibold text-[#271d17]">
+                      Recurso visual del caso
+                    </h2>
+                  </div>
+
+                  <label
+                    className={`mt-5 flex cursor-pointer items-center gap-3 rounded-[1.1rem] border border-dashed border-[#2f241d]/18 bg-white/72 px-4 py-4 transition-colors duration-200 hover:border-[#c97b57]/35 hover:bg-white ${
+                      uploading || submitting ? "pointer-events-none opacity-60" : ""
+                    }`}
                   >
-                    <option value="">Seleccione la categoría del caso *</option>
-                    <option value="ALERTA">Alerta</option>
-                    <option value="HISTORIA">Historia</option>
-                  </select>
-                </div>
-                {errors.categoria && (
-                  <p className="mt-1 w-full px-4 text-left text-xs text-red-400">
-                    {errors.categoria}
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.75"
+                      className="h-5 w-5 shrink-0 text-[#816959]"
+                      aria-hidden="true"
+                    >
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                      <polyline points="17 8 12 3 7 8" />
+                      <line x1="12" y1="3" x2="12" y2="15" />
+                    </svg>
+                    <div>
+                      <p className="text-sm font-semibold text-[#4f4037]">
+                        {uploading
+                          ? "Subiendo imagen..."
+                          : form.img
+                            ? "Cambiar imagen del caso"
+                            : "Seleccionar imagen"}
+                      </p>
+                      <p className="mt-1 text-xs text-[#7b6a5e]">
+                        JPG, PNG o WEBP. Maximo 5 MB.
+                      </p>
+                    </div>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      disabled={uploading || submitting}
+                      className="sr-only"
+                    />
+                  </label>
+
+                  {errors.img && <p className={errorClassName}>{errors.img}</p>}
+
+                  {form.img && (
+                    <div className="mt-4 overflow-hidden rounded-[1.1rem] border border-[#2f241d]/10 bg-white/70 p-2">
+                      <img
+                        src={form.img}
+                        alt="Vista previa del caso comunitario"
+                        className="h-56 w-full rounded-[0.9rem] object-cover"
+                      />
+                    </div>
+                  )}
+                </section>
+              </div>
+
+              <div className="space-y-5">
+                <section className={sectionClassName}>
+                  <p className="text-[0.68rem] font-bold uppercase tracking-[0.18em] text-[#8d7a6d]">
+                    Buenas practicas
                   </p>
-                )}
+                  <h2 className="mt-2 text-lg font-semibold text-[#271d17]">
+                    Como lograr mas claridad
+                  </h2>
+
+                  <div className="mt-4 space-y-3 text-sm leading-relaxed text-[#6d5a4f]">
+                    <p>Usa titulos concretos para que el objetivo del caso se entienda de inmediato.</p>
+                    <p>Si es una alerta, prioriza datos accionables y evita rodeos innecesarios.</p>
+                    <p>Si es una historia, mantene el foco en el mensaje y acompana con una imagen legible.</p>
+                  </div>
+                </section>
+
+                <section className={sectionClassName}>
+                  <p className="text-[0.68rem] font-bold uppercase tracking-[0.18em] text-[#8d7a6d]">
+                    Estado del formulario
+                  </p>
+                  <h2 className="mt-2 text-lg font-semibold text-[#271d17]">Acciones</h2>
+
+                  <div className="mt-4 rounded-[1rem] border border-[#2f241d]/8 bg-white/70 px-4 py-3">
+                    <p className="text-sm leading-relaxed text-[#6d5a4f]">
+                      {isEditing
+                        ? "Estas editando un caso existente. Revisa titulo, categoria y contenido antes de guardar."
+                        : "El caso se publicara cuando completes los campos obligatorios y cargues una imagen valida."}
+                    </p>
+                  </div>
+
+                  <StatusMessage message={result} isError={isResultError} />
+
+                  <div className="mt-5 flex flex-wrap gap-3">
+                    <button
+                      type="submit"
+                      disabled={submitting}
+                      className="cursor-pointer rounded-full bg-[#2a1f19] px-5 py-2.5 text-sm font-semibold text-white transition-colors duration-200 hover:bg-[#3a2c24] disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {submitting
+                        ? isEditing
+                          ? "Actualizando..."
+                          : "Creando..."
+                        : isEditing
+                          ? "Actualizar caso"
+                          : "Crear caso"}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={handleClose}
+                      disabled={submitting}
+                      className="cursor-pointer rounded-full border border-[#cbb9aa] bg-[#fff8f0] px-5 py-2.5 text-sm font-semibold text-[#4e3c31] transition-colors duration-200 hover:bg-white disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                </section>
               </div>
             </div>
-
-            <div className="col-span-2 mt-4 flex justify-end">
-              <button
-                type="submit"
-                disabled={submitting}
-                className="cursor-pointer rounded-full border border-white/70 bg-white/40 px-6 py-2 text-white transition-colors delay-100 duration-300 hover:bg-[#FF7857] disabled:opacity-50"
-              >
-                {submitting
-                  ? isEditing
-                    ? "Actualizando..."
-                    : "Creando..."
-                  : isEditing
-                    ? "Actualizar caso"
-                    : "Crear caso"}
-              </button>
-            </div>
-
-            {result && <p className="mt-2 text-sm text-white/80">{result}</p>}
           </form>
         </motion.div>
       </ModalShell>
