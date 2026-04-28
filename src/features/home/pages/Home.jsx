@@ -90,7 +90,9 @@ const HomeScreen = () => {
     ESTADOS_EXITOSOS.includes(publicacion.estado);
 
   const openCreatePublication = () => {
-    withAuth(() => window.dispatchEvent(new CustomEvent("openCrearPublicacion")));
+    withAuth(() =>
+      window.dispatchEvent(new CustomEvent("openCrearPublicacion")),
+    );
   };
 
   const navigateTo = (path) => {
@@ -101,23 +103,24 @@ const HomeScreen = () => {
   useEffect(() => {
     const fetchHomeData = async () => {
       try {
-        const [perdidosResp, encontradosResp, adopcionesResp] = await Promise.all([
-          publicacionesService.getPublicaciones({
-            tipo: "PERDIDO",
-            limit: 4,
-            page: 1,
-          }),
-          publicacionesService.getPublicaciones({
-            tipo: "ENCONTRADO",
-            limit: 4,
-            page: 1,
-          }),
-          publicacionesService.getPublicaciones({
-            tipo: "ADOPCION",
-            limit: 1,
-            page: 1,
-          }),
-        ]);
+        const [perdidosResp, encontradosResp, adopcionesResp] =
+          await Promise.all([
+            publicacionesService.getPublicaciones({
+              tipo: "PERDIDO",
+              limit: 4,
+              page: 1,
+            }),
+            publicacionesService.getPublicaciones({
+              tipo: "ENCONTRADO",
+              limit: 4,
+              page: 1,
+            }),
+            publicacionesService.getPublicaciones({
+              tipo: "ADOPCION",
+              limit: 1,
+              page: 1,
+            }),
+          ]);
 
         if (perdidosResp?.publicaciones) {
           setPerdidos(perdidosResp.publicaciones);
@@ -229,17 +232,6 @@ const HomeScreen = () => {
               </div>
 
               <div className="self-center justify-self-end rounded-[1.35rem] border border-white/10 bg-[rgba(18,14,12,0.42)] p-3 backdrop-blur-sm sm:rounded-[2rem] lg:w-full lg:max-w-[28rem]">
-                <div className="flex items-start justify-between gap-5 px-1.5 pb-2 pt-1 sm:px-2">
-                  <div>
-                    <span className="text-[0.58rem] font-bold uppercase tracking-[0.18em] text-[#f5e7d9] sm:text-[0.68rem] sm:tracking-[0.24em]">
-                      Elegí tu punto de partida
-                    </span>
-                    <h2 className="font-editorial mt-2 max-w-2xl text-[1.5rem] leading-none text-[#fff8ef] sm:text-[2.15rem]">
-                      Tres caminos directos.
-                    </h2>
-                  </div>
-                </div>
-
                 <div className="grid gap-3">
                   {ACTION_PATHS.map((action) => (
                     <RedirectCard
@@ -256,10 +248,7 @@ const HomeScreen = () => {
                           onClick: () => navigateTo(action.browsePath),
                           variant: "primary",
                         },
-                        {
-                          label: "Crear publicación",
-                          onClick: openCreatePublication,
-                        },
+                        
                         {
                           label: "Abrir guía",
                           onClick: () => navigateTo(action.advicePath),
