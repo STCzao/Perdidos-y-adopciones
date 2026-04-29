@@ -1,5 +1,6 @@
 {
   "rewrites": [
+    { "source": "/api/:path*", "destination": "https://perdidos-y-adopciones.onrender.com/api/:path*" },
     { "source": "/(.*)", "destination": "/" }
   ]
 }
