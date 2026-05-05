@@ -13,3 +13,8 @@ export const getCloudinaryUrl = (url, { width, quality = "auto", format = "auto"
 
   return url.replace("/upload/", `/upload/${transforms.join(",")}/`);
 };
+
+export const getCloudinaryBgUrl = (
+  url,
+  { width = 1200, quality = "auto", format = "auto" } = {},
+) => getCloudinaryUrl(url, { width, quality, format });

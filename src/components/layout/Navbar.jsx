@@ -462,7 +462,7 @@ const NavbarContent = () => {
     <>
       <nav ref={navRef} className="fixed left-0 top-0 z-50 w-full px-2.5 pt-2 sm:px-5 sm:pt-2.5 lg:px-8">
         <div
-          className={`mx-auto flex max-w-[1680px] items-center justify-between gap-2 rounded-[1.15rem] border px-2.5 py-2 transition-all duration-500 sm:gap-4 sm:rounded-[1.35rem] sm:px-4 sm:py-2.5 ${
+          className={`mx-auto flex max-w-[1680px] items-center justify-between gap-2 rounded-[1.15rem] border px-2.5 py-2 transition-[background-color,border-color,box-shadow] duration-500 sm:gap-4 sm:rounded-[1.35rem] sm:px-4 sm:py-2.5 ${
             isSolidNavbar
               ? "border-[#2f241d]/10 bg-[rgba(255,250,244,0.92)] shadow-[0_18px_45px_rgba(31,20,14,0.12)] backdrop-blur-xl"
               : "border-[#2f241d]/8 bg-[rgba(255,250,244,0.82)] shadow-[0_18px_45px_rgba(31,20,14,0.1)] backdrop-blur-xl"
@@ -476,7 +476,7 @@ const NavbarContent = () => {
             <img
               src={import.meta.env.VITE_NAVBAR_LOGO_URL}
               alt="Perdidos y Adopciones"
-              className="h-11 w-auto max-w-[8rem] object-contain transition-all duration-300 sm:h-14 sm:max-w-[9.8rem]"
+              className="h-11 w-auto max-w-[8rem] object-contain sm:h-14 sm:max-w-[9.8rem]"
               draggable="false"
             />
           </button>
@@ -520,7 +520,7 @@ const NavbarContent = () => {
 
                     <div
                       id={`desktop-dropdown-${link.name}`}
-                       className={`absolute left-1/2 top-full z-20 mt-2 flex min-w-[220px] -translate-x-1/2 flex-col gap-2 rounded-[1.15rem] border border-[#2f241d]/10 bg-[rgba(255,250,244,0.96)] p-3 shadow-[0_20px_55px_rgba(20,15,13,0.14)] backdrop-blur-xl transition-all duration-200 ${
+                       className={`absolute left-1/2 top-full z-20 mt-2 flex min-w-[220px] -translate-x-1/2 flex-col gap-2 rounded-[1.15rem] border border-[#2f241d]/10 bg-[rgba(255,250,244,0.96)] p-3 shadow-[0_20px_55px_rgba(20,15,13,0.14)] backdrop-blur-xl transition-[opacity,transform] duration-200 ${
                         activeDesktopDropdown === link.name
                           ? "visible translate-y-0 opacity-100"
                           : "invisible translate-y-2 opacity-0"
@@ -535,7 +535,7 @@ const NavbarContent = () => {
                     key={link.name}
                     to={link.path}
                     className={({ isActive }) =>
-                      `rounded-[0.95rem] px-4 py-2 text-sm font-semibold transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f4c89e] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent ${
+                      `rounded-[0.95rem] px-4 py-2 text-sm font-semibold transition-[background-color,border-color,color,box-shadow] duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f4c89e] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent ${
                         isActive
                           ? "bg-[color:var(--shell-bark)] text-white shadow-[0_10px_24px_rgba(47,36,29,0.16)]"
                           : "border border-[#2f241d]/8 bg-white/56 text-[#241914] hover:border-[#2f241d]/12 hover:bg-[color:var(--shell-surface-alt)] hover:text-[#241914]"
@@ -594,7 +594,7 @@ const NavbarContent = () => {
               </button>
 
               <div
-                className={`absolute right-0 top-full z-20 mt-2 flex min-w-[260px] flex-col gap-2 rounded-[1.15rem] border border-[#2f241d]/10 bg-[rgba(255,250,244,0.96)] p-3 shadow-[0_20px_55px_rgba(20,15,13,0.14)] backdrop-blur-xl transition-all duration-200 ${
+                className={`absolute right-0 top-full z-20 mt-2 flex min-w-[260px] flex-col gap-2 rounded-[1.15rem] border border-[#2f241d]/10 bg-[rgba(255,250,244,0.96)] p-3 shadow-[0_20px_55px_rgba(20,15,13,0.14)] backdrop-blur-xl transition-[opacity,transform] duration-200 ${
                   isDesktopProfileMenuOpen
                     ? "visible translate-y-0 opacity-100"
                     : "invisible translate-y-2 opacity-0"
@@ -642,7 +642,7 @@ const NavbarContent = () => {
         </div>
 
         <div
-          className={`absolute left-0 right-0 top-full mt-2 px-2.5 transition-all duration-200 sm:px-5 lg:px-8 md:hidden ${
+          className={`absolute left-0 right-0 top-full mt-2 px-2.5 transition-[opacity,transform] duration-200 sm:px-5 lg:px-8 md:hidden ${
             isMobileProfileMenuOpen
               ? "visible translate-y-0 opacity-100 pointer-events-auto"
               : "invisible -translate-y-2 opacity-0 pointer-events-none"
@@ -677,9 +677,9 @@ const NavbarContent = () => {
                 key={item.key}
                 type="button"
                 onClick={() => (isCreate ? handleCreatePost() : navigateTo(item.path))}
-                className={`flex min-h-[3.35rem] cursor-pointer flex-col items-center justify-center gap-1 rounded-[0.95rem] px-1.5 text-center transition-all duration-200 ${
+                className={`flex min-h-[3.35rem] cursor-pointer flex-col items-center justify-center gap-1 rounded-[0.95rem] px-1.5 text-center transition-transform duration-200 ${
                   isHighlighted
-                    ? "bg-[color:var(--shell-bark)] text-white shadow-[0_12px_30px_rgba(47,36,29,0.16)]"
+                    ? "scale-[0.95] bg-[color:var(--shell-bark)] text-white shadow-[0_12px_30px_rgba(47,36,29,0.16)]"
                     : "border border-transparent text-[#241914] hover:border-[#2f241d]/8 hover:bg-[color:var(--shell-surface-soft)]"
                 }`}
                 aria-label={item.label}

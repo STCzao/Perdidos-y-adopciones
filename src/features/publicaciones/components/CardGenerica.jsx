@@ -127,12 +127,16 @@ const CardGenerica = ({ publicacion, cardId, isSuccessful = false }) => {
               src={getCloudinaryUrl(img, { width: 40, quality: 10 })}
               alt=""
               aria-hidden="true"
+              width={420}
+              height={209}
               className="absolute inset-0 h-full w-full scale-105 object-cover blur-lg opacity-35"
               loading="lazy"
             />
             <LazyLoadImage
               src={getCloudinaryUrl(img, { width: 420 })}
               alt={nombreanimal || especie || "Imagen de publicación"}
+              width={420}
+              height={209}
               className="relative z-10 block h-full w-full scale-[1.08] object-contain px-1.5 py-1.5"
               loading="lazy"
             />

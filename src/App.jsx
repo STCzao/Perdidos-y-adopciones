@@ -6,12 +6,10 @@ import { logout, refreshAccessToken } from "./services/auth.js";
 import { usuariosService } from "./services/usuarios";
 import AppRouter from "./router/AppRouter.jsx";
 import { ErrorBoundary } from "./components/ui/ErrorBoundary.jsx";
-import LoadingState from "./components/ui/LoadingState.jsx";
 
 function App() {
   const [login, setLogin] = useState(false);
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
 
   const syncUser = useCallback((nextUser) => {
     try {
@@ -77,14 +75,10 @@ function App() {
 
   useEffect(() => {
     const bootstrapSession = async () => {
-      setLoading(true);
-
       try {
         await hydrateSessionFromBackend();
       } catch {
         clearSessionState();
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -136,10 +130,6 @@ function App() {
     window.addEventListener("storage", handleStorage);
     return () => window.removeEventListener("storage", handleStorage);
   }, [clearSessionState, hydrateSessionFromBackend]);
-
-  if (loading) {
-    return <LoadingState fullScreen label="Preparando tu sesión..." />;
-  }
 
   return (
     <ErrorBoundary>
