@@ -8,6 +8,7 @@ import Navbar from "../../../components/layout/Navbar";
 import Seo from "../../../components/seo/Seo";
 import { useRequireAuth } from "../../../hooks/useRequireAuth";
 import { publicacionesService } from "../../../services/publicaciones";
+import { getCloudinaryBgUrl } from "../../../utils/cloudinaryUtils";
 import { getTipoColorMeta } from "../../../utils/publicacionColors";
 import {
   buildBreadcrumbSchema,
@@ -85,6 +86,12 @@ const HomeScreen = () => {
   const [adopcionesCount, setAdopcionesCount] = useState(0);
   const navigate = useNavigate();
   const withAuth = useRequireAuth();
+  const heroCardUrl = getCloudinaryBgUrl(import.meta.env.VITE_MEDIA_IMG_URL, {
+    width: 1200,
+  });
+  const collabBgUrl = getCloudinaryBgUrl(import.meta.env.VITE_HOME_COLAB_IMG_URL, {
+    width: 1200,
+  });
 
   const isPublicacionExitosa = (publicacion) =>
     ESTADOS_EXITOSOS.includes(publicacion.estado);
@@ -176,33 +183,28 @@ const HomeScreen = () => {
             "linear-gradient(180deg, #2c211d 0%, #43302a 58%, #5a3f35 100%)",
         }}
       >
-        <div
-          className="absolute inset-0 opacity-55"
-          style={{
-            backgroundImage: `linear-gradient(125deg, rgba(25,20,17,0.68), rgba(25,20,17,0.12)), url(${import.meta.env.VITE_MEDIA_IMG_URL})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }}
-        />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(244,200,158,0.16),transparent_36%),linear-gradient(180deg,rgba(24,18,16,0.06),rgba(24,18,16,0.28))]" />
         <div className="nature-overlay absolute inset-0" />
         <div className="pointer-events-none absolute left-[-10rem] top-36 h-72 w-72 rounded-full bg-[#D62828]/20 blur-3xl" />
         <div className="pointer-events-none absolute right-[-8rem] top-24 h-80 w-80 rounded-full bg-[#2165FF]/12 blur-3xl" />
 
         <div className="relative w-full px-3 pb-3 pt-[1rem] sm:px-5 sm:pb-4 sm:pt-[6.5rem] lg:px-8 lg:pb-5 lg:pt-[7rem]">
-          <motion.div
-            initial={{ opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.65, delay: 0.15 }}
+          <div
             className="relative min-h-[calc(100dvh-11rem-env(safe-area-inset-bottom))] overflow-hidden rounded-[2rem] border border-white/10 shadow-[0_28px_90px_rgba(0,0,0,0.24)] sm:min-h-[calc(100dvh-7.5rem)] sm:rounded-[2.4rem]"
             style={{
-              backgroundImage: `linear-gradient(125deg, rgba(26,20,18,0.72), rgba(26,20,18,0.3)), url(${import.meta.env.VITE_MEDIA_IMG_URL})`,
+              backgroundImage: `linear-gradient(125deg, rgba(26,20,18,0.72), rgba(26,20,18,0.3)), url(${heroCardUrl})`,
               backgroundSize: "cover",
               backgroundPosition: "center",
             }}
           >
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(244,200,158,0.18),transparent_26%),radial-gradient(circle_at_right,rgba(219,231,181,0.14),transparent_24%),linear-gradient(180deg,rgba(24,18,16,0.08),rgba(24,18,16,0.46))]" />
 
-            <div className="relative grid min-h-[inherit] content-center gap-10 p-5 text-white sm:p-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-center lg:gap-12 lg:p-10">
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="relative grid min-h-[inherit] content-center gap-10 p-5 text-white sm:p-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-center lg:gap-12 lg:p-10"
+            >
               <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
                 <span className="inline-flex w-fit rounded-full border border-white/14 bg-white/8 px-3.5 py-1.5 text-[0.6rem] font-bold uppercase tracking-[0.22em] text-[#f5e7d9] backdrop-blur-sm sm:px-4 sm:py-2 sm:text-[0.68rem] sm:tracking-[0.28em]">
                   Base de datos comunitaria de Tucumán
@@ -247,8 +249,8 @@ const HomeScreen = () => {
                   </button>
                 </div>
               </div>
-            </div>
-          </motion.div>
+            </motion.div>
+          </div>
         </div>
       </section>
 
@@ -394,7 +396,7 @@ const HomeScreen = () => {
       <section
         className="relative overflow-hidden px-4 pb-20 pt-12 text-white sm:px-6 lg:px-8"
         style={{
-          backgroundImage: `linear-gradient(115deg, rgba(44,34,29,0.84), rgba(44,34,29,0.58)), url(${import.meta.env.VITE_HOME_COLAB_IMG_URL})`,
+          backgroundImage: `linear-gradient(115deg, rgba(44,34,29,0.84), rgba(44,34,29,0.58)), url(${collabBgUrl})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}

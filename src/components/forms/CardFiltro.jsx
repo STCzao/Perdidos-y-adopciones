@@ -54,7 +54,7 @@ const CardFiltro = ({ filtros, setFiltros, tipo, razasPorEspecie = {} }) => {
       </div>
 
       <div
-        className={`transition-all duration-300 ${
+        className={`transition-[max-height,opacity,margin] duration-300 ${
           isOpenMobile
             ? "mt-5 max-h-[1600px] opacity-100"
             : "pointer-events-none mt-0 max-h-0 overflow-hidden opacity-0 lg:pointer-events-auto lg:mt-5 lg:max-h-none lg:overflow-visible lg:opacity-100"

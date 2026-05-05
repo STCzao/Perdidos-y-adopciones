@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { motion } from "motion/react";
+import { motion } from "framer-motion";
 import { EditarPerfil } from "../../features/usuarios/EditarPerfil";
 import { VerPublicaciones } from "../../features/publicaciones/VerPublicaciones";
 import { AdminPublicaciones } from "../../features/publicaciones/AdminPublicaciones";

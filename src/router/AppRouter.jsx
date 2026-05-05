@@ -1,7 +1,9 @@
 import { Suspense, lazy } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { AnimatePresence } from "framer-motion";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import LoadingState from "../components/ui/LoadingState";
+import PageTransition from "../components/ui/PageTransition";
 
 const Home = lazy(() => import("../features/home/pages/Home"));
 const PublicacionDetalle = lazy(() =>
@@ -25,23 +27,41 @@ const Adoptar = lazy(() => import("../pages/consejos/Adoptar"));
 
 const RouteFallback = () => <LoadingState fullScreen label="Cargando contenido..." />;
 
+const wrap = (Component, props = {}) => (
+  <PageTransition>
+    <Suspense fallback={<RouteFallback />}>
+      <Component {...props} />
+    </Suspense>
+  </PageTransition>
+);
+
 const AppRouter = () => {
   const { login, user, iniciarSesion, guardarUsuario } = useAuth();
+  const location = useLocation();
 
   return (
-    <Suspense fallback={<RouteFallback />}>
-      <Routes>
-        <Route path="/" element={<Home user={user} />} />
-        <Route path="/publicaciones/:tipo" element={<Publicaciones user={user} />} />
-        <Route path="/publicaciones/:tipo/:id" element={<PublicacionDetalle user={user} />} />
-        <Route path="/casos-resueltos" element={<PublicacionesExitosas user={user} />} />
-        <Route path="/consejos-perdi" element={<Perdi user={user} />} />
-        <Route path="/consejos-encontre" element={<Encontre user={user} />} />
-        <Route path="/consejos-adopcion" element={<Adoptar user={user} />} />
-        <Route path="/casos-ayuda" element={<Comunidad user={user} />} />
-        <Route path="/contacto" element={<Contact user={user} />} />
-        <Route path="/terminos-y-condiciones" element={<TerminosCondiciones />} />
-        <Route path="/quienes-somos" element={<QuienesSomos />} />
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
+        <Route path="/" element={wrap(Home, { user })} />
+        <Route path="/publicaciones/:tipo" element={wrap(Publicaciones, { user })} />
+        <Route
+          path="/publicaciones/:tipo/:id"
+          element={wrap(PublicacionDetalle, { user })}
+        />
+        <Route
+          path="/casos-resueltos"
+          element={wrap(PublicacionesExitosas, { user })}
+        />
+        <Route path="/consejos-perdi" element={wrap(Perdi, { user })} />
+        <Route path="/consejos-encontre" element={wrap(Encontre, { user })} />
+        <Route path="/consejos-adopcion" element={wrap(Adoptar, { user })} />
+        <Route path="/casos-ayuda" element={wrap(Comunidad, { user })} />
+        <Route path="/contacto" element={wrap(Contact, { user })} />
+        <Route
+          path="/terminos-y-condiciones"
+          element={wrap(TerminosCondiciones)}
+        />
+        <Route path="/quienes-somos" element={wrap(QuienesSomos)} />
 
         <Route
           path="/login"
@@ -65,7 +85,7 @@ const AppRouter = () => {
 
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
-    </Suspense>
+    </AnimatePresence>
   );
 };
 
