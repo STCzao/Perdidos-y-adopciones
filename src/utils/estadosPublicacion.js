@@ -18,6 +18,8 @@ export const ESTADO_CONFIG = {
   },
 };
 
+export const ESTADOS_RESUELTOS = ["YA APARECIO", "APARECIO SU FAMILIA", "ADOPTADO"];
+
 /**
  * Obtiene el estado por defecto según el tipo de publicación
  * @param {string} tipo - Tipo de publicación (PERDIDO, ENCONTRADO, ADOPCION)

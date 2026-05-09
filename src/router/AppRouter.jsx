@@ -36,7 +36,7 @@ const wrap = (Component, props = {}) => (
 );
 
 const AppRouter = () => {
-  const { login, user, iniciarSesion, guardarUsuario } = useAuth();
+  const { login, user, guardarUsuario } = useAuth();
   const location = useLocation();
 
   return (
@@ -69,7 +69,7 @@ const AppRouter = () => {
             login ? (
               <Navigate to="/" />
             ) : (
-              <Login iniciarSesion={iniciarSesion} guardarUsuario={guardarUsuario} />
+              <Login guardarUsuario={guardarUsuario} />
             )
           }
         />

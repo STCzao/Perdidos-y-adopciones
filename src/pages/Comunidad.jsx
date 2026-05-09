@@ -14,7 +14,7 @@ const ComunidadScreen = () => {
   const { filtrados, query, setQuery } = useFiltro(casos);
 
   return (
-    <div className="bg-[#f6efe4] pb-[calc(6.5rem+env(safe-area-inset-bottom))] text-[#241914] md:pb-0">
+    <div className="bg-[#f6efe4] pb-[calc(6.5rem+env(safe-area-inset-bottom))] text-[#241914] lg:pb-0">
       <Seo
         title="Comunidad"
         description="Lee historias, consejos y casos de ayuda de la comunidad para acompañar mejor búsquedas, rescates y adopciones."

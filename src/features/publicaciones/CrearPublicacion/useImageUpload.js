@@ -1,5 +1,4 @@
-const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
-const UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+import { uploadToCloudinary } from "../../../utils/cloudinaryUpload";
 
 export const useImageUpload = (setFormImage, setErrors) => {
   const handleImageUpload = async (event) => {
@@ -22,27 +21,11 @@ export const useImageUpload = (setFormImage, setErrors) => {
     }
 
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("upload_preset", UPLOAD_PRESET);
-
-      const response = await fetch(
-        `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
-        { method: "POST", body: formData },
-      );
-
-      const data = await response.json();
-
-      if (data.secure_url) {
-        setFormImage(data.secure_url);
-        return { uploading: false, success: true };
-      }
-
-      setErrors((prev) => ({ ...prev, img: "Error al subir imagen" }));
-      return { uploading: false, success: false };
+      const url = await uploadToCloudinary(file);
+      setFormImage(url);
+      return { uploading: false, success: true };
     } catch (error) {
-      console.error("Error subiendo imagen:", error);
-      setErrors((prev) => ({ ...prev, img: "Error de conexión" }));
+      setErrors((prev) => ({ ...prev, img: error.message || "Error al subir imagen" }));
       return { uploading: false, success: false };
     }
   };

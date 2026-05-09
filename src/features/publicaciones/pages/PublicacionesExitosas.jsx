@@ -5,11 +5,11 @@ import Navbar from "../../../components/layout/Navbar";
 import Footer from "../../../components/layout/Footer";
 import Seo from "../../../components/seo/Seo";
 import { publicacionesService } from "../../../services/publicaciones";
-import CardExitosa from "../components/CardExitosa";
+import { ESTADOS_RESUELTOS } from "../../../utils/estadosPublicacion";
+import CardGenerica from "../components/CardGenerica";
 import { buildBreadcrumbSchema } from "../../../components/seo/seoUtils";
 import LoadingState from "../../../components/ui/LoadingState";
 
-const ESTADOS_EXITOSOS = ["YA APARECIO", "APARECIO SU FAMILIA", "ADOPTADO"];
 const ITEMS_PER_PAGE = 12;
 const PAGE_FETCH_SIZE = 50;
 
@@ -59,7 +59,7 @@ const cargarTodasLasPublicacionesExitosas = async () => {
   }
 
   publicacionesExitosasCache.promise = Promise.all(
-    ESTADOS_EXITOSOS.map((estado) => fetchTodasLasPaginasDeEstado(estado)),
+    ESTADOS_RESUELTOS.map((estado) => fetchTodasLasPaginasDeEstado(estado)),
   )
     .then((resultados) => {
       const ordenadas = ordenarPorFechaCreacionDesc(resultados.flat());
@@ -95,7 +95,7 @@ const PublicacionesExitosasPage = () => {
 
       try {
         const primerasRespuestas = await Promise.all(
-          ESTADOS_EXITOSOS.map((estado) =>
+          ESTADOS_RESUELTOS.map((estado) =>
             publicacionesService.getPublicaciones({
               page: 1,
               limit: PAGE_FETCH_SIZE,
@@ -176,7 +176,7 @@ const PublicacionesExitosasPage = () => {
       />
       <Navbar />
 
-      <div className="relative min-h-screen overflow-x-hidden px-4 pb-[calc(6.5rem+env(safe-area-inset-bottom))] pt-32 sm:px-6 lg:px-8">
+      <div className="relative min-h-screen overflow-x-hidden px-4 pb-[calc(6.5rem+env(safe-area-inset-bottom))] pt-32 sm:px-6 lg:px-8 lg:pb-0">
         <div className="pointer-events-none absolute left-[-10rem] top-36 h-80 w-80 rounded-full bg-[#d46f49]/12 blur-3xl" />
         <div className="pointer-events-none absolute right-[-8rem] top-24 h-80 w-80 rounded-full bg-[#95a667]/12 blur-3xl" />
         <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-[linear-gradient(180deg,rgba(90,63,53,0.12),transparent)]" />
@@ -194,7 +194,7 @@ const PublicacionesExitosasPage = () => {
                   Casos resueltos
                 </span>
                 <h1 className="font-editorial mt-4 text-[2.6rem] leading-[0.92] text-[#241914] sm:text-[3.2rem] lg:text-[3.7rem]">
-                  Archivo de casos cerrados
+                  Archivo de casos resueltos
                 </h1>
                 <p className="mt-4 max-w-2xl text-[0.96rem] leading-relaxed text-[#5f4c41]">
                   Reencuentros, adopciones concretadas y animales que encontraron amor por primera vez.
@@ -233,7 +233,11 @@ const PublicacionesExitosasPage = () => {
                   transition={{ duration: 0.3 }}
                   className="w-full max-w-[21rem]"
                 >
-                  <CardExitosa publicacion={publicacion} cardId={publicacion._id} />
+                  <CardGenerica
+                    publicacion={publicacion}
+                    cardId={publicacion._id}
+                    isSuccessful={true}
+                  />
                 </motion.div>
               ))
             ) : (
