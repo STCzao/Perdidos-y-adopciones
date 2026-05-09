@@ -56,6 +56,7 @@ export const refreshAccessToken = async () => {
         return {
           success: true,
           accessToken: data.accessToken,
+          usuario: data?.usuario,
           requestId: data?.requestId || getResponseRequestId(response),
         };
       }

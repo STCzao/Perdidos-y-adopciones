@@ -11,15 +11,12 @@ import { getCloudinaryUrl } from "../../../utils/cloudinaryUtils";
 
 const cardMeta = {
   ADOPCION: {
-    label: "Cuidado",
     locationLabel: "Zona referencia",
   },
   PERDIDO: {
-    label: "Búsqueda activa",
     locationLabel: "Se extravió en",
   },
   ENCONTRADO: {
-    label: "En resguardo",
     locationLabel: "Se encontró en",
   },
 };
@@ -104,19 +101,6 @@ const CardGenerica = ({ publicacion, cardId, isSuccessful = false }) => {
       <div className="relative p-2.5">
         {img ? (
           <div className="relative h-[13.1rem] overflow-hidden rounded-[0.42rem] bg-[#e6dac6]">
-            <div className="absolute left-3 top-3 z-20">
-              <span
-                className="rounded-[0.4rem] px-2.5 py-1 text-[0.54rem] font-bold uppercase tracking-[0.14em] text-white shadow-sm"
-                style={{ backgroundColor: meta.accent }}
-              >
-                {estado}
-              </span>
-            </div>
-            <div className="absolute right-3 top-3 z-20">
-              <span className="rounded-[0.4rem] border border-white/45 bg-white/80 px-2.5 py-1 text-[0.53rem] font-bold uppercase tracking-[0.14em] text-[#5f4c41] backdrop-blur-sm">
-                {meta.label}
-              </span>
-            </div>
             <div
               className="absolute inset-0 opacity-90"
               style={{
@@ -151,9 +135,17 @@ const CardGenerica = ({ publicacion, cardId, isSuccessful = false }) => {
       <div className="flex min-h-0 flex-1 flex-col px-3.5 pb-3.5">
         <div className="flex items-start justify-between gap-2 border-b border-[#2f241d]/8 pb-1.5">
           <div className="min-w-0">
-            <p className="text-[0.56rem] font-bold uppercase tracking-[0.22em] text-[#7b6557]">
-              {tipo}
-            </p>
+            <div className="flex items-center gap-1.5">
+              <p className="text-[0.56rem] font-bold uppercase tracking-[0.22em] text-[#7b6557]">
+                {tipo}
+              </p>
+              <span
+                className="rounded-[0.3rem] px-1.5 py-0.5 text-[0.5rem] font-bold uppercase tracking-[0.12em] text-white"
+                style={{ backgroundColor: meta.accent }}
+              >
+                {estado}
+              </span>
+            </div>
             <h3
               className="font-extrabold mt-1 line-clamp-2 text-[1.38rem] leading-[.94]"
               style={{ color: meta.accent }}

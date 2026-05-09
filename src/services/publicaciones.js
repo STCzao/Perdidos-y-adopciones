@@ -15,6 +15,15 @@ const buildPublicacionesListKey = ({
   tipo = "",
   estado = "",
   search = "",
+  raza = "",
+  edad = "",
+  localidad = "",
+  sexo = "",
+  especie = "",
+  color = "",
+  lugar = "",
+  detalles = "",
+  tamano = "",
 } = {}) =>
   JSON.stringify({
     page: Number(page) || 1,
@@ -22,6 +31,15 @@ const buildPublicacionesListKey = ({
     tipo: tipo || "",
     estado: estado || "",
     search: search || "",
+    raza: raza || "",
+    edad: edad || "",
+    localidad: localidad || "",
+    sexo: sexo || "",
+    especie: especie || "",
+    color: color || "",
+    lugar: lugar || "",
+    detalles: detalles || "",
+    tamano: tamano || "",
   });
 
 const getCachedPublicacionesList = (key) => {
@@ -95,7 +113,22 @@ export const publicacionesService = {
   },
 
   getPublicaciones: async (
-    { page = 1, limit = 12, tipo, estado, search } = {},
+    {
+      page = 1,
+      limit = 12,
+      tipo,
+      estado,
+      search,
+      raza,
+      edad,
+      localidad,
+      sexo,
+      especie,
+      color,
+      lugar,
+      detalles,
+      tamano,
+    } = {},
     { forceRefresh = false } = {},
   ) => {
     const cacheKey = buildPublicacionesListKey({
@@ -104,6 +137,15 @@ export const publicacionesService = {
       tipo,
       estado,
       search,
+      raza,
+      edad,
+      localidad,
+      sexo,
+      especie,
+      color,
+      lugar,
+      detalles,
+      tamano,
     });
 
     if (!forceRefresh) {
@@ -128,6 +170,15 @@ export const publicacionesService = {
         if (tipo) params.append("tipo", tipo);
         if (estado) params.append("estado", estado);
         if (search) params.append("search", search);
+        if (raza) params.append("raza", raza);
+        if (edad) params.append("edad", edad);
+        if (localidad) params.append("localidad", localidad);
+        if (sexo) params.append("sexo", sexo);
+        if (especie) params.append("especie", especie);
+        if (color) params.append("color", color);
+        if (lugar) params.append("lugar", lugar);
+        if (detalles) params.append("detalles", detalles);
+        if (tamano) params.append("tamano", tamano);
 
         const { data } = await axiosInstance.get(`/publicaciones?${params.toString()}`);
         setCachedPublicacionesList(cacheKey, data);

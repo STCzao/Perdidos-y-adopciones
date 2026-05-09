@@ -20,7 +20,7 @@ export default function Footer() {
   };
 
   return (
-    <footer className="relative overflow-hidden border-t border-[color:var(--shell-line)]/70 bg-[linear-gradient(180deg,rgba(255,250,244,0.98),rgba(248,240,229,0.96))] px-4 pb-28 pt-12 text-[color:var(--shell-ink)] sm:px-6 md:pb-8 lg:px-8">
+    <footer className="relative overflow-hidden border-t border-[color:var(--shell-line)]/70 bg-[linear-gradient(180deg,rgba(255,250,244,0.98),rgba(248,240,229,0.96))] px-4 pb-28 pt-12 text-[color:var(--shell-ink)] sm:px-6 lg:pb-8 lg:px-8">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(47,36,29,0.07),transparent_22%),radial-gradient(circle_at_bottom_right,rgba(95,76,65,0.06),transparent_20%)]" />
 
       <div className="relative mx-auto max-w-[1600px] border-t border-[color:var(--shell-line)]/70 pt-10">

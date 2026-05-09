@@ -12,6 +12,7 @@ import {
   publicacionesTodasPending,
 } from "../../../services/publicaciones";
 import { compareFechas } from "../../../utils/dateHelpers";
+import { ESTADOS_RESUELTOS } from "../../../utils/estadosPublicacion";
 import { getTipoColorMeta } from "../../../utils/publicacionColors";
 import CardGenerica from "../components/CardGenerica";
 import { getPublicacionTamano } from "../utils/publicacionFields";
@@ -26,8 +27,6 @@ const mapTipos = {
   adopciones: "ADOPCION",
   encontrados: "ENCONTRADO",
 };
-
-const estadosExcluidos = ["YA APARECIO", "APARECIO SU FAMILIA", "ADOPTADO"];
 
 const pageMeta = {
   perdidos: {
@@ -97,7 +96,7 @@ const PublicacionesPage = () => {
   const filtrarActivas = useCallback(
     (publicaciones = []) =>
       publicaciones.filter(
-        (publicacion) => !estadosExcluidos.includes(publicacion.estado),
+        (publicacion) => !ESTADOS_RESUELTOS.includes(publicacion.estado),
       ),
     [],
   );
@@ -331,7 +330,7 @@ const PublicacionesPage = () => {
 
       if (
         response?.publicacion &&
-        estadosExcluidos.includes(response.publicacion.estado)
+        ESTADOS_RESUELTOS.includes(response.publicacion.estado)
       ) {
         navigate(`/casos-exito#${publicacionId}`);
       }
@@ -366,7 +365,7 @@ const PublicacionesPage = () => {
   };
 
   return (
-    <div className="bg-[#f6efe4] pb-[calc(6.5rem+env(safe-area-inset-bottom))] text-[#241914] md:pb-0">
+    <div className="bg-[#f6efe4] pb-[calc(6.5rem+env(safe-area-inset-bottom))] text-[#241914] lg:pb-0">
       <Seo
         title={meta.title}
         description={meta.description}

@@ -369,8 +369,17 @@ const NavbarContent = () => {
     }
   };
 
-  const openDesktopDropdown = (name) => setActiveDesktopDropdown(name);
-  const closeDesktopDropdown = () => setActiveDesktopDropdown(null);
+  const closeTimeoutRef = React.useRef(null);
+
+  const openDesktopDropdown = (name) => {
+    if (closeTimeoutRef.current) {
+      window.clearTimeout(closeTimeoutRef.current);
+    }
+    setActiveDesktopDropdown(name);
+  };
+  const closeDesktopDropdown = () => {
+    closeTimeoutRef.current = window.setTimeout(() => setActiveDesktopDropdown(null), 150);
+  };
 
   const renderDropdownItem = (item) => {
     if (item.action === "create") {
@@ -481,7 +490,7 @@ const NavbarContent = () => {
             />
           </button>
 
-          <div className="hidden min-w-0 flex-1 items-center justify-center md:flex">
+          <div className="hidden min-w-0 flex-1 items-center justify-center lg:flex">
             <div className="flex items-center gap-1 rounded-[1rem] border border-[#2f241d]/8 bg-[rgba(255,255,255,0.62)] px-2 py-1.5 backdrop-blur-sm">
               {NAV_LINKS.map((link) =>
                 link.items ? (
@@ -520,7 +529,7 @@ const NavbarContent = () => {
 
                     <div
                       id={`desktop-dropdown-${link.name}`}
-                       className={`absolute left-1/2 top-full z-20 mt-2 flex min-w-[220px] -translate-x-1/2 flex-col gap-2 rounded-[1.15rem] border border-[#2f241d]/10 bg-[rgba(255,250,244,0.96)] p-3 shadow-[0_20px_55px_rgba(20,15,13,0.14)] backdrop-blur-xl transition-[opacity,transform] duration-200 ${
+                       className={`absolute left-1/2 top-full z-20 mt-0 flex min-w-[220px] -translate-x-1/2 flex-col gap-2 rounded-[1.15rem] border border-[#2f241d]/10 bg-[rgba(255,250,244,0.96)] p-3 shadow-[0_20px_55px_rgba(20,15,13,0.14)] backdrop-blur-xl transition-[opacity,transform] duration-200 ${
                         activeDesktopDropdown === link.name
                           ? "visible translate-y-0 opacity-100"
                           : "invisible translate-y-2 opacity-0"
@@ -549,7 +558,7 @@ const NavbarContent = () => {
             </div>
           </div>
 
-          <div className="hidden shrink-0 items-center gap-2 md:flex">
+          <div className="hidden shrink-0 items-center gap-2 lg:flex">
             <button
               onClick={handleCreatePost}
               className="cursor-pointer rounded-[0.95rem] bg-[color:var(--shell-bark)] px-5 py-2 text-sm font-bold text-white shadow-[0_10px_24px_rgba(47,36,29,0.16)] transition-transform duration-300 hover:-translate-y-0.5 hover:bg-[#45362d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--shell-bark)] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
@@ -612,7 +621,7 @@ const NavbarContent = () => {
             </div>
           </div>
 
-          <div className="flex items-center gap-2 md:hidden">
+          <div className="flex items-center gap-2 lg:hidden">
             <button
               type="button"
               onClick={() => setIsMobileProfileMenuOpen((value) => !value)}
@@ -642,7 +651,7 @@ const NavbarContent = () => {
         </div>
 
         <div
-          className={`absolute left-0 right-0 top-full mt-2 px-2.5 transition-[opacity,transform] duration-200 sm:px-5 lg:px-8 md:hidden ${
+          className={`absolute left-0 right-0 top-full mt-2 px-2.5 transition-[opacity,transform] duration-200 sm:px-5 lg:px-8 lg:hidden ${
             isMobileProfileMenuOpen
               ? "visible translate-y-0 opacity-100 pointer-events-auto"
               : "invisible -translate-y-2 opacity-0 pointer-events-none"
@@ -665,7 +674,7 @@ const NavbarContent = () => {
         </div>
       </nav>
 
-      <div className="fixed bottom-0 left-0 right-0 z-[1000] min-h-[4.85rem] border-t border-[color:var(--shell-line)] bg-[#fffaf4] px-2 pb-[max(0.65rem,env(safe-area-inset-bottom))] pt-1.5 shadow-[0_-16px_45px_rgba(31,20,14,0.14)] md:hidden">
+      <div className="fixed bottom-0 left-0 right-0 z-[1000] min-h-[4.85rem] border-t border-[color:var(--shell-line)] bg-[#fffaf4] px-2 pb-[max(0.65rem,env(safe-area-inset-bottom))] pt-1.5 shadow-[0_-16px_45px_rgba(31,20,14,0.14)] lg:hidden">
         <div className="mx-auto grid max-w-[560px] grid-cols-5 gap-1.5">
           {MOBILE_PRIMARY_LINKS.map((item) => {
             const isActive = isMobileBottomLinkActive(item);

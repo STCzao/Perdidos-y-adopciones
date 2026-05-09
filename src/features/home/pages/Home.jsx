@@ -163,7 +163,7 @@ const HomeScreen = () => {
   }, []);
 
   return (
-    <div className="bg-[#f6efe4] pb-[calc(6.5rem+env(safe-area-inset-bottom))] text-[#241914] md:pb-0">
+    <div className="bg-[#f6efe4] pb-[calc(6.5rem+env(safe-area-inset-bottom))] text-[#241914] lg:pb-0">
       <Seo
         title="Inicio"
         description="Publica y encuentra animales perdidos, encontrados y en adopción en Tucumán. Una red comunitaria para difundir casos y conectar ayuda real."
@@ -327,7 +327,7 @@ const HomeScreen = () => {
                 Búsqueda activa
               </span>
               <h2 className="font-editorial mt-3 text-[2.25rem] leading-[0.97] text-[#241914] sm:text-[3rem]">
-                Casos perdidos.
+                Casos: perdidos.
               </h2>
             </div>
             <button
@@ -364,7 +364,7 @@ const HomeScreen = () => {
                 Resguardo activo
               </span>
               <h2 className="font-editorial mt-3 text-[2.25rem] leading-[0.97] text-[#241914] sm:text-[3rem]">
-                Casos encontrados.
+                Casos: encontrados.
               </h2>
             </div>
             <button

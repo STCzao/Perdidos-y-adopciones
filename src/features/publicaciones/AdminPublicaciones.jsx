@@ -10,6 +10,7 @@ import { getTipoColorMeta } from "../../utils/publicacionColors";
 import { getPublicacionTitulo } from "./utils/publicacionFields";
 
 let modalControl;
+const LIMIT = 15;
 
 const getTipoBadgeStyle = (tipo) => {
   const meta = getTipoColorMeta(tipo);
@@ -32,41 +33,24 @@ export const AdminPublicaciones = {
     const [publicaciones, setPublicaciones] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
     const [confirmModal, setConfirmModal] = useState({
       isOpen: false,
       item: null,
       action: "",
     });
 
-    useLayoutEffect(() => {
-      modalControl = { setOpen };
-      return () => { modalControl = null; };
-    }, []);
-
-    useEffect(() => {
-      if (open) {
-        document.body.style.overflow = "hidden";
-        document.documentElement.style.overflow = "hidden";
-        cargarPublicaciones();
-      } else {
-        document.body.style.overflow = "unset";
-        document.documentElement.style.overflow = "unset";
-      }
-
-      return () => {
-        document.body.style.overflow = "unset";
-        document.documentElement.style.overflow = "unset";
-      };
-    }, [open]);
-
-    const cargarPublicaciones = useCallback(async () => {
+    const cargarPublicaciones = useCallback(async (targetPage = 1) => {
       try {
         setLoading(true);
         setError("");
-        const result = await adminService.getTodasPublicaciones();
+        const result = await adminService.getPublicacionesPagina(targetPage, LIMIT);
 
         if (result.success) {
           setPublicaciones(result.publicaciones || []);
+          setTotalPages(result.totalPages || 1);
+          setPage(targetPage);
         } else {
           setError(result.msg || "Error al cargar publicaciones");
         }
@@ -77,11 +61,33 @@ export const AdminPublicaciones = {
       }
     }, []);
 
+    useLayoutEffect(() => {
+      modalControl = { setOpen };
+      return () => { modalControl = null; };
+    }, []);
+
+    useEffect(() => {
+      if (open) {
+        document.body.style.overflow = "hidden";
+        document.documentElement.style.overflow = "hidden";
+        cargarPublicaciones(1);
+      } else {
+        document.body.style.overflow = "unset";
+        document.documentElement.style.overflow = "unset";
+      }
+
+      return () => {
+        document.body.style.overflow = "unset";
+        document.documentElement.style.overflow = "unset";
+      };
+    }, [cargarPublicaciones, open]);
+
     const handleEliminar = useCallback(async (publicacion) => {
       try {
         const result = await publicacionesService.borrarPublicacion(publicacion._id);
         if (result.success) {
-          setPublicaciones((prev) => prev.filter((p) => p._id !== publicacion._id));
+          const fallbackPage = publicaciones.length === 1 && page > 1 ? page - 1 : page;
+          await cargarPublicaciones(fallbackPage);
           return true;
         }
 
@@ -91,7 +97,7 @@ export const AdminPublicaciones = {
         setError("Error de conexión al eliminar");
         return false;
       }
-    }, []);
+    }, [cargarPublicaciones, page, publicaciones.length]);
 
     const handleEditarEstado = useCallback(async (id, nuevoEstado) => {
       try {
@@ -130,6 +136,8 @@ export const AdminPublicaciones = {
       setOpen(false);
       setError("");
       setPublicaciones([]);
+      setPage(1);
+      setTotalPages(1);
     }, []);
 
     if (!open) return null;
@@ -174,7 +182,7 @@ export const AdminPublicaciones = {
               <div className="mt-4 rounded-[1rem] border border-[#d62828]/18 bg-[color:var(--shell-danger-soft)] p-3">
                 <p className="text-[#a44939]">{error}</p>
                 <button
-                  onClick={cargarPublicaciones}
+                  onClick={() => cargarPublicaciones(page)}
                   className="mt-2 cursor-pointer rounded-full bg-[color:var(--shell-danger)] px-4 py-2 text-white transition-colors hover:bg-[#b91f1f]"
                 >
                   Reintentar
@@ -199,6 +207,28 @@ export const AdminPublicaciones = {
                 {publicaciones.length === 0 && !loading && (
                   <div className="py-8 text-center text-[color:var(--shell-muted)]/80">
                     No hay publicaciones para mostrar
+                  </div>
+                )}
+
+                {totalPages > 1 && (
+                  <div className="mt-4 flex items-center justify-center gap-3">
+                    <button
+                      onClick={() => cargarPublicaciones(page - 1)}
+                      disabled={page === 1 || loading}
+                      className="rounded-lg border border-[color:var(--shell-line)] px-3 py-1.5 text-sm disabled:opacity-40"
+                    >
+                      Anterior
+                    </button>
+                    <span className="text-sm text-[color:var(--shell-muted)]">
+                      {page} / {totalPages}
+                    </span>
+                    <button
+                      onClick={() => cargarPublicaciones(page + 1)}
+                      disabled={page === totalPages || loading}
+                      className="rounded-lg border border-[color:var(--shell-line)] px-3 py-1.5 text-sm disabled:opacity-40"
+                    >
+                      Siguiente
+                    </button>
                   </div>
                 )}
               </div>

@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import ModalShell from "../../components/ui/ModalShell";
 import { comunidadService } from "../../services/comunidad";
 import { withRequestIdMessage } from "../../services/serviceUtils";
+import { uploadToCloudinary } from "../../utils/cloudinaryUpload";
 
 let modalControl;
 
@@ -46,7 +47,6 @@ export const CrearComunidad = {
     const [result, setResult] = useState("");
     const [uploading, setUploading] = useState(false);
     const [submitting, setSubmitting] = useState(false);
-    const [, setLoading] = useState(false);
     const [editData, setEditData] = useState(null);
 
     useLayoutEffect(() => {
@@ -157,24 +157,13 @@ export const CrearComunidad = {
       setUploading(true);
 
       try {
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("upload_preset", import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET);
-
-        const response = await fetch(
-          `https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload`,
-          { method: "POST", body: formData },
-        );
-
-        const data = await response.json();
-
-        if (data.secure_url) {
-          setForm((prev) => ({ ...prev, img: data.secure_url }));
-        } else {
-          setErrors((prev) => ({ ...prev, img: "Error al subir la imagen" }));
-        }
-      } catch {
-        setErrors((prev) => ({ ...prev, img: "Error de conexion" }));
+        const url = await uploadToCloudinary(file);
+        setForm((prev) => ({ ...prev, img: url }));
+      } catch (error) {
+        setErrors((prev) => ({
+          ...prev,
+          img: error.message || "Error al subir la imagen",
+        }));
       } finally {
         setUploading(false);
         event.target.value = "";
@@ -225,7 +214,6 @@ export const CrearComunidad = {
 
       try {
         setSubmitting(true);
-        setLoading(true);
         setResult(editData ? "Actualizando caso..." : "Creando caso...");
 
         const datosParaEnviar = {
@@ -263,7 +251,6 @@ export const CrearComunidad = {
         setResult("Error de conexion al servidor");
       } finally {
         setSubmitting(false);
-        setLoading(false);
       }
     };
 

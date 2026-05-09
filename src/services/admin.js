@@ -5,6 +5,23 @@ const cache = { usuarios: null, usuariosTimestamp: null };
 const CACHE_DURATION = 30000;
 
 export const adminService = {
+  getPublicacionesPagina: async (page = 1, limit = 15) => {
+    try {
+      const response = await axiosInstance.get(
+        `/publicaciones/admin/todas?page=${page}&limit=${limit}`,
+      );
+
+      return buildServiceSuccess({
+        publicaciones: response.data.publicaciones || [],
+        totalPages: response.data.totalPages || 1,
+        totalDocs: response.data.totalDocs || 0,
+        requestId: getResponseRequestId(response),
+      });
+    } catch (error) {
+      return mapServiceError(error, "Error de conexión al servidor");
+    }
+  },
+
   getTodasPublicaciones: async () => {
     try {
       const firstResponse = await axiosInstance.get("/publicaciones/admin/todas?page=1&limit=12");

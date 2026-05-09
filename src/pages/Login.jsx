@@ -6,7 +6,7 @@ import AuthLayout from "../components/layout/AuthLayout";
 import PasswordInput from "../components/forms/PasswordInput";
 import Seo from "../components/seo/Seo";
 
-const LoginScreen = ({ iniciarSesion, guardarUsuario }) => {
+const LoginScreen = ({ guardarUsuario }) => {
   const [correo, setCorreo] = useState(
     () => localStorage.getItem("lastRegisteredEmail") || "",
   );
@@ -49,13 +49,14 @@ const LoginScreen = ({ iniciarSesion, guardarUsuario }) => {
       }
 
       guardarUsuario(data.usuario);
-      iniciarSesion();
       localStorage.removeItem("lastRegisteredEmail");
 
       const returnUrl = localStorage.getItem("returnUrl");
       if (returnUrl) localStorage.removeItem("returnUrl");
+      const safeUrl =
+        returnUrl?.startsWith("/") && !returnUrl.includes("//") ? returnUrl : "/";
 
-      navigate(returnUrl || "/", { replace: true });
+      navigate(safeUrl, { replace: true });
     } catch (error) {
       console.error(error);
       setResult("Error de conexión con el servidor");

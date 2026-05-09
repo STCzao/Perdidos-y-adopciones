@@ -3,13 +3,16 @@ import { BrowserRouter } from "react-router-dom";
 import { AuthContext } from "./context/AuthContext";
 import { getAuthSyncKey } from "./services/api.js";
 import { logout, refreshAccessToken } from "./services/auth.js";
+import { adminService } from "./services/admin";
 import { usuariosService } from "./services/usuarios";
 import AppRouter from "./router/AppRouter.jsx";
 import { ErrorBoundary } from "./components/ui/ErrorBoundary.jsx";
+import LoadingState from "./components/ui/LoadingState.jsx";
 
 function App() {
   const [login, setLogin] = useState(false);
   const [user, setUser] = useState(null);
+  const [isHydrating, setIsHydrating] = useState(true);
 
   const syncUser = useCallback((nextUser) => {
     try {
@@ -25,10 +28,7 @@ function App() {
     setLogin(false);
     setUser(null);
     syncUser(null);
-
-    if (window.adminService?.clearCache) {
-      window.adminService.clearCache();
-    }
+    adminService.clearCache();
   }, [syncUser]);
 
   const hydrateSessionFromBackend = useCallback(async () => {
@@ -37,6 +37,15 @@ function App() {
     if (!refreshed.success) {
       clearSessionState();
       return false;
+    }
+
+    const nextUser = refreshed.usuario ?? null;
+
+    if (nextUser) {
+      setUser(nextUser);
+      setLogin(true);
+      syncUser(nextUser);
+      return true;
     }
 
     const userData = await usuariosService.getMiPerfil();
@@ -71,18 +80,28 @@ function App() {
     [syncUser],
   );
 
-  const iniciarSesion = useCallback(() => setLogin(true), []);
-
   useEffect(() => {
+    let cancelled = false;
+
     const bootstrapSession = async () => {
       try {
         await hydrateSessionFromBackend();
       } catch {
-        clearSessionState();
+        if (!cancelled) {
+          clearSessionState();
+        }
+      } finally {
+        if (!cancelled) {
+          setIsHydrating(false);
+        }
       }
     };
 
     bootstrapSession();
+
+    return () => {
+      cancelled = true;
+    };
   }, [clearSessionState, hydrateSessionFromBackend]);
 
   useEffect(() => {
@@ -133,12 +152,14 @@ function App() {
 
   return (
     <ErrorBoundary>
-      <AuthContext.Provider
-        value={{ login, user, iniciarSesion, guardarUsuario, cerrarSesion }}
-      >
-        <BrowserRouter>
-          <AppRouter />
-        </BrowserRouter>
+      <AuthContext.Provider value={{ login, user, guardarUsuario, cerrarSesion }}>
+        {isHydrating ? (
+          <LoadingState fullScreen label="Cargando..." />
+        ) : (
+          <BrowserRouter>
+            <AppRouter />
+          </BrowserRouter>
+        )}
       </AuthContext.Provider>
     </ErrorBoundary>
   );

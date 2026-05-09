@@ -5,6 +5,7 @@ import Footer from "../../../components/layout/Footer";
 import Seo from "../../../components/seo/Seo";
 import { publicacionesService } from "../../../services/publicaciones";
 import { formatFecha } from "../../../utils/dateHelpers";
+import { ESTADOS_RESUELTOS } from "../../../utils/estadosPublicacion";
 import { getTipoColorMeta } from "../../../utils/publicacionColors";
 import { getPublicacionSlug } from "../utils/publicacionPaths";
 import { formatBooleanish, getPublicacionTamano } from "../utils/publicacionFields";
@@ -16,24 +17,18 @@ import LoadingState from "../../../components/ui/LoadingState";
 const tipoMeta = {
   PERDIDO: {
     accent: getTipoColorMeta("PERDIDO").accent,
-    badge: "PERDIDO",
     locationLabel: "Se extravió en",
     section: "Sector: perdido",
-    family: "Búsqueda activa",
   },
   ENCONTRADO: {
     accent: getTipoColorMeta("ENCONTRADO").accent,
-    badge: "ENCONTRADO",
     locationLabel: "Se encontró en",
     section: "Sector: encontrado",
-    family: "En resguardo",
   },
   ADOPCION: {
     accent: getTipoColorMeta("ADOPCION").accent,
-    badge: "ADOPCIÓN",
     locationLabel: "Zona referencia",
     section: "Sector: adopción",
-    family: "Nuevo hogar",
   },
 };
 
@@ -77,6 +72,7 @@ export default function PublicacionDetalle() {
   const [loading, setLoading] = useState(!statePublicacion);
   const [copied, setCopied] = useState(false);
   const [generatingPDF, setGeneratingPDF] = useState(false);
+  const [pdfError, setPdfError] = useState("");
   const [contactLoading, setContactLoading] = useState(false);
   const [contactError, setContactError] = useState("");
 
@@ -134,10 +130,13 @@ export default function PublicacionDetalle() {
     }
   };
 
+  const whatsappRaw = contactoWhatsapp || "";
+
   const handleExportPDF = async () => {
     if (!publicacion) return;
 
     try {
+      setPdfError("");
       setGeneratingPDF(true);
       const fileName = `${publicacion.tipo}_${publicacion.nombreanimal || publicacion.especie}_${Date.now()}.pdf`;
       const { generarPDFPublicacion } = await import("../components/CardPdf");
@@ -151,7 +150,7 @@ export default function PublicacionDetalle() {
       );
     } catch (error) {
       console.error("Error al generar PDF:", error);
-      alert("No se pudo generar el PDF.");
+      setPdfError("No se pudo generar el PDF. Intentá de nuevo.");
     } finally {
       setGeneratingPDF(false);
     }
@@ -192,6 +191,7 @@ export default function PublicacionDetalle() {
   };
 
   const meta = tipoMeta[publicacion?.tipo] || tipoMeta.PERDIDO;
+  const isResuelto = ESTADOS_RESUELTOS.includes(publicacion?.estado);
   const backPath = publicacion ? `/publicaciones/${getPublicacionSlug(publicacion.tipo)}` : "/";
 
   const handleBackToList = () => {
@@ -202,7 +202,6 @@ export default function PublicacionDetalle() {
   };
 
   const tamano = getPublicacionTamano(publicacion);
-  const whatsappRaw = contactoWhatsapp || "";
   const primaryLocation = publicacion?.localidad || publicacion?.lugar;
   const secondaryLocation =
     publicacion?.localidad && publicacion?.lugar ? publicacion.lugar : null;
@@ -254,7 +253,7 @@ export default function PublicacionDetalle() {
   }
 
   return (
-    <div className="bg-[color:var(--nature-sand)] pb-[calc(6.5rem+env(safe-area-inset-bottom))] text-[color:var(--shell-ink)] md:pb-0">
+    <div className="bg-[color:var(--nature-sand)] pb-[calc(6.5rem+env(safe-area-inset-bottom))] text-[color:var(--shell-ink)] lg:pb-0">
       {publicacion && (
         <Seo
           title={publicacion.nombreanimal || publicacion.especie || "Detalle de publicación"}
@@ -317,19 +316,6 @@ export default function PublicacionDetalle() {
                   <section className="min-w-0 border-b border-[color:var(--shell-line)] bg-[color:var(--shell-surface-soft)] p-3.5 sm:p-5 lg:border-b-0 lg:border-r">
                     <div className="min-w-0 space-y-3">
                       <figure className="relative min-w-0 overflow-hidden rounded-[0.9rem] border border-[color:var(--shell-line)] bg-[color:var(--shell-surface-alt)] shadow-sm">
-                        <div className="absolute left-2.5 right-2.5 top-2.5 z-10 flex min-w-0 flex-wrap items-start gap-2">
-                          <span
-                            className="max-w-full rounded-[0.48rem] px-3 py-1.5 text-[0.62rem] font-bold uppercase tracking-[0.16em] text-[color:var(--shell-surface)] shadow-sm"
-                            style={{ backgroundColor: meta.accent }}
-                          >
-                            {publicacion.estado || meta.badge}
-                          </span>
-
-                          <span className="ml-auto max-w-full rounded-[0.48rem] border border-[color:var(--shell-line)] bg-[color:var(--shell-surface)] px-3 py-1.5 text-[0.6rem] font-bold uppercase tracking-[0.16em] text-[color:var(--shell-muted)] shadow-sm">
-                            {meta.family}
-                          </span>
-                        </div>
-
                         {publicacion.img ? (
                           <img
                             src={imageSrc}
@@ -350,46 +336,73 @@ export default function PublicacionDetalle() {
                         )}
                       </figure>
 
-                      <div className={panelClass}>
-                        <h2 className="text-[0.64rem] font-bold uppercase tracking-[0.18em] text-[color:var(--shell-muted)]">
-                          Acciones
-                        </h2>
-                        <div className="mt-2.5 grid min-w-0 gap-2">
+                      {isResuelto ? (
+                        <div className={panelClass}>
+                          <p className="text-[0.64rem] font-bold uppercase tracking-[0.18em] text-[color:var(--shell-muted)]">
+                            Caso resuelto
+                          </p>
+                          <p className="mt-1.5 text-[0.85rem] text-[color:var(--shell-ink)]">
+                            Este caso llegó a buen puerto.
+                          </p>
                           <button
                             type="button"
                             onClick={handleShare}
-                            className={`min-h-11 rounded-[0.72rem] border px-4 py-2.5 text-sm font-semibold transition-colors ${
+                            className={`mt-3 min-h-11 w-full rounded-[0.72rem] border px-4 py-2.5 text-sm font-semibold transition-colors ${
                               copied
                                 ? "border-[color:var(--shell-danger)] bg-[color:var(--shell-danger)] text-[color:var(--shell-surface)]"
                                 : "border-[color:var(--shell-line)] bg-[color:var(--shell-surface)] text-[color:var(--shell-ink)] hover:bg-[color:var(--shell-danger-soft)]"
                             }`}
                           >
-                            {copied ? "Enlace copiado" : "Compartir publicación"}
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={handleContact}
-                            disabled={contactLoading}
-                            className="min-h-11 rounded-[0.72rem] border px-4 py-2.5 text-center text-sm font-semibold text-[color:var(--shell-surface)] transition-opacity hover:opacity-92 disabled:cursor-wait disabled:opacity-60"
-                            style={{
-                              backgroundColor: meta.accent,
-                              borderColor: meta.accent,
-                            }}
-                          >
-                            {contactLoading ? "Obteniendo contacto..." : "Contactar por WhatsApp"}
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={handleExportPDF}
-                            disabled={generatingPDF}
-                            className="min-h-11 rounded-[0.72rem] border border-[color:var(--shell-line)] bg-[color:var(--shell-surface)] px-4 py-2.5 text-sm font-semibold text-[color:var(--shell-ink)] transition-colors hover:bg-[color:var(--shell-surface-alt)] disabled:cursor-wait disabled:opacity-60"
-                          >
-                            {generatingPDF ? "Generando PDF..." : "Descargar cartel en PDF"}
+                            {copied ? "Enlace copiado" : "Compartir"}
                           </button>
                         </div>
-                      </div>
+                      ) : (
+                        <div className={panelClass}>
+                          <h2 className="text-[0.64rem] font-bold uppercase tracking-[0.18em] text-[color:var(--shell-muted)]">
+                            Acciones
+                          </h2>
+                          <div className="mt-2.5 grid min-w-0 gap-2">
+                            <button
+                              type="button"
+                              onClick={handleShare}
+                              className={`min-h-11 rounded-[0.72rem] border px-4 py-2.5 text-sm font-semibold transition-colors ${
+                                copied
+                                  ? "border-[color:var(--shell-danger)] bg-[color:var(--shell-danger)] text-[color:var(--shell-surface)]"
+                                  : "border-[color:var(--shell-line)] bg-[color:var(--shell-surface)] text-[color:var(--shell-ink)] hover:bg-[color:var(--shell-danger-soft)]"
+                              }`}
+                            >
+                              {copied ? "Enlace copiado" : "Compartir publicación"}
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={handleContact}
+                              disabled={contactLoading}
+                              className="min-h-11 rounded-[0.72rem] border px-4 py-2.5 text-center text-sm font-semibold text-[color:var(--shell-surface)] transition-opacity hover:opacity-92 disabled:cursor-wait disabled:opacity-60"
+                              style={{
+                                backgroundColor: meta.accent,
+                                borderColor: meta.accent,
+                              }}
+                            >
+                              {contactLoading ? "Obteniendo contacto..." : "Contactar por WhatsApp"}
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={handleExportPDF}
+                              disabled={generatingPDF}
+                              className="min-h-11 rounded-[0.72rem] border border-[color:var(--shell-line)] bg-[color:var(--shell-surface)] px-4 py-2.5 text-sm font-semibold text-[color:var(--shell-ink)] transition-colors hover:bg-[color:var(--shell-surface-alt)] disabled:cursor-wait disabled:opacity-60"
+                            >
+                              {generatingPDF ? "Generando PDF..." : "Descargar cartel en PDF"}
+                            </button>
+                          </div>
+                          {pdfError && (
+                            <p className="mt-2 text-[0.78rem] font-medium text-[color:var(--shell-danger)]">
+                              {pdfError}
+                            </p>
+                          )}
+                        </div>
+                      )}
 
                       {contactError && (
                         <p className="text-[0.78rem] font-medium text-[color:var(--shell-danger)]">
@@ -402,9 +415,17 @@ export default function PublicacionDetalle() {
                   <section className="min-w-0 p-4 sm:p-5 lg:p-6">
                     <div className="flex min-w-0 flex-col gap-3">
                       <div className="min-w-0">
-                        <span className="inline-flex max-w-full rounded-[0.48rem] border border-[color:var(--shell-line)] bg-[color:var(--shell-surface)] px-3 py-1.5 text-[0.58rem] font-bold uppercase tracking-[0.18em] text-[color:var(--shell-muted)]">
-                          {meta.section}
-                        </span>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="inline-flex max-w-full rounded-[0.48rem] border border-[color:var(--shell-line)] bg-[color:var(--shell-surface)] px-3 py-1.5 text-[0.58rem] font-bold uppercase tracking-[0.18em] text-[color:var(--shell-muted)]">
+                            {meta.section}
+                          </span>
+                          <span
+                            className="inline-flex rounded-[0.48rem] px-3 py-1.5 text-[0.58rem] font-bold uppercase tracking-[0.18em] text-white"
+                            style={{ backgroundColor: meta.accent }}
+                          >
+                            {publicacion.estado}
+                          </span>
+                        </div>
                         <h1 className="mt-3 break-words text-[clamp(2rem,10vw,3.25rem)] font-extrabold leading-[0.95] text-[color:var(--shell-ink)]">
                           {publicacion.nombreanimal || publicacion.especie}
                         </h1>
