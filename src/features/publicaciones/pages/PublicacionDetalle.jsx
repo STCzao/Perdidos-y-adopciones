@@ -63,6 +63,12 @@ const tipoBadgeLabel = {
   ADOPCION: "EN ADOPCIÓN",
 };
 
+const estadoResueltoBadge = {
+  "YA APARECIO": "YA APARECIÓ",
+  "APARECIO SU FAMILIA": "ENCONTRÓ SU FAMILIA",
+  "ADOPTADO": "ADOPTADO",
+};
+
 const tipoDateLabel = {
   PERDIDO: "Perdido desde",
   ENCONTRADO: "Encontrado el",
@@ -218,10 +224,13 @@ export default function PublicacionDetalle() {
 
   const meta = tipoMeta[publicacion?.tipo] || tipoMeta.PERDIDO;
   const isResuelto = ESTADOS_RESUELTOS.includes(publicacion?.estado);
+  const fromExitosas = location.state?.from === "exitosas" || (isResuelto && !location.state?.from);
   const backSearch = location.state?.backSearch || "";
-  const backPath = publicacion
-    ? `/publicaciones/${getPublicacionSlug(publicacion.tipo)}${backSearch}`
-    : "/";
+  const backPath = fromExitosas
+    ? "/casos-resueltos"
+    : publicacion
+      ? `/publicaciones/${getPublicacionSlug(publicacion.tipo)}${backSearch}`
+      : "/";
   const tamano = getPublicacionTamano(publicacion);
   const primaryLocation = publicacion?.localidad || publicacion?.lugar;
   const secondaryLocation =
@@ -357,8 +366,9 @@ export default function PublicacionDetalle() {
                   className="font-semibold transition-opacity hover:opacity-80"
                   style={{ color: meta.accent }}
                 >
-                  {tipoBreadcrumbLabel[publicacion.tipo] ||
-                    tipoBreadcrumbLabel.PERDIDO}
+                  {fromExitosas
+                    ? "Casos resueltos"
+                    : (tipoBreadcrumbLabel[publicacion.tipo] || tipoBreadcrumbLabel.PERDIDO)}
                 </Link>
                 <IconChevronRight size={12} className="text-[#ccc]" />
                 <span className="max-w-[12rem] truncate text-[#444]">
@@ -410,8 +420,9 @@ export default function PublicacionDetalle() {
                             style={{ backgroundColor: meta.accent }}
                           >
                             <IconSearch size={13} />
-                            {tipoBadgeLabel[publicacion.tipo] ||
-                              tipoBadgeLabel.PERDIDO}
+                            {isResuelto
+                              ? (estadoResueltoBadge[publicacion.estado] || tipoBadgeLabel[publicacion.tipo])
+                              : (tipoBadgeLabel[publicacion.tipo] || tipoBadgeLabel.PERDIDO)}
                           </span>
 
                           
