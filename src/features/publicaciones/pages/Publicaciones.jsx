@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import ReactPaginate from "react-paginate";
 import Navbar from "../../../components/layout/Navbar";
 import Footer from "../../../components/layout/Footer";
@@ -56,14 +56,52 @@ const PublicacionesPage = () => {
   const { tipo } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const meta = pageMeta[tipo] || pageMeta.perdidos;
 
   const [todasLasPublicaciones, setTodasLasPublicaciones] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [page, setPage] = useState(1);
   const [hashProcessed, setHashProcessed] = useState(false);
   const [razasPorEspecie, setRazasPorEspecie] = useState({});
+
+  const filtros = useMemo(() => ({
+    raza: searchParams.get("raza") || "",
+    edad: searchParams.get("edad") || "",
+    sexo: searchParams.get("sexo") || "",
+    tamano: searchParams.get("tamano") || "",
+    color: searchParams.get("color") || "",
+    especie: searchParams.get("especie") || "",
+    detalles: searchParams.get("detalles") || "",
+    localidad: searchParams.get("localidad") || "",
+    lugar: searchParams.get("lugar") || "",
+  }), [searchParams]);
+
+  const page = parseInt(searchParams.get("pagina") || "1", 10);
+
+  const setFiltros = useCallback((updater) => {
+    setSearchParams((prev) => {
+      const current = {
+        raza: prev.get("raza") || "",
+        edad: prev.get("edad") || "",
+        sexo: prev.get("sexo") || "",
+        tamano: prev.get("tamano") || "",
+        color: prev.get("color") || "",
+        especie: prev.get("especie") || "",
+        detalles: prev.get("detalles") || "",
+        localidad: prev.get("localidad") || "",
+        lugar: prev.get("lugar") || "",
+      };
+      const newFiltros = typeof updater === "function" ? updater(current) : updater;
+      const params = new URLSearchParams(prev);
+      params.delete("pagina");
+      Object.entries(newFiltros).forEach(([key, value]) => {
+        if (value) params.set(key, value);
+        else params.delete(key);
+      });
+      return params;
+    }, { replace: true });
+  }, [setSearchParams]);
 
   useEffect(() => {
     publicacionesService.getRazas().then((response) => {
@@ -72,18 +110,6 @@ const PublicacionesPage = () => {
       }
     });
   }, []);
-
-  const [filtros, setFiltros] = useState({
-    raza: "",
-    edad: "",
-    sexo: "",
-    tamano: "",
-    color: "",
-    especie: "",
-    detalles: "",
-    localidad: "",
-    lugar: "",
-  });
 
   const isFiltering = useMemo(
     () =>
@@ -216,7 +242,6 @@ const PublicacionesPage = () => {
   }, [cargarTodasLasPublicaciones, filtrarActivas, tipo]);
 
   useEffect(() => {
-    setPage(1);
     setHashProcessed(false);
   }, [tipo]);
 
@@ -286,7 +311,6 @@ const PublicacionesPage = () => {
 
   useEffect(() => {
     if (isFiltering) {
-      setPage(1);
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   }, [isFiltering]);
@@ -307,7 +331,12 @@ const PublicacionesPage = () => {
         const targetPage = Math.floor(cardIndex / ITEMS_PER_PAGE) + 1;
 
         if (targetPage !== page) {
-          setPage(targetPage);
+          setSearchParams((prev) => {
+            const params = new URLSearchParams(prev);
+            if (targetPage === 1) params.delete("pagina");
+            else params.set("pagina", String(targetPage));
+            return params;
+          }, { replace: true });
         } else {
           setTimeout(() => {
             const element = document.getElementById(id);
@@ -355,12 +384,13 @@ const PublicacionesPage = () => {
   }, [page, loading, location.hash]);
 
   const handlePageClick = (event) => {
-    setPage(event.selected + 1);
-    window.history.replaceState(
-      null,
-      "",
-      window.location.pathname + window.location.search,
-    );
+    const newPage = event.selected + 1;
+    setSearchParams((prev) => {
+      const params = new URLSearchParams(prev);
+      if (newPage === 1) params.delete("pagina");
+      else params.set("pagina", String(newPage));
+      return params;
+    }, { replace: true });
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
