@@ -109,7 +109,7 @@ const CardGenerica = ({ publicacion, cardId, isSuccessful = false }) => {
       </header>
 
       {img ? (
-        <div className="relative mx-2 mt-2 h-[9.5rem] overflow-hidden rounded-[0.55rem] bg-[#ece8e2]">
+        <div className="relative mx-2 mt-2 h-[13rem] overflow-hidden rounded-[0.55rem] bg-[#ece8e2]">
           <img
             src={getCloudinaryUrl(img, { width: 80, quality: 20 })}
             aria-hidden="true"
@@ -119,13 +119,13 @@ const CardGenerica = ({ publicacion, cardId, isSuccessful = false }) => {
             src={getCloudinaryUrl(img, { width: 420 })}
             alt={nombreanimal || especie || "Imagen de publicación"}
             width={420}
-            height={152}
+            height={192}
             className="relative z-10 block h-full w-full object-contain"
             loading="lazy"
           />
         </div>
       ) : (
-        <div className="mx-2 mt-2 flex h-[9.5rem] items-center justify-center rounded-[0.55rem] bg-[#ece8e2] text-sm font-medium text-[#999]">
+        <div className="mx-2 mt-2 flex h-[12rem] items-center justify-center rounded-[0.55rem] bg-[#ece8e2] text-sm font-medium text-[#999]">
           Sin imagen
         </div>
       )}
@@ -148,7 +148,7 @@ const CardGenerica = ({ publicacion, cardId, isSuccessful = false }) => {
         {tipo === "ADOPCION" ? (
           <div className="rounded-[0.6rem] border border-[#e2e2e2] bg-white px-3 py-2">
             <p className="text-[0.54rem] uppercase tracking-[0.18em] text-[#aaa]">
-              PERFIL DE ADOPCIÓN
+              PERFIL DE ADOPCIÓN - AFINIDADES
             </p>
             <div className="mt-1 flex flex-col gap-0.5">
               {afinidad && (
