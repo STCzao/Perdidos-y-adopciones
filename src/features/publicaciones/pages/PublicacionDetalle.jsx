@@ -1,5 +1,21 @@
 import { useEffect, useState } from "react";
-import { Link, Navigate, useLocation, useNavigate, useParams } from "react-router-dom";
+import { Link, Navigate, useLocation, useParams } from "react-router-dom";
+import {
+  IconSearch,
+  IconBrandWhatsapp,
+  IconShare,
+  IconDownload,
+  IconMapPin,
+  IconPaw,
+  IconCalendar,
+  IconShieldCheck,
+  IconWorld,
+  IconChevronRight,
+  IconDog,
+  IconPalette,
+  IconGenderBigender,
+  IconRuler,
+} from "@tabler/icons-react";
 import Navbar from "../../../components/layout/Navbar";
 import Footer from "../../../components/layout/Footer";
 import Seo from "../../../components/seo/Seo";
@@ -8,9 +24,15 @@ import { formatFecha } from "../../../utils/dateHelpers";
 import { ESTADOS_RESUELTOS } from "../../../utils/estadosPublicacion";
 import { getTipoColorMeta } from "../../../utils/publicacionColors";
 import { getPublicacionSlug } from "../utils/publicacionPaths";
-import { formatBooleanish, getPublicacionTamano } from "../utils/publicacionFields";
+import {
+  formatBooleanish,
+  getPublicacionTamano,
+} from "../utils/publicacionFields";
 import { useRequireAuth } from "../../../hooks/useRequireAuth";
-import { buildAnimalPostingSchema, buildBreadcrumbSchema } from "../../../components/seo/seoUtils";
+import {
+  buildAnimalPostingSchema,
+  buildBreadcrumbSchema,
+} from "../../../components/seo/seoUtils";
 import { getCloudinaryUrl } from "../../../utils/cloudinaryUtils";
 import LoadingState from "../../../components/ui/LoadingState";
 
@@ -18,38 +40,33 @@ const tipoMeta = {
   PERDIDO: {
     accent: getTipoColorMeta("PERDIDO").accent,
     locationLabel: "Se extravió en",
-    section: "Sector: perdido",
   },
   ENCONTRADO: {
     accent: getTipoColorMeta("ENCONTRADO").accent,
-    locationLabel: "Se encontró en",
-    section: "Sector: encontrado",
+    locationLabel: "Encontrado en",
   },
   ADOPCION: {
     accent: getTipoColorMeta("ADOPCION").accent,
-    locationLabel: "Zona referencia",
-    section: "Sector: adopción",
+    locationLabel: "Zona de referencia",
   },
 };
 
-const panelClass =
-  "rounded-[0.9rem] border border-[color:var(--shell-line)] bg-[color:var(--shell-surface)] p-3.5 shadow-sm";
-const itemClass =
-  "min-w-0 rounded-[0.72rem] border border-[color:var(--shell-line)] bg-[color:var(--shell-surface)] px-3.5 py-3 shadow-sm";
+const tipoBreadcrumbLabel = {
+  PERDIDO: "Perdidos",
+  ENCONTRADO: "Encontrados",
+  ADOPCION: "Adopciones",
+};
 
-const Field = ({ label, value }) => {
-  if (!value) return null;
+const tipoBadgeLabel = {
+  PERDIDO: "SE BUSCA",
+  ENCONTRADO: "SE ENCONTRÓ",
+  ADOPCION: "EN ADOPCIÓN",
+};
 
-  return (
-    <div className={itemClass}>
-      <p className="text-[0.64rem] font-bold uppercase tracking-[0.14em] text-[color:var(--shell-muted)]">
-        {label}
-      </p>
-      <p className="mt-1 break-words text-[0.85rem] font-semibold leading-snug text-[color:var(--shell-ink)]">
-        {value}
-      </p>
-    </div>
-  );
+const tipoDateLabel = {
+  PERDIDO: "Perdido desde",
+  ENCONTRADO: "Encontrado el",
+  ADOPCION: "Publicado el",
 };
 
 const getLocationStatePublicacion = (location, id) => {
@@ -64,7 +81,6 @@ const getLocationStatePublicacion = (location, id) => {
 export default function PublicacionDetalle() {
   const { tipo, id } = useParams();
   const location = useLocation();
-  const navigate = useNavigate();
   const withAuth = useRequireAuth();
   const statePublicacion = getLocationStatePublicacion(location, id);
   const [publicacion, setPublicacion] = useState(statePublicacion);
@@ -165,14 +181,20 @@ export default function PublicacionDetalle() {
       if (contactoWhatsapp) {
         const whatsappDigits = String(contactoWhatsapp).replace(/\D/g, "");
         if (whatsappDigits) {
-          window.open(`https://wa.me/549${whatsappDigits}`, "_blank", "noopener,noreferrer");
+          window.open(
+            `https://wa.me/549${whatsappDigits}`,
+            "_blank",
+            "noopener,noreferrer",
+          );
         }
         return;
       }
 
       try {
         setContactLoading(true);
-        const response = await publicacionesService.getContactoPublicacion(publicacion._id);
+        const response = await publicacionesService.getContactoPublicacion(
+          publicacion._id,
+        );
 
         if (!response.success || !response.whatsapp) {
           setContactError(response.msg || "No se pudo obtener el contacto");
@@ -182,7 +204,11 @@ export default function PublicacionDetalle() {
         setContactoWhatsapp(response.whatsapp);
         const whatsappDigits = String(response.whatsapp).replace(/\D/g, "");
         if (whatsappDigits) {
-          window.open(`https://wa.me/549${whatsappDigits}`, "_blank", "noopener,noreferrer");
+          window.open(
+            `https://wa.me/549${whatsappDigits}`,
+            "_blank",
+            "noopener,noreferrer",
+          );
         }
       } finally {
         setContactLoading(false);
@@ -192,15 +218,10 @@ export default function PublicacionDetalle() {
 
   const meta = tipoMeta[publicacion?.tipo] || tipoMeta.PERDIDO;
   const isResuelto = ESTADOS_RESUELTOS.includes(publicacion?.estado);
-  const backPath = publicacion ? `/publicaciones/${getPublicacionSlug(publicacion.tipo)}` : "/";
-
-  const handleBackToList = () => {
-    navigate(backPath);
-    window.requestAnimationFrame(() => {
-      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
-    });
-  };
-
+  const backSearch = location.state?.backSearch || "";
+  const backPath = publicacion
+    ? `/publicaciones/${getPublicacionSlug(publicacion.tipo)}${backSearch}`
+    : "/";
   const tamano = getPublicacionTamano(publicacion);
   const primaryLocation = publicacion?.localidad || publicacion?.lugar;
   const secondaryLocation =
@@ -218,16 +239,30 @@ export default function PublicacionDetalle() {
         `${getCloudinaryUrl(publicacion.img, { width: 960, quality: "auto:good" })} 960w`,
       ].join(", ")
     : "";
-
-  const identityFields = [
-    { label: "Raza", value: publicacion?.raza },
-    { label: "Color", value: publicacion?.color },
-    { label: "Sexo", value: publicacion?.sexo },
-    { label: "Edad", value: publicacion?.edad },
-    { label: "Tamaño", value: tamano },
-    { label: "Castrado", value: formatBooleanish(publicacion?.castrado) },
+  const subtitleParts = [
+    publicacion?.especie,
+    publicacion?.raza,
+    tamano,
+  ].filter(Boolean);
+  const fichaFields = [
+    { label: "Raza", value: publicacion?.raza, icon: <IconDog size={14} /> },
+    {
+      label: "Color",
+      value: publicacion?.color,
+      icon: <IconPalette size={14} />,
+    },
+    {
+      label: "Sexo",
+      value: publicacion?.sexo,
+      icon: <IconGenderBigender size={14} />,
+    },
+    {
+      label: "Edad",
+      value: publicacion?.edad,
+      icon: <IconCalendar size={14} />,
+    },
+    { label: "Tamaño", value: tamano, icon: <IconRuler size={14} /> },
   ].filter((field) => field.value);
-
   const adoptionFields =
     publicacion?.tipo === "ADOPCION"
       ? [
@@ -240,6 +275,7 @@ export default function PublicacionDetalle() {
             value: formatBooleanish(publicacion?.afinidadanimales),
           },
           { label: "Nivel de energía", value: publicacion?.energia },
+          { label: "Castrado", value: formatBooleanish(publicacion?.castrado) },
         ].filter((field) => field.value)
       : [];
 
@@ -256,7 +292,11 @@ export default function PublicacionDetalle() {
     <div className="bg-[color:var(--nature-sand)] pb-[calc(6.5rem+env(safe-area-inset-bottom))] text-[color:var(--shell-ink)] lg:pb-0">
       {publicacion && (
         <Seo
-          title={publicacion.nombreanimal || publicacion.especie || "Detalle de publicación"}
+          title={
+            publicacion.nombreanimal ||
+            publicacion.especie ||
+            "Detalle de publicación"
+          }
           description={
             publicacion.detalles ||
             `Consulta el detalle de este caso de ${publicacion.tipo?.toLowerCase() || "publicación"} en Perdidos y Adopciones.`
@@ -269,7 +309,8 @@ export default function PublicacionDetalle() {
               { name: "Inicio", path: "/" },
               { name: "Listado", path: backPath },
               {
-                name: publicacion.nombreanimal || publicacion.especie || "Detalle",
+                name:
+                  publicacion.nombreanimal || publicacion.especie || "Detalle",
                 path: `/publicaciones/${tipo}/${id}`,
               },
             ]),
@@ -300,217 +341,314 @@ export default function PublicacionDetalle() {
             </div>
           ) : (
             <div className="mx-auto w-full max-w-6xl px-4 sm:px-0">
-              <div className="mb-4 flex min-w-0">
-                <button
-                  type="button"
-                  onClick={handleBackToList}
-                  className="inline-flex min-h-11 items-center gap-2 rounded-[0.72rem] border border-[color:var(--shell-line)] bg-[color:var(--shell-surface)] px-4 py-2 text-sm font-semibold text-[color:var(--shell-ink)] shadow-sm transition-colors hover:bg-[color:var(--shell-surface-alt)]"
+              <nav
+                aria-label="breadcrumb"
+                className="mb-5 flex flex-wrap items-center gap-1.5 text-[0.8rem]"
+              >
+                <Link
+                  to="/"
+                  className="text-[#999] transition-colors hover:text-[#444]"
                 >
-                  <span aria-hidden="true">&larr;</span>
-                  Volver al listado
-                </button>
-              </div>
+                  Inicio
+                </Link>
+                <IconChevronRight size={12} className="text-[#ccc]" />
+                <Link
+                  to={backPath}
+                  className="font-semibold transition-opacity hover:opacity-80"
+                  style={{ color: meta.accent }}
+                >
+                  {tipoBreadcrumbLabel[publicacion.tipo] ||
+                    tipoBreadcrumbLabel.PERDIDO}
+                </Link>
+                <IconChevronRight size={12} className="text-[#ccc]" />
+                <span className="max-w-[12rem] truncate text-[#444]">
+                  {publicacion.nombreanimal || publicacion.especie}
+                </span>
+              </nav>
 
-              <article className="w-full min-w-0 overflow-hidden rounded-[1rem] border border-[color:var(--shell-line)] bg-[linear-gradient(180deg,var(--shell-surface),var(--nature-paper))] shadow-xl">
-                <div className="grid min-w-0 grid-cols-1 lg:grid-cols-[minmax(0,0.94fr)_minmax(0,1.06fr)]">
-                  <section className="min-w-0 border-b border-[color:var(--shell-line)] bg-[color:var(--shell-surface-soft)] p-3.5 sm:p-5 lg:border-b-0 lg:border-r">
-                    <div className="min-w-0 space-y-3">
-                      <figure className="relative min-w-0 overflow-hidden rounded-[0.9rem] border border-[color:var(--shell-line)] bg-[color:var(--shell-surface-alt)] shadow-sm">
-                        {publicacion.img ? (
+              <article className="overflow-hidden rounded-[1.1rem] border border-[#e8e8e8] bg-white shadow-xl">
+                <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.1fr]">
+                  <section className="border-b border-[#eee] bg-[#f5f3f0] p-4 sm:p-5 lg:border-b-0 lg:border-r lg:p-6">
+                    <figure className="relative overflow-hidden rounded-[0.9rem] bg-[#e8e4de]">
+                      {publicacion.img ? (
+                        <>
+                          <img
+                            src={getCloudinaryUrl(publicacion.img, {
+                              width: 80,
+                              quality: 20,
+                            })}
+                            aria-hidden="true"
+                            className="absolute inset-0 h-full w-full scale-110 object-cover blur-2xl opacity-60"
+                          />
                           <img
                             src={imageSrc}
                             srcSet={imageSrcSet}
                             sizes="(max-width: 640px) calc(100vw - 3.5rem), (max-width: 1024px) 42rem, 34rem"
                             alt={imageAlt}
-                            className="block aspect-[4/3] h-auto w-full object-cover"
+                            className="relative z-10 block aspect-[4/3] h-auto w-full object-contain"
                             loading="eager"
                             fetchPriority="high"
                             decoding="async"
                             width="720"
                             height="540"
                           />
-                        ) : (
-                          <div className="flex aspect-[4/3] w-full items-center justify-center text-sm font-semibold text-[color:var(--shell-muted)]">
-                            Sin imagen
-                          </div>
-                        )}
-                      </figure>
-
-                      {isResuelto ? (
-                        <div className={panelClass}>
-                          <p className="text-[0.64rem] font-bold uppercase tracking-[0.18em] text-[color:var(--shell-muted)]">
-                            Caso resuelto
-                          </p>
-                          <p className="mt-1.5 text-[0.85rem] text-[color:var(--shell-ink)]">
-                            Este caso llegó a buen puerto.
-                          </p>
-                          <button
-                            type="button"
-                            onClick={handleShare}
-                            className={`mt-3 min-h-11 w-full rounded-[0.72rem] border px-4 py-2.5 text-sm font-semibold transition-colors ${
-                              copied
-                                ? "border-[color:var(--shell-danger)] bg-[color:var(--shell-danger)] text-[color:var(--shell-surface)]"
-                                : "border-[color:var(--shell-line)] bg-[color:var(--shell-surface)] text-[color:var(--shell-ink)] hover:bg-[color:var(--shell-danger-soft)]"
-                            }`}
-                          >
-                            {copied ? "Enlace copiado" : "Compartir"}
-                          </button>
-                        </div>
+                        </>
                       ) : (
-                        <div className={panelClass}>
-                          <h2 className="text-[0.64rem] font-bold uppercase tracking-[0.18em] text-[color:var(--shell-muted)]">
-                            Acciones
-                          </h2>
-                          <div className="mt-2.5 grid min-w-0 gap-2">
-                            <button
-                              type="button"
-                              onClick={handleShare}
-                              className={`min-h-11 rounded-[0.72rem] border px-4 py-2.5 text-sm font-semibold transition-colors ${
-                                copied
-                                  ? "border-[color:var(--shell-danger)] bg-[color:var(--shell-danger)] text-[color:var(--shell-surface)]"
-                                  : "border-[color:var(--shell-line)] bg-[color:var(--shell-surface)] text-[color:var(--shell-ink)] hover:bg-[color:var(--shell-danger-soft)]"
-                              }`}
-                            >
-                              {copied ? "Enlace copiado" : "Compartir publicación"}
-                            </button>
-
-                            <button
-                              type="button"
-                              onClick={handleContact}
-                              disabled={contactLoading}
-                              className="min-h-11 rounded-[0.72rem] border px-4 py-2.5 text-center text-sm font-semibold text-[color:var(--shell-surface)] transition-opacity hover:opacity-92 disabled:cursor-wait disabled:opacity-60"
-                              style={{
-                                backgroundColor: meta.accent,
-                                borderColor: meta.accent,
-                              }}
-                            >
-                              {contactLoading ? "Obteniendo contacto..." : "Contactar por WhatsApp"}
-                            </button>
-
-                            <button
-                              type="button"
-                              onClick={handleExportPDF}
-                              disabled={generatingPDF}
-                              className="min-h-11 rounded-[0.72rem] border border-[color:var(--shell-line)] bg-[color:var(--shell-surface)] px-4 py-2.5 text-sm font-semibold text-[color:var(--shell-ink)] transition-colors hover:bg-[color:var(--shell-surface-alt)] disabled:cursor-wait disabled:opacity-60"
-                            >
-                              {generatingPDF ? "Generando PDF..." : "Descargar cartel en PDF"}
-                            </button>
-                          </div>
-                          {pdfError && (
-                            <p className="mt-2 text-[0.78rem] font-medium text-[color:var(--shell-danger)]">
-                              {pdfError}
-                            </p>
-                          )}
+                        <div className="flex aspect-[4/3] w-full items-center justify-center text-sm font-semibold text-[#999]">
+                          Sin imagen
                         </div>
                       )}
+                    </figure>
+                  </section>
 
+                  <section className="flex flex-col gap-4 p-5 sm:p-6 lg:p-7">
+                    <div>
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <div className="flex flex-wrap gap-2">
+                          <span
+                            className="flex items-center gap-1.5 rounded-[0.45rem] px-3 py-1.5 text-[0.62rem] font-extrabold uppercase tracking-wide text-white"
+                            style={{ backgroundColor: meta.accent }}
+                          >
+                            <IconSearch size={13} />
+                            {tipoBadgeLabel[publicacion.tipo] ||
+                              tipoBadgeLabel.PERDIDO}
+                          </span>
+
+                          
+                        </div>
+
+                        <div className="flex shrink-0 items-center gap-2 text-right text-[0.7rem] text-[#aaa]">
+                          <div className="flex h-9 w-9 items-center justify-center rounded-full border border-[#eee] bg-[#fafafa]">
+                            <IconDog size={18} style={{ color: meta.accent }} />
+                          </div>
+                          <p className="max-w-[6rem] leading-snug">
+                            Tu ayuda puede hacer la diferencia
+                          </p>
+                        </div>
+                      </div>
+
+                      <h1 className="mt-3 break-words text-[clamp(2rem,10vw,3.25rem)] font-extrabold leading-[0.92] text-[#111]">
+                        {publicacion.nombreanimal || publicacion.especie}
+                      </h1>
+
+                      {subtitleParts.length > 0 && (
+                        <p className="mt-2 text-[0.9rem] font-semibold text-[#666]">
+                          {subtitleParts.join(" · ")}
+                        </p>
+                      )}
+
+                      {publicacion.fecha && (
+                        <div className="mt-2 flex items-center gap-1.5">
+                          <IconCalendar
+                            size={15}
+                            style={{ color: meta.accent }}
+                          />
+                          <p className="text-[0.85rem] text-[#666]">
+                            {tipoDateLabel[publicacion.tipo] ||
+                              tipoDateLabel.PERDIDO}
+                            :{" "}
+                            <span
+                              className="font-bold"
+                              style={{ color: meta.accent }}
+                            >
+                              {formatFecha(publicacion.fecha)}
+                            </span>
+                          </p>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex flex-col gap-2.5">
+                      <button
+                        type="button"
+                        onClick={handleContact}
+                        disabled={contactLoading}
+                        className="flex w-full items-center justify-center gap-2 rounded-[0.7rem] py-3 text-[0.95rem] font-bold text-white transition-opacity hover:opacity-95 disabled:cursor-wait disabled:opacity-60"
+                        style={{ backgroundColor: meta.accent }}
+                      >
+                        <IconBrandWhatsapp size={20} />
+                        {contactLoading
+                          ? "Obteniendo contacto..."
+                          : "Contactar por WhatsApp"}
+                      </button>
+
+                      <div className="grid grid-cols-2 gap-2.5">
+                        <button
+                          type="button"
+                          onClick={handleShare}
+                          className={`flex items-center justify-center gap-1.5 rounded-[0.7rem] border py-2.5 text-[0.8rem] font-semibold transition-colors ${
+                            copied
+                              ? "text-white"
+                              : "border-[#ddd] bg-white text-[#333] hover:bg-[#f7f7f7]"
+                          }`}
+                          style={
+                            copied
+                              ? {
+                                  backgroundColor: meta.accent,
+                                  borderColor: meta.accent,
+                                }
+                              : undefined
+                          }
+                        >
+                          <IconShare size={16} />
+                          {copied ? "Enlace copiado" : "Compartir publicación"}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={handleExportPDF}
+                          disabled={generatingPDF}
+                          className="flex items-center justify-center gap-1.5 rounded-[0.7rem] border border-[#ddd] bg-white py-2.5 text-[0.8rem] font-semibold text-[#333] transition-colors hover:bg-[#f7f7f7] disabled:cursor-wait disabled:opacity-60"
+                        >
+                          <IconDownload size={16} />
+                          {generatingPDF ? "Generando..." : "Descargar cartel"}
+                        </button>
+                      </div>
+
+                      {pdfError && (
+                        <p className="text-[0.78rem] text-red-600">
+                          {pdfError}
+                        </p>
+                      )}
                       {contactError && (
-                        <p className="text-[0.78rem] font-medium text-[color:var(--shell-danger)]">
+                        <p className="text-[0.78rem] text-red-600">
                           {contactError}
                         </p>
                       )}
                     </div>
-                  </section>
 
-                  <section className="min-w-0 p-4 sm:p-5 lg:p-6">
-                    <div className="flex min-w-0 flex-col gap-3">
-                      <div className="min-w-0">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <span className="inline-flex max-w-full rounded-[0.48rem] border border-[color:var(--shell-line)] bg-[color:var(--shell-surface)] px-3 py-1.5 text-[0.58rem] font-bold uppercase tracking-[0.18em] text-[color:var(--shell-muted)]">
-                            {meta.section}
-                          </span>
-                          <span
-                            className="inline-flex rounded-[0.48rem] px-3 py-1.5 text-[0.58rem] font-bold uppercase tracking-[0.18em] text-white"
-                            style={{ backgroundColor: meta.accent }}
-                          >
-                            {publicacion.estado}
-                          </span>
-                        </div>
-                        <h1 className="mt-3 break-words text-[clamp(2rem,10vw,3.25rem)] font-extrabold leading-[0.95] text-[color:var(--shell-ink)]">
-                          {publicacion.nombreanimal || publicacion.especie}
-                        </h1>
-                        <div className="mt-2 flex min-w-0 flex-wrap gap-x-2 gap-y-1 text-[0.86rem] font-semibold uppercase tracking-[0.03em] text-[color:var(--shell-muted)]">
-                          {publicacion.especie && <span>{publicacion.especie}</span>}
-                          {publicacion.raza && (
-                            <span>
-                              {publicacion.especie ? "/ " : ""}
-                              {publicacion.raza}
-                            </span>
-                          )}
-                          {tamano && (
-                            <span>
-                              {publicacion.especie || publicacion.raza ? "/ " : ""}
-                              {tamano}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className={`${panelClass} grid min-w-0 gap-2.5 sm:grid-cols-2`}>
-                        <div className={itemClass}>
-                          <p className="text-[0.64rem] font-bold uppercase tracking-[0.14em] text-[color:var(--shell-muted)]">
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                      <div className="rounded-[0.8rem] border border-[#eee] bg-white p-4">
+                        <div className="mb-2 flex items-center gap-2">
+                          <IconMapPin
+                            size={16}
+                            style={{ color: meta.accent }}
+                          />
+                          <p className="text-[0.58rem] font-bold uppercase tracking-[0.16em] text-[#aaa]">
                             {meta.locationLabel}
                           </p>
-                          <p className="mt-1 break-words text-[0.95rem] font-semibold leading-snug text-[color:var(--shell-ink)]">
-                            {primaryLocation || "Sin ubicación informada"}
-                          </p>
-                          {secondaryLocation && (
-                            <p className="mt-1 break-words text-[0.8rem] leading-snug text-[color:var(--shell-muted)]">
-                              {secondaryLocation}
-                            </p>
-                          )}
                         </div>
-
-                        {publicacion.fecha && (
-                          <div className={itemClass}>
-                            <p className="text-[0.64rem] font-bold uppercase tracking-[0.14em] text-[color:var(--shell-muted)]">
-                              Fecha
-                            </p>
-                            <p className="mt-1 break-words text-[0.95rem] font-semibold leading-snug text-[color:var(--shell-ink)]">
-                              {formatFecha(publicacion.fecha)}
-                            </p>
-                          </div>
+                        <p className="text-[0.92rem] font-bold text-[#111]">
+                          {primaryLocation || "Sin ubicación informada"}
+                        </p>
+                        {secondaryLocation && (
+                          <p className="mt-0.5 text-[0.8rem] text-[#666]">
+                            {secondaryLocation}
+                          </p>
                         )}
+                        <div className="mt-3 flex h-[5.5rem] items-center justify-center overflow-hidden rounded-[0.55rem] bg-[#f0f0f0]">
+                          <IconMapPin size={28} color="#ccc" />
+                        </div>
                       </div>
 
-                      {identityFields.length > 0 && (
-                        <div className={panelClass}>
-                          <h2 className="text-[0.64rem] font-bold uppercase tracking-[0.18em] text-[color:var(--shell-muted)]">
-                            Ficha del animal
-                          </h2>
-                          <div className="mt-2.5 grid min-w-0 gap-2 sm:grid-cols-2 xl:grid-cols-3">
-                            {identityFields.map((field) => (
-                              <Field key={field.label} label={field.label} value={field.value} />
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {adoptionFields.length > 0 && (
-                        <div className={panelClass}>
-                          <h2 className="text-[0.64rem] font-bold uppercase tracking-[0.18em] text-[color:var(--shell-muted)]">
-                            Perfil de adopción
-                          </h2>
-                          <div className="mt-2.5 grid min-w-0 gap-2 sm:grid-cols-2">
-                            {adoptionFields.map((field) => (
-                              <Field key={field.label} label={field.label} value={field.value} />
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {publicacion.detalles && (
-                        <div className={panelClass}>
-                          <h2 className="text-[0.64rem] font-bold uppercase tracking-[0.18em] text-[color:var(--shell-muted)]">
-                            Detalles
-                          </h2>
-                          <p className="mt-2 break-words text-[0.95rem] leading-relaxed text-[color:var(--shell-ink)]">
-                            {publicacion.detalles}
+                      <div className="rounded-[0.8rem] border border-[#eee] bg-white p-4">
+                        <div className="mb-2 flex items-center gap-2">
+                          <IconPaw size={16} style={{ color: meta.accent }} />
+                          <p className="text-[0.58rem] font-bold uppercase tracking-[0.16em] text-[#aaa]">
+                            FICHA DEL ANIMAL
                           </p>
                         </div>
-                      )}
+                        <div className="flex flex-col gap-1.5">
+                          {fichaFields.map((field) => (
+                            <div
+                              key={field.label}
+                              className="grid grid-cols-2 items-center gap-2"
+                            >
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-[#bbb]">
+                                  {field.icon}
+                                </span>
+                                <span className="text-[0.78rem] text-[#888]">
+                                  {field.label}
+                                </span>
+                              </div>
+                              <span className="text-[0.82rem] font-semibold text-[#222]">
+                                {field.value}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
                     </div>
+
+                    {publicacion.detalles && (
+                      <div className="rounded-[0.8rem] border border-[#eee] bg-white p-4">
+                        <div className="mb-2 flex items-center gap-2">
+                          <span className="text-[#bbb]">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="1.8"
+                              className="h-4 w-4"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M8 3.5h6l4 4V20a1 1 0 0 1-1 1H8a2 2 0 0 1-2-2V5.5a2 2 0 0 1 2-2Z"
+                              />
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M14 3.5V8h4"
+                              />
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M9 12h6M9 16h6"
+                              />
+                            </svg>
+                          </span>
+                          <p className="text-[0.58rem] font-bold uppercase tracking-[0.16em] text-[#aaa]">
+                            DETALLES
+                          </p>
+                        </div>
+                        <p className="break-words text-[0.9rem] leading-relaxed text-[#333]">
+                          {publicacion.detalles}
+                        </p>
+                      </div>
+                    )}
+
+                    {adoptionFields.length > 0 && (
+                      <div className="rounded-[0.8rem] border border-[#eee] bg-white p-4">
+                        <div className="mb-2 flex items-center gap-2">
+                          <IconPaw size={16} style={{ color: meta.accent }} />
+                          <p className="text-[0.58rem] font-bold uppercase tracking-[0.16em] text-[#aaa]">
+                            PERFIL DE ADOPCIÓN
+                          </p>
+                        </div>
+                        <div className="flex flex-col gap-1.5">
+                          {adoptionFields.map((field) => (
+                            <div
+                              key={field.label}
+                              className="flex items-center justify-between gap-2"
+                            >
+                              <span className="text-[0.78rem] text-[#888]">
+                                {field.label}
+                              </span>
+                              <span className="text-[0.82rem] font-semibold text-[#222]">
+                                {field.value}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </section>
+                </div>
+
+                <div className="flex flex-col justify-between gap-3 border-t border-[#f0f0f0] px-5 py-4 sm:flex-row">
+                  <div className="flex max-w-[28rem] items-start gap-2">
+                    <IconShieldCheck
+                      size={16}
+                      className="mt-0.5 shrink-0 text-[#bbb]"
+                    />
+                    <p className="text-[0.75rem] leading-snug text-[#999]">
+                      Consejo de seguridad: No intentes perseguirla. Si la ves,
+                      mantenela a la vista y contacta al número de WhatsApp.
+                    </p>
+                  </div>
                 </div>
               </article>
             </div>
