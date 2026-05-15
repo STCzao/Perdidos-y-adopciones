@@ -5,32 +5,32 @@ import ModalShell from "./ModalShell";
 const toneByType = {
   perfil: {
     accent: "#D62828",
-    eyebrow: "Accion permanente",
+    eyebrow: "Acción permanente",
     confirmLabel: "Eliminar",
   },
   publicacion: {
     accent: "#D62828",
-    eyebrow: "Accion permanente",
+    eyebrow: "Acción permanente",
     confirmLabel: "Eliminar",
   },
   usuario: {
     accent: "#2f241d",
-    eyebrow: "Gestion de cuenta",
+    eyebrow: "Gestión de cuenta",
     confirmLabel: "Confirmar",
   },
   sesion: {
     accent: "#2f241d",
-    eyebrow: "Sesion",
-    confirmLabel: "Cerrar sesion",
+    eyebrow: "Sesión",
+    confirmLabel: "Cerrar sesión",
   },
   comunidad: {
     accent: "#D62828",
-    eyebrow: "Accion permanente",
+    eyebrow: "Acción permanente",
     confirmLabel: "Eliminar",
   },
   alerta: {
     accent: "#2f241d",
-    eyebrow: "Confirmacion",
+    eyebrow: "Confirmación",
     confirmLabel: "Continuar",
   },
 };
@@ -67,40 +67,40 @@ export const ConfirmModal = React.memo(
         case "perfil":
           return "Eliminar perfil";
         case "publicacion":
-          return "Eliminar publicacion";
+          return "Eliminar publicación";
         case "usuario":
           return confirmModal.item?.estado
             ? "Desactivar usuario"
             : "Activar usuario";
         case "sesion":
-          return "Cerrar sesion";
+          return "Cerrar sesión";
         case "comunidad":
           return "Eliminar caso comunitario";
         case "alerta":
           return "Cerrar";
         default:
-          return "Confirmar accion";
+          return "Confirmar acción";
       }
     };
 
     const getMessage = () => {
       switch (type) {
         case "perfil":
-          return "Estas por eliminar tu perfil. Esta accion no se puede deshacer.";
+          return "Estás por eliminar tu perfil. Esta acción no se puede deshacer.";
         case "publicacion":
-          return "Estas por eliminar esta publicacion. Esta accion no se puede deshacer.";
+          return "Estás por eliminar esta publicación. Esta acción no se puede deshacer.";
         case "usuario":
-          return `Estas por ${
+          return `Estás por ${
             confirmModal.item?.estado ? "desactivar" : "activar"
           } al usuario "${confirmModal.item?.nombre}".`;
         case "sesion":
-          return "Vas a cerrar tu sesion actual.";
+          return "Vas a cerrar tu sesión actual.";
         case "comunidad":
-          return `Estas por eliminar el caso "${confirmModal.item?.titulo}". Esta accion no se puede deshacer.`;
+          return `Estás por eliminar el caso "${confirmModal.item?.titulo}". Esta acción no se puede deshacer.`;
         case "alerta":
-          return "El inicio de sesion se cerrara si continuas.";
+          return "El inicio de sesión se cerrará si continuás.";
         default:
-          return "Confirma la accion para continuar.";
+          return "Confirmá la acción para continuar.";
       }
     };
 

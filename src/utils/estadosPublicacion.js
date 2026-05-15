@@ -10,7 +10,7 @@ export const ESTADO_CONFIG = {
   },
   ENCONTRADO: {
     default: "BUSCANDO A SU FAMILIA",
-    estados: ["BUSCANDO A SU FAMILIA", "APARECIO SU FAMILIA", "INACTIVO"],
+    estados: ["BUSCANDO A SU FAMILIA", "APARECIO SU FAMILIA", "TIENE NUEVA FAMILIA", "INACTIVO"],
   },
   ADOPCION: {
     default: "EN BUSCA DE UN HOGAR",
@@ -18,7 +18,7 @@ export const ESTADO_CONFIG = {
   },
 };
 
-export const ESTADOS_RESUELTOS = ["YA APARECIO", "APARECIO SU FAMILIA", "ADOPTADO"];
+export const ESTADOS_RESUELTOS = ["YA APARECIO", "APARECIO SU FAMILIA", "TIENE NUEVA FAMILIA", "ADOPTADO"];
 
 /**
  * Obtiene el estado por defecto según el tipo de publicación

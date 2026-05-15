@@ -1,15 +1,20 @@
 import axiosInstance from "./api";
 import { buildServiceSuccess, getResponseRequestId, mapServiceError } from "./serviceUtils";
 
-const cache = { usuarios: null, usuariosTimestamp: null };
-const CACHE_DURATION = 30000;
-
 export const adminService = {
-  getPublicacionesPagina: async (page = 1, limit = 15) => {
+  getPublicacionesPagina: async (page = 1, limit = 15, params = {}) => {
     try {
-      const response = await axiosInstance.get(
-        `/publicaciones/admin/todas?page=${page}&limit=${limit}`,
-      );
+      const query = new URLSearchParams({ page, limit });
+
+      if (params.search) query.set("search", params.search);
+      if (params.tipo) query.set("tipo", params.tipo);
+      if (params.estado) query.set("estado", params.estado);
+      if (params.raza) query.set("raza", params.raza);
+      if (params.localidad) query.set("localidad", params.localidad);
+      if (params.sortBy) query.set("sortBy", params.sortBy);
+      if (params.sortOrder) query.set("sortOrder", params.sortOrder);
+
+      const response = await axiosInstance.get(`/publicaciones/admin/todas?${query.toString()}`);
 
       return buildServiceSuccess({
         publicaciones: response.data.publicaciones || [],
@@ -20,6 +25,21 @@ export const adminService = {
     } catch (error) {
       return mapServiceError(error, "Error de conexión al servidor");
     }
+  },
+
+  exportarPublicaciones: async (params = {}) => {
+    const query = new URLSearchParams();
+    if (params.search) query.set("search", params.search);
+    if (params.tipo) query.set("tipo", params.tipo);
+    if (params.estado) query.set("estado", params.estado);
+    if (params.raza) query.set("raza", params.raza);
+    if (params.localidad) query.set("localidad", params.localidad);
+
+    const response = await axiosInstance.get(
+      `/publicaciones/admin/exportar?${query.toString()}`,
+      { responseType: "blob" },
+    );
+    return response.data;
   },
 
   getTodasPublicaciones: async () => {
@@ -37,8 +57,10 @@ export const adminService = {
       }
 
       const requests = [];
-      for (let page = 2; page <= totalPages; page += 1) {
-        requests.push(axiosInstance.get(`/publicaciones/admin/todas?page=${page}&limit=12`));
+      for (let currentPage = 2; currentPage <= totalPages; currentPage += 1) {
+        requests.push(
+          axiosInstance.get(`/publicaciones/admin/todas?page=${currentPage}&limit=12`),
+        );
       }
 
       const results = await Promise.all(requests);
@@ -54,46 +76,39 @@ export const adminService = {
     }
   },
 
-  getTodosUsuarios: async () => {
+  getUsuariosAdmin: async (params = {}) => {
     try {
-      if (
-        cache.usuarios &&
-        cache.usuariosTimestamp &&
-        Date.now() - cache.usuariosTimestamp < CACHE_DURATION
-      ) {
-        return cache.usuarios;
-      }
+      const query = new URLSearchParams();
 
-      const firstResponse = await axiosInstance.get("/usuarios?page=1&limit=20");
-      const firstData = firstResponse.data;
-      const usuariosPrimeraPagina =
-        firstData.usuarios || firstData.data || (Array.isArray(firstData) ? firstData : []);
-      const totalPages = firstData.totalPages || 1;
+      if (params.page) query.set("page", params.page);
+      if (params.limit) query.set("limit", params.limit || 20);
+      if (params.sortBy) query.set("sortBy", params.sortBy);
+      if (params.sortOrder) query.set("sortOrder", params.sortOrder);
+      if (params.search) query.set("search", params.search);
+      if (params.rol) query.set("rol", params.rol);
+      if (params.estado) query.set("estado", params.estado);
 
-      let todosUsuarios = [...usuariosPrimeraPagina];
+      const response = await axiosInstance.get(`/usuarios/admin?${query.toString()}`);
 
-      if (totalPages > 1) {
-        const requests = [];
-        for (let page = 2; page <= totalPages; page += 1) {
-          requests.push(axiosInstance.get(`/usuarios?page=${page}&limit=20`));
-        }
-
-        const results = await Promise.all(requests);
-        const restUsuarios = results.flatMap(
-          (res) => res.data.usuarios || res.data.data || (Array.isArray(res.data) ? res.data : []),
-        );
-        todosUsuarios = [...todosUsuarios, ...restUsuarios];
-      }
-
-      const result = buildServiceSuccess({
-        usuarios: todosUsuarios,
-        requestId: getResponseRequestId(firstResponse),
+      return buildServiceSuccess({
+        usuarios: response.data.usuarios || [],
+        totalPages: response.data.totalPages || 1,
+        total: response.data.total || 0,
+        requestId: getResponseRequestId(response),
       });
+    } catch (error) {
+      return mapServiceError(error, "Error de conexión al servidor");
+    }
+  },
 
-      cache.usuarios = result;
-      cache.usuariosTimestamp = Date.now();
+  cambiarRolUsuario: async (id, rol) => {
+    try {
+      const response = await axiosInstance.patch(`/usuarios/${id}/rol`, { rol });
 
-      return result;
+      return buildServiceSuccess({
+        usuario: response.data.usuario,
+        requestId: getResponseRequestId(response),
+      });
     } catch (error) {
       return mapServiceError(error, "Error de conexión al servidor");
     }
@@ -111,10 +126,5 @@ export const adminService = {
     } catch (error) {
       return mapServiceError(error, "Error de conexión al servidor");
     }
-  },
-
-  clearCache: () => {
-    cache.usuarios = null;
-    cache.usuariosTimestamp = null;
   },
 };

@@ -1,37 +1,31 @@
-import {
-  SelectField,
-  InputField,
-  TextAreaField,
-  ImageUploadField,
-} from "./FormFields";
+import { InputField, MultiImageField, SelectField, TextAreaField } from "./FormFields";
 import { PUBLICACION_SIZE_FIELD } from "../utils/publicacionFields";
 
-/**
- * Campos comunes a todos los tipos de publicaciones
- */
 export const CommonFields = ({
   form,
   handleChange,
   errors,
   submitting,
-  handleImageUpload,
+  onAddImage,
+  onRemoveImage,
+  onMoveImage,
   uploading,
   razasPorEspecie = {},
 }) => {
   return (
     <>
       <SelectField
-        label="Seleccione el tipo de publicación"
+        label="Seleccione el tipo de publicacion"
         name="tipo"
         value={form.tipo}
         onChange={handleChange}
         disabled={submitting}
         error={errors.tipo}
-        placeholder="Seleccione entre perdido/encontrado/adopción *"
+        placeholder="Seleccione entre perdido/encontrado/adopcion *"
         options={[
           { value: "PERDIDO", label: "Perdido" },
           { value: "ENCONTRADO", label: "Encontrado" },
-          { value: "ADOPCION", label: "Adopción" },
+          { value: "ADOPCION", label: "Adopcion" },
         ]}
       />
 
@@ -48,11 +42,13 @@ export const CommonFields = ({
         />
       )}
 
-      <ImageUploadField
+      <MultiImageField
+        imgs={form.imgs}
+        onAddImage={onAddImage}
+        onRemoveImage={onRemoveImage}
+        onMoveImage={onMoveImage}
         uploading={uploading}
-        handleImageUpload={handleImageUpload}
-        imageUrl={form.img}
-        error={errors.img}
+        error={errors.imgs}
         disabled={submitting}
       />
 
@@ -85,9 +81,9 @@ export const CommonFields = ({
           options={[
             { value: "SIN ESPECIFICAR", label: "Sin especificar" },
             { value: "CACHORRO", label: "Cachorro (0 a 12 meses)" },
-            { value: "JOVEN", label: "Joven (1 a 4 años)" },
-            { value: "ADULTO", label: "Adulto (5 a 10 años)" },
-            { value: "MAYOR", label: "Mayor (más de 10 años)" },
+            { value: "JOVEN", label: "Joven (1 a 4 anos)" },
+            { value: "ADULTO", label: "Adulto (5 a 10 anos)" },
+            { value: "MAYOR", label: "Mayor (mas de 10 anos)" },
           ]}
         />
       )}
@@ -100,9 +96,7 @@ export const CommonFields = ({
         disabled={submitting || !form.especie}
         error={errors.raza}
         placeholder={
-          !form.especie
-            ? "Seleccione primero la especie"
-            : "Seleccione la raza de su animal *"
+          !form.especie ? "Seleccione primero la especie" : "Seleccione la raza de su animal *"
         }
         options={(razasPorEspecie[form.especie] || []).map((raza) => ({
           value: raza,
@@ -147,7 +141,7 @@ export const CommonFields = ({
         options={[
           { value: "SIN ESPECIFICAR", label: "Sin especificar" },
           { value: "MINI", label: "Mini" },
-          { value: "PEQUEÑO", label: "Pequeño" },
+          { value: "PEQUENO", label: "Pequeno" },
           { value: "MEDIANO", label: "Mediano" },
           { value: "GRANDE", label: "Grande" },
         ]}
@@ -161,7 +155,7 @@ export const CommonFields = ({
         onChange={handleChange}
         disabled={submitting}
         error={errors.whatsapp}
-        placeholder="Ej: 38123456789 (solo números, 10-15 dígitos) *"
+        placeholder="Ej: 38123456789 (solo numeros, 10-15 digitos) *"
         maxLength={15}
       />
 
@@ -172,7 +166,7 @@ export const CommonFields = ({
         onChange={handleChange}
         disabled={submitting}
         error={errors.detalles}
-        placeholder="Agregá aquí cualquier detalle que ayude a identificarlo o a tratar con él: manchas, cicatrices, heridas, si está medicado, si llevaba collar, temperamento o cualquier otra información importante."
+        placeholder="Agrega aqui cualquier detalle que ayude a identificarlo o a tratar con el: manchas, cicatrices, heridas, si esta medicado, si llevaba collar, temperamento o cualquier otra informacion importante."
         rows={4}
       />
     </>

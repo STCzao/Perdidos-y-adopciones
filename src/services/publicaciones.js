@@ -194,9 +194,9 @@ export const publicacionesService = {
     return request;
   },
 
-  getPublicacionesUsuario: async (id) => {
+  getPublicacionesUsuario: async (id, params = {}) => {
     try {
-      const { data } = await axiosInstance.get(`/publicaciones/usuario/${id}`);
+      const { data } = await axiosInstance.get(`/publicaciones/usuario/${id}`, { params });
       return data;
     } catch (error) {
       console.error("Error en getPublicacionesUsuario:", error);

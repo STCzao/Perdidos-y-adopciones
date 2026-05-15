@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import ModalShell from "../../../components/ui/ModalShell";
 import { publicacionesService } from "../../../services/publicaciones";
 import { usePublicacionForm } from "./usePublicacionForm";
-import { useImageUpload } from "./useImageUpload";
+import { useImagesUpload } from "./useImageUpload";
 import { validateForm } from "./FormValidation";
 import { CommonFields } from "./CommonFields";
 import { PerdidoEncontradoFields } from "./PerdidoEncontradoFields";
@@ -21,11 +21,7 @@ const sectionClassName =
 const StatusMessage = ({ message, isError }) => {
   if (!message) return null;
 
-  return (
-    <p className={`mt-4 text-sm ${isError ? "text-[#9c4d3a]" : "text-[#4d6a2e]"}`}>
-      {message}
-    </p>
-  );
+  return <p className={`mt-4 text-sm ${isError ? "text-[#9c4d3a]" : "text-[#4d6a2e]"}`}>{message}</p>;
 };
 
 export const CrearPublicacion = {
@@ -35,24 +31,21 @@ export const CrearPublicacion = {
     modalControl.setOpen(true);
     return true;
   },
+
   Component: () => {
     const [open, setOpen] = useState(false);
     const [result, setResult] = useState("");
-    const [uploading, setUploading] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [editData, setEditData] = useState(null);
 
-    const {
-      form,
-      errors,
-      setErrors,
-      handleChange,
-      resetForm,
-      setFormImage,
-      razasPorEspecie,
-    } = usePublicacionForm(editData);
+    const { form, errors, setErrors, handleChange, resetForm, setFormImgs, razasPorEspecie } =
+      usePublicacionForm(editData);
 
-    const { handleImageUpload: uploadImage } = useImageUpload(setFormImage, setErrors);
+    const { handleAddImage, handleRemoveImage, handleMoveImage, uploading } = useImagesUpload(
+      form.imgs,
+      setFormImgs,
+      setErrors,
+    );
 
     useLayoutEffect(() => {
       modalControl = { setOpen, setEditData };
@@ -82,18 +75,14 @@ export const CrearPublicacion = {
       };
     }, [open]);
 
+    const isEditing = !!editData;
+
     const handleClose = () => {
       resetForm();
       setResult("");
       setSubmitting(false);
       setEditData(null);
       setOpen(false);
-    };
-
-    const handleImageUploadWrapper = async (event) => {
-      setUploading(true);
-      await uploadImage(event);
-      setUploading(false);
     };
 
     const handleSubmit = async (event) => {
@@ -116,7 +105,7 @@ export const CrearPublicacion = {
           [PUBLICACION_SIZE_FIELD]: form[PUBLICACION_SIZE_FIELD],
           color: form.color,
           whatsapp: form.whatsapp,
-          img: form.img,
+          imgs: form.imgs,
           ...(form.detalles?.trim() && { detalles: form.detalles }),
         };
 
@@ -176,14 +165,13 @@ export const CrearPublicacion = {
       }
     };
 
-    const isEditing = !!editData;
     const isResultError =
       result.includes("Error") || result.includes("error") || result.includes("validacion");
 
     if (!open) return null;
 
     return (
-      <ModalShell className="p-3 sm:p-5">
+      <ModalShell className="p-3 sm:p-5" elevated>
         <motion.div
           initial={{ opacity: 0, y: 18, scale: 0.98 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -223,8 +211,8 @@ export const CrearPublicacion = {
               </h1>
               <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[#5b4d43]">
                 {isEditing
-                  ? "Actualiza la informacion del caso para mantenerla clara, completa y confiable."
-                  : "Carga un caso con informacion precisa para que la comunidad pueda ayudar mas rapido."}
+                  ? "Actualizá la información del caso para mantenerla clara, completa y confiable."
+                  : "Cargá un caso con información precisa para que la comunidad pueda ayudar más rápido."}
               </p>
             </div>
 
@@ -246,9 +234,12 @@ export const CrearPublicacion = {
                       handleChange={handleChange}
                       errors={errors}
                       submitting={submitting}
-                      handleImageUpload={handleImageUploadWrapper}
+                      onAddImage={handleAddImage}
+                      onRemoveImage={handleRemoveImage}
+                      onMoveImage={handleMoveImage}
                       uploading={uploading}
                       razasPorEspecie={razasPorEspecie}
+                      isEditing={isEditing}
                     />
                   </div>
                 </section>
@@ -310,7 +301,7 @@ export const CrearPublicacion = {
                   <div className="mt-4 space-y-3 text-sm leading-relaxed text-[#6d5a4f]">
                     <p>Usa una foto reciente y nitida donde el animal se vea completo.</p>
                     <p>Describe manchas, collar, heridas o cualquier rasgo que ayude a reconocerlo.</p>
-                    <p>Si es un caso de perdida o hallazgo, agrega la zona mas precisa posible.</p>
+                    <p>Si es un caso de pérdida o hallazgo, agregá la zona más precisa posible.</p>
                   </div>
                 </section>
 
