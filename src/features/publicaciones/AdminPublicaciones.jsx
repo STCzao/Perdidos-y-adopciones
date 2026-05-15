@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useLayoutEffect, useCallback } from "react";
+import React, { useCallback, useEffect, useLayoutEffect, useState } from "react";
 import { motion } from "framer-motion";
 import ModalShell from "../../components/ui/ModalShell";
 import { adminService } from "../../services/admin";
@@ -7,10 +7,13 @@ import { ConfirmModal } from "../../components/ui/ConfirmModal";
 import LoadingState from "../../components/ui/LoadingState";
 import { getEstadosPermitidos } from "../../utils/estadosPublicacion";
 import { getTipoColorMeta } from "../../utils/publicacionColors";
+import { LOCALIDADES_TUCUMAN } from "../../utils/localidades";
 import { getPublicacionTitulo } from "./utils/publicacionFields";
 
 let modalControl;
-const LIMIT = 15;
+
+const FILTRO_SELECT =
+  "rounded-[0.7rem] border border-[color:var(--shell-line)] bg-white px-3 py-2 text-sm text-[#3d332d] outline-none transition focus:border-[#d46f49]/40";
 
 const getTipoBadgeStyle = (tipo) => {
   const meta = getTipoColorMeta(tipo);
@@ -35,18 +38,27 @@ export const AdminPublicaciones = {
     const [error, setError] = useState("");
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
+    const [sortBy, setSortBy] = useState("fechaCreacion");
+    const [sortOrder, setSortOrder] = useState("desc");
+    const [filtros, setFiltros] = useState({
+      search: "",
+      tipo: "",
+      estado: "",
+      raza: "",
+      localidad: "",
+    });
+    const [razasDisponibles, setRazasDisponibles] = useState([]);
     const [confirmModal, setConfirmModal] = useState({
       isOpen: false,
       item: null,
       action: "",
     });
 
-    const cargarPublicaciones = useCallback(async (targetPage = 1) => {
+    const cargarPublicaciones = useCallback(async (targetPage = 1, params = {}) => {
+      setLoading(true);
+      setError("");
       try {
-        setLoading(true);
-        setError("");
-        const result = await adminService.getPublicacionesPagina(targetPage, LIMIT);
-
+        const result = await adminService.getPublicacionesPagina(targetPage, 15, params);
         if (result.success) {
           setPublicaciones(result.publicaciones || []);
           setTotalPages(result.totalPages || 1);
@@ -55,7 +67,7 @@ export const AdminPublicaciones = {
           setError(result.msg || "Error al cargar publicaciones");
         }
       } catch {
-        setError("Error de conexión al servidor");
+        setError("Error de conexion al servidor");
       } finally {
         setLoading(false);
       }
@@ -63,14 +75,22 @@ export const AdminPublicaciones = {
 
     useLayoutEffect(() => {
       modalControl = { setOpen };
-      return () => { modalControl = null; };
+      return () => {
+        modalControl = null;
+      };
     }, []);
 
     useEffect(() => {
       if (open) {
         document.body.style.overflow = "hidden";
         document.documentElement.style.overflow = "hidden";
-        cargarPublicaciones(1);
+        publicacionesService.getRazas().then((res) => {
+          if (res.razasPorEspecie) {
+            const todasRazas = Object.values(res.razasPorEspecie).flat();
+            setRazasDisponibles([...new Set(todasRazas)].sort());
+          }
+        });
+        cargarPublicaciones(1, { sortBy, sortOrder, ...filtros });
       } else {
         document.body.style.overflow = "unset";
         document.documentElement.style.overflow = "unset";
@@ -80,42 +100,68 @@ export const AdminPublicaciones = {
         document.body.style.overflow = "unset";
         document.documentElement.style.overflow = "unset";
       };
-    }, [cargarPublicaciones, open]);
+    }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+      if (!open) return;
+      cargarPublicaciones(page, { sortBy, sortOrder, ...filtros });
+    }, [cargarPublicaciones, filtros, open, page, sortBy, sortOrder]);
+
+    const handleSort = (campo) => {
+      if (sortBy === campo) {
+        setSortOrder((o) => (o === "asc" ? "desc" : "asc"));
+      } else {
+        setSortBy(campo);
+        setSortOrder("asc");
+      }
+      setPage(1);
+    };
 
     const handleEliminar = useCallback(async (publicacion) => {
       try {
         const result = await publicacionesService.borrarPublicacion(publicacion._id);
         if (result.success) {
-          const fallbackPage = publicaciones.length === 1 && page > 1 ? page - 1 : page;
-          await cargarPublicaciones(fallbackPage);
+          await cargarPublicaciones(page, { sortBy, sortOrder, ...filtros });
           return true;
         }
 
-        setError(result.msg || "Error al eliminar publicación");
+        setError(result.msg || "Error al eliminar publicacion");
         return false;
       } catch {
-        setError("Error de conexión al eliminar");
+        setError("Error de conexion al eliminar");
         return false;
       }
-    }, [cargarPublicaciones, page, publicaciones.length]);
+    }, [cargarPublicaciones, filtros, page, sortBy, sortOrder]);
 
     const handleEditarEstado = useCallback(async (id, nuevoEstado) => {
       try {
         const result = await publicacionesService.actualizarEstado(id, nuevoEstado);
         if (result.success) {
-          setPublicaciones((prev) =>
-            prev.map((p) => (p._id === id ? { ...p, estado: nuevoEstado } : p)),
-          );
+          setPublicaciones((prev) => prev.map((p) => (p._id === id ? { ...p, estado: nuevoEstado } : p)));
           return true;
         }
 
         setError(result.msg || "Error al actualizar estado");
         return false;
       } catch {
-        setError("Error de conexión al actualizar estado");
+        setError("Error de conexion al actualizar estado");
         return false;
       }
     }, []);
+
+    const exportar = async () => {
+      try {
+        const blob = await adminService.exportarPublicaciones(filtros);
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `publicaciones-${new Date().toLocaleDateString("es-AR")}.xlsx`;
+        a.click();
+        URL.revokeObjectURL(url);
+      } catch {
+        setError("Error al exportar. Intenta de nuevo.");
+      }
+    };
 
     const openConfirmModal = useCallback((item, action) => {
       setConfirmModal({ isOpen: true, item, action });
@@ -130,7 +176,7 @@ export const AdminPublicaciones = {
         await handleEliminar(confirmModal.item);
       }
       closeConfirmModal();
-    }, [confirmModal, handleEliminar, closeConfirmModal]);
+    }, [closeConfirmModal, confirmModal, handleEliminar]);
 
     const handleClose = useCallback(() => {
       setOpen(false);
@@ -138,7 +184,12 @@ export const AdminPublicaciones = {
       setPublicaciones([]);
       setPage(1);
       setTotalPages(1);
-    }, []);
+      setSortBy("fechaCreacion");
+      setSortOrder("desc");
+      setFiltros({ search: "", tipo: "", estado: "", raza: "", localidad: "" });
+      setRazasDisponibles([]);
+      closeConfirmModal();
+    }, [closeConfirmModal]);
 
     if (!open) return null;
 
@@ -182,7 +233,7 @@ export const AdminPublicaciones = {
               <div className="mt-4 rounded-[1rem] border border-[#d62828]/18 bg-[color:var(--shell-danger-soft)] p-3">
                 <p className="text-[#a44939]">{error}</p>
                 <button
-                  onClick={() => cargarPublicaciones(page)}
+                  onClick={() => cargarPublicaciones(page, { sortBy, sortOrder, ...filtros })}
                   className="mt-2 cursor-pointer rounded-full bg-[color:var(--shell-danger)] px-4 py-2 text-white transition-colors hover:bg-[#b91f1f]"
                 >
                   Reintentar
@@ -190,48 +241,148 @@ export const AdminPublicaciones = {
               </div>
             )}
 
+            <div className="mt-4 flex flex-wrap gap-2">
+              <input
+                className={FILTRO_SELECT}
+                placeholder="Buscar por nombre, raza..."
+                value={filtros.search}
+                onChange={(e) => {
+                  setFiltros((p) => ({ ...p, search: e.target.value }));
+                  setPage(1);
+                }}
+              />
+              <select
+                className={FILTRO_SELECT}
+                value={filtros.tipo}
+                onChange={(e) => {
+                  setFiltros((p) => ({ ...p, tipo: e.target.value }));
+                  setPage(1);
+                }}
+              >
+                <option value="">Todos los tipos</option>
+                <option value="PERDIDO">Perdido</option>
+                <option value="ENCONTRADO">Encontrado</option>
+                <option value="ADOPCION">Adopcion</option>
+              </select>
+              <select
+                className={FILTRO_SELECT}
+                value={filtros.estado}
+                onChange={(e) => {
+                  setFiltros((p) => ({ ...p, estado: e.target.value }));
+                  setPage(1);
+                }}
+              >
+                <option value="">Todos los estados</option>
+                <optgroup label="Perdido">
+                  <option value="SE BUSCA">Se busca</option>
+                  <option value="YA APARECIO">Ya apareció</option>
+                </optgroup>
+                <optgroup label="Encontrado">
+                  <option value="BUSCANDO A SU FAMILIA">Buscando a su familia</option>
+                  <option value="APARECIO SU FAMILIA">Apareció su familia</option>
+                  <option value="TIENE NUEVA FAMILIA">Tiene nueva familia</option>
+                </optgroup>
+                <optgroup label="Adopción">
+                  <option value="EN BUSCA DE UN HOGAR">En busca de un hogar</option>
+                  <option value="ADOPTADO">Adoptado</option>
+                </optgroup>
+                <option value="INACTIVO">Inactivo</option>
+              </select>
+              <select
+                className={FILTRO_SELECT}
+                value={filtros.localidad}
+                onChange={(e) => {
+                  setFiltros((p) => ({ ...p, localidad: e.target.value }));
+                  setPage(1);
+                }}
+              >
+                <option value="">Todas las localidades</option>
+                {LOCALIDADES_TUCUMAN.map((l) => (
+                  <option key={l} value={l}>
+                    {l}
+                  </option>
+                ))}
+              </select>
+              {razasDisponibles.length > 0 && (
+                <select
+                  className={FILTRO_SELECT}
+                  value={filtros.raza}
+                  onChange={(e) => {
+                    setFiltros((p) => ({ ...p, raza: e.target.value }));
+                    setPage(1);
+                  }}
+                >
+                  <option value="">Todas las razas</option>
+                  {razasDisponibles.map((r) => (
+                    <option key={r} value={r}>
+                      {r}
+                    </option>
+                  ))}
+                </select>
+              )}
+              <button
+                onClick={() => {
+                  setSortOrder((o) => (o === "desc" ? "asc" : "desc"));
+                  setPage(1);
+                }}
+                className="rounded-[0.7rem] border border-[color:var(--shell-line)] bg-white px-3 py-2 text-sm text-[#3d332d] transition hover:bg-[#fffaf4]"
+              >
+                {sortOrder === "desc" ? "Mas reciente primero" : "Mas antiguo primero"}
+              </button>
+              <button
+                onClick={exportar}
+                className="rounded-[0.7rem] border border-[color:var(--shell-line)] bg-white px-3 py-2 text-sm text-[#3d332d] transition hover:bg-[#fffaf4]"
+              >
+                Exportar Excel
+              </button>
+            </div>
+
             {loading ? (
               <LoadingState compact label="Cargando publicaciones..." />
             ) : (
-              <div className="mt-6 max-h-[60vh] space-y-4 overflow-y-auto">
-                {publicaciones.map((publicacion) => (
-                  <PublicacionItem
-                    key={publicacion._id}
-                    publicacion={publicacion}
-                    onEliminar={openConfirmModal}
-                    onEditarEstado={handleEditarEstado}
-                    loading={loading}
-                  />
-                ))}
+              <>
+                <div className="mt-6 max-h-[60vh] space-y-4 overflow-y-auto">
+                  {publicaciones.map((publicacion) => (
+                    <PublicacionItem
+                      key={publicacion._id}
+                      publicacion={publicacion}
+                      onEliminar={openConfirmModal}
+                      onEditarEstado={handleEditarEstado}
+                      loading={loading}
+                    />
+                  ))}
 
-                {publicaciones.length === 0 && !loading && (
-                  <div className="py-8 text-center text-[color:var(--shell-muted)]/80">
-                    No hay publicaciones para mostrar
-                  </div>
-                )}
+                  {publicaciones.length === 0 && !loading && (
+                    <div className="py-8 text-center text-[color:var(--shell-muted)]/80">
+                      No hay publicaciones para mostrar
+                    </div>
+                  )}
+                </div>
 
                 {totalPages > 1 && (
-                  <div className="mt-4 flex items-center justify-center gap-3">
-                    <button
-                      onClick={() => cargarPublicaciones(page - 1)}
-                      disabled={page === 1 || loading}
-                      className="rounded-lg border border-[color:var(--shell-line)] px-3 py-1.5 text-sm disabled:opacity-40"
-                    >
-                      Anterior
-                    </button>
-                    <span className="text-sm text-[color:var(--shell-muted)]">
-                      {page} / {totalPages}
+                  <div className="mt-4 flex items-center justify-between text-sm">
+                    <span className="text-[color:var(--shell-muted)]">
+                      Pagina {page} de {totalPages}
                     </span>
-                    <button
-                      onClick={() => cargarPublicaciones(page + 1)}
-                      disabled={page === totalPages || loading}
-                      className="rounded-lg border border-[color:var(--shell-line)] px-3 py-1.5 text-sm disabled:opacity-40"
-                    >
-                      Siguiente
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        disabled={page === 1 || loading}
+                        onClick={() => setPage((p) => p - 1)}
+                        className="rounded-lg border border-[color:var(--shell-line)] px-3 py-1.5 disabled:opacity-40"
+                      >
+                        Anterior
+                      </button>
+                      <button
+                        disabled={page === totalPages || loading}
+                        onClick={() => setPage((p) => p + 1)}
+                        className="rounded-lg border border-[color:var(--shell-line)] px-3 py-1.5 disabled:opacity-40"
+                      >
+                        Siguiente
+                      </button>
+                    </div>
                   </div>
                 )}
-              </div>
+              </>
             )}
           </div>
 
@@ -297,6 +448,15 @@ const PublicacionItem = React.memo(({ publicacion, onEliminar, onEditarEstado, l
       </div>
 
       <div className="ml-4 flex gap-2">
+        <button
+          onClick={() => {
+            window.dispatchEvent(new CustomEvent("openCrearPublicacion", { detail: publicacion }));
+          }}
+          className="cursor-pointer rounded-full bg-[color:var(--shell-bark)] px-4 py-2 text-sm text-white transition-colors hover:bg-[#45362d]"
+          disabled={loading}
+        >
+          Editar
+        </button>
         <button
           onClick={() => onEliminar(publicacion, "delete")}
           className="cursor-pointer rounded-full bg-[color:var(--shell-danger)] px-4 py-2 text-sm text-white transition-colors hover:bg-[#b91f1f]"

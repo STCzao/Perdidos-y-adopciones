@@ -1,9 +1,6 @@
 import { validarFechaNoFutura } from "../../../utils/dateHelpers";
 import { PUBLICACION_SIZE_FIELD } from "../utils/publicacionFields";
 
-/**
- * Validaciones para el formulario de publicaciones
- */
 export const validateForm = (form) => {
   let valid = true;
   const newErrors = {};
@@ -14,7 +11,7 @@ export const validateForm = (form) => {
   }
 
   if (!form.tipo) {
-    newErrors.tipo = "El tipo de publicación es obligatorio";
+    newErrors.tipo = "El tipo de publicacion es obligatorio";
     valid = false;
   }
 
@@ -50,21 +47,23 @@ export const validateForm = (form) => {
     newErrors.whatsapp = "El WhatsApp es obligatorio";
     valid = false;
   } else if (!/^[0-9]+$/.test(form.whatsapp)) {
-    newErrors.whatsapp = "El WhatsApp solo debe contener números";
+    newErrors.whatsapp = "El WhatsApp solo debe contener numeros";
     valid = false;
   } else if (form.whatsapp.length < 10) {
-    newErrors.whatsapp = "El WhatsApp debe tener al menos 10 dígitos";
+    newErrors.whatsapp = "El WhatsApp debe tener al menos 10 digitos";
     valid = false;
   } else if (form.whatsapp.length > 15) {
     newErrors.whatsapp = "El WhatsApp no puede tener más de 15 dígitos";
     valid = false;
   }
 
-  if (!form.img.trim()) {
-    newErrors.img = "La imagen es obligatoria";
+  if (!form.imgs?.length) {
+    newErrors.imgs = "La imagen es obligatoria";
     valid = false;
-  } else if (!/^https:\/\/res\.cloudinary\.com\/.+$/.test(form.img)) {
-    newErrors.img = "La URL de imagen no es válida";
+  } else if (
+    form.imgs.some((img) => !img || !/^https:\/\/res\.cloudinary\.com\/.+$/.test(img))
+  ) {
+    newErrors.imgs = "La URL de imagen no es valida";
     valid = false;
   }
 
@@ -86,7 +85,7 @@ export const validateForm = (form) => {
       newErrors.fecha = "La fecha es obligatoria";
       valid = false;
     } else if (!validarFechaNoFutura(form.fecha)) {
-      newErrors.fecha = "La fecha no puede ser mayor al día actual";
+      newErrors.fecha = "La fecha no puede ser mayor al dia actual";
       valid = false;
     }
   }
@@ -121,7 +120,7 @@ export const validateForm = (form) => {
       valid = false;
     }
     if (!form.energia) {
-      newErrors.energia = "El nivel de energía es obligatorio";
+      newErrors.energia = "El nivel de energia es obligatorio";
       valid = false;
     }
   }

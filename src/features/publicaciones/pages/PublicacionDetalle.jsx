@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Link, Navigate, useLocation, useParams } from "react-router-dom";
 import {
   IconSearch,
@@ -19,6 +19,7 @@ import {
 import Navbar from "../../../components/layout/Navbar";
 import Footer from "../../../components/layout/Footer";
 import Seo from "../../../components/seo/Seo";
+import { AuthContext } from "../../../context/AuthContext";
 import { publicacionesService } from "../../../services/publicaciones";
 import { formatFecha } from "../../../utils/dateHelpers";
 import { ESTADOS_RESUELTOS } from "../../../utils/estadosPublicacion";
@@ -85,6 +86,8 @@ const getLocationStatePublicacion = (location, id) => {
 };
 
 export default function PublicacionDetalle() {
+  const { user } = useContext(AuthContext);
+  const isAdmin = user?.rol === "ADMIN_ROLE";
   const { tipo, id } = useParams();
   const location = useLocation();
   const withAuth = useRequireAuth();
@@ -97,10 +100,15 @@ export default function PublicacionDetalle() {
   const [pdfError, setPdfError] = useState("");
   const [contactLoading, setContactLoading] = useState(false);
   const [contactError, setContactError] = useState("");
+  const [imgActiva, setImgActiva] = useState(0);
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  useEffect(() => {
+    setImgActiva(0);
+  }, [publicacion?._id]);
 
   useEffect(() => {
     let cancelled = false;
@@ -238,14 +246,15 @@ export default function PublicacionDetalle() {
   const imageAlt = publicacion?.nombreanimal
     ? `Foto de ${publicacion.nombreanimal}`
     : `Foto de ${publicacion?.especie?.toLowerCase() || "animal"}`;
-  const imageSrc = publicacion?.img
-    ? getCloudinaryUrl(publicacion.img, { width: 720, quality: "auto:eco" })
+  const allImgs = publicacion?.imgs?.length > 0 ? publicacion.imgs : publicacion?.img ? [publicacion.img] : [];
+  const imgActivaSrc = allImgs[imgActiva]
+    ? getCloudinaryUrl(allImgs[imgActiva], { width: 720, quality: "auto:eco" })
     : "";
-  const imageSrcSet = publicacion?.img
+  const imgActivaSrcSet = allImgs[imgActiva]
     ? [
-        `${getCloudinaryUrl(publicacion.img, { width: 420, quality: "auto:eco" })} 420w`,
-        `${getCloudinaryUrl(publicacion.img, { width: 720, quality: "auto:eco" })} 720w`,
-        `${getCloudinaryUrl(publicacion.img, { width: 960, quality: "auto:good" })} 960w`,
+        `${getCloudinaryUrl(allImgs[imgActiva], { width: 420, quality: "auto:eco" })} 420w`,
+        `${getCloudinaryUrl(allImgs[imgActiva], { width: 720, quality: "auto:eco" })} 720w`,
+        `${getCloudinaryUrl(allImgs[imgActiva], { width: 960, quality: "auto:good" })} 960w`,
       ].join(", ")
     : "";
   const subtitleParts = [
@@ -312,7 +321,7 @@ export default function PublicacionDetalle() {
           }
           path={`/publicaciones/${tipo}/${id}`}
           type="article"
-          image={publicacion.img}
+          image={publicacion.imgs?.[0] || publicacion.img}
           structuredData={[
             buildBreadcrumbSchema([
               { name: "Inicio", path: "/" },
@@ -380,19 +389,16 @@ export default function PublicacionDetalle() {
                 <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.1fr]">
                   <section className="border-b border-[#eee] bg-[#f5f3f0] p-4 sm:p-5 lg:border-b-0 lg:border-r lg:p-6">
                     <figure className="relative overflow-hidden rounded-[0.9rem] bg-[#e8e4de]">
-                      {publicacion.img ? (
+                      {allImgs.length > 0 ? (
                         <>
                           <img
-                            src={getCloudinaryUrl(publicacion.img, {
-                              width: 80,
-                              quality: 20,
-                            })}
+                            src={getCloudinaryUrl(allImgs[imgActiva], { width: 80, quality: 20 })}
                             aria-hidden="true"
                             className="absolute inset-0 h-full w-full scale-110 object-cover blur-2xl opacity-60"
                           />
                           <img
-                            src={imageSrc}
-                            srcSet={imageSrcSet}
+                            src={imgActivaSrc}
+                            srcSet={imgActivaSrcSet}
                             sizes="(max-width: 640px) calc(100vw - 3.5rem), (max-width: 1024px) 42rem, 34rem"
                             alt={imageAlt}
                             className="relative z-10 block aspect-[4/3] h-auto w-full object-contain"
@@ -409,6 +415,30 @@ export default function PublicacionDetalle() {
                         </div>
                       )}
                     </figure>
+
+                    {allImgs.length > 1 && (
+                      <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+                        {allImgs.map((url, i) => (
+                          <button
+                            key={`${url}-${i}`}
+                            type="button"
+                            onClick={() => setImgActiva(i)}
+                            className={`h-16 w-16 flex-shrink-0 overflow-hidden rounded-[0.5rem] border-2 transition ${
+                              imgActiva === i
+                                ? "border-[#d46f49] opacity-100"
+                                : "border-transparent opacity-60 hover:opacity-90"
+                            }`}
+                            aria-label={`Ver imagen ${i + 1}`}
+                          >
+                            <img
+                              src={getCloudinaryUrl(url, { width: 100, quality: "auto:eco" })}
+                              alt={`Miniatura ${i + 1}`}
+                              className="h-full w-full object-cover"
+                            />
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </section>
 
                   <section className="flex flex-col gap-4 p-5 sm:p-6 lg:p-7">
@@ -525,6 +555,19 @@ export default function PublicacionDetalle() {
                         <p className="text-[0.78rem] text-red-600">
                           {contactError}
                         </p>
+                      )}
+                      {isAdmin && (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            window.dispatchEvent(
+                              new CustomEvent("openCrearPublicacion", { detail: publicacion }),
+                            )
+                          }
+                          className="flex w-full items-center justify-center gap-2 rounded-[0.7rem] border border-[color:var(--shell-bark)] bg-white py-2.5 text-[0.8rem] font-semibold text-[color:var(--shell-bark)] transition-colors hover:bg-[#f5ede4]"
+                        >
+                          Editar publicacion
+                        </button>
                       )}
                     </div>
 
@@ -649,18 +692,7 @@ export default function PublicacionDetalle() {
                   </section>
                 </div>
 
-                <div className="flex flex-col justify-between gap-3 border-t border-[#f0f0f0] px-5 py-4 sm:flex-row">
-                  <div className="flex max-w-[28rem] items-start gap-2">
-                    <IconShieldCheck
-                      size={16}
-                      className="mt-0.5 shrink-0 text-[#bbb]"
-                    />
-                    <p className="text-[0.75rem] leading-snug text-[#999]">
-                      Consejo de seguridad: No intentes perseguirla. Si la ves,
-                      mantenela a la vista y contacta al número de WhatsApp.
-                    </p>
-                  </div>
-                </div>
+                
               </article>
             </div>
           )}

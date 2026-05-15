@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useLayoutEffect, useCallback } from "react";
+import React, { useCallback, useEffect, useLayoutEffect, useState } from "react";
 import { motion } from "framer-motion";
 import ModalShell from "../../components/ui/ModalShell";
 import { adminService } from "../../services/admin";
@@ -6,6 +6,19 @@ import { ConfirmModal } from "../../components/ui/ConfirmModal";
 import LoadingState from "../../components/ui/LoadingState";
 
 let modalControl;
+
+const FILTRO_SELECT =
+  "rounded-[0.7rem] border border-[color:var(--shell-line)] bg-white px-3 py-2 text-sm text-[#3d332d] outline-none transition focus:border-[#d46f49]/40";
+
+const SortableHeader = ({ label, campo, sortBy, sortOrder, onSort }) => (
+  <th
+    onClick={() => onSort(campo)}
+    className="cursor-pointer select-none px-4 py-3 text-left text-[0.72rem] font-bold uppercase tracking-[0.12em] text-[#816959]"
+  >
+    {label}
+    {sortBy === campo ? (sortOrder === "asc" ? " ↑" : " ↓") : ""}
+  </th>
+);
 
 export const AdminUsuarios = {
   openModal: () => {
@@ -19,44 +32,75 @@ export const AdminUsuarios = {
     const [usuarios, setUsuarios] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [total, setTotal] = useState(0);
+    const [sortBy, setSortBy] = useState("fechaCreacion");
+    const [sortOrder, setSortOrder] = useState("desc");
+    const [filtros, setFiltros] = useState({ search: "", rol: "", estado: "" });
     const [confirmModal, setConfirmModal] = useState({
       isOpen: false,
       item: null,
       action: "",
+      nuevoRol: "",
     });
 
-    useLayoutEffect(() => {
-      modalControl = { setOpen };
-      return () => { modalControl = null; };
-    }, []);
-
-    useEffect(() => {
-      if (open) {
-        document.body.style.overflow = "hidden";
-        cargarUsuarios();
-      } else {
-        document.body.style.overflow = "unset";
-      }
-
-      return () => (document.body.style.overflow = "unset");
-    }, [open]);
-
-    const cargarUsuarios = useCallback(async () => {
+    const cargarUsuarios = useCallback(async (params) => {
+      setLoading(true);
+      setError("");
       try {
-        setLoading(true);
-        const result = await adminService.getTodosUsuarios();
-
-        if (result.success && Array.isArray(result.usuarios)) {
+        const result = await adminService.getUsuariosAdmin(params);
+        if (result.success) {
           setUsuarios(result.usuarios);
+          setTotalPages(result.totalPages);
+          setTotal(result.total);
         } else {
           setError(result.msg || "Error al cargar usuarios");
         }
-      } catch (err) {
+      } catch {
         setError("Error de conexión al servidor");
       } finally {
         setLoading(false);
       }
     }, []);
+
+    useLayoutEffect(() => {
+      modalControl = { setOpen };
+      return () => {
+        modalControl = null;
+      };
+    }, []);
+
+    useEffect(() => {
+      if (open) {
+        document.body.style.overflow = "hidden";
+        document.documentElement.style.overflow = "hidden";
+        cargarUsuarios({ page: 1, limit: 20, sortBy, sortOrder, ...filtros });
+      } else {
+        document.body.style.overflow = "unset";
+        document.documentElement.style.overflow = "unset";
+      }
+
+      return () => {
+        document.body.style.overflow = "unset";
+        document.documentElement.style.overflow = "unset";
+      };
+    }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+      if (!open) return;
+      cargarUsuarios({ page, limit: 20, sortBy, sortOrder, ...filtros });
+    }, [cargarUsuarios, filtros, open, page, sortBy, sortOrder]);
+
+    const handleSort = (campo) => {
+      if (sortBy === campo) {
+        setSortOrder((o) => (o === "asc" ? "desc" : "asc"));
+      } else {
+        setSortBy(campo);
+        setSortOrder("asc");
+      }
+      setPage(1);
+    };
 
     const handleCambiarEstado = useCallback(async (usuario) => {
       try {
@@ -65,64 +109,72 @@ export const AdminUsuarios = {
 
         if (usuario.rol === "ADMIN_ROLE") {
           setError("No se puede modificar el estado de un administrador");
-          return false;
+          return;
         }
 
         const result = await adminService.cambiarEstadoUsuario(id, nuevoEstado);
 
         if (result.success) {
           setUsuarios((prev) =>
-            prev.map((u) =>
-              (u._id || u.id || u.uid) === id
-                ? { ...u, estado: nuevoEstado }
-                : u
-            )
+            prev.map((u) => ((u._id || u.id || u.uid) === id ? { ...u, estado: nuevoEstado } : u)),
           );
-          return true;
         } else {
           setError(result.msg || "Error al cambiar estado");
-          return false;
         }
-      } catch (err) {
+      } catch {
         setError("Error de conexión al servidor");
-        return false;
       }
     }, []);
 
-    const openConfirmModal = useCallback((item, action) => {
-      setConfirmModal({ isOpen: true, item, action });
-    }, []);
+    const handleCambiarRol = async (usuario, nuevoRol) => {
+      try {
+        const id = usuario._id || usuario.id || usuario.uid;
+        const result = await adminService.cambiarRolUsuario(id, nuevoRol);
+
+        if (result.success) {
+          setUsuarios((prev) =>
+            prev.map((u) => ((u._id || u.id || u.uid) === id ? { ...u, rol: nuevoRol } : u)),
+          );
+        } else {
+          setError(result.msg || "Error al cambiar rol");
+        }
+      } catch {
+        setError("Error de conexión al servidor");
+      }
+    };
 
     const closeConfirmModal = useCallback(() => {
-      setConfirmModal({ isOpen: false, item: null, action: "" });
+      setConfirmModal({ isOpen: false, item: null, action: "", nuevoRol: "" });
     }, []);
 
     const handleConfirm = useCallback(async () => {
-      const { item, action } = confirmModal;
-
-      if (!item) {
-        closeConfirmModal();
-        return;
-      }
-
-      switch (action) {
+      switch (confirmModal.action) {
         case "toggleState":
-          await handleCambiarEstado(item);
+          await handleCambiarEstado(confirmModal.item);
           break;
-
+        case "cambiarRol":
+          await handleCambiarRol(confirmModal.item, confirmModal.nuevoRol);
+          break;
         default:
-          setError("Acción desconocida");
           break;
       }
 
       closeConfirmModal();
-    }, [confirmModal, handleCambiarEstado, closeConfirmModal]);
+    }, [closeConfirmModal, confirmModal, handleCambiarEstado, handleCambiarRol]);
 
     const handleClose = useCallback(() => {
       setOpen(false);
-      setError("");
       setUsuarios([]);
-    }, []);
+      setLoading(false);
+      setError("");
+      setPage(1);
+      setTotalPages(1);
+      setTotal(0);
+      setSortBy("fechaCreacion");
+      setSortOrder("desc");
+      setFiltros({ search: "", rol: "", estado: "" });
+      closeConfirmModal();
+    }, [closeConfirmModal]);
 
     if (!open) return null;
 
@@ -131,7 +183,7 @@ export const AdminUsuarios = {
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="flex w-full max-w-6xl max-h-[90vh] flex-col items-center overflow-y-auto"
+          className="flex max-h-[90vh] w-full max-w-6xl flex-col items-center overflow-y-auto"
         >
           <div className="relative w-full max-w-6xl rounded-[1.5rem] border border-[color:var(--shell-line)] bg-[linear-gradient(180deg,rgba(255,250,244,0.98),rgba(248,240,229,0.96))] px-6 py-6 text-center shadow-[0_28px_70px_rgba(36,25,20,0.12)] sm:px-8">
             <button
@@ -146,7 +198,7 @@ export const AdminUsuarios = {
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                className="w-5 h-5"
+                className="h-5 w-5"
               >
                 <line x1="18" y1="6" x2="6" y2="18" />
                 <line x1="6" y1="6" x2="18" y2="18" />
@@ -166,19 +218,177 @@ export const AdminUsuarios = {
               </div>
             )}
 
+            <div className="mt-4 flex flex-wrap gap-2">
+              <input
+                className={FILTRO_SELECT}
+                placeholder="Buscar por nombre o email..."
+                value={filtros.search}
+                onChange={(e) => {
+                  setFiltros((p) => ({ ...p, search: e.target.value }));
+                  setPage(1);
+                }}
+              />
+              <select
+                className={FILTRO_SELECT}
+                value={filtros.rol}
+                onChange={(e) => {
+                  setFiltros((p) => ({ ...p, rol: e.target.value }));
+                  setPage(1);
+                }}
+              >
+                <option value="">Todos los roles</option>
+                <option value="USER_ROLE">Usuario</option>
+                <option value="MODERADOR_ROLE">Moderador</option>
+              </select>
+              <select
+                className={FILTRO_SELECT}
+                value={filtros.estado}
+                onChange={(e) => {
+                  setFiltros((p) => ({ ...p, estado: e.target.value }));
+                  setPage(1);
+                }}
+              >
+                <option value="">Todos los estados</option>
+                <option value="true">Activos</option>
+                <option value="false">Inactivos</option>
+              </select>
+            </div>
+
             {loading ? (
               <LoadingState compact label="Cargando usuarios..." />
             ) : (
-              <div className="mt-6 max-h-[60vh] space-y-4 overflow-y-auto">
-                {usuarios.map((usuario, index) => (
-                  <UsuarioItem
-                    key={usuario._id || index}
-                    usuario={usuario}
-                    onToggleState={openConfirmModal}
-                    loading={loading}
-                  />
-                ))}
-              </div>
+              <>
+                <div className="mt-6 overflow-hidden rounded-[1rem] border border-[color:var(--shell-line)] bg-white shadow-sm">
+                  <div className="max-h-[56vh] overflow-x-auto overflow-y-auto">
+                    <table className="w-full text-sm">
+                      <thead className="border-b border-[color:var(--shell-line)] bg-[#fffaf4]">
+                        <tr>
+                          <SortableHeader label="Nombre" campo="nombre" sortBy={sortBy} sortOrder={sortOrder} onSort={handleSort} />
+                          <SortableHeader label="Correo" campo="correo" sortBy={sortBy} sortOrder={sortOrder} onSort={handleSort} />
+                          <th className="px-4 py-3 text-left text-[0.72rem] font-bold uppercase tracking-[0.12em] text-[#816959]">
+                            Teléfono
+                          </th>
+                          <th className="px-4 py-3 text-left text-[0.72rem] font-bold uppercase tracking-[0.12em] text-[#816959]">
+                            Rol
+                          </th>
+                          <th className="px-4 py-3 text-left text-[0.72rem] font-bold uppercase tracking-[0.12em] text-[#816959]">
+                            Estado
+                          </th>
+                          <SortableHeader label="Fecha" campo="fechaCreacion" sortBy={sortBy} sortOrder={sortOrder} onSort={handleSort} />
+                          <th className="px-4 py-3 text-left text-[0.72rem] font-bold uppercase tracking-[0.12em] text-[#816959]">
+                            Acciones
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-[color:var(--shell-line)]">
+                        {usuarios.map((usuario) => {
+                          const id = usuario._id || usuario.id || usuario.uid;
+
+                          return (
+                            <tr key={id}>
+                              <td className="px-4 py-3 font-medium text-[#3d332d]">{usuario.nombre || "—"}</td>
+                              <td className="px-4 py-3 text-[#5f4c41]">{usuario.correo || "—"}</td>
+                              <td className="px-4 py-3 text-[#5f4c41]">{usuario.telefono || "—"}</td>
+                              <td className="px-4 py-3">
+                                <select
+                                  value={usuario.rol}
+                                  disabled={usuario.rol === "ADMIN_ROLE" || loading}
+                                  onChange={(e) => {
+                                    const nuevoRol = e.target.value;
+                                    setConfirmModal({
+                                      isOpen: true,
+                                      item: usuario,
+                                      action: "cambiarRol",
+                                      nuevoRol,
+                                    });
+                                  }}
+                                  className="rounded-[0.5rem] border border-[color:var(--shell-line)] bg-white px-2 py-1 text-xs disabled:cursor-not-allowed disabled:opacity-50"
+                                >
+                                  <option value="USER_ROLE">Usuario</option>
+                                  <option value="MODERADOR_ROLE">Moderador</option>
+                                  {usuario.rol === "ADMIN_ROLE" && <option value="ADMIN_ROLE">Admin</option>}
+                                </select>
+                              </td>
+                              <td className="px-4 py-3">
+                                <span
+                                  className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                                    usuario.estado
+                                      ? "bg-[#dbe7b5] text-[#4d6a2e]"
+                                      : "bg-[color:var(--shell-danger-soft)] text-[#a44939]"
+                                  }`}
+                                >
+                                  {usuario.estado ? "Activo" : "Inactivo"}
+                                </span>
+                              </td>
+                              <td className="px-4 py-3 text-[#816959]">
+                                {usuario.fechaCreacion
+                                  ? new Date(usuario.fechaCreacion).toLocaleDateString("es-AR")
+                                  : "—"}
+                              </td>
+                              <td className="px-4 py-3">
+                                <button
+                                  onClick={() =>
+                                    setConfirmModal({
+                                      isOpen: true,
+                                      item: usuario,
+                                      action: "toggleState",
+                                      nuevoRol: "",
+                                    })
+                                  }
+                                  className={`rounded-full px-3 py-1.5 text-xs font-semibold transition ${
+                                    usuario.rol === "ADMIN_ROLE"
+                                      ? "cursor-not-allowed bg-[#d8d0c6] text-[#8f7f74]"
+                                      : usuario.estado
+                                        ? "cursor-pointer bg-[color:var(--shell-danger)] text-white hover:bg-[#b91f1f]"
+                                        : "cursor-pointer bg-[color:var(--shell-bark)] text-white hover:bg-[#45362d]"
+                                  }`}
+                                  disabled={loading || usuario.rol === "ADMIN_ROLE"}
+                                >
+                                  {usuario.rol === "ADMIN_ROLE"
+                                    ? "Bloqueado"
+                                    : usuario.estado
+                                      ? "Desactivar"
+                                      : "Activar"}
+                                </button>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {usuarios.length === 0 && !loading && (
+                  <div className="py-8 text-center text-[color:var(--shell-muted)]/80">
+                    No hay usuarios para mostrar
+                  </div>
+                )}
+
+                {totalPages > 1 && (
+                  <div className="mt-4 flex items-center justify-between text-sm">
+                    <span className="text-[color:var(--shell-muted)]">
+                      {total} usuarios · Pagina {page} de {totalPages}
+                    </span>
+                    <div className="flex gap-2">
+                      <button
+                        disabled={page === 1 || loading}
+                        onClick={() => setPage((p) => p - 1)}
+                        className="rounded-lg border border-[color:var(--shell-line)] px-3 py-1.5 disabled:opacity-40"
+                      >
+                        Anterior
+                      </button>
+                      <button
+                        disabled={page === totalPages || loading}
+                        onClick={() => setPage((p) => p + 1)}
+                        className="rounded-lg border border-[color:var(--shell-line)] px-3 py-1.5 disabled:opacity-40"
+                      >
+                        Siguiente
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </div>
 
@@ -193,63 +403,3 @@ export const AdminUsuarios = {
     );
   }),
 };
-
-// Componente de usuario individual
-const UsuarioItem = React.memo(({ usuario, onToggleState, loading }) => {
-  const id = usuario._id || usuario.id || usuario.uid;
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-        className="flex items-start justify-between rounded-[1.1rem] border border-[color:var(--shell-line)] bg-white/72 p-3 sm:p-4"
-      >
-        <div className="flex-1 text-left">
-          <h3 className="text-lg font-semibold text-[color:var(--shell-ink)]">{usuario.nombre}</h3>
-
-        <div className="mt-2 flex flex-wrap gap-2 text-sm text-[color:var(--shell-muted)]">
-          <span className="text-[color:var(--shell-muted)]">{usuario.correo}</span>
-          <span
-            className={`px-2 py-1 rounded ${
-              usuario.rol === "ADMIN_ROLE"
-                ? "bg-[color:var(--shell-accent)]/35 text-[color:var(--shell-bark)]"
-                : "bg-[#ece3d8] text-[color:var(--shell-muted)]"
-            }`}
-          >
-            {usuario.rol}
-          </span>
-          <span
-            className={`px-2 py-1 rounded ${
-              usuario.estado
-                ? "bg-[#dbe7b5] text-[#4d6a2e]"
-                : "bg-[color:var(--shell-danger-soft)] text-[#a44939]"
-            }`}
-          >
-            {usuario.estado ? "Activo" : "Inactivo"}
-          </span>
-        </div>
-      </div>
-
-      {/* Boton deshabilitado si es admin */}
-      <div className="flex gap-2">
-        <button
-          onClick={() => onToggleState(usuario, "toggleState")}
-          className={`px-2 py-2 mr-1 rounded-full transition-colors text-sm ${
-            usuario.rol === "ADMIN_ROLE"
-              ? "bg-[#d8d0c6] cursor-not-allowed text-[#8f7f74]"
-              : usuario.estado
-              ? "bg-[color:var(--shell-danger)] hover:bg-[#b91f1f] text-white cursor-pointer"
-              : "bg-[color:var(--shell-bark)] hover:bg-[#45362d] text-white cursor-pointer"
-          }`}
-          disabled={loading || usuario.rol === "ADMIN_ROLE"}
-        >
-          {usuario.rol === "ADMIN_ROLE"
-            ? "Bloqueado"
-            : usuario.estado
-            ? "Desactivar"
-            : "Activar"}
-        </button>
-      </div>
-    </motion.div>
-  );
-});

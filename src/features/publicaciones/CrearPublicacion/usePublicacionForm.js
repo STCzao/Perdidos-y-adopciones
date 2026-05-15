@@ -23,7 +23,7 @@ const initialFormState = {
   energia: "",
   castrado: false,
   whatsapp: "",
-  img: "",
+  imgs: [],
 };
 
 /**
@@ -81,7 +81,8 @@ export const usePublicacionForm = (editData) => {
       energia: editData.tipo === "ADOPCION" ? editData.energia || "" : "",
       castrado: editData.tipo === "ADOPCION" ? !!editData.castrado : false,
       whatsapp: editData.whatsapp || "",
-      img: editData.img || "",
+      imgs:
+        editData.imgs?.length > 0 ? editData.imgs : editData.img ? [editData.img] : [],
     });
   }, [editData]);
 
@@ -151,9 +152,7 @@ export const usePublicacionForm = (editData) => {
     setErrors({});
   };
 
-  const setFormImage = (url) => {
-    setForm((prev) => ({ ...prev, img: url }));
-  };
+  const setFormImgs = (urls) => setForm((prev) => ({ ...prev, imgs: urls }));
 
   return {
     form,
@@ -161,7 +160,7 @@ export const usePublicacionForm = (editData) => {
     setErrors,
     handleChange,
     resetForm,
-    setFormImage,
+    setFormImgs,
     razasPorEspecie,
   };
 };

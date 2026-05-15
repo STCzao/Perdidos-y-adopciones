@@ -13,6 +13,8 @@ const loadVerPublicacionesModule = () => import("../../features/publicaciones/Ve
 const loadAdminPublicacionesModule = () =>
   import("../../features/publicaciones/AdminPublicaciones");
 const loadAdminUsuariosModule = () => import("../../features/usuarios/AdminUsuarios");
+const loadAdminColaboradoresModule = () =>
+  import("../../features/colaboradores/admin/AdminColaboradores");
 const loadCrearComunidadModule = () => import("../../features/comunidad/CrearComunidad");
 const loadVerComunidadModule = () => import("../../features/comunidad/VerComunidad");
 
@@ -39,6 +41,11 @@ const AdminPublicacionesModal = React.lazy(() =>
 const AdminUsuariosModal = React.lazy(() =>
   loadAdminUsuariosModule().then((module) => ({
     default: module.AdminUsuarios.Component,
+  })),
+);
+const AdminColaboradoresModal = React.lazy(() =>
+  loadAdminColaboradoresModule().then((module) => ({
+    default: module.AdminColaboradores.Component,
   })),
 );
 const CrearComunidadModal = React.lazy(() =>
@@ -226,11 +233,13 @@ const NavbarContent = () => {
     VerPublicaciones: false,
     AdminPublicaciones: false,
     AdminUsuarios: false,
+    AdminColaboradores: false,
     CrearComunidad: false,
     VerComunidad: false,
   });
 
   const isAdmin = !!(user && user.rol === "ADMIN_ROLE");
+  const isModerador = !!(user?.rol === "ADMIN_ROLE" || user?.rol === "MODERADOR_ROLE");
 
   const isSolidNavbar =
     isScrolled ||
@@ -357,6 +366,12 @@ const NavbarContent = () => {
       return;
     }
 
+    if (action === "admin-colaboradores") {
+      await openLazyModal(loadAdminColaboradoresModule, "AdminColaboradores");
+      closeMenus();
+      return;
+    }
+
     if (action === "admin-comunidad-create") {
       await openLazyModal(loadCrearComunidadModule, "CrearComunidad");
       closeMenus();
@@ -406,17 +421,22 @@ const NavbarContent = () => {
   };
 
   const profileMenuItems = login
-    ? [
-        { key: "profile", label: "Mi perfil" },
-        { key: "posts", label: "Mis publicaciones" },
-        ...(isAdmin
-          ? [
-              { key: "admin-comunidad-create", label: "Crear caso para ayuda" },
-              { key: "admin-posts", label: "Todas las publicaciones" },
-              { key: "admin-users", label: "Todos los usuarios" },
-              { key: "admin-comunidad-list", label: "Todos los casos para ayuda" },
-            ]
-          : []),
+      ? [
+          { key: "profile", label: "Mi perfil" },
+          { key: "posts", label: "Mis publicaciones" },
+          ...(isModerador
+            ? [
+                { key: "admin-comunidad-create", label: "Crear caso para ayuda" },
+                { key: "admin-comunidad-list", label: "Todos los casos para ayuda" },
+              ]
+            : []),
+          ...(isAdmin
+            ? [
+                { key: "admin-posts", label: "Todas las publicaciones" },
+                { key: "admin-users", label: "Todos los usuarios" },
+                { key: "admin-colaboradores", label: "Colaboradores" },
+              ]
+            : []),
         { key: "contact", label: "Colaborar", path: "/contacto" },
         { key: "logout", label: "Cerrar sesión", tone: "danger" },
       ]
@@ -713,6 +733,7 @@ const NavbarContent = () => {
         {mountedModals.VerPublicaciones && <VerPublicacionesModal />}
         {mountedModals.AdminPublicaciones && <AdminPublicacionesModal />}
         {mountedModals.AdminUsuarios && <AdminUsuariosModal />}
+        {mountedModals.AdminColaboradores && <AdminColaboradoresModal />}
         {mountedModals.CrearComunidad && <CrearComunidadModal />}
         {mountedModals.VerComunidad && <VerComunidadModal />}
       </React.Suspense>

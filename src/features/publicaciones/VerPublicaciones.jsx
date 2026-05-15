@@ -10,6 +10,8 @@ import { getTipoColorMeta } from "../../utils/publicacionColors";
 import { getPublicacionTitulo } from "./utils/publicacionFields";
 
 let modalControl;
+const FILTRO_SELECT =
+  "rounded-[0.7rem] border border-[color:var(--shell-line)] bg-white px-3 py-2 text-sm text-[#3d332d] outline-none transition focus:border-[#d46f49]/40";
 
 const getTipoBadgeStyle = (tipo) => {
   const meta = getTipoColorMeta(tipo);
@@ -33,6 +35,9 @@ export const VerPublicaciones = {
     const [publicaciones, setPublicaciones] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+    const [filtros, setFiltros] = useState({ search: "", tipo: "", resolucion: "" });
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
     const [confirmModal, setConfirmModal] = useState({
       isOpen: false,
       item: null,
@@ -41,14 +46,15 @@ export const VerPublicaciones = {
 
     useLayoutEffect(() => {
       modalControl = { setOpen };
-      return () => { modalControl = null; };
+      return () => {
+        modalControl = null;
+      };
     }, []);
 
     useEffect(() => {
       if (open) {
         document.body.style.overflow = "hidden";
         document.documentElement.style.overflow = "hidden";
-        cargarPublicaciones();
       } else {
         document.body.style.overflow = "unset";
         document.documentElement.style.overflow = "unset";
@@ -60,35 +66,48 @@ export const VerPublicaciones = {
       };
     }, [open]);
 
-    const cargarPublicaciones = useCallback(async () => {
-      try {
+    const cargarPublicaciones = useCallback(
+      async (targetPage = 1) => {
         setLoading(true);
         setError("");
-        const userId = user?._id || user?.id || user?.uid;
+        try {
+          const userId = user?._id || user?.id || user?.uid;
+          if (!userId) {
+            setError("Usuario no autenticado");
+            return;
+          }
 
-        if (!userId) {
-          setError("Usuario no autenticado");
-          return;
-        }
+          const params = { page: targetPage, limit: 12 };
+          if (filtros.search) params.search = filtros.search;
+          if (filtros.tipo) params.tipo = filtros.tipo;
+          if (filtros.resolucion) params.estado = filtros.resolucion;
 
-        const response = await publicacionesService.getPublicacionesUsuario(userId);
-        if (response?.success) {
-          setPublicaciones(response.publicaciones || []);
-        } else {
-          setError(response?.msg || "Error al obtener publicaciones");
+          const response = await publicacionesService.getPublicacionesUsuario(userId, params);
+          if (response?.success) {
+            setPublicaciones(response.publicaciones || []);
+            setTotalPages(response.totalPages || 1);
+            setPage(targetPage);
+          } else {
+            setError(response?.msg || "Error al obtener publicaciones");
+          }
+        } catch {
+          setError("Error de conexión al servidor");
+        } finally {
+          setLoading(false);
         }
-      } catch {
-        setError("Error de conexión al servidor");
-      } finally {
-        setLoading(false);
-      }
-    }, [user]);
+      },
+      [user, filtros],
+    );
+
+    useEffect(() => {
+      if (open) cargarPublicaciones(1);
+    }, [open, cargarPublicaciones]);
 
     const handleEliminar = useCallback(async (publicacion) => {
       try {
         const result = await publicacionesService.borrarPublicacion(publicacion._id);
         if (result.success) {
-          setPublicaciones((prev) => prev.filter((p) => p._id !== publicacion._id));
+          await cargarPublicaciones(page);
           return true;
         }
 
@@ -98,15 +117,13 @@ export const VerPublicaciones = {
         setError("Error de conexión al eliminar");
         return false;
       }
-    }, []);
+    }, [cargarPublicaciones, page]);
 
     const handleEditarEstado = useCallback(async (id, nuevoEstado) => {
       try {
         const result = await publicacionesService.actualizarEstado(id, nuevoEstado);
         if (result.success) {
-          setPublicaciones((prev) =>
-            prev.map((p) => (p._id === id ? { ...p, estado: nuevoEstado } : p)),
-          );
+          setPublicaciones((prev) => prev.map((p) => (p._id === id ? { ...p, estado: nuevoEstado } : p)));
           return true;
         }
 
@@ -130,9 +147,8 @@ export const VerPublicaciones = {
     }, []);
 
     useEffect(() => {
-      const handleCreated = (e) => {
-        const nueva = e.detail;
-        setPublicaciones((prev) => [nueva, ...prev]);
+      const handleCreated = () => {
+        cargarPublicaciones(1);
       };
 
       const handleUpdated = (e) => {
@@ -146,7 +162,7 @@ export const VerPublicaciones = {
         window.removeEventListener("publicacionCreada", handleCreated);
         window.removeEventListener("publicacionActualizada", handleUpdated);
       };
-    }, [actualizarPublicacionEnLista]);
+    }, [actualizarPublicacionEnLista, cargarPublicaciones]);
 
     const openConfirmModal = useCallback((item, action) => {
       setConfirmModal({ isOpen: true, item, action });
@@ -167,6 +183,9 @@ export const VerPublicaciones = {
       setOpen(false);
       setError("");
       setPublicaciones([]);
+      setFiltros({ search: "", tipo: "", resolucion: "" });
+      setPage(1);
+      setTotalPages(1);
     }, []);
 
     if (!open) return null;
@@ -211,7 +230,7 @@ export const VerPublicaciones = {
               <div className="mt-4 rounded-[1rem] border border-[#d62828]/18 bg-[color:var(--shell-danger-soft)] p-3">
                 <p className="text-[#a44939]">{error}</p>
                 <button
-                  onClick={cargarPublicaciones}
+                  onClick={() => cargarPublicaciones(page)}
                   className="mt-2 cursor-pointer rounded-full bg-[color:var(--shell-danger)] px-4 py-2 text-white transition-colors hover:bg-[#b91f1f]"
                 >
                   Reintentar
@@ -219,27 +238,93 @@ export const VerPublicaciones = {
               </div>
             )}
 
+            <div className="mt-4 flex flex-wrap gap-2">
+              <input
+                className={FILTRO_SELECT}
+                placeholder="Buscar por nombre, raza, color..."
+                value={filtros.search}
+                onChange={(e) => setFiltros((p) => ({ ...p, search: e.target.value }))}
+              />
+              <select
+                className={FILTRO_SELECT}
+                value={filtros.tipo}
+                onChange={(e) => setFiltros((p) => ({ ...p, tipo: e.target.value }))}
+              >
+                <option value="">Todos los tipos</option>
+                <option value="PERDIDO">Perdido</option>
+                <option value="ENCONTRADO">Encontrado</option>
+                <option value="ADOPCION">Adopción</option>
+              </select>
+              <select
+                className={FILTRO_SELECT}
+                value={filtros.resolucion}
+                onChange={(e) => setFiltros((p) => ({ ...p, resolucion: e.target.value }))}
+              >
+                <option value="">Todos los estados</option>
+                <optgroup label="Perdido">
+                  <option value="SE BUSCA">Se busca</option>
+                  <option value="YA APARECIO">Ya apareció</option>
+                </optgroup>
+                <optgroup label="Encontrado">
+                  <option value="BUSCANDO A SU FAMILIA">Buscando a su familia</option>
+                  <option value="APARECIO SU FAMILIA">Apareció su familia</option>
+                  <option value="TIENE NUEVA FAMILIA">Tiene nueva familia</option>
+                </optgroup>
+                <optgroup label="Adopción">
+                  <option value="EN BUSCA DE UN HOGAR">En busca de un hogar</option>
+                  <option value="ADOPTADO">Adoptado</option>
+                </optgroup>
+                <option value="INACTIVO">Inactivo</option>
+              </select>
+            </div>
+
             {loading ? (
               <LoadingState compact label="Cargando tus publicaciones..." />
             ) : (
-              <div className="mt-6 max-h-[60vh] space-y-4 overflow-y-auto">
-                {publicaciones.map((publicacion) => (
-                  <PublicacionItem
-                    key={publicacion._id}
-                    publicacion={publicacion}
-                    onEliminar={openConfirmModal}
-                    onEditar={handleEditar}
-                    onEditarEstado={handleEditarEstado}
-                    loading={loading}
-                  />
-                ))}
+              <>
+                <div className="mt-6 max-h-[60vh] space-y-4 overflow-y-auto">
+                  {publicaciones.map((publicacion) => (
+                    <PublicacionItem
+                      key={publicacion._id}
+                      publicacion={publicacion}
+                      onEliminar={openConfirmModal}
+                      onEditar={handleEditar}
+                      onEditarEstado={handleEditarEstado}
+                      loading={loading}
+                    />
+                  ))}
 
-                {publicaciones.length === 0 && !loading && (
-                  <div className="py-8 text-center text-[color:var(--shell-muted)]/80">
-                    No tienes publicaciones para mostrar
+                  {publicaciones.length === 0 && !loading && (
+                    <div className="py-8 text-center text-[color:var(--shell-muted)]/80">
+                      No tenés publicaciones
+                    </div>
+                  )}
+                </div>
+
+                {totalPages > 1 && (
+                  <div className="mt-4 flex items-center justify-between text-sm">
+                    <span className="text-[color:var(--shell-muted)]">
+                      Página {page} de {totalPages}
+                    </span>
+                    <div className="flex gap-2">
+                      <button
+                        disabled={page === 1 || loading}
+                        onClick={() => cargarPublicaciones(page - 1)}
+                        className="rounded-lg border border-[color:var(--shell-line)] px-3 py-1.5 disabled:opacity-40"
+                      >
+                        Anterior
+                      </button>
+                      <button
+                        disabled={page === totalPages || loading}
+                        onClick={() => cargarPublicaciones(page + 1)}
+                        className="rounded-lg border border-[color:var(--shell-line)] px-3 py-1.5 disabled:opacity-40"
+                      >
+                        Siguiente
+                      </button>
+                    </div>
                   </div>
                 )}
-              </div>
+              </>
             )}
           </div>
 

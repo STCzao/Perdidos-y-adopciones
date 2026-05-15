@@ -178,10 +178,10 @@ export const CrearComunidad = {
       const newErrors = {};
 
       if (!form.titulo.trim()) {
-        newErrors.titulo = "El titulo es obligatorio";
+        newErrors.titulo = "El título es obligatorio";
         valid = false;
       } else if (form.titulo.trim().length > 80) {
-        newErrors.titulo = "El titulo no puede contener mas de 80 caracteres";
+        newErrors.titulo = "El título no puede contener más de 80 caracteres";
         valid = false;
       }
 
@@ -189,12 +189,12 @@ export const CrearComunidad = {
         newErrors.contenido = "El contenido es obligatorio";
         valid = false;
       } else if (form.contenido.trim().length > 3000) {
-        newErrors.contenido = "El contenido no puede contener mas de 3000 caracteres";
+        newErrors.contenido = "El contenido no puede contener más de 3000 caracteres";
         valid = false;
       }
 
       if (!form.categoria) {
-        newErrors.categoria = "La categoria es obligatoria";
+        newErrors.categoria = "La categoría es obligatoria";
         valid = false;
       } else if (!["HISTORIA", "ALERTA"].includes(form.categoria)) {
         newErrors.categoria = "La categoria debe ser HISTORIA o ALERTA";
@@ -205,7 +205,7 @@ export const CrearComunidad = {
         newErrors.img = "La imagen es obligatoria";
         valid = false;
       } else if (!/^https:\/\/res\.cloudinary\.com\/[^/]+\/.+/.test(form.img)) {
-        newErrors.img = "La URL de imagen no es valida";
+        newErrors.img = "La URL de imagen no es válida";
         valid = false;
       }
 
@@ -248,7 +248,7 @@ export const CrearComunidad = {
           setResult(withRequestIdMessage(response.msg || "Error al procesar", response.requestId));
         }
       } catch {
-        setResult("Error de conexion al servidor");
+        setResult("Error de conexión al servidor");
       } finally {
         setSubmitting(false);
       }
@@ -314,13 +314,13 @@ export const CrearComunidad = {
                       Contenido principal
                     </p>
                     <h2 className="text-lg font-semibold text-[#271d17]">
-                      Informacion del caso
+                      Información del caso
                     </h2>
                   </div>
 
                   <div className="mt-5 grid gap-4">
                     <label className={labelClassName}>
-                      Titulo
+                      Título
                       <input
                         type="text"
                         name="titulo"
@@ -343,7 +343,7 @@ export const CrearComunidad = {
                         disabled={submitting}
                         className={inputClassName}
                       >
-                        <option value="">Selecciona la categoria del caso</option>
+                        <option value="">Seleccioná la categoría del caso</option>
                         <option value="ALERTA">Alerta</option>
                         <option value="HISTORIA">Historia</option>
                       </select>
@@ -434,13 +434,13 @@ export const CrearComunidad = {
                     Buenas practicas
                   </p>
                   <h2 className="mt-2 text-lg font-semibold text-[#271d17]">
-                    Como lograr mas claridad
+                    Cómo lograr más claridad
                   </h2>
 
                   <div className="mt-4 space-y-3 text-sm leading-relaxed text-[#6d5a4f]">
-                    <p>Usa titulos concretos para que el objetivo del caso se entienda de inmediato.</p>
-                    <p>Si es una alerta, prioriza datos accionables y evita rodeos innecesarios.</p>
-                    <p>Si es una historia, mantene el foco en el mensaje y acompana con una imagen legible.</p>
+                    <p>Usá títulos concretos para que el objetivo del caso se entienda de inmediato.</p>
+                    <p>Si es una alerta, priorizá datos accionables y evitá rodeos innecesarios.</p>
+                    <p>Si es una historia, mantenél el foco en el mensaje y acompañá con una imagen legible.</p>
                   </div>
                 </section>
 

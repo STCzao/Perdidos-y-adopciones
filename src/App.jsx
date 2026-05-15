@@ -3,7 +3,6 @@ import { BrowserRouter } from "react-router-dom";
 import { AuthContext } from "./context/AuthContext";
 import { getAuthSyncKey } from "./services/api.js";
 import { logout, refreshAccessToken } from "./services/auth.js";
-import { adminService } from "./services/admin";
 import { usuariosService } from "./services/usuarios";
 import AppRouter from "./router/AppRouter.jsx";
 import { ErrorBoundary } from "./components/ui/ErrorBoundary.jsx";
@@ -28,7 +27,6 @@ function App() {
     setLogin(false);
     setUser(null);
     syncUser(null);
-    adminService.clearCache();
   }, [syncUser]);
 
   const hydrateSessionFromBackend = useCallback(async () => {

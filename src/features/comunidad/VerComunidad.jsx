@@ -36,7 +36,7 @@ export const VerComunidad = {
     }, []);
 
     useEffect(() => {
-      if (open && user?.rol !== "ADMIN_ROLE") {
+      if (open && user?.rol !== "ADMIN_ROLE" && user?.rol !== "MODERADOR_ROLE") {
         setOpen(false);
         return;
       }
@@ -178,6 +178,7 @@ export const VerComunidad = {
                     onEliminar={openConfirmModal}
                     onEditar={handleEditar}
                     loading={loading}
+                    isAdmin={user?.rol === "ADMIN_ROLE"}
                   />
                 ))}
                 {items.length === 0 && !loading && (
@@ -201,7 +202,7 @@ export const VerComunidad = {
   }),
 };
 
-const ComunidadItem = React.memo(({ item, onEliminar, onEditar, loading }) => {
+const ComunidadItem = React.memo(({ item, onEliminar, onEditar, loading, isAdmin }) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -234,13 +235,15 @@ const ComunidadItem = React.memo(({ item, onEliminar, onEditar, loading }) => {
         >
           Editar
         </button>
-        <button
-          onClick={() => onEliminar(item, "delete")}
-          className="cursor-pointer rounded-full bg-[color:var(--shell-danger)] px-4 py-2 text-sm text-white transition-colors hover:bg-[#b91f1f]"
-          disabled={loading}
-        >
-          Eliminar
-        </button>
+        {isAdmin && (
+          <button
+            onClick={() => onEliminar(item, "delete")}
+            className="cursor-pointer rounded-full bg-[color:var(--shell-danger)] px-4 py-2 text-sm text-white transition-colors hover:bg-[#b91f1f]"
+            disabled={loading}
+          >
+            Eliminar
+          </button>
+        )}
       </div>
     </motion.div>
   );
