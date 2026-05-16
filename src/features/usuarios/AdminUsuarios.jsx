@@ -38,6 +38,7 @@ export const AdminUsuarios = {
     const [sortBy, setSortBy] = useState("fechaCreacion");
     const [sortOrder, setSortOrder] = useState("desc");
     const [filtros, setFiltros] = useState({ search: "", rol: "", estado: "" });
+    const [searchInput, setSearchInput] = useState("");
     const [confirmModal, setConfirmModal] = useState({
       isOpen: false,
       item: null,
@@ -75,7 +76,6 @@ export const AdminUsuarios = {
       if (open) {
         document.body.style.overflow = "hidden";
         document.documentElement.style.overflow = "hidden";
-        cargarUsuarios({ page: 1, limit: 20, sortBy, sortOrder, ...filtros });
       } else {
         document.body.style.overflow = "unset";
         document.documentElement.style.overflow = "unset";
@@ -85,7 +85,16 @@ export const AdminUsuarios = {
         document.body.style.overflow = "unset";
         document.documentElement.style.overflow = "unset";
       };
-    }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [open]);
+
+    useEffect(() => {
+      if (!open) return;
+      const timer = setTimeout(() => {
+        setFiltros((p) => ({ ...p, search: searchInput }));
+        setPage(1);
+      }, 400);
+      return () => clearTimeout(timer);
+    }, [searchInput, open]);
 
     useEffect(() => {
       if (!open) return;
@@ -173,6 +182,7 @@ export const AdminUsuarios = {
       setSortBy("fechaCreacion");
       setSortOrder("desc");
       setFiltros({ search: "", rol: "", estado: "" });
+      setSearchInput("");
       closeConfirmModal();
     }, [closeConfirmModal]);
 
@@ -222,11 +232,8 @@ export const AdminUsuarios = {
               <input
                 className={FILTRO_SELECT}
                 placeholder="Buscar por nombre o email..."
-                value={filtros.search}
-                onChange={(e) => {
-                  setFiltros((p) => ({ ...p, search: e.target.value }));
-                  setPage(1);
-                }}
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
               />
               <select
                 className={FILTRO_SELECT}

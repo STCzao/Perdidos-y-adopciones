@@ -47,6 +47,7 @@ export const AdminPublicaciones = {
       raza: "",
       localidad: "",
     });
+    const [searchInput, setSearchInput] = useState("");
     const [razasDisponibles, setRazasDisponibles] = useState([]);
     const [confirmModal, setConfirmModal] = useState({
       isOpen: false,
@@ -90,7 +91,6 @@ export const AdminPublicaciones = {
             setRazasDisponibles([...new Set(todasRazas)].sort());
           }
         });
-        cargarPublicaciones(1, { sortBy, sortOrder, ...filtros });
       } else {
         document.body.style.overflow = "unset";
         document.documentElement.style.overflow = "unset";
@@ -100,7 +100,16 @@ export const AdminPublicaciones = {
         document.body.style.overflow = "unset";
         document.documentElement.style.overflow = "unset";
       };
-    }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [open]);
+
+    useEffect(() => {
+      if (!open) return;
+      const timer = setTimeout(() => {
+        setFiltros((p) => ({ ...p, search: searchInput }));
+        setPage(1);
+      }, 400);
+      return () => clearTimeout(timer);
+    }, [searchInput, open]);
 
     useEffect(() => {
       if (!open) return;
@@ -187,6 +196,7 @@ export const AdminPublicaciones = {
       setSortBy("fechaCreacion");
       setSortOrder("desc");
       setFiltros({ search: "", tipo: "", estado: "", raza: "", localidad: "" });
+      setSearchInput("");
       setRazasDisponibles([]);
       closeConfirmModal();
     }, [closeConfirmModal]);
@@ -245,11 +255,8 @@ export const AdminPublicaciones = {
               <input
                 className={FILTRO_SELECT}
                 placeholder="Buscar por nombre, raza..."
-                value={filtros.search}
-                onChange={(e) => {
-                  setFiltros((p) => ({ ...p, search: e.target.value }));
-                  setPage(1);
-                }}
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
               />
               <select
                 className={FILTRO_SELECT}
