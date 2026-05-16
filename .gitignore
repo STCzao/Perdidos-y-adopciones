@@ -17,6 +17,7 @@ dist-ssr
 .tmp-fleeswap-frontend-ref/
 .tmp-backend-ref/
 docs/
+.claude/
 
 
 # Editor directories and files
