@@ -212,7 +212,7 @@ export const CrearPublicacion = {
               <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[#5b4d43]">
                 {isEditing
                   ? "Actualizá la información del caso para mantenerla clara, completa y confiable."
-                  : "Cargá un caso con información precisa para que la comunidad pueda ayudar más rápido."}
+                  : <>Cargá los datos de manera <strong>clara y ordenada</strong>. Si el caso <strong>se resuelve o cambia de estado, actualizalo</strong> desde tu panel para mantener la base siempre <strong>útil y confiable</strong>.</>}
               </p>
             </div>
 
@@ -299,9 +299,8 @@ export const CrearPublicacion = {
                   </h2>
 
                   <div className="mt-4 space-y-3 text-sm leading-relaxed text-[#6d5a4f]">
-                    <p>Usa una foto reciente y nitida donde el animal se vea completo.</p>
-                    <p>Describe manchas, collar, heridas o cualquier rasgo que ayude a reconocerlo.</p>
-                    <p>Si es un caso de pérdida o hallazgo, agregá la zona más precisa posible.</p>
+                    <p>Usá fotos claras donde se vea solo el animal, evitando flyers o imágenes con texto, ya que dificultan reconocer su apariencia en la base de datos.</p>
+                    <p>Describí manchas, collar, heridas o cualquier detalle o rasgo que ayude a reconocerlo.</p>
                   </div>
                 </section>
 
