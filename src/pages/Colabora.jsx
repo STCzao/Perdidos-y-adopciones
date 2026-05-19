@@ -4,7 +4,7 @@ import Seo from "../components/seo/Seo";
 import ColaboradoresForm from "../features/colaboradores/ColaboradoresForm";
 
 const Colabora = () => (
-  <div className="bg-[#f6efe4] text-[#241914]">
+  <div className="text-[#241914]">
     <Seo
       title="Sumate a la red"
       description="Registrate como colaborador/a de la red de Perdidos y Adopciones Tucumán."
