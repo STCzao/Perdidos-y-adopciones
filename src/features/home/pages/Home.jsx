@@ -185,8 +185,6 @@ const HomeScreen = () => {
       >
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(244,200,158,0.16),transparent_36%),linear-gradient(180deg,rgba(24,18,16,0.06),rgba(24,18,16,0.28))]" />
         <div className="nature-overlay absolute inset-0" />
-        <div className="pointer-events-none absolute left-[-10rem] top-36 h-72 w-72 rounded-full bg-[#D62828]/20 blur-3xl" />
-        <div className="pointer-events-none absolute right-[-8rem] top-24 h-80 w-80 rounded-full bg-[#2165FF]/12 blur-3xl" />
 
         <div className="relative w-full px-3 pb-3 pt-[1rem] sm:px-5 sm:pb-4 sm:pt-[6.5rem] lg:px-8 lg:pb-5 lg:pt-[7rem]">
           <div

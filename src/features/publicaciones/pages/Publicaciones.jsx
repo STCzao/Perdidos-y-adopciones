@@ -410,8 +410,6 @@ const PublicacionesPage = () => {
       <Navbar />
 
       <div className="relative min-h-screen overflow-x-hidden px-4 pb-20 pt-26 sm:px-6 sm:pt-30 lg:px-8 lg:pt-32">
-        <div className="pointer-events-none absolute left-[-10rem] top-40 h-80 w-80 rounded-full bg-[#D62828]/12 blur-3xl" />
-        <div className="pointer-events-none absolute right-[-8rem] top-24 h-80 w-80 rounded-full bg-[#2165FF]/12 blur-3xl" />
         <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-[linear-gradient(180deg,rgba(90,63,53,0.12),transparent)]" />
 
         <div className="relative w-full">

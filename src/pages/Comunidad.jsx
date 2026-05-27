@@ -43,8 +43,6 @@ const ComunidadScreen = () => {
             backgroundPosition: "center",
           }}
         />
-        <div className="pointer-events-none absolute left-[-8rem] top-36 h-72 w-72 rounded-full bg-[#c86d4b]/18 blur-3xl" />
-        <div className="pointer-events-none absolute right-[-8rem] top-24 h-80 w-80 rounded-full bg-[#95a667]/12 blur-3xl" />
 
         <div className="relative mx-auto w-full max-w-6xl">
           <motion.div
