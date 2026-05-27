@@ -339,10 +339,7 @@ export default function PublicacionDetalle() {
       <Navbar />
 
       <div className="relative min-h-screen overflow-x-hidden px-0 pb-[calc(9.5rem+env(safe-area-inset-bottom))] pt-26 sm:px-6 sm:pb-16 sm:pt-30 lg:px-8 lg:pt-32">
-        <div className="pointer-events-none absolute left-[-7rem] top-40 h-72 w-72 rounded-full bg-[color:var(--shell-danger-soft)] blur-3xl" />
-        <div className="pointer-events-none absolute right-[-7rem] top-64 h-72 w-72 rounded-full bg-[color:var(--shell-accent)] opacity-30 blur-3xl" />
-
-        <div className="relative mx-auto w-full max-w-[88rem]">
+<div className="relative mx-auto w-full max-w-[88rem]">
           {loading ? (
             <LoadingState label="Cargando la publicación..." />
           ) : !publicacion ? (
@@ -387,7 +384,7 @@ export default function PublicacionDetalle() {
 
               <article className="overflow-hidden rounded-[1.1rem] border border-[#e8e8e8] bg-white shadow-xl">
                 <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.1fr]">
-                  <section className="border-b border-[#eee] bg-[#f5f3f0] p-4 sm:p-5 lg:border-b-0 lg:border-r lg:p-6">
+                  <section className="flex flex-col border-b border-[#eee] bg-[#f5f3f0] p-4 sm:p-5 lg:border-b-0 lg:border-r lg:p-6">
                     <figure className="relative overflow-hidden rounded-[0.9rem] bg-[#e8e4de]">
                       {allImgs.length > 0 ? (
                         <>
@@ -401,7 +398,7 @@ export default function PublicacionDetalle() {
                             srcSet={imgActivaSrcSet}
                             sizes="(max-width: 640px) calc(100vw - 3.5rem), (max-width: 1024px) 42rem, 34rem"
                             alt={imageAlt}
-                            className="relative z-10 block aspect-[4/3] h-auto w-full object-contain"
+                            className="relative z-10 block aspect-[4/3] h-auto w-full object-contain lg:aspect-auto lg:h-[22rem]"
                             loading="eager"
                             fetchPriority="high"
                             decoding="async"
@@ -410,20 +407,20 @@ export default function PublicacionDetalle() {
                           />
                         </>
                       ) : (
-                        <div className="flex aspect-[4/3] w-full items-center justify-center text-sm font-semibold text-[#999]">
+                        <div className="flex aspect-[4/3] w-full items-center justify-center text-sm font-semibold text-[#999] lg:aspect-auto lg:h-[22rem]">
                           Sin imagen
                         </div>
                       )}
                     </figure>
 
                     {allImgs.length > 1 && (
-                      <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+                      <div className="mt-3 grid grid-cols-5 gap-2">
                         {allImgs.map((url, i) => (
                           <button
                             key={`${url}-${i}`}
                             type="button"
                             onClick={() => setImgActiva(i)}
-                            className={`h-16 w-16 flex-shrink-0 overflow-hidden rounded-[0.5rem] border-2 transition ${
+                            className={`aspect-square w-full overflow-hidden rounded-[0.5rem] border-2 transition ${
                               imgActiva === i
                                 ? "border-[#d46f49] opacity-100"
                                 : "border-transparent opacity-60 hover:opacity-90"
@@ -431,12 +428,30 @@ export default function PublicacionDetalle() {
                             aria-label={`Ver imagen ${i + 1}`}
                           >
                             <img
-                              src={getCloudinaryUrl(url, { width: 100, quality: "auto:eco" })}
+                              src={getCloudinaryUrl(url, { width: 160, quality: "auto:eco" })}
                               alt={`Miniatura ${i + 1}`}
                               className="h-full w-full object-cover"
                             />
                           </button>
                         ))}
+                      </div>
+                    )}
+
+                    {publicacion.detalles && (
+                      <div className="mt-auto pt-3">
+                        <div className="rounded-[0.8rem] border border-[#e2ddd7] bg-white/70 p-4">
+                          <div className="mb-2 flex items-center gap-2">
+                            <span className="text-[#bbb]">
+                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4 w-4">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M8 3.5h6l4 4V20a1 1 0 0 1-1 1H8a2 2 0 0 1-2-2V5.5a2 2 0 0 1 2-2Z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M14 3.5V8h4" />
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6M9 16h6" />
+                              </svg>
+                            </span>
+                            <p className="text-[0.58rem] font-bold uppercase tracking-[0.16em] text-[#aaa]">DETALLES</p>
+                          </div>
+                          <p className="break-words text-[0.9rem] leading-relaxed text-[#333]">{publicacion.detalles}</p>
+                        </div>
                       </div>
                     )}
                   </section>
@@ -499,7 +514,7 @@ export default function PublicacionDetalle() {
                       )}
                     </div>
 
-                    <div className="flex flex-col gap-2.5">
+                    <div className="mt-auto flex flex-col gap-2.5">
                       <button
                         type="button"
                         onClick={handleContact}
@@ -571,8 +586,9 @@ export default function PublicacionDetalle() {
                       )}
                     </div>
 
+                    <div className="mt-4 flex flex-col gap-3">
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                      <div className="rounded-[0.8rem] border border-[#eee] bg-white p-4">
+                      <div className="h-full rounded-[0.8rem] border border-[#eee] bg-white p-4">
                         <div className="mb-2 flex items-center gap-2">
                           <IconMapPin
                             size={16}
@@ -595,7 +611,7 @@ export default function PublicacionDetalle() {
                         </div>
                       </div>
 
-                      <div className="rounded-[0.8rem] border border-[#eee] bg-white p-4">
+                      <div className="h-full rounded-[0.8rem] border border-[#eee] bg-white p-4">
                         <div className="mb-2 flex items-center gap-2">
                           <IconPaw size={16} style={{ color: meta.accent }} />
                           <p className="text-[0.58rem] font-bold uppercase tracking-[0.16em] text-[#aaa]">
@@ -625,45 +641,6 @@ export default function PublicacionDetalle() {
                       </div>
                     </div>
 
-                    {publicacion.detalles && (
-                      <div className="rounded-[0.8rem] border border-[#eee] bg-white p-4">
-                        <div className="mb-2 flex items-center gap-2">
-                          <span className="text-[#bbb]">
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="1.8"
-                              className="h-4 w-4"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M8 3.5h6l4 4V20a1 1 0 0 1-1 1H8a2 2 0 0 1-2-2V5.5a2 2 0 0 1 2-2Z"
-                              />
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M14 3.5V8h4"
-                              />
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M9 12h6M9 16h6"
-                              />
-                            </svg>
-                          </span>
-                          <p className="text-[0.58rem] font-bold uppercase tracking-[0.16em] text-[#aaa]">
-                            DETALLES
-                          </p>
-                        </div>
-                        <p className="break-words text-[0.9rem] leading-relaxed text-[#333]">
-                          {publicacion.detalles}
-                        </p>
-                      </div>
-                    )}
-
                     {adoptionFields.length > 0 && (
                       <div className="rounded-[0.8rem] border border-[#eee] bg-white p-4">
                         <div className="mb-2 flex items-center gap-2">
@@ -689,6 +666,7 @@ export default function PublicacionDetalle() {
                         </div>
                       </div>
                     )}
+                    </div>
                   </section>
                 </div>
 

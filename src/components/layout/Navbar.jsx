@@ -489,7 +489,7 @@ const NavbarContent = () => {
 
   return (
     <>
-      <nav ref={navRef} className="fixed left-0 top-0 z-50 w-full px-2.5 pt-2 sm:px-5 sm:pt-2.5 lg:px-8">
+      <nav ref={navRef} className="fixed left-0 top-0 z-50 w-full px-2.5 pt-2 sm:px-5 sm:pt-2.5 lg:pl-8 lg:pr-4">
         <div
           className={`mx-auto flex max-w-[1680px] items-center justify-between gap-2 rounded-[1.15rem] border px-2.5 py-2 transition-[background-color,border-color,box-shadow] duration-500 sm:gap-4 sm:rounded-[1.35rem] sm:px-4 sm:py-2.5 ${
             isSolidNavbar
@@ -528,7 +528,7 @@ const NavbarContent = () => {
                         )
                       }
                       onFocus={() => openDesktopDropdown(link.name)}
-                       className="flex cursor-pointer items-center gap-2 rounded-[0.95rem] px-4 py-1.5 text-sm font-semibold text-[#241914] transition-colors duration-300 hover:bg-[color:var(--shell-surface-alt)] hover:text-[#241914] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--shell-bark)] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
+                       className="flex cursor-pointer items-center gap-2 rounded-[0.95rem] px-3 py-1.5 xl:px-4 text-sm font-semibold text-[#241914] transition-colors duration-300 hover:bg-[color:var(--shell-surface-alt)] hover:text-[#241914] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--shell-bark)] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
                       aria-haspopup="menu"
                       aria-expanded={activeDesktopDropdown === link.name}
                       aria-controls={`desktop-dropdown-${link.name}`}
@@ -563,8 +563,9 @@ const NavbarContent = () => {
                   <NavLink
                     key={link.name}
                     to={link.path}
+                    onClick={() => window.scrollTo(0, 0)}
                     className={({ isActive }) =>
-                      `rounded-[0.95rem] px-4 py-2 text-sm font-semibold transition-[background-color,border-color,color,box-shadow] duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f4c89e] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent ${
+                      `rounded-[0.95rem] px-3 py-2 xl:px-4 text-sm font-semibold transition-[background-color,border-color,color,box-shadow] duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f4c89e] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent ${
                         isActive
                           ? "bg-[color:var(--shell-bark)] text-white shadow-[0_10px_24px_rgba(47,36,29,0.16)]"
                           : "border border-[#2f241d]/8 bg-white/56 text-[#241914] hover:border-[#2f241d]/12 hover:bg-[color:var(--shell-surface-alt)] hover:text-[#241914]"
@@ -585,14 +586,8 @@ const NavbarContent = () => {
             >
               Publicar caso
             </button>
-            <button
-              onClick={() => navigateTo("/contacto")}
-               className="cursor-pointer rounded-[0.95rem] border border-[#2f241d]/10 bg-white/58 px-4 py-2 text-sm font-semibold text-[#241914] transition-colors duration-300 hover:bg-[color:var(--shell-surface-alt)] hover:text-[#241914] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--shell-bark)] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
-            >
-              Colaborar
-            </button>
 
-            <div className="relative">
+<div className="relative">
               <button
                 type="button"
                 onClick={() => setIsDesktopProfileMenuOpen((value) => !value)}
@@ -601,7 +596,7 @@ const NavbarContent = () => {
                 aria-haspopup="menu"
               >
                 <ProfileAvatar user={user} />
-                <div className="min-w-0 text-left">
+                <div className="hidden xl:block min-w-0 text-left">
                   <p className="max-w-[13rem] truncate text-sm font-semibold text-[#241914]">
                     {login ? greeting : "Mi cuenta"}
                   </p>

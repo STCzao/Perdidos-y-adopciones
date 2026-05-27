@@ -177,8 +177,6 @@ const PublicacionesExitosasPage = () => {
       <Navbar />
 
       <div className="relative min-h-screen overflow-x-hidden px-4 pb-[calc(6.5rem+env(safe-area-inset-bottom))] pt-32 sm:px-6 lg:px-8 lg:pb-0">
-        <div className="pointer-events-none absolute left-[-10rem] top-36 h-80 w-80 rounded-full bg-[#d46f49]/12 blur-3xl" />
-        <div className="pointer-events-none absolute right-[-8rem] top-24 h-80 w-80 rounded-full bg-[#95a667]/12 blur-3xl" />
         <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-[linear-gradient(180deg,rgba(90,63,53,0.12),transparent)]" />
 
         <div className="relative w-full">
