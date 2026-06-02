@@ -41,7 +41,7 @@ export default function TerminosCondiciones() {
       />
       <Navbar />
 
-      <main className="px-4 pb-16 pt-26 sm:px-6 sm:pt-30 lg:px-8 lg:pt-32">
+      <main className="px-4 pb-[calc(var(--mobile-bottom-nav-offset)+env(safe-area-inset-bottom))] pt-26 sm:px-6 sm:pt-30 lg:px-8 lg:pb-16 lg:pt-32">
         <div className="mx-auto max-w-4xl rounded-[1.6rem] border border-[color:var(--shell-line)] bg-[color:var(--shell-surface)] p-6 shadow-[0_18px_40px_rgba(36,25,20,0.08)] sm:p-8">
           <h1 className="font-editorial text-[2.2rem] leading-[0.95] text-[color:var(--shell-bark)] sm:text-[3rem]">
             Términos y Condiciones de uso

@@ -6,8 +6,13 @@ import { colaboradoresService } from "../../../services/colaboradores";
 import {
   DETALLE_CAMPO,
   FORMAS_COLABORACION,
+  LABELS_CONDICIONES_ANIMAL_TRASLADO,
   LABELS_DISPONIBILIDAD,
+  LABELS_DISPONIBILIDAD_TRASLADO,
   LABELS_MOMENTOS,
+  LABELS_PERIODOS_TRANSITO,
+  LABELS_PREFERENCIA_TRANSITO,
+  LABELS_ZONAS_TRASLADO,
   OPCIONES_DETALLE,
 } from "../../../utils/colaboradoresConstants";
 import { LOCALIDADES_TUCUMAN } from "../../../utils/localidades";
@@ -19,6 +24,98 @@ const FILTRO_SELECT =
 
 const getDetalleLabel = (forma, valor) =>
   OPCIONES_DETALLE[forma]?.find((item) => item.value === valor)?.label || valor;
+
+const getFormaLabel = (forma) =>
+  FORMAS_COLABORACION.find((item) => item.value === forma)?.label || forma;
+
+const TagList = ({ values, labelMap, fallback = "—" }) => {
+  if (!values?.length) {
+    return <span className="text-[#816959]">{fallback}</span>;
+  }
+
+  return values.map((value) => (
+    <span
+      key={value}
+      className="rounded-full bg-[#d46f49]/10 px-2 py-0.5 text-[0.65rem] text-[#d46f49]"
+    >
+      {labelMap[value] || value}
+    </span>
+  ));
+};
+
+const DetalleForma = React.memo(({ forma, detalle }) => {
+  if (forma === "TRANSITO") {
+    return (
+      <>
+        <dd className="mt-1 text-[#3d332d]">
+          <span className="font-medium text-[#5f4c41]">Preferencia:</span>{" "}
+          {LABELS_PREFERENCIA_TRANSITO[detalle.preferencia] || "—"}
+        </dd>
+        <dd className="mt-2 flex flex-wrap gap-1">
+          <TagList
+            values={detalle.periodos}
+            labelMap={LABELS_PERIODOS_TRANSITO}
+            fallback="Sin períodos cargados"
+          />
+        </dd>
+      </>
+    );
+  }
+
+  if (forma === "TRASLADO") {
+    return (
+      <>
+        <dd className="mt-1 text-[#3d332d]">
+          <span className="font-medium text-[#5f4c41]">Zonas</span>
+        </dd>
+        <dd className="mt-1 flex flex-wrap gap-1">
+          <TagList
+            values={detalle.zonas}
+            labelMap={LABELS_ZONAS_TRASLADO}
+            fallback="Sin zonas cargadas"
+          />
+        </dd>
+        <dd className="mt-2 text-[#3d332d]">
+          <span className="font-medium text-[#5f4c41]">Disponibilidad</span>
+        </dd>
+        <dd className="mt-1 flex flex-wrap gap-1">
+          <TagList
+            values={detalle.disponibilidad}
+            labelMap={LABELS_DISPONIBILIDAD_TRASLADO}
+            fallback="Sin disponibilidad cargada"
+          />
+        </dd>
+        <dd className="mt-2 text-[#3d332d]">
+          <span className="font-medium text-[#5f4c41]">Condición del animal</span>
+        </dd>
+        <dd className="mt-1 flex flex-wrap gap-1">
+          <TagList
+            values={detalle.condicionAnimal}
+            labelMap={LABELS_CONDICIONES_ANIMAL_TRASLADO}
+            fallback="Sin condiciones cargadas"
+          />
+        </dd>
+      </>
+    );
+  }
+
+  if (detalle.opciones?.length > 0) {
+    return (
+      <dd className="mt-1 flex flex-wrap gap-1">
+        {detalle.opciones.map((option) => (
+          <span
+            key={option}
+            className="rounded-full bg-[#d46f49]/10 px-2 py-0.5 text-[0.65rem] text-[#d46f49]"
+          >
+            {getDetalleLabel(forma, option)}
+          </span>
+        ))}
+      </dd>
+    );
+  }
+
+  return <dd className="mt-1 text-[#816959]">Sin opciones cargadas</dd>;
+});
 
 const DetalleColaborador = React.memo(({ detalle, onVolver, onToggleActivo }) => (
   <div>
@@ -59,30 +156,35 @@ const DetalleColaborador = React.memo(({ detalle, onVolver, onToggleActivo }) =>
         ["Barrio", detalle.barrio || "—"],
         ["Referencia", detalle.direccionReferencia || "—"],
         [
-          "Disponibilidad",
-          LABELS_DISPONIBILIDAD[detalle.disponibilidadGeneral] || detalle.disponibilidadGeneral,
+          "Disponibilidad general",
+          LABELS_DISPONIBILIDAD[detalle.disponibilidadGeneral] ||
+            detalle.disponibilidadGeneral ||
+            "—",
         ],
-      ].map(([k, v]) => (
+      ].map(([label, value]) => (
         <div
-          key={k}
+          key={label}
           className="rounded-[0.7rem] border border-[color:var(--shell-line)] bg-white/60 px-3 py-2"
         >
           <dt className="text-[0.65rem] font-bold uppercase tracking-[0.12em] text-[#816959]">
-            {k}
+            {label}
           </dt>
-          <dd className="mt-0.5 text-[#3d332d]">{v}</dd>
+          <dd className="mt-0.5 text-[#3d332d]">{value}</dd>
         </div>
       ))}
 
       <div className="rounded-[0.7rem] border border-[color:var(--shell-line)] bg-white/60 px-3 py-2">
         <dt className="text-[0.65rem] font-bold uppercase tracking-[0.12em] text-[#816959]">
-          Momentos disponibles
+          Momentos de disponibilidad
         </dt>
         <dd className="mt-1 flex flex-wrap gap-1">
           {detalle.momentosDisponibilidad?.length > 0 ? (
-            detalle.momentosDisponibilidad.map((m) => (
-              <span key={m} className="rounded-full bg-[#ffe4d4] px-2 py-0.5 text-[0.65rem] text-[#d46f49]">
-                {LABELS_MOMENTOS[m] || m}
+            detalle.momentosDisponibilidad.map((momento) => (
+              <span
+                key={momento}
+                className="rounded-full bg-[#ffe4d4] px-2 py-0.5 text-[0.65rem] text-[#d46f49]"
+              >
+                {LABELS_MOMENTOS[momento] || momento}
               </span>
             ))
           ) : (
@@ -102,17 +204,9 @@ const DetalleColaborador = React.memo(({ detalle, onVolver, onToggleActivo }) =>
             className="rounded-[0.7rem] border border-[color:var(--shell-line)] bg-white/60 px-3 py-2"
           >
             <dt className="text-[0.65rem] font-bold uppercase tracking-[0.12em] text-[#816959]">
-              {FORMAS_COLABORACION.find((f) => f.value === forma)?.label}
+              {getFormaLabel(forma)}
             </dt>
-            {det.opciones?.length > 0 && (
-              <dd className="mt-1 flex flex-wrap gap-1">
-                {det.opciones.map((o) => (
-                  <span key={o} className="rounded-full bg-[#d46f49]/10 px-2 py-0.5 text-[0.65rem] text-[#d46f49]">
-                    {getDetalleLabel(forma, o)}
-                  </span>
-                ))}
-              </dd>
-            )}
+            <DetalleForma forma={forma} detalle={det} />
             {det.observaciones && <dd className="mt-1 text-[#5f4c41]">{det.observaciones}</dd>}
           </div>
         );
@@ -182,11 +276,7 @@ export const AdminColaboradores = {
         document.body.style.overflow = "unset";
         document.documentElement.style.overflow = "unset";
       };
-    }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
-
-    useEffect(() => {
-      if (open) cargar(filtros);
-    }, [filtros]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [cargar, filtros, open]);
 
     const colaboradoresOrdenados = useMemo(
       () =>
@@ -202,7 +292,9 @@ export const AdminColaboradores = {
       try {
         await colaboradoresService.toggleEstado(colab._id, !colab.activo);
         setColaboradores((prev) =>
-          prev.map((c) => (c._id === colab._id ? { ...c, activo: !c.activo } : c)),
+          prev.map((item) =>
+            item._id === colab._id ? { ...item, activo: !item.activo } : item,
+          ),
         );
         if (detalle?._id === colab._id) {
           setDetalle((prev) => ({ ...prev, activo: !prev.activo }));
@@ -221,13 +313,13 @@ export const AdminColaboradores = {
       try {
         const { data } = await colaboradoresService.exportar(params);
         const url = URL.createObjectURL(new Blob([data]));
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `colaboradores-${new Date().toLocaleDateString("es-AR")}.xlsx`;
-        a.click();
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `colaboradores-${new Date().toLocaleDateString("es-AR")}.xlsx`;
+        link.click();
         URL.revokeObjectURL(url);
       } catch {
-        setError("Error al exportar. Intenta de nuevo.");
+        setError("Error al exportar. Intentá de nuevo.");
       }
     };
 
@@ -270,9 +362,11 @@ export const AdminColaboradores = {
             </button>
 
             <div className="flex flex-col items-center justify-center">
-              <h1 className="mt-2 text-3xl font-medium text-[color:var(--shell-ink)]">Colaboradores</h1>
+              <h1 className="mt-2 text-3xl font-medium text-[color:var(--shell-ink)]">
+                Comunidad solidaria
+              </h1>
               <p className="mt-1 text-sm text-[color:var(--shell-muted)]">
-                Gestiona los registros de la red de colaboradores
+                Gestiona los registros de personas que quieren colaborar
               </p>
             </div>
 
@@ -287,19 +381,21 @@ export const AdminColaboradores = {
                 <select
                   className={FILTRO_SELECT}
                   value={filtros.localidad}
-                  onChange={(e) => setFiltros((p) => ({ ...p, localidad: e.target.value }))}
+                  onChange={(e) =>
+                    setFiltros((prev) => ({ ...prev, localidad: e.target.value }))
+                  }
                 >
                   <option value="">Todas las localidades</option>
-                  {LOCALIDADES_TUCUMAN.map((l) => (
-                    <option key={l} value={l}>
-                      {l}
+                  {LOCALIDADES_TUCUMAN.map((localidad) => (
+                    <option key={localidad} value={localidad}>
+                      {localidad}
                     </option>
                   ))}
                 </select>
                 <select
                   className={FILTRO_SELECT}
                   value={filtros.forma}
-                  onChange={(e) => setFiltros((p) => ({ ...p, forma: e.target.value }))}
+                  onChange={(e) => setFiltros((prev) => ({ ...prev, forma: e.target.value }))}
                 >
                   <option value="">Todas las formas</option>
                   {FORMAS_COLABORACION.map(({ value, label }) => (
@@ -311,17 +407,17 @@ export const AdminColaboradores = {
                 <select
                   className={FILTRO_SELECT}
                   value={filtros.activo}
-                  onChange={(e) => setFiltros((p) => ({ ...p, activo: e.target.value }))}
+                  onChange={(e) => setFiltros((prev) => ({ ...prev, activo: e.target.value }))}
                 >
                   <option value="">Todos</option>
                   <option value="true">Activos</option>
                   <option value="false">Inactivos</option>
                 </select>
                 <button
-                  onClick={() => setOrden((o) => (o === "desc" ? "asc" : "desc"))}
+                  onClick={() => setOrden((current) => (current === "desc" ? "asc" : "desc"))}
                   className="rounded-[0.7rem] border border-[color:var(--shell-line)] bg-white px-3 py-2 text-sm text-[#3d332d] transition hover:bg-[#fffaf4]"
                 >
-                  {orden === "desc" ? "Mas reciente primero" : "Mas antiguo primero"}
+                  {orden === "desc" ? "Más recientes primero" : "Más antiguos primero"}
                 </button>
               </div>
               <button
@@ -341,53 +437,67 @@ export const AdminColaboradores = {
                     <table className="w-full text-sm">
                       <thead className="border-b border-[color:var(--shell-line)] bg-[#fffaf4] text-[0.65rem] font-bold uppercase tracking-[0.12em] text-[#816959]">
                         <tr>
-                          {["Nombre", "Teléfono", "Localidad", "Formas", "Disponibilidad", "Fecha", "Estado"].map((h) => (
-                            <th key={h} className="px-3 py-2 text-left">
-                              {h}
+                          {[
+                            "Nombre",
+                            "Teléfono",
+                            "Localidad",
+                            "Formas",
+                            "Disponibilidad",
+                            "Fecha",
+                            "Estado",
+                          ].map((header) => (
+                            <th key={header} className="px-3 py-2 text-left">
+                              {header}
                             </th>
                           ))}
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-[color:var(--shell-line)]">
-                        {colaboradoresOrdenados.map((c) => (
+                        {colaboradoresOrdenados.map((colaborador) => (
                           <tr
-                            key={c._id}
-                            onClick={() => setDetalle(c)}
+                            key={colaborador._id}
+                            onClick={() => setDetalle(colaborador)}
                             className={`cursor-pointer text-xs transition hover:bg-[#fffaf4] ${
-                              detalle?._id === c._id ? "bg-[#fffaf4] ring-1 ring-inset ring-[#d46f49]/20" : ""
+                              detalle?._id === colaborador._id
+                                ? "bg-[#fffaf4] ring-1 ring-inset ring-[#d46f49]/20"
+                                : ""
                             }`}
                           >
-                            <td className="px-3 py-2 font-medium">{c.nombre}</td>
-                            <td className="px-3 py-2">{c.telefono}</td>
-                            <td className="px-3 py-2">{c.localidad}</td>
+                            <td className="px-3 py-2 font-medium">{colaborador.nombre}</td>
+                            <td className="px-3 py-2">{colaborador.telefono}</td>
+                            <td className="px-3 py-2">{colaborador.localidad}</td>
                             <td className="px-3 py-2">
                               <div className="flex flex-wrap gap-1">
-                                {c.formasColaboracion.map((f) => (
+                                {colaborador.formasColaboracion.map((forma) => (
                                   <span
-                                    key={f}
+                                    key={forma}
                                     className="rounded-full bg-[#d46f49]/10 px-1.5 py-0.5 text-[0.62rem] font-semibold text-[#d46f49]"
                                   >
-                                    {FORMAS_COLABORACION.find((fc) => fc.value === f)?.label || f}
+                                    {getFormaLabel(forma)}
                                   </span>
                                 ))}
                               </div>
                             </td>
                             <td className="px-3 py-2 text-[#5f4c41]">
-                              {LABELS_DISPONIBILIDAD[c.disponibilidadGeneral] || c.disponibilidadGeneral}
+                              {LABELS_DISPONIBILIDAD[colaborador.disponibilidadGeneral] ||
+                                colaborador.disponibilidadGeneral ||
+                                "—"}
                             </td>
                             <td className="px-3 py-2 text-[#816959]">
-                              {c.fechaRegistro ? new Date(c.fechaRegistro).toLocaleDateString("es-AR") : "—"}
+                              {colaborador.fechaRegistro
+                                ? new Date(colaborador.fechaRegistro).toLocaleDateString("es-AR")
+                                : "—"}
                             </td>
                             <td className="px-3 py-2" onClick={(e) => e.stopPropagation()}>
                               <button
-                                onClick={() => toggleActivo(c)}
+                                onClick={() => toggleActivo(colaborador)}
                                 className={`cursor-pointer rounded-full px-2.5 py-0.5 text-[0.65rem] font-semibold transition ${
-                                  c.activo
+                                  colaborador.activo
                                     ? "bg-[#4d6a2e]/15 text-[#4d6a2e] hover:bg-[#4d6a2e]/25"
                                     : "bg-[#9e9e9e]/15 text-[#666] hover:bg-[#9e9e9e]/25"
                                 }`}
                               >
-                                {c.activo ? "Activo" : "Inactivo"}
+                                {colaborador.activo ? "Activo" : "Inactivo"}
                               </button>
                             </td>
                           </tr>
@@ -402,7 +512,11 @@ export const AdminColaboradores = {
                   </div>
                 </div>
 
-                <div className={`lg:pl-6 ${!detalle ? "hidden lg:flex lg:items-center lg:justify-center" : "lg:self-start"}`}>
+                <div
+                  className={`lg:pl-6 ${
+                    !detalle ? "hidden lg:flex lg:items-center lg:justify-center" : "lg:self-start"
+                  }`}
+                >
                   {detalle ? (
                     <div className="max-h-[55vh] overflow-y-auto rounded-[1rem] border border-[color:var(--shell-line)] bg-white/60 p-4 shadow-sm">
                       <DetalleColaborador
@@ -413,7 +527,7 @@ export const AdminColaboradores = {
                     </div>
                   ) : (
                     <p className="text-sm text-[color:var(--shell-muted)]">
-                      Selecciona un registro para ver el detalle
+                      Seleccioná un registro para ver el detalle
                     </p>
                   )}
                 </div>

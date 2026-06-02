@@ -45,6 +45,7 @@ const CardGenerica = ({ publicacion, cardId, isSuccessful = false }) => {
     especie,
     tipo,
     raza,
+    sexo,
     localidad,
     lugar,
     fecha,
@@ -61,7 +62,9 @@ const CardGenerica = ({ publicacion, cardId, isSuccessful = false }) => {
   const detailPath = getPublicacionDetailPath(publicacion);
   const primaryLocation = localidad || lugar;
   const secondaryLocation = localidad && lugar ? lugar : null;
-  const subtitleParts = [especie, raza, tamano].filter(Boolean);
+  const title = tipo === "ENCONTRADO" ? especie : nombreanimal || especie;
+  const subtitleParts =
+    tipo === "ENCONTRADO" ? [sexo, raza, tamano].filter(Boolean) : [especie, raza, tamano].filter(Boolean);
 
   const handleWhatsappClick = () => {
     withAuth(async () => {
@@ -165,7 +168,7 @@ const CardGenerica = ({ publicacion, cardId, isSuccessful = false }) => {
       <div className="flex min-h-0 flex-1 flex-col gap-2.5 px-4 pb-3.5 pt-3">
         <div>
           <h3 className="line-clamp-2 text-[1.55rem] font-extrabold leading-[1.05]" style={{ color: meta.accent }}>
-            {nombreanimal || especie}
+            {title}
           </h3>
           {subtitleParts.length > 0 && <p className="mt-1 text-[0.78rem] text-[#555]">{subtitleParts.join(" · ")}</p>}
         </div>

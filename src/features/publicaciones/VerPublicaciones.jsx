@@ -353,7 +353,7 @@ const PublicacionItem = React.memo(
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex items-start justify-between rounded-[1.1rem] border border-[color:var(--shell-line)] bg-white/72 p-4"
+        className="flex flex-col gap-4 rounded-[1.1rem] border border-[color:var(--shell-line)] bg-white/72 p-4 sm:flex-row sm:items-start sm:justify-between"
       >
         <div className="flex-1 text-left">
           <h3 className="text-lg font-semibold text-[color:var(--shell-ink)]">
@@ -390,17 +390,17 @@ const PublicacionItem = React.memo(
           </p>
         </div>
 
-        <div className="ml-4 flex gap-2">
+        <div className="flex w-full flex-col gap-2 sm:ml-4 sm:w-auto sm:flex-row">
           <button
             onClick={() => onEditar(publicacion)}
-            className="cursor-pointer rounded-full bg-[color:var(--shell-bark)] px-4 py-2 text-sm text-white transition-colors hover:bg-[#45362d]"
+            className="w-full cursor-pointer rounded-full bg-[color:var(--shell-bark)] px-4 py-2 text-sm text-white transition-colors hover:bg-[#45362d] sm:w-auto"
             disabled={loading}
           >
             Editar
           </button>
           <button
             onClick={() => onEliminar(publicacion, "delete")}
-            className="cursor-pointer rounded-full bg-[color:var(--shell-danger)] px-4 py-2 text-sm text-white transition-colors hover:bg-[#b91f1f]"
+            className="w-full cursor-pointer rounded-full bg-[color:var(--shell-danger)] px-4 py-2 text-sm text-white transition-colors hover:bg-[#b91f1f] sm:w-auto"
             disabled={loading}
           >
             Eliminar
