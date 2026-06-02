@@ -18,7 +18,6 @@ const PublicacionesExitosas = lazy(() =>
   import("../features/publicaciones/pages/PublicacionesExitosas"),
 );
 const Comunidad = lazy(() => import("../pages/Comunidad"));
-const Colabora = lazy(() => import("../pages/Colabora"));
 const Contact = lazy(() => import("../pages/Contact"));
 const TerminosCondiciones = lazy(() => import("../pages/TerminosCondiciones"));
 const QuienesSomos = lazy(() => import("../pages/QuienesSomos"));
@@ -57,7 +56,6 @@ const AppRouter = () => {
         <Route path="/consejos-encontre" element={wrap(Encontre, { user })} />
         <Route path="/consejos-adopcion" element={wrap(Adoptar, { user })} />
         <Route path="/casos-ayuda" element={wrap(Comunidad, { user })} />
-        <Route path="/colabora" element={wrap(Colabora)} />
         <Route path="/contacto" element={wrap(Contact, { user })} />
         <Route
           path="/terminos-y-condiciones"

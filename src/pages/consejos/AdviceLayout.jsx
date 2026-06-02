@@ -20,7 +20,7 @@ const AdviceLayout = ({ eyebrow, title, description, accent, steps, closing, pat
       />
       <Navbar />
 
-      <div className="relative min-h-screen overflow-hidden px-4 pb-16 pt-30 sm:px-6 lg:px-8 lg:pt-32">
+      <div className="relative min-h-screen overflow-hidden px-4 pb-[calc(var(--mobile-bottom-nav-offset)+env(safe-area-inset-bottom))] pt-30 sm:px-6 lg:px-8 lg:pb-16 lg:pt-32">
         <div
           className="pointer-events-none absolute left-[-8rem] top-36 h-72 w-72 rounded-full blur-3xl"
           style={{ backgroundColor: `${accent}1F` }}
