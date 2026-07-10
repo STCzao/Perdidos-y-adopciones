@@ -33,6 +33,11 @@ const toneByType = {
     eyebrow: "Confirmación",
     confirmLabel: "Continuar",
   },
+  reclamo: {
+    accent: "#2f241d",
+    eyebrow: "Acción con efecto real",
+    confirmLabel: "Reasignar",
+  },
 };
 
 export const ConfirmModal = React.memo(
@@ -78,6 +83,8 @@ export const ConfirmModal = React.memo(
           return "Eliminar caso comunitario";
         case "alerta":
           return "Cerrar";
+        case "reclamo":
+          return "Reasignar publicaciones";
         default:
           return "Confirmar acción";
       }
@@ -99,6 +106,8 @@ export const ConfirmModal = React.memo(
           return `Estás por eliminar el caso "${confirmModal.item?.titulo}". Esta acción no se puede deshacer.`;
         case "alerta":
           return "El inicio de sesión se cerrará si continuás.";
+        case "reclamo":
+          return `Vas a reasignar ${confirmModal.item?.cantidad} publicación(es) a "${confirmModal.item?.correo}". Esta acción queda registrada en el historial.`;
         default:
           return "Confirmá la acción para continuar.";
       }

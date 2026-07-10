@@ -15,6 +15,7 @@ const loadAdminPublicacionesModule = () =>
 const loadAdminUsuariosModule = () => import("../../features/usuarios/AdminUsuarios");
 const loadAdminColaboradoresModule = () =>
   import("../../features/colaboradores/admin/AdminColaboradores");
+const loadAdminReclamosModule = () => import("../../features/publicaciones/AdminReclamos");
 const loadCrearComunidadModule = () => import("../../features/comunidad/CrearComunidad");
 const loadVerComunidadModule = () => import("../../features/comunidad/VerComunidad");
 
@@ -46,6 +47,11 @@ const AdminUsuariosModal = React.lazy(() =>
 const AdminColaboradoresModal = React.lazy(() =>
   loadAdminColaboradoresModule().then((module) => ({
     default: module.AdminColaboradores.Component,
+  })),
+);
+const AdminReclamosModal = React.lazy(() =>
+  loadAdminReclamosModule().then((module) => ({
+    default: module.AdminReclamos.Component,
   })),
 );
 const CrearComunidadModal = React.lazy(() =>
@@ -234,6 +240,7 @@ const NavbarContent = () => {
     AdminPublicaciones: false,
     AdminUsuarios: false,
     AdminColaboradores: false,
+    AdminReclamos: false,
     CrearComunidad: false,
     VerComunidad: false,
   });
@@ -381,6 +388,12 @@ const NavbarContent = () => {
     if (action === "admin-comunidad-list") {
       await openLazyModal(loadVerComunidadModule, "VerComunidad");
       closeMenus();
+      return;
+    }
+
+    if (action === "admin-reclamos") {
+      await openLazyModal(loadAdminReclamosModule, "AdminReclamos");
+      closeMenus();
     }
   };
 
@@ -435,6 +448,7 @@ const NavbarContent = () => {
                 { key: "admin-posts", label: "Todas las publicaciones" },
                 { key: "admin-users", label: "Todos los usuarios" },
                 { key: "admin-colaboradores", label: "Colaboradores" },
+                { key: "admin-reclamos", label: "Reclamar publicaciones" },
               ]
             : []),
         { key: "contact", label: "Colaborar", path: "/contacto" },
@@ -729,6 +743,7 @@ const NavbarContent = () => {
         {mountedModals.AdminPublicaciones && <AdminPublicacionesModal />}
         {mountedModals.AdminUsuarios && <AdminUsuariosModal />}
         {mountedModals.AdminColaboradores && <AdminColaboradoresModal />}
+        {mountedModals.AdminReclamos && <AdminReclamosModal />}
         {mountedModals.CrearComunidad && <CrearComunidadModal />}
         {mountedModals.VerComunidad && <VerComunidadModal />}
       </React.Suspense>
