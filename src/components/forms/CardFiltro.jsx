@@ -36,10 +36,7 @@ const CardFiltro = ({ filtros, setFiltros, tipo, razasPorEspecie = {} }) => {
     <aside className="w-full rounded-[0.95rem] border border-[#2f241d]/10 bg-[linear-gradient(180deg,rgba(255,250,244,0.96),rgba(248,240,229,0.92))] p-4 shadow-[0_20px_48px_rgba(36,25,20,0.08)] sm:p-5">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-[0.62rem] font-bold uppercase tracking-[0.22em] text-[#816959]">
-            Filtros
-          </p>
-          <h3 className="mt-2 text-[1.25rem] font-bold leading-none text-[#241914]">
+          <h3 className="text-[1.25rem] font-bold leading-none text-[#241914]">
             Refinar resultados
           </h3>
         </div>
@@ -49,7 +46,7 @@ const CardFiltro = ({ filtros, setFiltros, tipo, razasPorEspecie = {} }) => {
           className="inline-flex items-center justify-center rounded-[0.45rem] border border-[#2f241d]/10 bg-white/80 px-3 py-1.5 text-[0.62rem] font-bold uppercase tracking-[0.16em] text-[#6f5546] lg:hidden"
           onClick={() => setIsOpenMobile((prev) => !prev)}
         >
-          {isOpenMobile ? "Ocultar" : "Mostrar"}
+          {isOpenMobile ? "Ocultar" : "Filtrar"}
         </button>
       </div>
 
@@ -110,7 +107,9 @@ const CardFiltro = ({ filtros, setFiltros, tipo, razasPorEspecie = {} }) => {
               <option value="">
                 {filtros.especie ? "Todas las razas" : "Selecciona especie primero"}
               </option>
-              {(razasPorEspecie[filtros.especie] || []).map((raza) => (
+              {[...(razasPorEspecie[filtros.especie] || [])]
+                .sort((a, b) => a.localeCompare(b, "es"))
+                .map((raza) => (
                 <option key={raza} value={raza}>
                   {raza}
                 </option>

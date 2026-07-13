@@ -450,7 +450,7 @@ const PublicacionesPage = () => {
                           )} resultados mientras terminamos de cargar el archivo.`
                         : isFiltering
                           ? `Mostrando ${publicacionesOrdenadas.length} coincidencias según tus filtros.`
-                          : `Explora ${publicacionesOrdenadas.length} publicaciones activas.`}
+                          : `Mostrando ${publicacionesOrdenadas.length} publicaciones.`}
                   </p>
                 </div>
               </div>

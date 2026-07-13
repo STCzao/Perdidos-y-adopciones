@@ -10,10 +10,11 @@ export default function PasswordInput({
   placeholder = "Contraseña",
   name = "password",
   className = "",
+  height = "h-13",
 }) {
   return (
     <div
-      className={`flex h-13 w-full items-center gap-2 rounded-[1.4rem] border border-white/12 bg-white/92 pl-5 pr-2 shadow-sm transition-colors duration-300 focus-within:border-[#f4c89e] focus-within:ring-2 focus-within:ring-[#f4c89e]/45 ${className}`}
+      className={`flex ${height} w-full items-center gap-2 rounded-[1.4rem] border border-white/12 bg-white/92 pl-5 pr-2 shadow-sm transition-colors duration-300 focus-within:border-[#f4c89e] focus-within:ring-2 focus-within:ring-[#f4c89e]/45 ${className}`}
     >
       <input
         type={show ? "text" : "password"}

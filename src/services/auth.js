@@ -26,6 +26,27 @@ export const authLogin = async (datos) => {
   }
 };
 
+export const authGoogleLogin = async ({ idToken, telefono }) => {
+  try {
+    const payload = telefono ? { idToken, telefono } : { idToken };
+    const response = await axiosInstance.post("/auth/google", payload);
+    const { data } = response;
+
+    if (data?.accessToken) {
+      setAccessToken(data.accessToken);
+    }
+
+    broadcastAuthEvent("login");
+
+    return {
+      ...data,
+      requestId: data?.requestId || getResponseRequestId(response),
+    };
+  } catch (error) {
+    return mapServiceError(error, "No pudimos verificar tu cuenta de Google");
+  }
+};
+
 export const crearUsuario = async (datos) => {
   try {
     const response = await axiosInstance.post("/usuarios", datos);

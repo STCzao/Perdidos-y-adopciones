@@ -2,11 +2,13 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { crearUsuario } from "../services/auth";
 import { validateRegisterForm } from "../utils/validators";
+import { resolvePostLoginRedirect } from "../utils/postLoginRedirect";
 import AuthLayout from "../components/layout/AuthLayout";
 import PasswordInput from "../components/forms/PasswordInput";
+import GoogleAuthSection from "../components/auth/GoogleAuthSection";
 import Seo from "../components/seo/Seo";
 
-export default function RegisterScreen() {
+export default function RegisterScreen({ guardarUsuario }) {
   const [form, setForm] = useState({
     nombre: "",
     correo: "",
@@ -20,6 +22,12 @@ export default function RegisterScreen() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+
+  const handleGoogleSuccess = (usuario) => {
+    guardarUsuario(usuario);
+    localStorage.removeItem("lastRegisteredEmail");
+    navigate(resolvePostLoginRedirect(), { replace: true });
+  };
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -87,17 +95,17 @@ export default function RegisterScreen() {
         <span className="text-[0.62rem] font-bold uppercase tracking-[0.22em] text-[#f4c89e]">
           Crear cuenta
         </span>
-        <h1 className="font-editorial mt-3 text-[2.3rem] leading-[0.96] text-white sm:text-[2.45rem]">
+        <h1 className="font-editorial mt-2 text-[1.9rem] leading-[0.96] text-white sm:text-[2.05rem]">
           Crea tu cuenta.
         </h1>
-        <p className="mt-2 max-w-md text-[0.95rem] leading-relaxed text-white/74">
+        <p className="mt-1.5 max-w-md text-[0.9rem] leading-relaxed text-white/74">
           Regístrate para publicar y editar avisos.
         </p>
       </div>
 
-      <label className="mt-8 block w-full text-left text-sm font-semibold text-white/84">
+      <label className="mt-5 block w-full text-left text-sm font-semibold text-white/84">
         Nombre completo
-        <div className="mt-2 flex h-13 w-full items-center rounded-[1.4rem] border border-white/12 bg-white/92 px-5 shadow-sm transition-colors duration-300 focus-within:border-[#f4c89e] focus-within:ring-2 focus-within:ring-[#f4c89e]/45">
+        <div className="mt-1.5 flex h-11 w-full items-center rounded-[1.4rem] border border-white/12 bg-white/92 px-5 shadow-sm transition-colors duration-300 focus-within:border-[#f4c89e] focus-within:ring-2 focus-within:ring-[#f4c89e]/45">
           <input
             type="text"
             name="nombre"
@@ -109,12 +117,12 @@ export default function RegisterScreen() {
           />
         </div>
       </label>
-      {errors.nombre && <p className="mt-2 text-left text-xs text-red-300">{errors.nombre}</p>}
+      {errors.nombre && <p className="mt-1.5 text-left text-xs text-red-300">{errors.nombre}</p>}
 
-      <div className="mt-6 grid gap-6 sm:grid-cols-2">
+      <div className="mt-4 grid gap-4 sm:grid-cols-2">
         <label className="block text-left text-sm font-semibold text-white/84">
           Teléfono
-          <div className="mt-2 flex h-13 w-full items-center rounded-[1.4rem] border border-white/12 bg-white/92 px-5 shadow-sm transition-colors duration-300 focus-within:border-[#f4c89e] focus-within:ring-2 focus-within:ring-[#f4c89e]/45">
+          <div className="mt-1.5 flex h-11 w-full items-center rounded-[1.4rem] border border-white/12 bg-white/92 px-5 shadow-sm transition-colors duration-300 focus-within:border-[#f4c89e] focus-within:ring-2 focus-within:ring-[#f4c89e]/45">
             <input
               type="text"
               name="telefono"
@@ -125,12 +133,12 @@ export default function RegisterScreen() {
               autoComplete="tel"
             />
           </div>
-          {errors.telefono && <p className="mt-2 text-left text-xs text-red-300">{errors.telefono}</p>}
+          {errors.telefono && <p className="mt-1.5 text-left text-xs text-red-300">{errors.telefono}</p>}
         </label>
 
         <label className="block text-left text-sm font-semibold text-white/84">
           Correo
-          <div className="mt-2 flex h-13 w-full items-center rounded-[1.4rem] border border-white/12 bg-white/92 px-5 shadow-sm transition-colors duration-300 focus-within:border-[#f4c89e] focus-within:ring-2 focus-within:ring-[#f4c89e]/45">
+          <div className="mt-1.5 flex h-11 w-full items-center rounded-[1.4rem] border border-white/12 bg-white/92 px-5 shadow-sm transition-colors duration-300 focus-within:border-[#f4c89e] focus-within:ring-2 focus-within:ring-[#f4c89e]/45">
             <input
               type="email"
               name="correo"
@@ -141,14 +149,15 @@ export default function RegisterScreen() {
               autoComplete="email"
             />
           </div>
-          {errors.correo && <p className="mt-2 text-left text-xs text-red-300">{errors.correo}</p>}
+          {errors.correo && <p className="mt-1.5 text-left text-xs text-red-300">{errors.correo}</p>}
         </label>
       </div>
 
-      <label className="mt-6 block w-full text-left text-sm font-semibold text-white/84">
+      <label className="mt-4 block w-full text-left text-sm font-semibold text-white/84">
         Contraseña
         <PasswordInput
-          className="mt-2"
+          className="mt-1.5"
+          height="h-11"
           value={form.password}
           onChange={handleChange}
           show={showPassword}
@@ -156,12 +165,13 @@ export default function RegisterScreen() {
           name="password"
         />
       </label>
-      {errors.password && <p className="mt-2 text-left text-xs text-red-300">{errors.password}</p>}
+      {errors.password && <p className="mt-1.5 text-left text-xs text-red-300">{errors.password}</p>}
 
-      <label className="mt-6 block w-full text-left text-sm font-semibold text-white/84">
+      <label className="mt-4 block w-full text-left text-sm font-semibold text-white/84">
         Confirmar contraseña
         <PasswordInput
-          className="mt-2"
+          className="mt-1.5"
+          height="h-11"
           value={form.confirmPassword}
           onChange={handleChange}
           show={showConfirmPassword}
@@ -171,22 +181,24 @@ export default function RegisterScreen() {
         />
       </label>
       {errors.confirmPassword && (
-        <p className="mt-2 text-left text-xs text-red-300">{errors.confirmPassword}</p>
+        <p className="mt-1.5 text-left text-xs text-red-300">{errors.confirmPassword}</p>
       )}
 
       <button
         type="submit"
-        className="mt-8 h-12 w-full cursor-pointer rounded-full bg-[#f4c89e] text-sm font-bold text-[#2a1f19] shadow-[0_14px_35px_rgba(244,200,158,0.18)] transition-transform duration-300 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
+        className="mt-6 h-11 w-full cursor-pointer rounded-full bg-[#f4c89e] text-sm font-bold text-[#2a1f19] shadow-[0_14px_35px_rgba(244,200,158,0.18)] transition-transform duration-300 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
         disabled={isLoading}
       >
         {isLoading ? "Creando cuenta..." : "Crear cuenta"}
       </button>
 
       {result && !Object.keys(errors).length && (
-        <p className="mt-4 text-center text-sm text-white/84">{result}</p>
+        <p className="mt-3 text-center text-sm text-white/84">{result}</p>
       )}
 
-      <div className="mt-6 flex flex-col gap-3 text-sm text-white/80">
+      <GoogleAuthSection onSuccess={handleGoogleSuccess} />
+
+      <div className="mt-4 flex flex-col gap-3 text-sm text-white/80">
         <p>
           ¿Ya tienes cuenta?{" "}
           <Link className="font-semibold text-[#f4c89e] hover:underline" to="/login">

@@ -98,10 +98,12 @@ export const CommonFields = ({
         placeholder={
           !form.especie ? "Seleccione primero la especie" : "Seleccione la raza de su animal *"
         }
-        options={(razasPorEspecie[form.especie] || []).map((raza) => ({
-          value: raza,
-          label: raza,
-        }))}
+        options={[...(razasPorEspecie[form.especie] || [])]
+          .sort((a, b) => a.localeCompare(b, "es"))
+          .map((raza) => ({
+            value: raza,
+            label: raza,
+          }))}
       />
 
       <InputField
