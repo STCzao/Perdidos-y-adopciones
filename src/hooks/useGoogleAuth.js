@@ -11,7 +11,6 @@ export const useGoogleAuth = ({ onSuccess }) => {
   const [message, setMessage] = useState("");
   const [scriptReady, setScriptReady] = useState(false);
   const [buttonWidth, setButtonWidth] = useState(0);
-  const containerRef = useRef(null);
   const buttonRef = useRef(null);
 
   const submit = useCallback(
@@ -92,12 +91,12 @@ export const useGoogleAuth = ({ onSuccess }) => {
     return undefined;
   }, []);
 
-  // Mide el ancho del contenedor visual para que el botón real de Google
-  // (invisible, superpuesto) ocupe exactamente el mismo espacio.
+  // Mide el ancho disponible para que el botón de Google ocupe todo el ancho
+  // del formulario en vez del tamaño fijo que usa por defecto.
   useLayoutEffect(() => {
-    if (!containerRef.current) return undefined;
+    if (!buttonRef.current) return undefined;
 
-    const el = containerRef.current;
+    const el = buttonRef.current;
     const observer = new ResizeObserver((entries) => {
       const width = Math.round(entries[0]?.contentRect?.width || 0);
       if (width > 0) setButtonWidth(width);
@@ -107,9 +106,10 @@ export const useGoogleAuth = ({ onSuccess }) => {
     return () => observer.disconnect();
   }, []);
 
-  // El botón de Google no admite estilos propios, así que se renderiza
-  // invisible y superpuesto sobre un botón con el estilo del sitio: el click
-  // real lo captura el botón de Google, el usuario ve el de la app.
+  // Google no permite reskinear su botón (política de sus guías de marca);
+  // se usan sus opciones de tema/forma para que combine lo mejor posible.
+  // No renderizarlo invisible-y-superpuesto: los clicks de mouse no se
+  // registran de forma confiable sobre un iframe cross-origin con opacity 0.
   useEffect(() => {
     if (!scriptReady || !buttonWidth || !buttonRef.current || !window.google?.accounts?.id) {
       return;
@@ -123,7 +123,8 @@ export const useGoogleAuth = ({ onSuccess }) => {
     buttonRef.current.innerHTML = "";
     window.google.accounts.id.renderButton(buttonRef.current, {
       type: "standard",
-      theme: "outline",
+      theme: "filled_black",
+      shape: "pill",
       size: "large",
       width: buttonWidth,
     });
@@ -131,7 +132,6 @@ export const useGoogleAuth = ({ onSuccess }) => {
 
   return {
     isEnabled: Boolean(GOOGLE_CLIENT_ID),
-    containerRef,
     buttonRef,
     isLoading,
     pendingIdToken,
