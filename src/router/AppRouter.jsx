@@ -73,7 +73,16 @@ const AppRouter = () => {
             )
           }
         />
-        <Route path="/register" element={login ? <Navigate to="/" /> : <Register />} />
+        <Route
+          path="/register"
+          element={
+            login ? (
+              <Navigate to="/" />
+            ) : (
+              <Register guardarUsuario={guardarUsuario} />
+            )
+          }
+        />
         <Route
           path="/forgot-password"
           element={login ? <Navigate to="/" /> : <ForgotPassword />}

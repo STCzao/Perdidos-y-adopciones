@@ -2,8 +2,10 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { authLogin } from "../services/auth";
 import { validateLoginForm } from "../utils/validators";
+import { resolvePostLoginRedirect } from "../utils/postLoginRedirect";
 import AuthLayout from "../components/layout/AuthLayout";
 import PasswordInput from "../components/forms/PasswordInput";
+import GoogleAuthSection from "../components/auth/GoogleAuthSection";
 import Seo from "../components/seo/Seo";
 
 const LoginScreen = ({ guardarUsuario }) => {
@@ -16,6 +18,12 @@ const LoginScreen = ({ guardarUsuario }) => {
   const [show, setShow] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+
+  const finishLogin = (usuario) => {
+    guardarUsuario(usuario);
+    localStorage.removeItem("lastRegisteredEmail");
+    navigate(resolvePostLoginRedirect(), { replace: true });
+  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -48,15 +56,7 @@ const LoginScreen = ({ guardarUsuario }) => {
         return;
       }
 
-      guardarUsuario(data.usuario);
-      localStorage.removeItem("lastRegisteredEmail");
-
-      const returnUrl = localStorage.getItem("returnUrl");
-      if (returnUrl) localStorage.removeItem("returnUrl");
-      const safeUrl =
-        returnUrl?.startsWith("/") && !returnUrl.includes("//") ? returnUrl : "/";
-
-      navigate(safeUrl, { replace: true });
+      finishLogin(data.usuario);
     } catch (error) {
       console.error(error);
       setResult("Error de conexión con el servidor");
@@ -126,6 +126,8 @@ const LoginScreen = ({ guardarUsuario }) => {
       {result && !Object.keys(errors).length && (
         <p className="mt-4 text-center text-sm text-white/84">{result}</p>
       )}
+
+      <GoogleAuthSection onSuccess={finishLogin} />
 
       <div className="mt-6 flex flex-col gap-3 text-sm text-white/80">
         <p>

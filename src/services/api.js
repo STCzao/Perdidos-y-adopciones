@@ -52,6 +52,7 @@ const axiosInstance = axios.create({
 const isRefreshRequest = (config) => config?.url?.includes("/auth/refresh");
 const isPublicAuthRequest = (config) =>
   config?.url?.includes("/auth/login") ||
+  config?.url?.includes("/auth/google") ||
   config?.url?.includes("/auth/forgot-password") ||
   config?.url?.includes("/auth/reset-password");
 const isLogoutRequest = (config) =>
