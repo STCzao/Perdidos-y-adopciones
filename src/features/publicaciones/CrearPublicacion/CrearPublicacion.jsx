@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import ModalShell from "../../../components/ui/ModalShell";
 import { publicacionesService } from "../../../services/publicaciones";
@@ -8,7 +8,7 @@ import { validateForm } from "./FormValidation";
 import { CommonFields } from "./CommonFields";
 import { PerdidoEncontradoFields } from "./PerdidoEncontradoFields";
 import { AdopcionFields } from "./AdopcionFields";
-import { PUBLICACION_SIZE_FIELD } from "../utils/publicacionFields";
+import { construirDatosParaEnviar, interpretarRespuestaPublicacion } from "./publicacionSubmit";
 
 let modalControl;
 
@@ -49,7 +49,13 @@ export const CrearPublicacion = {
       capturarUbicacionGPS,
       capturandoUbicacion,
       errorUbicacion,
+      marcarUbicacionEnMapa,
+      quitarUbicacionElegida,
+      avisoUbicacion,
+      setAvisoUbicacion,
     } = usePublicacionForm(editData);
+
+    const ubicacionSectionRef = useRef(null);
 
     const { handleAddImage, handleRemoveImage, handleMoveImage, uploading } = useImagesUpload(
       form.imgs,
@@ -105,53 +111,19 @@ export const CrearPublicacion = {
 
       try {
         setSubmitting(true);
+        setAvisoUbicacion("");
         setResult(isEditing ? "Actualizando publicacion..." : "Creando publicacion...");
 
-        const datosParaEnviar = {
-          tipo: form.tipo,
-          especie: form.especie,
-          raza: form.raza,
-          sexo: form.sexo,
-          [PUBLICACION_SIZE_FIELD]: form[PUBLICACION_SIZE_FIELD],
-          color: form.color,
-          whatsapp: form.whatsapp,
-          imgs: form.imgs,
-          ...(form.detalles?.trim() && { detalles: form.detalles }),
-        };
-
-        if (isEditing && form.estado) {
-          datosParaEnviar.estado = form.estado;
-        }
-
-        if (form.tipo === "PERDIDO" || form.tipo === "ADOPCION") {
-          datosParaEnviar.nombreanimal = form.nombreanimal;
-          datosParaEnviar.edad = form.edad;
-        }
-
-        if (form.tipo === "ADOPCION") {
-          datosParaEnviar.afinidad = form.afinidad;
-          datosParaEnviar.afinidadanimales = form.afinidadanimales;
-          datosParaEnviar.energia = form.energia;
-          datosParaEnviar.castrado = !!form.castrado;
-        }
-
-        if (form.tipo === "PERDIDO" || form.tipo === "ENCONTRADO") {
-          datosParaEnviar.localidad = form.localidad;
-          datosParaEnviar.lugar = form.lugar;
-          datosParaEnviar.fecha = form.fecha;
-
-          if (form.lat != null && form.lng != null) {
-            datosParaEnviar.lat = form.lat;
-            datosParaEnviar.lng = form.lng;
-          }
-        }
+        const datosParaEnviar = construirDatosParaEnviar(form, isEditing);
 
         const response =
           isEditing && editData?._id
             ? await publicacionesService.actualizarPublicacion(editData._id, datosParaEnviar)
             : await publicacionesService.crearPublicacion(datosParaEnviar);
 
-        if (response.success) {
+        const resultado = interpretarRespuestaPublicacion(response);
+
+        if (resultado.tipo === "exito") {
           const eventName = isEditing ? "publicacionActualizada" : "publicacionCreada";
           const payload = response.publicacion || response.data || datosParaEnviar;
           window.dispatchEvent(new CustomEvent(eventName, { detail: payload }));
@@ -166,11 +138,17 @@ export const CrearPublicacion = {
             setEditData(null);
             setOpen(false);
           }, 1800);
-        } else if (response.errors) {
-          setErrors(response.errors);
-          setResult(response.msg || "Error en validacion");
+        } else if (resultado.tipo === "ubicacionNoResuelta") {
+          // No se muestra el error genérico: el aviso con las alternativas va en la
+          // sección de ubicación y el formulario conserva todos los datos.
+          setResult("");
+          setAvisoUbicacion(resultado.msg);
+          ubicacionSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+        } else if (resultado.tipo === "validacion") {
+          setErrors(resultado.errors);
+          setResult(resultado.msg);
         } else {
-          setResult(response.msg || "Error al procesar la publicacion");
+          setResult(resultado.msg);
         }
       } catch (error) {
         console.error(error);
@@ -260,7 +238,7 @@ export const CrearPublicacion = {
                 </section>
 
                 {(form.tipo === "PERDIDO" || form.tipo === "ENCONTRADO") && (
-                  <section className={sectionClassName}>
+                  <section ref={ubicacionSectionRef} className={sectionClassName}>
                     <div className="flex flex-col gap-1">
                       <p className="text-[0.68rem] font-bold uppercase tracking-[0.18em] text-[#8d7a6d]">
                         Ubicacion del caso
@@ -279,6 +257,9 @@ export const CrearPublicacion = {
                         onCapturarUbicacion={capturarUbicacionGPS}
                         capturandoUbicacion={capturandoUbicacion}
                         errorUbicacion={errorUbicacion}
+                        onMarcarEnMapa={marcarUbicacionEnMapa}
+                        onQuitarUbicacion={quitarUbicacionElegida}
+                        avisoUbicacion={avisoUbicacion}
                       />
                     </div>
                   </section>
