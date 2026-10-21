@@ -87,15 +87,15 @@ export const CONDICIONES_ANIMAL_TRASLADO = [
 
 export const OPCIONES_AVISTAMIENTO = [
   {
-    value: "BUSCAR_CERCA_DE_MI_CASA",
+    value: "PUEDO_SALIR_A_BUSCAR_CERCA_DE_MI_CASA",
     label: "Puedo salir a buscar cerca de mi casa",
   },
   {
-    value: "RECORRER_BARRIOS_CERCANOS",
+    value: "PUEDO_RECORRER_VARIAS_CUADRAS_O_BARRIOS_CERCANOS",
     label: "Puedo recorrer varias cuadras o barrios cercanos",
   },
   {
-    value: "REPORTAR_POSIBLES_CASOS",
+    value: "PUEDO_REPORTAR_POSIBLES_CASOS_DE_ANIMALES_QUE_NECESITEN_AYUDA",
     label: "Puedo reportar posibles casos de animales que necesiten ayuda",
   },
 ];
@@ -111,10 +111,10 @@ export const OPCIONES_DIFUSION = [
 ];
 
 export const OPCIONES_COORDINACION = [
-  { value: "CONTACTAR_PERSONAS_RED", label: "Contactar personas de la red" },
+  { value: "CONTACTAR_PERSONAS_DE_LA_RED", label: "Contactar personas de la red" },
   { value: "SEGUIMIENTO_DE_CASOS", label: "Seguimiento de casos" },
   {
-    value: "ORGANIZAR_INFO_BASE_DATOS",
+    value: "ORGANIZAR_INFO_DE_LA_BASE_DE_DATOS",
     label: "Organizar info de la base de datos",
   },
 ];
@@ -126,7 +126,7 @@ export const OPCIONES_ECONOMICO = [
     label: "Colaboración ante urgencias",
   },
   {
-    value: "ALIMENTO_O_MEDICAMENTOS",
+    value: "CON_ALIMENTO_O_MEDICAMENTOS",
     label: "Con alimento o medicamentos",
   },
 ];
