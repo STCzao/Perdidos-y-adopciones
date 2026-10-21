@@ -121,8 +121,8 @@ describe("construirDatosParaEnviar", () => {
   });
 
   it("al editar incluye el estado si existe", () => {
-    const datos = construirDatosParaEnviar({ ...formPerdido, estado: "ACTIVO" }, true);
-    expect(datos.estado).toBe("ACTIVO");
+    const datos = construirDatosParaEnviar({ ...formPerdido, estado: "SE BUSCA" }, true);
+    expect(datos.estado).toBe("SE BUSCA");
   });
 });
 

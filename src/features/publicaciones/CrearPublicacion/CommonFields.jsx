@@ -143,7 +143,7 @@ export const CommonFields = ({
         options={[
           { value: "SIN ESPECIFICAR", label: "Sin especificar" },
           { value: "MINI", label: "Mini" },
-          { value: "PEQUENO", label: "Pequeno" },
+          { value: "PEQUEÑO", label: "Pequeño" },
           { value: "MEDIANO", label: "Mediano" },
           { value: "GRANDE", label: "Grande" },
         ]}
