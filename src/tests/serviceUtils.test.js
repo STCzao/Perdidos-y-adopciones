@@ -128,6 +128,17 @@ describe("mapServiceError", () => {
     expect(result.status).toBeUndefined();
   });
 
+  it("conserva el codigo de error del backend", () => {
+    const error = {
+      response: {
+        data: { success: false, msg: "No encontrada", codigo: "UBICACION_NO_RESUELTA" },
+        status: 422,
+        headers: {},
+      },
+    };
+    expect(mapServiceError(error, "fallback").codigo).toBe("UBICACION_NO_RESUELTA");
+  });
+
   it("aplica el parámetro extra", () => {
     const error = { response: { data: {}, status: 400, headers: {} } };
     const result = mapServiceError(error, "fallback", { campo: "adicional" });
