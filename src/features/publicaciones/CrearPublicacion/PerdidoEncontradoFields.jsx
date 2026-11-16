@@ -128,6 +128,7 @@ export const PerdidoEncontradoFields = ({
       {mapaAbierto && (
         <SelectorUbicacionMapa
           tipo={form.tipo}
+          especie={form.especie}
           ubicacionInicial={tieneUbicacion ? { lat: form.lat, lng: form.lng } : null}
           onConfirmar={(ubicacion) => {
             onMarcarEnMapa(ubicacion);

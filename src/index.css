@@ -68,3 +68,52 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Mapa de casos: pines con ícono de especie y tarjeta del caso al hover/toque */
+.mapa-especie-pin {
+  background: transparent;
+  border: 0;
+  filter: drop-shadow(0 3px 4px rgba(36, 25, 20, 0.35));
+}
+
+/* Leaflet posiciona el marcador con transform en el contenedor: animamos solo el svg */
+.mapa-especie-pin svg {
+  transition: transform 160ms ease;
+}
+
+.mapa-especie-pin:hover {
+  z-index: 1000 !important;
+}
+
+.mapa-especie-pin:hover svg {
+  transform: scale(1.12);
+  transform-origin: 50% 100%;
+}
+
+.leaflet-tooltip.mapa-card-tooltip {
+  padding: 0;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  white-space: normal;
+}
+
+.leaflet-tooltip.mapa-card-tooltip::before {
+  display: none;
+}
+
+.mapa-card-popup .leaflet-popup-content-wrapper {
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0.9rem;
+}
+
+.mapa-card-popup .leaflet-popup-content {
+  margin: 0;
+  width: auto !important;
+}
+
+.mapa-card-popup .leaflet-popup-tip {
+  background: #fff;
+}

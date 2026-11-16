@@ -25,9 +25,11 @@ const StatusMessage = ({ message, isError }) => {
 };
 
 export const CrearPublicacion = {
-  openModal: (publicacion = null) => {
+  // `opciones.tipo` preselecciona el tipo al crear (ej. botones "Perdí mi mascota").
+  openModal: (publicacion = null, opciones = {}) => {
     if (!modalControl) return false;
     modalControl.setEditData(publicacion);
+    modalControl.setTipoInicial(publicacion ? null : opciones.tipo || null);
     modalControl.setOpen(true);
     return true;
   },
@@ -37,6 +39,7 @@ export const CrearPublicacion = {
     const [result, setResult] = useState("");
     const [submitting, setSubmitting] = useState(false);
     const [editData, setEditData] = useState(null);
+    const [tipoInicial, setTipoInicial] = useState(null);
 
     const {
       form,
@@ -53,7 +56,7 @@ export const CrearPublicacion = {
       quitarUbicacionElegida,
       avisoUbicacion,
       setAvisoUbicacion,
-    } = usePublicacionForm(editData);
+    } = usePublicacionForm(editData, tipoInicial);
 
     const ubicacionSectionRef = useRef(null);
 
@@ -64,7 +67,7 @@ export const CrearPublicacion = {
     );
 
     useLayoutEffect(() => {
-      modalControl = { setOpen, setEditData };
+      modalControl = { setOpen, setEditData, setTipoInicial };
       return () => {
         modalControl = null;
       };
@@ -98,6 +101,7 @@ export const CrearPublicacion = {
       setResult("");
       setSubmitting(false);
       setEditData(null);
+      setTipoInicial(null);
       setOpen(false);
     };
 

@@ -4,7 +4,7 @@ import { Marker, useMapEvents } from "react-leaflet";
 import ModalShell from "../../../components/ui/ModalShell";
 import MapaBase from "../../../components/map/MapaBase";
 import { TUCUMAN_CENTER } from "../../../components/map/mapConstants";
-import { getTipoIcon } from "../../../components/map/leafletIcons";
+import { getPublicacionIcon } from "../../../components/map/leafletIcons";
 
 const ClickParaUbicar = ({ onSelect }) => {
   useMapEvents({
@@ -19,7 +19,7 @@ const ClickParaUbicar = ({ onSelect }) => {
  * Modal para elegir la ubicación del caso tocando el mapa. El pin se mueve con
  * otro click o arrastrándolo. Se monta solo mientras está abierto.
  */
-const SelectorUbicacionMapa = ({ tipo, ubicacionInicial, onConfirmar, onCancelar }) => {
+const SelectorUbicacionMapa = ({ tipo, especie, ubicacionInicial, onConfirmar, onCancelar }) => {
   const [pin, setPin] = useState(ubicacionInicial);
 
   const center = ubicacionInicial
@@ -44,7 +44,7 @@ const SelectorUbicacionMapa = ({ tipo, ubicacionInicial, onConfirmar, onCancelar
           {pin && (
             <Marker
               position={[pin.lat, pin.lng]}
-              icon={getTipoIcon(tipo)}
+              icon={getPublicacionIcon(tipo, especie)}
               draggable
               eventHandlers={{
                 dragend: (event) => {

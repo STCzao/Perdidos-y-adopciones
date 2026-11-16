@@ -622,6 +622,7 @@ export default function PublicacionDetalle() {
                           {publicacion?.ubicacionPublica?.coordinates ? (
                             <PublicacionUbicacionMapa
                               tipo={publicacion.tipo}
+                              especie={publicacion.especie}
                               coordinates={publicacion.ubicacionPublica.coordinates}
                               className="h-full w-full"
                             />

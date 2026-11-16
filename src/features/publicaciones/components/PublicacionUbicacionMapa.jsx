@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Marker } from "react-leaflet";
 import ModalShell from "../../../components/ui/ModalShell";
 import MapaBase from "../../../components/map/MapaBase";
-import { getTipoIcon } from "../../../components/map/leafletIcons";
+import { getPublicacionIcon } from "../../../components/map/leafletIcons";
 
 const ExpandIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5">
@@ -20,7 +20,7 @@ const CloseIcon = () => (
   </svg>
 );
 
-const PublicacionUbicacionMapa = ({ tipo, coordinates, className = "" }) => {
+const PublicacionUbicacionMapa = ({ tipo, especie, coordinates, className = "" }) => {
   const [expanded, setExpanded] = useState(false);
 
   if (!coordinates) return null;
@@ -37,7 +37,7 @@ const PublicacionUbicacionMapa = ({ tipo, coordinates, className = "" }) => {
           scrollWheelZoom={false}
           attributionControl={false}
         >
-          <Marker position={[lat, lng]} icon={getTipoIcon(tipo)} />
+          <Marker position={[lat, lng]} icon={getPublicacionIcon(tipo, especie)} />
         </MapaBase>
 
         <button
@@ -63,7 +63,7 @@ const PublicacionUbicacionMapa = ({ tipo, coordinates, className = "" }) => {
             </button>
 
             <MapaBase center={[lat, lng]} zoom={17} className="h-full w-full">
-              <Marker position={[lat, lng]} icon={getTipoIcon(tipo)} />
+              <Marker position={[lat, lng]} icon={getPublicacionIcon(tipo, especie)} />
             </MapaBase>
           </div>
         </ModalShell>
