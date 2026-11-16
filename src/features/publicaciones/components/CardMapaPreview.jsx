@@ -7,7 +7,9 @@ import { tipoDateLabel, tipoHeaderLabel, tipoLocationLabel } from "../utils/publ
 // Versión compacta de CardGenerica para mostrar sobre un pin del mapa.
 // Mismo lenguaje visual (franja de color, foto, título en color de acento,
 // recuadro de ubicación) pero sin acciones: el pin/la tarjeta llevan al detalle.
-const CardMapaPreview = ({ publicacion, footer = null }) => {
+// `compacto`: foto más baja y sin la segunda línea de ubicación, para que el popup
+// entre en el mapa de la portada en celular (~58dvh).
+const CardMapaPreview = ({ publicacion, footer = null, compacto = false }) => {
   const { nombreanimal, especie, tipo, raza, sexo, localidad, lugar, fecha } = publicacion;
   const meta = getTipoColorMeta(tipo);
   const img = publicacion.imgs?.[0] || publicacion.img;
@@ -29,7 +31,9 @@ const CardMapaPreview = ({ publicacion, footer = null }) => {
         {tipoHeaderLabel[tipo] || tipoHeaderLabel.PERDIDO}
       </header>
 
-      <div className="relative mx-1.5 mt-1.5 h-[8.5rem] overflow-hidden rounded-[0.5rem] bg-[#ece8e2]">
+      <div
+        className={`relative mx-1.5 mt-1.5 ${compacto ? "h-[6.5rem]" : "h-[8.5rem]"} overflow-hidden rounded-[0.5rem] bg-[#ece8e2]`}
+      >
         {img ? (
           <>
             <img
@@ -73,7 +77,7 @@ const CardMapaPreview = ({ publicacion, footer = null }) => {
           <p className="line-clamp-1 text-[0.76rem] font-bold text-[#1a1a1a]">
             {primaryLocation || "Sin ubicacion informada"}
           </p>
-          {secondaryLocation && (
+          {secondaryLocation && !compacto && (
             <p className="line-clamp-1 text-[0.68rem] text-[#777]">{secondaryLocation}</p>
           )}
         </div>
