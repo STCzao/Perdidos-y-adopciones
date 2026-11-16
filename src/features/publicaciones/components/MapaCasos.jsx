@@ -150,10 +150,6 @@ const MapaCasos = ({
                     : { backgroundColor: "rgba(255,255,255,0.92)", borderColor: "#d8ccc0", color: "#5f4c41" }
                 }
               >
-                <span
-                  className="h-2 w-2 rounded-full"
-                  style={{ backgroundColor: activo ? "#fff" : accent }}
-                />
                 {label}
                 {!loading && <span className="opacity-80">({conteoPorTipo[tipo] || 0})</span>}
               </button>
