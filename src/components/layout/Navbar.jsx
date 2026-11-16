@@ -501,7 +501,7 @@ const NavbarContent = () => {
                 key: "moderacion",
                 title: "Moderación",
                 items: [
-                  { key: "admin-comunidad-create", label: "Crear en Comunidad" },
+                  { key: "admin-comunidad-create", label: "Crear publicación en Comunidad" },
                   { key: "admin-comunidad-list", label: "Ver Comunidad" },
                   { key: "admin-ubicaciones", label: "Ubicaciones pendientes" },
                 ],

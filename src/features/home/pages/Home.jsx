@@ -235,10 +235,14 @@ const HomeScreen = () => {
                 <span className="text-[0.62rem] font-bold uppercase tracking-[0.24em] text-[#f4c89e]">
                   Base de datos comunitaria de Tucumán
                 </span>
-                <h1 className="font-editorial mt-2 text-[2rem] leading-[0.95] sm:text-[2.4rem]">
-                  Animales perdidos y en adopción,{" "}
-                  <span className="text-[#dbe7b5]">en un mapa.</span>
+                <h1 className="font-editorial mt-2 text-[2rem] leading-[0.92] sm:text-[2.4rem]">
+                  Animales
+                  <span className="block text-[#f4c89e]">Perdidos y en Adopción</span>
+                  <span className="block text-[#dbe7b5]">en un solo lugar.</span>
                 </h1>
+                <p className="mt-2 text-[0.88rem] leading-relaxed text-[#f2e8e0]/84">
+                  Una herramienta gratuita para registrar y mantener visibles los casos.
+                </p>
               </div>
 
               {HERO_ACTIONS.map(({ key, tipo, Icon, title, description, primaryLabel, secondary, meta }) => (
@@ -291,6 +295,15 @@ const HomeScreen = () => {
                 <IconHeartHandshake size={18} aria-hidden="true" />
                 Quiero donar
               </button>
+
+              <blockquote className="px-1 pt-1">
+                <p className="font-editorial text-[1.1rem] leading-[1.22] text-white/88">
+                  "Amar y ser amable con los animales nos acerca a nuestra verdadera naturaleza humana".
+                </p>
+                <footer className="mt-2 text-[0.7rem] font-bold uppercase tracking-[0.22em] text-[#f4c89e]">
+                  — Dalai Lama
+                </footer>
+              </blockquote>
             </div>
           </motion.div>
         </div>
