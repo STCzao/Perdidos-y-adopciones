@@ -97,7 +97,8 @@ const NAV_LINKS = [
       { name: "Qué hacer", path: "/consejos-adopcion" },
     ],
   },
-  { name: "Mapa", path: "/mapa" },
+  // El mapa ya es la portada; sigue accesible desde el menú de perfil (escritorio y mobile).
+  { name: "Donar", path: "/#donar" },
   { name: "Resueltos", path: "/casos-resueltos" },
   { name: "Comunidad", path: "/casos-ayuda" },
 ];
@@ -480,7 +481,7 @@ const NavbarContent = () => {
     items: [
       { key: "mapa", label: "Mapa de casos", path: "/mapa" },
       { key: "donar", label: "Donar", path: "/#donar" },
-      { key: "contact", label: "Colaborar", path: "/contacto" },
+      { key: "contact", label: "Quiero ser parte", path: "/contacto" },
       { key: "report-error", label: "Reportar un error de datos" },
     ],
   };
@@ -675,7 +676,12 @@ const NavbarContent = () => {
                     onClick={() => window.scrollTo(0, 0)}
                     className={({ isActive }) =>
                       `rounded-[0.95rem] px-3 py-2 xl:px-4 text-sm font-semibold transition-[background-color,border-color,color,box-shadow] duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f4c89e] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent ${
-                        isActive
+                        // NavLink compara solo el pathname: "/#donar" quedaría activo en todo el inicio.
+                        (link.path.includes("#")
+                          ? location.pathname === "/" && `/${location.hash}` === link.path
+                          : link.path === "/"
+                            ? isActive && !location.hash
+                            : isActive)
                           ? "bg-[color:var(--shell-bark)] text-white shadow-[0_10px_24px_rgba(47,36,29,0.16)]"
                           : "border border-[#2f241d]/8 bg-white/56 text-[#241914] hover:border-[#2f241d]/12 hover:bg-[color:var(--shell-surface-alt)] hover:text-[#241914]"
                        }`

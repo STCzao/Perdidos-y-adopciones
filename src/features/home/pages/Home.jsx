@@ -33,7 +33,7 @@ const HERO_ACTIONS = [
     key: "perdido",
     tipo: "PERDIDO",
     Icon: IconSearch,
-    title: "Perdí mi mascota",
+    title: "Perdí un animal",
     description: "Publicá el aviso para que aparezca en el mapa.",
     primaryLabel: "Publicar perdido",
     secondary: { label: "Qué hacer", path: "/consejos-perdi" },
@@ -103,6 +103,7 @@ const HomeScreen = () => {
   const [perdidos, setPerdidos] = useState([]);
   const [encontrados, setEncontrados] = useState([]);
   const [estadisticas, setEstadisticas] = useState({});
+  const [homeDataReady, setHomeDataReady] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const withAuth = useRequireAuth();
@@ -131,13 +132,15 @@ const HomeScreen = () => {
   const scrollToDonar = () =>
     document.getElementById("donar")?.scrollIntoView({ behavior: "smooth", block: "start" });
 
-  // Links "/#donar" (menú de perfil, footer) llegan acá: bajamos a la sección.
+  // Links "/#donar" (navbar, menú de perfil, footer) llegan acá: bajamos a la sección.
+  // Espera a que carguen las cards de perdidos/encontrados, que están arriba de
+  // "Donar": si no, al aparecer empujan la sección y el scroll queda corto.
   // Depende de location.key para que funcione aun si ya estábamos en "/#donar".
   useEffect(() => {
-    if (location.hash !== "#donar") return;
+    if (location.hash !== "#donar" || !homeDataReady) return;
     const id = window.setTimeout(scrollToDonar, 80);
     return () => window.clearTimeout(id);
-  }, [location.key, location.hash]);
+  }, [location.key, location.hash, homeDataReady]);
 
   useEffect(() => {
     const fetchHomeData = async () => {
@@ -169,6 +172,8 @@ const HomeScreen = () => {
         setEstadisticas(estadisticasResp?.estadisticas || {});
       } catch (error) {
         console.error("Error cargando datos de la Home", error);
+      } finally {
+        setHomeDataReady(true);
       }
     };
 
