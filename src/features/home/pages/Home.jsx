@@ -19,13 +19,12 @@ import { useRequireAuth } from "../../../hooks/useRequireAuth";
 import { publicacionesService } from "../../../services/publicaciones";
 import { getCloudinaryBgUrl } from "../../../utils/cloudinaryUtils";
 import { getTipoColorMeta } from "../../../utils/publicacionColors";
+import { ESTADOS_RESUELTOS } from "../../../utils/estadosPublicacion";
 import {
   buildBreadcrumbSchema,
   buildOrganizationSchema,
   buildWebsiteSchema,
 } from "../../../components/seo/seoUtils";
-
-const ESTADOS_EXITOSOS = ["YA APARECIO", "APARECIO SU FAMILIA", "ADOPTADO"];
 
 // Acciones directas de la portada: cada tipo de caso abre el formulario con el
 // tipo ya elegido, y ofrece un segundo paso según lo que la persona necesita.
@@ -62,39 +61,48 @@ const HERO_ACTIONS = [
   },
 ];
 
+// `resueltoLabel` = [singular, plural] para la línea "N ya aparecieron · M publicados en total".
 const STATS_CONFIG = [
   {
     key: "perdidos",
+    tipo: "PERDIDO",
     label: "¡SE BUSCAN!",
-    countKey: "perdidosCount",
+    resueltoLabel: ["ya apareció", "ya aparecieron"],
     actionLabel: "Explorar perdidos",
     path: "/publicaciones/perdidos",
     accent: getTipoColorMeta("PERDIDO").accent,
   },
   {
     key: "adopciones",
+    tipo: "ADOPCION",
     label: "ESPERANDO UN HOGAR",
-    countKey: "adopcionesCount",
+    resueltoLabel: ["ya fue adoptado", "ya fueron adoptados"],
     actionLabel: "Explorar adopciones",
     path: "/publicaciones/adopciones",
     accent: getTipoColorMeta("ADOPCION").accent,
   },
   {
     key: "encontrados",
+    tipo: "ENCONTRADO",
     label: "BUSCANDO A SU FAMILIA",
-    countKey: "encontradosCount",
+    resueltoLabel: ["ya tiene familia", "ya tienen familia"],
     actionLabel: "Explorar encontrados",
     path: "/publicaciones/encontrados",
     accent: getTipoColorMeta("ENCONTRADO").accent,
   },
 ];
 
+const ESTADISTICA_VACIA = { total: 0, activos: 0, resueltos: 0 };
+
+const buildStatDescription = ({ resueltos, total }, [singular, plural]) =>
+  `${resueltos} ${resueltos === 1 ? singular : plural} · ${total} ${
+    total === 1 ? "publicado" : "publicados"
+  } en total`;
+
 const HomeScreen = () => {
   const [perdidos, setPerdidos] = useState([]);
   const [encontrados, setEncontrados] = useState([]);
-  const [perdidosCount, setPerdidosCount] = useState(0);
-  const [encontradosCount, setEncontradosCount] = useState(0);
-  const [adopcionesCount, setAdopcionesCount] = useState(0);
+  const [estadisticas, setEstadisticas] = useState({});
   const navigate = useNavigate();
   const location = useLocation();
   const withAuth = useRequireAuth();
@@ -103,7 +111,7 @@ const HomeScreen = () => {
   });
 
   const isPublicacionExitosa = (publicacion) =>
-    ESTADOS_EXITOSOS.includes(publicacion.estado);
+    ESTADOS_RESUELTOS.includes(publicacion.estado);
 
   const openCreatePublication = (tipoInicial) => {
     withAuth(() =>
@@ -134,7 +142,7 @@ const HomeScreen = () => {
   useEffect(() => {
     const fetchHomeData = async () => {
       try {
-        const [perdidosResp, encontradosResp, adopcionesResp] =
+        const [perdidosResp, encontradosResp, estadisticasResp] =
           await Promise.all([
             publicacionesService.getPublicaciones({
               tipo: "PERDIDO",
@@ -146,38 +154,19 @@ const HomeScreen = () => {
               limit: 4,
               page: 1,
             }),
-            publicacionesService.getPublicaciones({
-              tipo: "ADOPCION",
-              limit: 1,
-              page: 1,
-            }),
+            publicacionesService.getEstadisticas(),
           ]);
 
         if (perdidosResp?.publicaciones) {
           setPerdidos(perdidosResp.publicaciones);
-          setPerdidosCount(
-            typeof perdidosResp.total === "number"
-              ? perdidosResp.total
-              : perdidosResp.publicaciones.length,
-          );
         }
 
         if (encontradosResp?.publicaciones) {
           setEncontrados(encontradosResp.publicaciones);
-          setEncontradosCount(
-            typeof encontradosResp.total === "number"
-              ? encontradosResp.total
-              : encontradosResp.publicaciones.length,
-          );
         }
 
-        if (adopcionesResp) {
-          setAdopcionesCount(
-            typeof adopcionesResp.total === "number"
-              ? adopcionesResp.total
-              : adopcionesResp.publicaciones?.length || 0,
-          );
-        }
+        // Si el endpoint falla, estadisticas queda vacío y las tarjetas muestran 0.
+        setEstadisticas(estadisticasResp?.estadisticas || {});
       } catch (error) {
         console.error("Error cargando datos de la Home", error);
       }
@@ -338,36 +327,34 @@ const HomeScreen = () => {
               </div>
 
               <div className="grid gap-5 lg:grid-cols-3">
-                {STATS_CONFIG.map((stat) => (
-                  <div
-                    key={stat.key}
-                    className="flex flex-col text-center transition-transform duration-300 hover:-translate-y-1"
-                    style={{
-                      borderRadius:
-                        stat.key === "perdidos"
-                          ? "30px 30px 86px 30px"
-                          : stat.key === "adopciones"
-                            ? "30px 84px 30px 30px"
-                            : "84px 30px 30px 30px",
-                    }}
-                  >
-                    <RedirectCard
-                      accent={stat.accent}
-                      badge={stat.label}
-                      value={
-                        stat.countKey === "perdidosCount"
-                          ? perdidosCount
-                          : stat.countKey === "encontradosCount"
-                            ? encontradosCount
-                            : adopcionesCount
-                      }
-                      description={stat.helper}
-                      ctaLabel={stat.actionLabel}
-                      onClick={() => navigateTo(stat.path)}
-                      className="h-full"
-                    />
-                  </div>
-                ))}
+                {STATS_CONFIG.map((stat) => {
+                  const stats = { ...ESTADISTICA_VACIA, ...estadisticas[stat.tipo] };
+
+                  return (
+                    <div
+                      key={stat.key}
+                      className="flex flex-col text-center transition-transform duration-300 hover:-translate-y-1"
+                      style={{
+                        borderRadius:
+                          stat.key === "perdidos"
+                            ? "30px 30px 86px 30px"
+                            : stat.key === "adopciones"
+                              ? "30px 84px 30px 30px"
+                              : "84px 30px 30px 30px",
+                      }}
+                    >
+                      <RedirectCard
+                        accent={stat.accent}
+                        badge={stat.label}
+                        value={stats.activos}
+                        description={buildStatDescription(stats, stat.resueltoLabel)}
+                        ctaLabel={stat.actionLabel}
+                        onClick={() => navigateTo(stat.path)}
+                        className="h-full"
+                      />
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
