@@ -68,6 +68,12 @@ export default function Footer() {
               >
                 Quiero colaborar
               </button>
+              <Link
+                to="/#donar"
+                className="w-fit cursor-pointer rounded-full px-1 text-left text-[color:var(--shell-muted)] transition-colors duration-300 hover:text-[color:var(--shell-ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--shell-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
+              >
+                Donar
+              </Link>
               <a
                 href={`https://wa.me/5493815703940?text=${encodeURIComponent(
                   "Hola, quiero reportar un error de datos en una publicación de Perdidos y Adopciones.",

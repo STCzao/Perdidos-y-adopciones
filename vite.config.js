@@ -41,7 +41,8 @@ export default defineConfig(({ mode }) => {
     server: {
       proxy: {
         '/api': {
-          target: 'http://localhost:3000',
+          // En Docker el back no es localhost: docker-compose define VITE_PROXY_TARGET=http://back:3000
+          target: env.VITE_PROXY_TARGET || 'http://localhost:3000',
           changeOrigin: true,
         },
       },

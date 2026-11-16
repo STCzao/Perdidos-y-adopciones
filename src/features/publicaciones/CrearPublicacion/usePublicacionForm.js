@@ -78,7 +78,7 @@ export const quitarUbicacion = (prev) => ({ ...prev, ...UBICACION_VACIA });
 /**
  * Hook personalizado para gestionar el estado del formulario de publicaciones
  */
-export const usePublicacionForm = (editData) => {
+export const usePublicacionForm = (editData, tipoInicial = null) => {
   const [razasPorEspecie, setRazasPorEspecie] = useState({});
   const [form, setForm] = useState(initialFormState);
   const [errors, setErrors] = useState({});
@@ -98,7 +98,7 @@ export const usePublicacionForm = (editData) => {
     setErrorUbicacion("");
 
     if (!editData) {
-      setForm(initialFormState);
+      setForm(tipoInicial ? { ...initialFormState, tipo: tipoInicial } : initialFormState);
       setErrors({});
       return;
     }
@@ -141,7 +141,7 @@ export const usePublicacionForm = (editData) => {
         editData.imgs?.length > 0 ? editData.imgs : editData.img ? [editData.img] : [],
       ...UBICACION_VACIA,
     });
-  }, [editData]);
+  }, [editData, tipoInicial]);
 
   const clearFieldError = (name) => {
     if (!errors[name]) return;

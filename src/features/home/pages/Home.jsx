@@ -1,7 +1,16 @@
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import {
+  IconArrowRight,
+  IconHeart,
+  IconHeartHandshake,
+  IconPaw,
+  IconSearch,
+} from "@tabler/icons-react";
 import CardGenerica from "../../publicaciones/components/CardGenerica";
+import MapaCasos from "../../publicaciones/components/MapaCasos";
+import DonacionSection from "../../../components/cards/DonacionSection";
 import RedirectCard from "../../../components/cards/RedirectCard";
 import Footer from "../../../components/layout/Footer";
 import Navbar from "../../../components/layout/Navbar";
@@ -10,95 +19,108 @@ import { useRequireAuth } from "../../../hooks/useRequireAuth";
 import { publicacionesService } from "../../../services/publicaciones";
 import { getCloudinaryBgUrl } from "../../../utils/cloudinaryUtils";
 import { getTipoColorMeta } from "../../../utils/publicacionColors";
+import { ESTADOS_RESUELTOS } from "../../../utils/estadosPublicacion";
 import {
   buildBreadcrumbSchema,
   buildOrganizationSchema,
   buildWebsiteSchema,
 } from "../../../components/seo/seoUtils";
 
-const ESTADOS_EXITOSOS = ["YA APARECIO", "APARECIO SU FAMILIA", "ADOPTADO"];
-
-const ACTION_PATHS = [
+// Acciones directas de la portada: cada tipo de caso abre el formulario con el
+// tipo ya elegido, y ofrece un segundo paso según lo que la persona necesita.
+const HERO_ACTIONS = [
   {
-    key: "perdidos",
-    eyebrow: "Urgencia",
+    key: "perdido",
+    tipo: "PERDIDO",
+    Icon: IconSearch,
     title: "Perdí un animal",
-    description: "Publica un aviso, revisa casos activos y difunde.",
-    browsePath: "/publicaciones/perdidos",
-    advicePath: "/consejos-perdi",
-    accent: getTipoColorMeta("PERDIDO").accent,
-    accentSoft: getTipoColorMeta("PERDIDO").accentSoft,
+    description: "Publicá el aviso para que aparezca en el mapa.",
+    primaryLabel: "Publicar perdido",
+    secondary: { label: "Qué hacer", path: "/consejos-perdi" },
+    meta: getTipoColorMeta("PERDIDO"),
   },
   {
-    key: "encontrados",
-    eyebrow: "Resguardo",
+    key: "encontrado",
+    tipo: "ENCONTRADO",
+    Icon: IconPaw,
     title: "Encontré un animal",
-    description: "Deja registro y facilita el reencuentro con su familia.",
-    browsePath: "/publicaciones/encontrados",
-    advicePath: "/consejos-encontre",
-    accent: getTipoColorMeta("ENCONTRADO").accent,
-    accentSoft: getTipoColorMeta("ENCONTRADO").accentSoft,
+    description: "Registralo y ayudá a que su familia lo encuentre.",
+    primaryLabel: "Publicar encontrado",
+    secondary: { label: "Qué hacer", path: "/consejos-encontre" },
+    meta: getTipoColorMeta("ENCONTRADO"),
   },
   {
-    key: "adopciones",
-    eyebrow: "Cuidado",
-    title: "Quiero dar o encontrar hogar",
-    description: "Explora adopciones activas y publica un nuevo caso.",
-    browsePath: "/publicaciones/adopciones",
-    advicePath: "/consejos-adopcion",
-    accent: getTipoColorMeta("ADOPCION").accent,
-    accentSoft: getTipoColorMeta("ADOPCION").accentSoft,
+    key: "adopcion",
+    tipo: "ADOPCION",
+    Icon: IconHeart,
+    title: "Adopción",
+    description: "Dale un hogar a quien lo espera, o buscale uno.",
+    primaryLabel: "Dar en adopción",
+    secondary: { label: "Quiero adoptar", path: "/publicaciones/adopciones" },
+    meta: getTipoColorMeta("ADOPCION"),
   },
 ];
 
+// `resueltoLabel` = [singular, plural] para la línea "N ya aparecieron · M publicados en total".
 const STATS_CONFIG = [
   {
     key: "perdidos",
+    tipo: "PERDIDO",
     label: "¡SE BUSCAN!",
-    countKey: "perdidosCount",
+    resueltoLabel: ["ya apareció", "ya aparecieron"],
     actionLabel: "Explorar perdidos",
     path: "/publicaciones/perdidos",
     accent: getTipoColorMeta("PERDIDO").accent,
   },
   {
     key: "adopciones",
+    tipo: "ADOPCION",
     label: "ESPERANDO UN HOGAR",
-    countKey: "adopcionesCount",
+    resueltoLabel: ["ya fue adoptado", "ya fueron adoptados"],
     actionLabel: "Explorar adopciones",
     path: "/publicaciones/adopciones",
     accent: getTipoColorMeta("ADOPCION").accent,
   },
   {
     key: "encontrados",
+    tipo: "ENCONTRADO",
     label: "BUSCANDO A SU FAMILIA",
-    countKey: "encontradosCount",
+    resueltoLabel: ["ya tiene familia", "ya tienen familia"],
     actionLabel: "Explorar encontrados",
     path: "/publicaciones/encontrados",
     accent: getTipoColorMeta("ENCONTRADO").accent,
   },
 ];
 
+const ESTADISTICA_VACIA = { total: 0, activos: 0, resueltos: 0 };
+
+const buildStatDescription = ({ resueltos, total }, [singular, plural]) =>
+  `${resueltos} ${resueltos === 1 ? singular : plural} · ${total} ${
+    total === 1 ? "publicado" : "publicados"
+  } en total`;
+
 const HomeScreen = () => {
   const [perdidos, setPerdidos] = useState([]);
   const [encontrados, setEncontrados] = useState([]);
-  const [perdidosCount, setPerdidosCount] = useState(0);
-  const [encontradosCount, setEncontradosCount] = useState(0);
-  const [adopcionesCount, setAdopcionesCount] = useState(0);
+  const [estadisticas, setEstadisticas] = useState({});
+  const [homeDataReady, setHomeDataReady] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const withAuth = useRequireAuth();
-  const heroCardUrl = getCloudinaryBgUrl(import.meta.env.VITE_MEDIA_IMG_URL, {
-    width: 1200,
-  });
   const collabBgUrl = getCloudinaryBgUrl(import.meta.env.VITE_HOME_COLAB_IMG_URL, {
     width: 1200,
   });
 
   const isPublicacionExitosa = (publicacion) =>
-    ESTADOS_EXITOSOS.includes(publicacion.estado);
+    ESTADOS_RESUELTOS.includes(publicacion.estado);
 
-  const openCreatePublication = () => {
+  const openCreatePublication = (tipoInicial) => {
     withAuth(() =>
-      window.dispatchEvent(new CustomEvent("openCrearPublicacion")),
+      window.dispatchEvent(
+        new CustomEvent("openCrearPublicacion", {
+          detail: tipoInicial ? { tipoInicial } : null,
+        }),
+      ),
     );
   };
 
@@ -107,10 +129,23 @@ const HomeScreen = () => {
     window.scrollTo(0, 0);
   };
 
+  const scrollToDonar = () =>
+    document.getElementById("donar")?.scrollIntoView({ behavior: "smooth", block: "start" });
+
+  // Links "/#donar" (navbar, menú de perfil, footer) llegan acá: bajamos a la sección.
+  // Espera a que carguen las cards de perdidos/encontrados, que están arriba de
+  // "Donar": si no, al aparecer empujan la sección y el scroll queda corto.
+  // Depende de location.key para que funcione aun si ya estábamos en "/#donar".
+  useEffect(() => {
+    if (location.hash !== "#donar" || !homeDataReady) return;
+    const id = window.setTimeout(scrollToDonar, 80);
+    return () => window.clearTimeout(id);
+  }, [location.key, location.hash, homeDataReady]);
+
   useEffect(() => {
     const fetchHomeData = async () => {
       try {
-        const [perdidosResp, encontradosResp, adopcionesResp] =
+        const [perdidosResp, encontradosResp, estadisticasResp] =
           await Promise.all([
             publicacionesService.getPublicaciones({
               tipo: "PERDIDO",
@@ -122,40 +157,23 @@ const HomeScreen = () => {
               limit: 4,
               page: 1,
             }),
-            publicacionesService.getPublicaciones({
-              tipo: "ADOPCION",
-              limit: 1,
-              page: 1,
-            }),
+            publicacionesService.getEstadisticas(),
           ]);
 
         if (perdidosResp?.publicaciones) {
           setPerdidos(perdidosResp.publicaciones);
-          setPerdidosCount(
-            typeof perdidosResp.total === "number"
-              ? perdidosResp.total
-              : perdidosResp.publicaciones.length,
-          );
         }
 
         if (encontradosResp?.publicaciones) {
           setEncontrados(encontradosResp.publicaciones);
-          setEncontradosCount(
-            typeof encontradosResp.total === "number"
-              ? encontradosResp.total
-              : encontradosResp.publicaciones.length,
-          );
         }
 
-        if (adopcionesResp) {
-          setAdopcionesCount(
-            typeof adopcionesResp.total === "number"
-              ? adopcionesResp.total
-              : adopcionesResp.publicaciones?.length || 0,
-          );
-        }
+        // Si el endpoint falla, estadisticas queda vacío y las tarjetas muestran 0.
+        setEstadisticas(estadisticasResp?.estadisticas || {});
       } catch (error) {
         console.error("Error cargando datos de la Home", error);
+      } finally {
+        setHomeDataReady(true);
       }
     };
 
@@ -177,7 +195,7 @@ const HomeScreen = () => {
       <Navbar />
 
       <section
-        className="relative isolate flex min-h-dvh items-center overflow-x-hidden"
+        className="relative isolate overflow-x-hidden"
         style={{
           background:
             "linear-gradient(180deg, #2c211d 0%, #43302a 58%, #5a3f35 100%)",
@@ -186,69 +204,102 @@ const HomeScreen = () => {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(244,200,158,0.16),transparent_36%),linear-gradient(180deg,rgba(24,18,16,0.06),rgba(24,18,16,0.28))]" />
         <div className="nature-overlay absolute inset-0" />
 
-        <div className="relative w-full px-3 pb-3 pt-[1rem] sm:px-5 sm:pb-4 sm:pt-[6.5rem] lg:px-8 lg:pb-5 lg:pt-[7rem]">
-          <div
-            className="relative min-h-[calc(100dvh-11rem-env(safe-area-inset-bottom))] overflow-hidden rounded-[2rem] border border-white/10 shadow-[0_28px_90px_rgba(0,0,0,0.24)] sm:min-h-[calc(100dvh-7.5rem)] sm:rounded-[2.4rem]"
-            style={{
-              backgroundImage: `linear-gradient(125deg, rgba(26,20,18,0.72), rgba(26,20,18,0.3)), url(${heroCardUrl})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-            }}
+        <div className="relative w-full px-3 pb-4 pt-[5.4rem] sm:px-5 sm:pt-[6.5rem] lg:px-8 lg:pb-5 lg:pt-[7rem]">
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="grid gap-4 lg:grid-cols-[minmax(320px,380px)_1fr] lg:gap-5"
           >
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(244,200,158,0.18),transparent_26%),radial-gradient(circle_at_right,rgba(219,231,181,0.14),transparent_24%),linear-gradient(180deg,rgba(24,18,16,0.08),rgba(24,18,16,0.46))]" />
-
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="relative grid min-h-[inherit] content-center gap-10 p-5 text-white sm:p-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-center lg:gap-12 lg:p-10"
+            {/* Mapa: primero en mobile, a la derecha en escritorio */}
+            <MapaCasos
+              zoom={12}
+              scrollWheelZoom={false}
+              className="order-1 h-[58dvh] min-h-[340px] overflow-hidden rounded-[1.6rem] border border-white/10 shadow-[0_28px_90px_rgba(0,0,0,0.28)] lg:order-2 lg:h-[calc(100dvh-8.5rem)] lg:min-h-[520px] lg:rounded-[2rem]"
             >
-              <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
-                <span className="inline-flex w-fit rounded-full border border-white/14 bg-white/8 px-3.5 py-1.5 text-[0.6rem] font-bold uppercase tracking-[0.22em] text-[#f5e7d9] backdrop-blur-sm sm:px-4 sm:py-2 sm:text-[0.68rem] sm:tracking-[0.28em]">
+              <div className="pointer-events-none absolute bottom-3 left-3 z-[1000] max-w-[16rem] rounded-[0.9rem] bg-[rgba(36,25,20,0.78)] px-3 py-2 text-[0.68rem] leading-snug text-white/90 backdrop-blur-sm">
+                Pasá el mouse o tocá un pin para ver el caso. Las ubicaciones son aproximadas
+                por privacidad.
+              </div>
+            </MapaCasos>
+
+            {/* Panel de acciones */}
+            <div className="order-2 flex flex-col gap-3 text-white lg:order-1 lg:max-h-[calc(100dvh-8.5rem)] lg:min-h-[520px] lg:overflow-y-auto">
+              <div className="px-1">
+                <span className="text-[0.62rem] font-bold uppercase tracking-[0.24em] text-[#f4c89e]">
                   Base de datos comunitaria de Tucumán
                 </span>
-
-                <h1 className="font-editorial mt-3 text-[2rem] leading-[0.92] sm:mt-4 sm:text-[3rem] lg:mt-5 lg:text-[3.7rem]">
+                <h1 className="font-editorial mt-2 text-[2rem] leading-[0.92] sm:text-[2.4rem]">
                   Animales
                   <span className="block text-[#f4c89e]">Perdidos y en Adopción</span>
                   <span className="block text-[#dbe7b5]">en un solo lugar.</span>
                 </h1>
-
-                <p className="mt-2 max-w-xl text-[0.88rem] leading-relaxed text-[#f2e8e0]/84 sm:mt-3 sm:text-[0.94rem]">
+                <p className="mt-2 text-[0.88rem] leading-relaxed text-[#f2e8e0]/84">
                   Una herramienta gratuita para registrar y mantener visibles los casos.
                 </p>
-
-                <div className="mt-5 hidden lg:flex">
-                  <button
-                    onClick={openCreatePublication}
-                    className="cursor-pointer rounded-full bg-[#f4c89e] px-6 py-3 text-sm font-bold text-[#2a1f19] shadow-[0_16px_40px_rgba(244,200,158,0.24)] transition-transform duration-300 hover:-translate-y-0.5"
-                  >
-                    Publicar un caso
-                  </button>
-                </div>
               </div>
 
-              <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
-                <blockquote>
-                  <p className="font-editorial text-[1.1rem] leading-[1.22] text-white/88 sm:text-[1.4rem] lg:text-[1.55rem]">
-                    "Amar y ser amable con los animales nos acerca a nuestra verdadera naturaleza humana".
-                  </p>
-                  <footer className="mt-3 text-[0.7rem] font-bold uppercase tracking-[0.22em] text-[#f4c89e]">
-                    — Dalai Lama
-                  </footer>
-                </blockquote>
+              {HERO_ACTIONS.map(({ key, tipo, Icon, title, description, primaryLabel, secondary, meta }) => (
+                <div
+                  key={key}
+                  className="rounded-[1.2rem] border border-white/10 bg-[rgba(255,250,244,0.96)] p-3.5 text-[#241914] shadow-[0_14px_36px_rgba(0,0,0,0.18)]"
+                  style={{ borderLeft: `5px solid ${meta.accent}` }}
+                >
+                  <div className="flex items-start gap-3">
+                    <span
+                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
+                      style={{ backgroundColor: meta.accentSoft, color: meta.accent }}
+                    >
+                      <Icon size={20} stroke={2} aria-hidden="true" />
+                    </span>
+                    <div className="min-w-0">
+                      <h2 className="text-[1.02rem] font-extrabold leading-tight">{title}</h2>
+                      <p className="mt-0.5 text-[0.8rem] leading-snug text-[#5f4c41]">
+                        {description}
+                      </p>
+                    </div>
+                  </div>
 
-                <div className="mt-5 flex lg:hidden">
-                  <button
-                    onClick={openCreatePublication}
-                    className="cursor-pointer rounded-full bg-[#f4c89e] px-6 py-3 text-sm font-bold text-[#2a1f19] shadow-[0_16px_40px_rgba(244,200,158,0.24)] transition-transform duration-300 hover:-translate-y-0.5"
-                  >
-                    Publicar un caso
-                  </button>
+                  <div className="mt-3 grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => openCreatePublication(tipo)}
+                      className="cursor-pointer rounded-[0.7rem] px-3 py-2 text-[0.8rem] font-bold text-white transition-opacity hover:opacity-90"
+                      style={{ backgroundColor: meta.accent }}
+                    >
+                      {primaryLabel}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => navigateTo(secondary.path)}
+                      className="flex cursor-pointer items-center justify-center gap-1 rounded-[0.7rem] border border-[#2f241d]/12 bg-white px-3 py-2 text-[0.8rem] font-bold text-[#241914] transition-colors hover:bg-[#f3ebe1]"
+                    >
+                      {secondary.label}
+                      <IconArrowRight size={14} aria-hidden="true" />
+                    </button>
+                  </div>
                 </div>
-              </div>
-            </motion.div>
-          </div>
+              ))}
+
+              <button
+                type="button"
+                onClick={scrollToDonar}
+                className="flex cursor-pointer items-center justify-center gap-2 rounded-[1.2rem] border border-[#f4c89e]/40 bg-[#f4c89e] px-4 py-3 text-sm font-bold text-[#2a1f19] shadow-[0_14px_36px_rgba(244,200,158,0.2)] transition-transform duration-300 hover:-translate-y-0.5"
+              >
+                <IconHeartHandshake size={18} aria-hidden="true" />
+                Quiero donar
+              </button>
+
+              <blockquote className="px-1 pt-1">
+                <p className="font-editorial text-[1.1rem] leading-[1.22] text-white/88">
+                  "Amar y ser amable con los animales nos acerca a nuestra verdadera naturaleza humana".
+                </p>
+                <footer className="mt-2 text-[0.7rem] font-bold uppercase tracking-[0.22em] text-[#f4c89e]">
+                  — Dalai Lama
+                </footer>
+              </blockquote>
+            </div>
+          </motion.div>
         </div>
       </section>
 
@@ -281,36 +332,34 @@ const HomeScreen = () => {
               </div>
 
               <div className="grid gap-5 lg:grid-cols-3">
-                {STATS_CONFIG.map((stat) => (
-                  <div
-                    key={stat.key}
-                    className="flex flex-col text-center transition-transform duration-300 hover:-translate-y-1"
-                    style={{
-                      borderRadius:
-                        stat.key === "perdidos"
-                          ? "30px 30px 86px 30px"
-                          : stat.key === "adopciones"
-                            ? "30px 84px 30px 30px"
-                            : "84px 30px 30px 30px",
-                    }}
-                  >
-                    <RedirectCard
-                      accent={stat.accent}
-                      badge={stat.label}
-                      value={
-                        stat.countKey === "perdidosCount"
-                          ? perdidosCount
-                          : stat.countKey === "encontradosCount"
-                            ? encontradosCount
-                            : adopcionesCount
-                      }
-                      description={stat.helper}
-                      ctaLabel={stat.actionLabel}
-                      onClick={() => navigateTo(stat.path)}
-                      className="h-full"
-                    />
-                  </div>
-                ))}
+                {STATS_CONFIG.map((stat) => {
+                  const stats = { ...ESTADISTICA_VACIA, ...estadisticas[stat.tipo] };
+
+                  return (
+                    <div
+                      key={stat.key}
+                      className="flex flex-col text-center transition-transform duration-300 hover:-translate-y-1"
+                      style={{
+                        borderRadius:
+                          stat.key === "perdidos"
+                            ? "30px 30px 86px 30px"
+                            : stat.key === "adopciones"
+                              ? "30px 84px 30px 30px"
+                              : "84px 30px 30px 30px",
+                      }}
+                    >
+                      <RedirectCard
+                        accent={stat.accent}
+                        badge={stat.label}
+                        value={stats.activos}
+                        description={buildStatDescription(stats, stat.resueltoLabel)}
+                        ctaLabel={stat.actionLabel}
+                        onClick={() => navigateTo(stat.path)}
+                        className="h-full"
+                      />
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -390,6 +439,8 @@ const HomeScreen = () => {
           )}
         </div>
       </section>
+
+      <DonacionSection />
 
       <section
         className="relative overflow-hidden px-4 pb-20 pt-12 text-white sm:px-6 lg:px-8"

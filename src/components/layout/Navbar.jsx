@@ -97,7 +97,8 @@ const NAV_LINKS = [
       { name: "Qué hacer", path: "/consejos-adopcion" },
     ],
   },
-  { name: "Mapa", path: "/mapa" },
+  // El mapa ya es la portada; sigue accesible desde el menú de perfil (escritorio y mobile).
+  { name: "Donar", path: "/#donar" },
   { name: "Resueltos", path: "/casos-resueltos" },
   { name: "Comunidad", path: "/casos-ayuda" },
 ];
@@ -329,8 +330,16 @@ const NavbarContent = () => {
   // Escuchar el evento global openCrearPublicacion para que cualquier parte de la app
   // pueda abrir el modal sin importar el módulo directamente (evita bundling innecesario).
   React.useEffect(() => {
-    const handleOpenCrear = (event) =>
-      openLazyModal(loadCrearPublicacionModule, "CrearPublicacion", event.detail ?? null);
+    // detail puede ser una publicación (editar) o { tipoInicial } (crear con tipo preelegido)
+    const handleOpenCrear = (event) => {
+      const detail = event.detail ?? null;
+      if (detail?.tipoInicial && !detail._id) {
+        return openLazyModal(loadCrearPublicacionModule, "CrearPublicacion", null, {
+          tipo: detail.tipoInicial,
+        });
+      }
+      return openLazyModal(loadCrearPublicacionModule, "CrearPublicacion", detail);
+    };
 
     window.addEventListener("openCrearPublicacion", handleOpenCrear);
     return () => window.removeEventListener("openCrearPublicacion", handleOpenCrear);
@@ -464,38 +473,68 @@ const NavbarContent = () => {
     );
   };
 
-  const profileMenuItems = login
-      ? [
-          { key: "create-post", label: "Publicar caso", tone: "primary" },
-          { key: "profile", label: "Mi perfil" },
-          { key: "posts", label: "Mis publicaciones" },
-          { key: "mapa", label: "Mapa de casos", path: "/mapa" },
-          ...(isModerador
-            ? [
-                { key: "admin-comunidad-create", label: "Crear publicación en Comunidad" },
-                { key: "admin-comunidad-list", label: "Ver Comunidad" },
-                { key: "admin-ubicaciones", label: "Ubicaciones pendientes" },
-              ]
-            : []),
-          ...(isAdmin
-            ? [
-                { key: "admin-posts", label: "Todas las publicaciones" },
-                { key: "admin-users", label: "Todos los usuarios" },
-                { key: "admin-colaboradores", label: "Colaboradores" },
-                { key: "admin-reclamos", label: "Reclamar publicaciones" },
-              ]
-            : []),
-        { key: "contact", label: "Colaborar", path: "/contacto" },
-        { key: "report-error", label: "Reportar un error de datos" },
-        { key: "logout", label: "Cerrar sesión", tone: "danger" },
+  // Menú agrupado por sección para que sea escaneable aun con todas las opciones
+  // de moderación/admin. "Cerrar sesión" queda aparte, siempre visible al pie.
+  const ayudaGroup = {
+    key: "ayuda",
+    title: "Ayudar",
+    items: [
+      { key: "mapa", label: "Mapa de casos", path: "/mapa" },
+      { key: "donar", label: "Donar", path: "/#donar" },
+      { key: "contact", label: "Quiero ser parte", path: "/contacto" },
+      { key: "report-error", label: "Reportar un error de datos" },
+    ],
+  };
+
+  const profileMenuGroups = login
+    ? [
+        {
+          key: "cuenta",
+          items: [
+            { key: "create-post", label: "Publicar caso", tone: "primary" },
+            { key: "profile", label: "Mi perfil" },
+            { key: "posts", label: "Mis publicaciones" },
+          ],
+        },
+        ...(isModerador
+          ? [
+              {
+                key: "moderacion",
+                title: "Moderación",
+                items: [
+                  { key: "admin-comunidad-create", label: "Crear publicación en Comunidad" },
+                  { key: "admin-comunidad-list", label: "Ver Comunidad" },
+                  { key: "admin-ubicaciones", label: "Ubicaciones pendientes" },
+                ],
+              },
+            ]
+          : []),
+        ...(isAdmin
+          ? [
+              {
+                key: "admin",
+                title: "Administración",
+                items: [
+                  { key: "admin-posts", label: "Todas las publicaciones" },
+                  { key: "admin-users", label: "Todos los usuarios" },
+                  { key: "admin-colaboradores", label: "Colaboradores" },
+                  { key: "admin-reclamos", label: "Reclamar publicaciones" },
+                ],
+              },
+            ]
+          : []),
+        ayudaGroup,
       ]
     : [
-        { key: "create-post", label: "Publicar caso", tone: "primary" },
-        { key: "login", label: "Iniciar sesión", path: "/login" },
-        { key: "register", label: "Registrarse", path: "/register" },
-        { key: "mapa", label: "Mapa de casos", path: "/mapa" },
-        { key: "contact", label: "Colaborar", path: "/contacto" },
-        { key: "report-error", label: "Reportar un error de datos" },
+        {
+          key: "acceso",
+          items: [
+            { key: "create-post", label: "Publicar caso", tone: "primary" },
+            { key: "login", label: "Iniciar sesión", path: "/login" },
+            { key: "register", label: "Registrarse", path: "/register" },
+          ],
+        },
+        ayudaGroup,
       ];
 
   const isMobileBottomLinkActive = (item) => {
@@ -506,42 +545,57 @@ const NavbarContent = () => {
     return false;
   };
 
-  const renderProfileMenuButtons = (isMobile = false) =>
-    profileMenuItems.map((item) =>
-      item.path ? (
-        <button
-          key={item.key}
-          onClick={() => navigateTo(item.path)}
-          className={`w-full cursor-pointer text-left text-sm font-medium transition-colors duration-300 ${
-            isMobile
-              ? "rounded-[0.95rem] border border-[#2f241d]/8 bg-white/64 px-3 py-2 text-[#241914] hover:bg-[color:var(--shell-surface-alt)]"
-              : "rounded-[0.95rem] px-3 py-2 text-[#241914] hover:bg-[color:var(--shell-surface-alt)] hover:text-[#241914]"
-          }`}
-        >
-          {item.label}
-        </button>
-      ) : (
-        <button
-          key={item.key}
-          onClick={() => handleProfileAction(item.key)}
-          className={`w-full cursor-pointer text-left text-sm transition-colors duration-300 ${
-            item.tone === "primary"
-              ? "rounded-[0.95rem] bg-[color:var(--shell-bark)] px-3 py-2 font-bold text-white hover:bg-[#45362d]"
-              : `font-medium ${
-                  isMobile
-                    ? item.tone === "danger"
-                      ? "rounded-[0.95rem] border border-[#b84e3c]/18 bg-[#f8d8d0] px-3 py-2 text-[#a44939] hover:bg-[#f3c8be]"
-                      : "rounded-[0.95rem] border border-[#2f241d]/8 bg-white/64 px-3 py-2 text-[#241914] hover:bg-[color:var(--shell-surface-alt)]"
-                    : item.tone === "danger"
-                      ? "rounded-[0.95rem] px-3 py-2 text-[#a44939] hover:bg-[#f8d8d0]"
-                      : "rounded-[0.95rem] px-3 py-2 text-[#241914] hover:bg-[color:var(--shell-surface-alt)] hover:text-[#241914]"
-                }`
-          }`}
-        >
-          {item.label}
-        </button>
-      ),
-    );
+  const renderProfileMenuItem = (item) => (
+    <button
+      key={item.key}
+      type="button"
+      role="menuitem"
+      onClick={() => (item.path ? navigateTo(item.path) : handleProfileAction(item.key))}
+      className={`w-full cursor-pointer rounded-[0.8rem] px-3 text-left text-sm transition-colors duration-200 ${
+        item.tone === "primary"
+          ? "mb-1 bg-[color:var(--shell-bark)] py-2 font-bold text-white hover:bg-[#45362d]"
+          : "py-1.5 font-medium text-[#241914] hover:bg-[color:var(--shell-surface-alt)]"
+      }`}
+    >
+      {item.label}
+    </button>
+  );
+
+  // Contenido compartido entre el menú de escritorio y el de mobile: los grupos
+  // scrollean y "Cerrar sesión" queda fijo al pie para que nunca quede tapado.
+  const renderProfileMenu = (header) => (
+    <>
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-2.5">
+        {header}
+        {profileMenuGroups.map((group, index) => (
+          <div
+            key={group.key}
+            className={index > 0 ? "mt-2 border-t border-[#2f241d]/8 pt-2" : ""}
+          >
+            {group.title && (
+              <p className="px-3 pb-1 text-[0.6rem] font-bold uppercase tracking-[0.2em] text-[#9b8574]">
+                {group.title}
+              </p>
+            )}
+            <div className="flex flex-col">{group.items.map(renderProfileMenuItem)}</div>
+          </div>
+        ))}
+      </div>
+
+      {login && (
+        <div className="shrink-0 border-t border-[#2f241d]/10 p-2.5">
+          <button
+            type="button"
+            role="menuitem"
+            onClick={() => handleProfileAction("logout")}
+            className="w-full cursor-pointer rounded-[0.8rem] px-3 py-1.5 text-left text-sm font-semibold text-[#a44939] transition-colors duration-200 hover:bg-[#f8d8d0]"
+          >
+            Cerrar sesión
+          </button>
+        </div>
+      )}
+    </>
+  );
 
   return (
     <>
@@ -622,7 +676,12 @@ const NavbarContent = () => {
                     onClick={() => window.scrollTo(0, 0)}
                     className={({ isActive }) =>
                       `rounded-[0.95rem] px-3 py-2 xl:px-4 text-sm font-semibold transition-[background-color,border-color,color,box-shadow] duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f4c89e] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent ${
-                        isActive
+                        // NavLink compara solo el pathname: "/#donar" quedaría activo en todo el inicio.
+                        (link.path.includes("#")
+                          ? location.pathname === "/" && `/${location.hash}` === link.path
+                          : link.path === "/"
+                            ? isActive && !location.hash
+                            : isActive)
                           ? "bg-[color:var(--shell-bark)] text-white shadow-[0_10px_24px_rgba(47,36,29,0.16)]"
                           : "border border-[#2f241d]/8 bg-white/56 text-[#241914] hover:border-[#2f241d]/12 hover:bg-[color:var(--shell-surface-alt)] hover:text-[#241914]"
                        }`
@@ -667,20 +726,21 @@ const NavbarContent = () => {
               </button>
 
               <div
-                className={`absolute right-0 top-full z-20 mt-2 flex max-h-[75vh] min-w-[260px] flex-col gap-2 overflow-y-auto overscroll-contain rounded-[1.15rem] border border-[#2f241d]/10 bg-[rgba(255,250,244,0.96)] p-3 shadow-[0_20px_55px_rgba(20,15,13,0.14)] backdrop-blur-xl transition-[opacity,transform] duration-200 ${
+                className={`absolute right-0 top-full z-20 mt-2 flex max-h-[calc(100dvh-6.5rem)] w-[270px] flex-col overflow-hidden rounded-[1.15rem] border border-[#2f241d]/10 bg-[rgba(255,250,244,0.97)] shadow-[0_20px_55px_rgba(20,15,13,0.14)] backdrop-blur-xl transition-[opacity,transform] duration-200 ${
                   isDesktopProfileMenuOpen
                     ? "visible translate-y-0 opacity-100"
                     : "invisible translate-y-2 opacity-0"
                 }`}
                 role="menu"
               >
-                {login && (
-                    <div className="rounded-[1rem] border border-[#2f241d]/8 bg-white/64 px-3 py-3">
-                      <p className="text-sm font-semibold text-[#241914]">{user?.nombre}</p>
-                      <p className="mt-1 text-xs text-[#6f5f53]">{user?.correo}</p>
-                  </div>
+                {renderProfileMenu(
+                  login && (
+                    <div className="mb-2 rounded-[0.9rem] border border-[#2f241d]/8 bg-white/64 px-3 py-2.5">
+                      <p className="truncate text-sm font-semibold text-[#241914]">{user?.nombre}</p>
+                      <p className="mt-0.5 truncate text-xs text-[#6f5f53]">{user?.correo}</p>
+                    </div>
+                  ),
                 )}
-                {renderProfileMenuButtons()}
               </div>
             </div>
           </div>
@@ -722,17 +782,22 @@ const NavbarContent = () => {
           }`}
         >
           <div className="mx-auto max-w-[1680px]">
-            <div className="ml-auto flex max-h-[calc(100vh-9rem)] max-w-[320px] flex-col overflow-y-auto overscroll-contain rounded-[1.15rem] border border-[#2f241d]/10 bg-[rgba(255,250,244,0.96)] p-3 shadow-[0_20px_55px_rgba(20,15,13,0.14)] backdrop-blur-xl">
-              <div className="rounded-[1rem] border border-[#2f241d]/8 bg-white/64 px-3 py-3">
-                <p className="text-sm font-semibold text-[#241914]">
-                  {login ? greeting : "Mi cuenta"}
-                </p>
-                <p className="mt-1 text-xs text-[#6f5f53]">
-                  {login ? user?.correo || "Perfil" : "Acceso a tu cuenta"}
-                </p>
-              </div>
-
-              <div className="mt-3 flex flex-col gap-2">{renderProfileMenuButtons(true)}</div>
+            {/* Alto máximo = viewport - navbar superior - barra inferior, para que el
+                pie del menú (Cerrar sesión) nunca quede debajo de la barra de mobile. */}
+            <div
+              role="menu"
+              className="ml-auto flex max-h-[calc(100dvh-11.5rem-env(safe-area-inset-bottom))] max-w-[320px] flex-col overflow-hidden rounded-[1.15rem] border border-[#2f241d]/10 bg-[rgba(255,250,244,0.97)] shadow-[0_20px_55px_rgba(20,15,13,0.14)] backdrop-blur-xl"
+            >
+              {renderProfileMenu(
+                <div className="mb-2 rounded-[0.9rem] border border-[#2f241d]/8 bg-white/64 px-3 py-2.5">
+                  <p className="truncate text-sm font-semibold text-[#241914]">
+                    {login ? user?.nombre || greeting : "Mi cuenta"}
+                  </p>
+                  <p className="mt-0.5 truncate text-xs text-[#6f5f53]">
+                    {login ? user?.correo || "Perfil" : "Acceso a tu cuenta"}
+                  </p>
+                </div>,
+              )}
             </div>
           </div>
         </div>

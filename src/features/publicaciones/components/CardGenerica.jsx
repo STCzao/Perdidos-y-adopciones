@@ -8,30 +8,13 @@ import { formatBooleanish, getPublicacionTamano } from "../utils/publicacionFiel
 import { useRequireAuth } from "../../../hooks/useRequireAuth";
 import { publicacionesService } from "../../../services/publicaciones";
 import { getCloudinaryUrl } from "../../../utils/cloudinaryUtils";
-
-const tipoHeaderLabel = {
-  PERDIDO: "SE BUSCA",
-  ENCONTRADO: "BUSCA A SU FAMILIA",
-  ADOPCION: "EN ADOPCION",
-};
+import { tipoDateLabel, tipoHeaderLabel, tipoLocationLabel } from "../utils/publicacionLabels";
 
 const estadoResueltolabel = {
   "YA APARECIO": "YA APARECIO",
   "APARECIO SU FAMILIA": "ENCONTRO SU FAMILIA",
   "TIENE NUEVA FAMILIA": "Tiene nueva familia",
   ADOPTADO: "ADOPTADO",
-};
-
-const tipoDateLabel = {
-  PERDIDO: "Perdido el",
-  ENCONTRADO: "Encontrado el",
-  ADOPCION: "Publicado el",
-};
-
-const tipoLocationLabel = {
-  PERDIDO: "SE EXTRAVIO EN",
-  ENCONTRADO: "ENCONTRADO EN",
-  ADOPCION: "ZONA DE REFERENCIA",
 };
 
 const CardGenerica = ({ publicacion, cardId, isSuccessful = false }) => {

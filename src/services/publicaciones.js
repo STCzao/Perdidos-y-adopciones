@@ -197,6 +197,18 @@ export const publicacionesService = {
     return request;
   },
 
+  // Conteos por tipo separando casos abiertos (activos) de resueltos. Endpoint público.
+  getEstadisticas: async () => {
+    try {
+      const { data } = await axiosInstance.get("/publicaciones/estadisticas");
+      return buildServiceSuccess({ estadisticas: data.estadisticas || {} });
+    } catch (error) {
+      return mapServiceError(error, "No se pudieron obtener las estadísticas", {
+        estadisticas: {},
+      });
+    }
+  },
+
   getPublicacionesUsuario: async (id, params = {}) => {
     try {
       const { data } = await axiosInstance.get(`/publicaciones/usuario/${id}`, { params });
